@@ -64,7 +64,7 @@ public partial class index : System.Web.UI.Page
                         result["printedToday"] = Convert.ToInt32(cmd.ExecuteScalar());
                 } catch { result["printedToday"] = 0; }
 
-                using (var cmd = new System.Data.SqlClient.SqlCommand("SELECT COUNT(*) FROM v_asset WHERE ISNULL(rfidtag,'')<>''", cn))
+                using (var cmd = new System.Data.SqlClient.SqlCommand("SELECT COUNT(*) FROM v_asset WHERE text18 = '1'", cn))
                     result["totalTagged"] = Convert.ToInt64(cmd.ExecuteScalar());
             }
             var js = new System.Web.Script.Serialization.JavaScriptSerializer();
