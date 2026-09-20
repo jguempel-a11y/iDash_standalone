@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" ResponseEncoding="utf-8" AutoEventWireup="true" CodeFile="va_print_admin.aspx.cs" Inherits="va_print_admin" %>
+<%@ Page Language="C#" ResponseEncoding="utf-8" AutoEventWireup="true" CodeFile="va_print_admin.aspx.cs" Inherits="va_print_admin" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -785,16 +785,14 @@ async function loadConfigStatus() {
     try {
         var data = await api('getConfigStatus');
         var wc = data.webClient || {};
-        var ps = data.printServer || {};
         var dbClients = data.dbClients || [];
         var issues = data.issues || [];
 
-        // Build comparison table
+        // Build comparison table (WebClient vs DB)
         var html = '<table class="grid" style="font-size:12px;">' +
             '<thead><tr>' +
             '<th style="width:160px;">Setting</th>' +
             '<th>WebClient <code style="font-size:10px;">appsettings.json</code></th>' +
-            '<th>Print Server <code style="font-size:10px;">appsettings.json</code></th>' +
             '<th>DB <code style="font-size:10px;">printclient</code> table</th>' +
             '<th style="width:80px;">Status</th>' +
             '</tr></thead><tbody>';
@@ -803,25 +801,22 @@ async function loadConfigStatus() {
         html += '<tr style="color:var(--muted);font-size:11px;">' +
             '<td><strong>File Path</strong></td>' +
             '<td>' + (wc.path || '&mdash;') + (wc.exists ? '' : ' <span style="color:#ef4444;">(MISSING)</span>') + '</td>' +
-            '<td>' + (ps.path || '&mdash;') + (ps.exists ? '' : ' <span style="color:#f59e0b;">(not found)</span>') + '</td>' +
             '<td>SQL table</td>' +
             '<td></td></tr>';
 
         // Username row
         var dbUser = dbClients.length > 0 ? dbClients[0].username : '&mdash;';
-        var userMatch = wc.printClientUsername === dbUser && (!ps.exists || ps.printClientUsername === dbUser);
+        var userMatch = wc.printClientUsername === dbUser;
         html += '<tr><td><strong>MQTT Username</strong></td>' +
             '<td><code>' + (wc.printClientUsername || '&mdash;') + '</code></td>' +
-            '<td><code>' + (ps.exists ? (ps.printClientUsername || '&mdash;') : '<span class="muted">N/A</span>') + '</code></td>' +
             '<td><code>' + dbUser + '</code></td>' +
             '<td>' + (userMatch ? '<span class="badge badge-ok">&#10003; Match</span>' : '<span class="badge badge-err">&#10007; Mismatch</span>') + '</td></tr>';
 
         // Password row
         var dbPass = dbClients.length > 0 ? dbClients[0].passwordMasked : '&mdash;';
-        var passMatch = wc.printClientPasswordMasked === dbPass && (!ps.exists || ps.printClientPasswordMasked === dbPass);
+        var passMatch = wc.printClientPasswordMasked === dbPass;
         html += '<tr><td><strong>MQTT Password</strong></td>' +
             '<td><code>' + (wc.printClientPasswordMasked || '&mdash;') + '</code></td>' +
-            '<td><code>' + (ps.exists ? (ps.printClientPasswordMasked || '&mdash;') : '<span class="muted">N/A</span>') + '</code></td>' +
             '<td><code>' + dbPass + '</code></td>' +
             '<td>' + (passMatch ? '<span class="badge badge-ok">&#10003; Match</span>' : '<span class="badge badge-err">&#10007; Mismatch</span>') + '</td></tr>';
 
@@ -829,15 +824,15 @@ async function loadConfigStatus() {
         var ufp = wc.useForPrinting;
         html += '<tr><td><strong>UseForPrinting</strong></td>' +
             '<td>' + (ufp ? '<span style="color:#10b981;">&#10003; true</span>' : '<span style="color:#ef4444;font-weight:700;">&#10007; false</span>') + '</td>' +
-            '<td colspan="2" class="muted">Required to be <code>true</code> for MQTT broker to start</td>' +
+            '<td class="muted">Required to be <code>true</code> for MQTT broker to start</td>' +
             '<td>' + (ufp ? '<span class="badge badge-ok">&#10003; OK</span>' : '<span class="badge badge-err">&#10007; Off</span>') + '</td></tr>';
 
         // MQTT Server row
         html += '<tr><td><strong>MQTT Server</strong></td>' +
             '<td><code>' + (wc.mqttServer || '&mdash;') + ':' + (wc.mqttPort || '') + '</code></td>' +
-            '<td><code>' + (ps.exists ? (ps.mqttServer || '&mdash;') + ':' + (ps.mqttPort || '') : '<span class="muted">N/A</span>') + '</code></td>' +
             '<td class="muted">&mdash;</td>' +
             '<td></td></tr>';
+
 
         html += '</tbody></table>';
         document.getElementById('configStatusBody').innerHTML = html;

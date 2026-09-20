@@ -770,19 +770,9 @@ public partial class va_print_admin : System.Web.UI.Page
             { "error", wcConfig.ContainsKey("error") ? wcConfig["error"] : "" }
         };
 
-        // 2. Print Server appsettings.json
-        var psConfig = ReadAppSettingsConfig(PrintServerAppSettingsPath);
-        status["printServer"] = new Dictionary<string, object> {
-            { "path", psConfig["path"] },
-            { "exists", psConfig["exists"] },
-            { "readable", psConfig.ContainsKey("readable") ? psConfig["readable"] : false },
-            { "mqttServer", psConfig.ContainsKey("mqttServer") ? psConfig["mqttServer"] : "" },
-            { "mqttPort", psConfig.ContainsKey("mqttPort") ? psConfig["mqttPort"] : "" },
-            { "printClientUsername", psConfig.ContainsKey("printClientUsername") ? psConfig["printClientUsername"] : "" },
-            { "printClientPasswordMasked", MaskPassword(psConfig.ContainsKey("printClientPassword") ? psConfig["printClientPassword"] : "") },
-            { "useForPrinting", psConfig.ContainsKey("useForPrinting") ? psConfig["useForPrinting"] : false },
-            { "error", psConfig.ContainsKey("error") ? psConfig["error"] : "" }
-        };
+
+        // (Print Server config removed — not used by iDash)
+
 
         // 3. DB printclient table
         var dbClients = new List<Dictionary<string, object>>();
@@ -826,8 +816,6 @@ public partial class va_print_admin : System.Web.UI.Page
         var issues = new List<string>();
         string wcUser = wcConfig.ContainsKey("printClientUsername") ? wcConfig["printClientUsername"].ToString() : "";
         string wcPass = wcConfig.ContainsKey("printClientPassword") ? wcConfig["printClientPassword"].ToString() : "";
-        string psUser = psConfig.ContainsKey("printClientUsername") ? psConfig["printClientUsername"].ToString() : "";
-        string psPass = psConfig.ContainsKey("printClientPassword") ? psConfig["printClientPassword"].ToString() : "";
         bool useForPrinting = wcConfig.ContainsKey("useForPrinting") && true.Equals(wcConfig["useForPrinting"]);
 
         if (!useForPrinting)
@@ -844,10 +832,6 @@ public partial class va_print_admin : System.Web.UI.Page
                 issues.Add("WebClient username '" + wcUser + "' doesn't match DB print client '" + dbUser + "'.");
             if (!string.IsNullOrEmpty(wcPass) && wcPass != dbPass)
                 issues.Add("WebClient password doesn't match DB print client '" + dbUser + "' password (case-sensitive).");
-            if (!string.IsNullOrEmpty(psUser) && psUser != dbUser)
-                issues.Add("Print Server username '" + psUser + "' doesn't match DB print client '" + dbUser + "'.");
-            if (!string.IsNullOrEmpty(psPass) && psPass != dbPass)
-                issues.Add("Print Server password doesn't match DB print client '" + dbUser + "' password (case-sensitive).");
         }
 
         if (mqttClientConflict)
@@ -1131,8 +1115,7 @@ public partial class va_print_admin : System.Web.UI.Page
         // Config file existence
         defaults["webClientConfigExists"] = File.Exists(WebClientAppSettingsPath);
         defaults["webClientConfigPath"] = WebClientAppSettingsPath;
-        defaults["printServerConfigExists"] = File.Exists(PrintServerAppSettingsPath);
-        defaults["printServerConfigPath"] = PrintServerAppSettingsPath;
+        // Print Server config removed (not used by iDash)
 
         // Default BTW path
         defaults["defaultBtwPath"] = @"c:\idash_prints\iDash_Std_Small.btw";
