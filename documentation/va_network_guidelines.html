@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -24,7 +24,7 @@
             <strong>&#128196; Enterprise Risk Assessment (ERA) Reference</strong><br/>
             All requirements in this document align with the approved ERA. The full ERA document is available for download:<br/>
             <a href="SPS_OT_RITM9079692_iDash Mod 1.2_POAM Req_Approved.pdf" style="font-size:15px;">
-                &#128196; SPS_OT_RITM9079692 &mdash; InfinID Technologies iDash Mod 1.2 (Approved)</a><br/>
+                &#128196; SPS_OT_RITM9079692 &mdash; ID Integration Inc. iDash Mod 1.2 (Approved)</a><br/>
             <span style="font-size:12px;color:var(--muted-docs);">All port numbers, directions, and protocols listed below are taken directly from this ERA.</span>
         </div>
         <div class="alert-green">
@@ -51,7 +51,7 @@
             <tr><th>Software</th><th>Purpose</th><th>Install Order</th></tr>
             <tr><td><strong>IIS (Internet Information Services)</strong></td><td>Hosts iDash web application, iDash management dashboard, label printing web services, and all supporting web tools</td><td>1st</td></tr>
             <tr><td><strong>ASP.NET Runtime</strong></td><td>Required by IIS for iDash and iDash web applications</td><td>2nd</td></tr>
-            <tr><td><strong>iDash</strong> <em>(InfinID Technologies)</em></td><td>Core RFID asset tracking platform &mdash; must be installed <strong>after</strong> SQL database is created and accessible</td><td>3rd</td></tr>
+            <tr><td><strong>iDash</strong> <em>(ID Integration Inc.)</em></td><td>Core RFID asset tracking platform &mdash; must be installed <strong>after</strong> SQL database is created and accessible</td><td>3rd</td></tr>
             <tr><td><strong>Seagull Scientific BarTender</strong></td><td>Enterprise label design and print engine; processes all label print jobs dispatched from handhelds and dashboard</td><td>4th</td></tr>
             <tr><td><strong>iDash Management Dashboard</strong></td><td>Web-based reporting, scanning, inventory, and administration portal deployed under IIS</td><td>5th</td></tr>
             <tr><td><strong>Erlang/OTP</strong> <em>(open-source)</em></td><td>Runtime required by RabbitMQ. Install before RabbitMQ. <a href="va_rabbitmq_setup.html">Setup Guide</a></td><td>6th</td></tr>
@@ -68,7 +68,7 @@
         <p>The database must be hosted on an <strong>existing VA-managed SQL Server instance</strong> using the standard VA SQL image. A designated VA DBA must be engaged to provision the database and login.</p>
         <div class="alert-red">
             <strong>&#128683; Constraint</strong><br/>
-            ID Integration / InfinID Technologies are <strong>prohibited from creating or hosting SQL Server instances</strong>. All database work must be performed by VA OIT Database Administration.
+            ID Integration / ID Integration Inc. are <strong>prohibited from creating or hosting SQL Server instances</strong>. All database work must be performed by VA OIT Database Administration.
         </div>
         <table>
             <tr><th>Item</th><th>Value</th><th>Notes</th></tr>
@@ -325,7 +325,7 @@ GO</pre>
         <div class="grid2">
             <div style="background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:18px;">
                 <h3 style="color:var(--accent-3);margin-top:0;">Vendor &mdash; Installation &amp; Software</h3>
-                <p style="margin-top:0;"><strong>ID Integration Inc.</strong><br/>iDash by InfinID Technologies<br/>Responsible for: software installation, configuration, training, and ongoing support.</p>
+                <p style="margin-top:0;"><strong>ID Integration Inc.</strong><br/>iDash by ID Integration Inc.<br/>Responsible for: software installation, configuration, training, and ongoing support.</p>
             </div>
             <div style="background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:18px;">
                 <h3 style="color:var(--accent-3);margin-top:0;">VA OIT &mdash; Infrastructure</h3>

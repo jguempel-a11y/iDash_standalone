@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -11,7 +11,7 @@
     <meta http-equiv="Expires" content="0" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
-        /* ── Table of Contents ── */
+        /* -- Table of Contents -- */
         .toc { background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:20px 28px; margin:16px 0 24px; }
         .toc h3 { margin:0 0 10px; color:var(--accent-docs); font-size:15px; }
         .toc ol { margin:0; padding-left:20px; columns:2; column-gap:32px; }
@@ -19,7 +19,7 @@
         .toc a { text-decoration:none; color:var(--text); }
         .toc a:hover { color:var(--accent-docs); text-decoration:underline; }
 
-        /* ── Architecture flow ── */
+        /* -- Architecture flow -- */
         .arch-flow { display:flex; align-items:stretch; gap:0; flex-wrap:wrap; margin:20px 0; }
         .arch-step { flex:1; min-width:110px; padding:12px 14px; text-align:center; font-size:0.82rem; border:1px solid var(--line); background:var(--bg); border-radius:0; }
         .arch-step:first-child { border-radius:10px 0 0 10px; }
@@ -27,29 +27,29 @@
         .arch-step strong { display:block; color:var(--accent-docs); margin-bottom:4px; font-size:0.85rem; }
         .arch-arrow { display:flex; align-items:center; color:var(--accent-docs); font-size:1.3rem; font-weight:700; padding:0 2px; }
 
-        /* ── Scale cards ── */
+        /* -- Scale cards -- */
         .scale-card { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin:16px 0; }
         .sc-item { background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:16px; text-align:center; }
         .sc-item .sc-num { font-size:2rem; font-weight:800; color:var(--accent-docs); }
         .sc-item .sc-label { font-size:0.85rem; color:var(--muted-docs); margin-top:4px; }
 
-        /* ── Code blocks ── */
+        /* -- Code blocks -- */
         .code-block { background:#0d1117; border:1px solid #30363d; border-radius:8px; padding:14px 18px; font-family:'Cascadia Code','Fira Code',Consolas,monospace; font-size:0.82rem; overflow-x:auto; white-space:pre; line-height:1.6; color:#c9d1d9; margin:10px 0 16px; }
 
-        /* ── Steps ── */
+        /* -- Steps -- */
         .step-num { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--accent-docs); color:#fff; font-weight:800; font-size:0.9rem; margin-right:10px; flex-shrink:0; }
         .step-row { display:flex; align-items:flex-start; margin:18px 0; }
         .step-content { flex:1; }
         .step-content h4 { margin:0 0 6px; font-size:1rem; }
         .step-content p { margin:4px 0 0; font-size:0.9rem; }
 
-        /* ── Comparison table highlights ── */
+        /* -- Comparison table highlights -- */
         .vs-table td:first-child { font-weight:700; white-space:nowrap; }
 
-        /* ── Status badge ── */
+        /* -- Status badge -- */
         .status-deployed { display:inline-block; background:#1a3a2a; color:#3fb950; border:1px solid #3fb950; padding:3px 12px; border-radius:10px; font-size:12px; font-weight:700; margin-left:8px; }
 
-        /* ── Light mode overrides ── */
+        /* -- Light mode overrides -- */
         [data-theme="light"] .code-block { background:#f6f8fa; border-color:#d0d7de; color:#24292f; }
         [data-theme="light"] .status-deployed { background:#dafbe1; color:#1a7f37; border-color:#1a7f37; }
     </style>
@@ -58,9 +58,9 @@
 <div class="wrap">
     <a href="index.aspx">&larr; Back to Documentation Hub</a><br/><br/>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- -------------------------------------------------------
          HEADER
-         ═══════════════════════════════════════════════════════ -->
+         ------------------------------------------------------- -->
     <div class="card" style="background:linear-gradient(135deg,var(--card),rgba(46,168,255,0.05));">
         <h1><img src="../Assets/branding/rfid.png" style="height:28px;vertical-align:middle;margin-right:10px;" alt="RFID" />MQTT Fixed Reader Architecture <span class="status-deployed">&#9989; DEPLOYED</span></h1>
         <p style="color:var(--muted-docs);font-size:16px;line-height:1.6;max-width:800px;">
@@ -82,9 +82,9 @@
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- -------------------------------------------------------
          TABLE OF CONTENTS
-         ═══════════════════════════════════════════════════════ -->
+         ------------------------------------------------------- -->
     <div class="toc">
         <h3>&#128209; Table of Contents</h3>
         <ol>
@@ -107,9 +107,9 @@
         </ol>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- -------------------------------------------------------
          DEPLOYMENT SCALE
-         ═══════════════════════════════════════════════════════ -->
+         ------------------------------------------------------- -->
     <div class="card" id="scale">
         <h2>&#128200; Deployment Scale</h2>
         <div class="scale-card">
@@ -120,9 +120,9 @@
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- -------------------------------------------------------
          ARCHITECTURE OVERVIEW
-         ═══════════════════════════════════════════════════════ -->
+         ------------------------------------------------------- -->
     <div class="card" id="architecture">
         <h2>&#127959; Architecture Overview</h2>
         <h3>Data Flow</h3>
@@ -154,9 +154,9 @@
         </table>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- -------------------------------------------------------
          WHY A BROKER IS REQUIRED
-         ═══════════════════════════════════════════════════════ -->
+         ------------------------------------------------------- -->
     <div class="card" id="why-broker">
         <h2>&#128680; Why a Message Broker Is Required</h2>
         <p>A message broker is the <strong>central nervous system</strong> between the RFID readers and iDash.
@@ -230,9 +230,9 @@
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- -------------------------------------------------------
          IDASH BUILT-IN MQTT
-         ═══════════════════════════════════════════════════════ -->
+         ------------------------------------------------------- -->
     <div class="card" id="idash-mqtt">
         <h2>&#128270; iDash Built-In MQTT Infrastructure <span style="font-size:13px; background:color-mix(in srgb, #f59e0b 15%, transparent); color:#f59e0b; border:1px solid #f59e0b; padding:3px 10px; border-radius:10px; margin-left:10px; font-weight:700;">Discovery Report</span></h2>
         <p>Analysis of the iDash installation revealed a <strong>built-in MQTT broker</strong> &mdash; it does <strong>not</strong> use or install Mosquitto.</p>
@@ -266,7 +266,7 @@
         <table>
             <tr><th>Column</th><th>Type</th><th>Purpose</th></tr>
             <tr><td><code>name</code></td><td>varchar(50)</td><td>Reader display name</td></tr>
-            <tr><td><code>readermodel</code></td><td>varchar(50)</td><td>Model: <strong>Zebra</strong>, Alien, Impinj Octane, LLRP, Motorola XR400, InfinID VG100/VG200</td></tr>
+            <tr><td><code>readermodel</code></td><td>varchar(50)</td><td>Model: <strong>Zebra</strong>, Alien, Impinj Octane, LLRP, Motorola XR400, ID Integration VG100/VG200</td></tr>
             <tr><td><code>ipaddress</code></td><td>varchar(500)</td><td>Reader network address (static IP)</td></tr>
             <tr><td><code>username</code> / <code>password</code></td><td>varchar(500)</td><td>Reader-level MQTT credentials</td></tr>
             <tr><td><code>mqttcontroltopic</code></td><td>varchar(500)</td><td>MQTT control topic (e.g., <code>fx9600/reader01/control</code>)</td></tr>
@@ -329,9 +329,9 @@
         </table>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- -------------------------------------------------------
          TRM COMPLIANCE
-         ═══════════════════════════════════════════════════════ -->
+         ------------------------------------------------------- -->
     <div class="card" id="trm">
         <h2>&#127991; VA TRM Compliance</h2>
         <p>All software deployed on VA networks must be approved in the
@@ -361,9 +361,9 @@
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- -------------------------------------------------------
          RABBITMQ vs MOSQUITTO
-         ═══════════════════════════════════════════════════════ -->
+         ------------------------------------------------------- -->
     <div class="card" id="rabbitmq-vs-mosquitto">
         <h2>&#9878; RabbitMQ vs. Mosquitto</h2>
         <table class="vs-table">
@@ -388,9 +388,9 @@
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- -------------------------------------------------------
          MQTT TOPIC HIERARCHY
-         ═══════════════════════════════════════════════════════ -->
+         ------------------------------------------------------- -->
     <div class="card" id="topics">
         <h2>&#128193; MQTT Topic Hierarchy</h2>
         <div class="code-block">zebra/
@@ -414,9 +414,9 @@
         </table>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- -------------------------------------------------------
          VA NETWORK REQUIREMENTS
-         ═══════════════════════════════════════════════════════ -->
+         ------------------------------------------------------- -->
     <div class="card" id="network">
         <h2>&#128274; VA Network Requirements</h2>
         <table>
@@ -434,9 +434,9 @@
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- -------------------------------------------------------
          FX9600 CONFIGURATION
-         ═══════════════════════════════════════════════════════ -->
+         ------------------------------------------------------- -->
     <div class="card" id="fx9600">
         <h2>&#128225; Configuring a Zebra FX9600 Reader</h2>
         <p>Each FX9600 must be configured to connect to RabbitMQ via its <strong>Zebra IoT Connector</strong>.</p>
@@ -503,9 +503,9 @@
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- -------------------------------------------------------
          REGISTER IN iDASH
-         ═══════════════════════════════════════════════════════ -->
+         ------------------------------------------------------- -->
     <div class="card" id="register">
         <h2>&#128203; Register Reader in iDash</h2>
         <p>After the FX9600 is connected to RabbitMQ, register it via <a href="../va_reader_config.aspx">Reader Configuration</a>:</p>
@@ -523,9 +523,9 @@
         </table>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- -------------------------------------------------------
          VISN 22 / PRESCOTT
-         ═══════════════════════════════════════════════════════ -->
+         ------------------------------------------------------- -->
     <div class="card" id="prescott">
         <h2>&#127959; VISN 22 &mdash; Prescott (649) FX9600 Setup <span style="font-size:13px; background:color-mix(in srgb,#10b981 15%,transparent); color:#10b981; border:1px solid #10b981; padding:3px 10px; border-radius:10px; margin-left:10px; font-weight:700;">08/21/2026</span></h2>
         <p>Prescott (station 649) is the first VISN 22 deployment. One 4-antenna Zebra FX9600 reader deployed for real-world testing.</p>
@@ -557,9 +557,9 @@
         </table>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- -------------------------------------------------------
          TROUBLESHOOTING
-         ═══════════════════════════════════════════════════════ -->
+         ------------------------------------------------------- -->
     <div class="card" id="troubleshooting">
         <h2>&#128679; Troubleshooting</h2>
         <table>
@@ -573,9 +573,9 @@
         </table>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- -------------------------------------------------------
          CLI REFERENCE
-         ═══════════════════════════════════════════════════════ -->
+         ------------------------------------------------------- -->
     <div class="card" id="cli">
         <h2>&#128187; RabbitMQ CLI Quick Reference</h2>
         <table>
@@ -593,9 +593,9 @@
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- -------------------------------------------------------
          FX9600 HARDWARE
-         ═══════════════════════════════════════════════════════ -->
+         ------------------------------------------------------- -->
     <div class="card" id="fx9600-hw">
         <h2>&#128225; Zebra FX9600 Hardware Reference</h2>
         <table>
@@ -612,9 +612,9 @@
         </table>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- -------------------------------------------------------
          ROLLOUT PHASES
-         ═══════════════════════════════════════════════════════ -->
+         ------------------------------------------------------- -->
     <div class="card" id="rollout">
         <h2>&#128640; Rollout Phases</h2>
         <table>
@@ -626,9 +626,9 @@
         </table>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
+    <!-- -------------------------------------------------------
          REVISION HISTORY
-         ═══════════════════════════════════════════════════════ -->
+         ------------------------------------------------------- -->
     <div class="card" id="revision">
         <h2>&#128221; Revision History</h2>
         <table>

@@ -1,8 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>iDash Docs — License Fix: Network Adapter Change</title>
+    <title>iDash Docs � License Fix: Network Adapter Change</title>
     <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
@@ -18,7 +18,7 @@
             <strong>This is a common issue.</strong> Every time a server's network adapter is replaced, disabled, or swapped, the iDash license validation fails because the license is bound to the old adapter's MAC address. This guide documents the fix.
         </div>
 
-        <!-- ═══════ SECTION 1 ═══════ -->
+        <!-- ------- SECTION 1 ------- -->
         <h2 id="s1"><span class="section-num">1</span> Understanding the Problem</h2>
         
         <p>iDash licenses are tied to a specific <strong>MAC address</strong> (hardware network adapter identifier). When you see this error in the logs:</p>
@@ -45,11 +45,11 @@
 }</pre>
         <p>The <code>LicenseKey</code> field format is: <code>Label MAC|sites|?|assets|MAC</code>. The MAC appears at both the start and end of the key string.</p>
 
-        <!-- ═══════ SECTION 2 ═══════ -->
+        <!-- ------- SECTION 2 ------- -->
         <h2 id="s2"><span class="section-num">2</span> Step-by-Step Fix</h2>
 
         <div class="callout callout-info">
-            <strong>Prerequisites:</strong> SQL Server Management Studio (SSMS) access to the iDash database, access to the iDash web interface, and the new license key (base64 string) from Infinid Technologies.
+            <strong>Prerequisites:</strong> SQL Server Management Studio (SSMS) access to the iDash database, access to the iDash web interface, and the new license key (base64 string) from ID Integration Inc..
         </div>
 
         <h3>Step 1: Identify the Current MAC Address</h3>
@@ -58,7 +58,7 @@
         <p>Note the MAC address (e.g., <code>80-E4-BA-DA-C5-E1</code>). Remove dashes and uppercase it: <code>80E4BADAC5E1</code>. This is the MAC that the new license must be keyed to.</p>
 
         <h3>Step 2: Request a New License</h3>
-        <p>Contact <strong>Infinid Technologies</strong> (or your license provider) with:</p>
+        <p>Contact <strong>ID Integration Inc.</strong> (or your license provider) with:</p>
         <ul>
             <li>The new MAC address</li>
             <li>The site name / VISN</li>
@@ -101,12 +101,12 @@ Restart-Service "iDash Print Server" -ErrorAction SilentlyContinue</pre>
 
         <h3>Step 6: Verify</h3>
         <ul>
-            <li>Check the web application logs (<code>C:\Logs\</code>) — the MAC error should be gone</li>
-            <li>Run <strong>iDash &rarr; System Diagnostics</strong> — the "Database &amp; License" test should pass</li>
+            <li>Check the web application logs (<code>C:\Logs\</code>) � the MAC error should be gone</li>
+            <li>Run <strong>iDash &rarr; System Diagnostics</strong> � the "Database &amp; License" test should pass</li>
             <li>Try a batch update from a mobile device to confirm license limits are no longer exceeded</li>
         </ul>
 
-        <!-- ═══════ SECTION 3 ═══════ -->
+        <!-- ------- SECTION 3 ------- -->
         <h2 id="s3"><span class="section-num">3</span> Decoding a License Key</h2>
         <p>License keys are base64-encoded JSON. To inspect one, use PowerShell:</p>
         <pre class="code-block"># Decode a license key
@@ -122,7 +122,7 @@ if ($mod -gt 0) { $key += ('=' * (4 - $mod)) }  # fix padding if needed
 }</pre>
         <p>The MAC address appears in the <code>LicenseKey</code> value. Compare it with the server's actual MAC to confirm the key matches.</p>
 
-        <!-- ═══════ SECTION 4 ═══════ -->
+        <!-- ------- SECTION 4 ------- -->
         <h2 id="s4"><span class="section-num">4</span> Troubleshooting</h2>
 
         <table>
@@ -148,7 +148,7 @@ if ($mod -gt 0) { $key += ('=' * (4 - $mod)) }  # fix padding if needed
                 <td>Repeat the process. Consider using a USB Ethernet adapter with a fixed MAC.</td>
             </tr>
             <tr>
-                <td>Multiple MACs on server — which one?</td>
+                <td>Multiple MACs on server � which one?</td>
                 <td>Server has multiple NICs</td>
                 <td>Use the MAC of the <strong>primary active</strong> adapter. Run <code>Get-NetAdapter | Where Status -eq Up</code></td>
             </tr>
@@ -159,7 +159,7 @@ if ($mod -gt 0) { $key += ('=' * (4 - $mod)) }  # fix padding if needed
             </tr>
         </table>
 
-        <!-- ═══════ SECTION 5 ═══════ -->
+        <!-- ------- SECTION 5 ------- -->
         <h2 id="s5"><span class="section-num">5</span> Prevention</h2>
         <ul>
             <li><strong>Document the MAC address</strong> for each site in your site records</li>
@@ -169,13 +169,13 @@ if ($mod -gt 0) { $key += ('=' * (4 - $mod)) }  # fix padding if needed
             <li><strong>Before replacing a NIC</strong>, note the current MAC and request the new license proactively</li>
         </ul>
 
-        <!-- ═══════ SECTION 6 ═══════ -->
-        <h2 id="s6"><span class="section-num">6</span> Quick Reference — Complete Fix Commands</h2>
+        <!-- ------- SECTION 6 ------- -->
+        <h2 id="s6"><span class="section-num">6</span> Quick Reference � Complete Fix Commands</h2>
         <p>Copy-paste this checklist for fast resolution:</p>
         <pre class="code-block">-- 1. Find current MAC (PowerShell on affected server)
 Get-NetAdapter | Where-Object Status -eq 'Up' | Select-Object Name, MacAddress
 
--- 2. Get new license from Infinid for the new MAC
+-- 2. Get new license from ID Integration for the new MAC
 
 -- 3. Clear old license (SSMS)
 UPDATE dbo.applicationsetting SET licensekey = '';

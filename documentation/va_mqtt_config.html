@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -16,9 +16,9 @@
 
     <a href="index.aspx">&#8592; Back to Documentation Hub</a>
 
-    <!-- ═══════════════════════════════════════════════════════════
+    <!-- -----------------------------------------------------------
          HEADER
-         ═══════════════════════════════════════════════════════════ -->
+         ----------------------------------------------------------- -->
     <div class="card" style="border-top:4px solid #8B5CF6;">
         <h1>&#128225; MQTT Configuration &mdash; Print Server Setup</h1>
         <div style="margin-bottom:20px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
@@ -41,9 +41,9 @@
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════
+    <!-- -----------------------------------------------------------
          TABLE OF CONTENTS
-         ═══════════════════════════════════════════════════════════ -->
+         ----------------------------------------------------------- -->
     <div class="card">
         <h2>&#128218; Table of Contents</h2>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px 32px; font-size:14px;">
@@ -58,9 +58,9 @@
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════
+    <!-- -----------------------------------------------------------
          SECTION 1: KEY CONCEPTS
-         ═══════════════════════════════════════════════════════════ -->
+         ----------------------------------------------------------- -->
     <div class="card" id="key-concepts">
         <h2>&#9889; Key Concepts</h2>
 
@@ -82,9 +82,9 @@
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════
+    <!-- -----------------------------------------------------------
          SECTION 2: ARCHITECTURE OVERVIEW
-         ═══════════════════════════════════════════════════════════ -->
+         ----------------------------------------------------------- -->
     <div class="card" id="architecture">
         <h2>&#127959;&#65039; Architecture Overview</h2>
         <h3>Two Separate Broker Systems</h3>
@@ -101,7 +101,7 @@
                     <td><strong>RabbitMQ 4.3.5</strong></td>
                     <td><code>1883</code></td>
                     <td>Fixed reader tag observation routing</td>
-                    <td>FX9600 readers → AntennaLocationService</td>
+                    <td>FX9600 readers ? AntennaLocationService</td>
                 </tr>
             </tbody>
         </table>
@@ -117,9 +117,9 @@
         </table>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════
+    <!-- -----------------------------------------------------------
          SECTION 3: MQTT BROKER SETTINGS
-         ═══════════════════════════════════════════════════════════ -->
+         ----------------------------------------------------------- -->
     <div class="card" id="broker-settings">
         <h2>&#128296; MQTT Broker Settings</h2>
 
@@ -149,7 +149,7 @@
         </table>
 
         <h3>App Settings (<code>appsettings.json</code>)</h3>
-        <p>Both the <strong>WebClient</strong> (<code>C:\inetpub\wwwroot\iDash\appsettings.json</code>) and the <strong>Print Server</strong> (<code>C:\Program Files (x86)\InfinID Technologies\iDash Print Server\appsettings.json</code>) share these settings:</p>
+        <p>Both the <strong>WebClient</strong> (<code>C:\inetpub\wwwroot\iDash\appsettings.json</code>) and the <strong>Print Server</strong> (<code>C:\Program Files (x86)\ID Integration Inc.\iDash Print Server\appsettings.json</code>) share these settings:</p>
         <table>
             <thead><tr><th>Key</th><th>Description</th><th>Value</th></tr></thead>
             <tbody>
@@ -162,9 +162,9 @@
         </table>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════
+    <!-- -----------------------------------------------------------
          SECTION 4: PRINT FLOW
-         ═══════════════════════════════════════════════════════════ -->
+         ----------------------------------------------------------- -->
     <div class="card" id="print-flow">
         <h2>&#128424; Print Flow</h2>
         <p>End-to-end path of a label print job through the MQTT system:</p>
@@ -182,9 +182,9 @@
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════
+    <!-- -----------------------------------------------------------
          SECTION 5: MULTI-SITE PRINTING
-         ═══════════════════════════════════════════════════════════ -->
+         ----------------------------------------------------------- -->
     <div class="card" id="multi-site">
         <h2>&#127760; Multi-Site Printing</h2>
 
@@ -209,9 +209,9 @@
         </table>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════
+    <!-- -----------------------------------------------------------
          SECTION 6: PRINT SERVER INSTALLATION
-         ═══════════════════════════════════════════════════════════ -->
+         ----------------------------------------------------------- -->
     <div class="card" id="install">
         <h2>&#128187; Print Server Installation</h2>
 
@@ -235,9 +235,9 @@
         </ol>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════
+    <!-- -----------------------------------------------------------
          SECTION 7: MQTT CLIENT MANAGEMENT
-         ═══════════════════════════════════════════════════════════ -->
+         ----------------------------------------------------------- -->
     <div class="card" id="client-management">
         <h2>&#128225; MQTT Client Management (Data Subscriptions)</h2>
         <p>The MQTT Client Management section on the iDash page handles <code>mqttclient</code> records.
@@ -258,9 +258,9 @@
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════
+    <!-- -----------------------------------------------------------
          SECTION 8: TROUBLESHOOTING
-         ═══════════════════════════════════════════════════════════ -->
+         ----------------------------------------------------------- -->
     <div class="card" id="troubleshooting">
         <h2>&#128269; Troubleshooting</h2>
         <table>
@@ -276,16 +276,16 @@
         </table>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════
+    <!-- -----------------------------------------------------------
          SECTION 9: FILE LOCATIONS
-         ═══════════════════════════════════════════════════════════ -->
+         ----------------------------------------------------------- -->
     <div class="card" id="file-locations">
         <h2>&#128194; File Locations</h2>
         <table>
             <thead><tr><th>File</th><th>Purpose</th></tr></thead>
             <tbody>
                 <tr><td><code>C:\inetpub\wwwroot\iDash\appsettings.json</code></td><td>WebClient MQTT + print config</td></tr>
-                <tr><td><code>C:\Program Files (x86)\InfinID Technologies\iDash Print Server\appsettings.json</code></td><td>Print Server MQTT + print config</td></tr>
+                <tr><td><code>C:\Program Files (x86)\ID Integration Inc.\iDash Print Server\appsettings.json</code></td><td>Print Server MQTT + print config</td></tr>
                 <tr><td><code>C:\inetpub\wwwroot\iDash\va_mqtt_config.aspx</code></td><td>iDash MQTT management page</td></tr>
                 <tr><td><code>C:\inetpub\wwwroot\iDash\Assets\install_print_server.ps1</code></td><td>Print Server service install script</td></tr>
                 <tr><td><code>C:\Logs\PrintServer_log*.txt</code></td><td>Print Server runtime logs</td></tr>
@@ -294,9 +294,9 @@
         </table>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════
+    <!-- -----------------------------------------------------------
          REVISION HISTORY
-         ═══════════════════════════════════════════════════════════ -->
+         ----------------------------------------------------------- -->
     <div class="card">
         <h2>&#128221; Revision History</h2>
         <table>

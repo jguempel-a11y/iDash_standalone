@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -152,7 +152,7 @@ Encrypt=True; TrustServerCertificate=True; Connect Timeout=10;</pre>
         <p>The iDash print pipeline uses a PowerShell-based spooler (<code>Run_Bypass_Spooler.ps1</code>) instead of the iDash .NET Print Server service. This section is required on every server that will physically print labels.</p>
 
         <h3>10.1 Install BarTender</h3>
-        <p>BarTender must be installed on the print server. The spooler uses the BarTender .NET SDK (<code>Seagull.BarTender.Print.dll</code>) which is placed in <code>C:\Program Files (x86)\InfinID Technologies\iDash Print Server\</code> by the iDash Print Server installer.</p>
+        <p>BarTender must be installed on the print server. The spooler uses the BarTender .NET SDK (<code>Seagull.BarTender.Print.dll</code>) which is placed in <code>C:\Program Files (x86)\ID Integration Inc.\iDash Print Server\</code> by the iDash Print Server installer.</p>
         <div class="box" style="border-left:4px solid #f59e0b; background:#fffbeb; padding:12px 16px; margin:12px 0; border-radius:4px;">
             <strong style="color:#b45309;">&#9888; Note &mdash; BarTender DLLs &amp; Reboot Requirement:</strong>
             <p style="margin:6px 0 0 0; color:#1e293b;">
@@ -160,7 +160,7 @@ Encrypt=True; TrustServerCertificate=True; Connect Timeout=10;</pre>
             </p>
             <ol style="margin:6px 0 0 0; padding-left:20px; color:#1e293b; line-height:1.6;">
                 <li><strong>BarTender is installed</strong> (use 64-bit edition).</li>
-                <li><strong>iDash Print Server is installed</strong> (places the Seagull DLLs into <code>C:\Program Files (x86)\InfinID Technologies\iDash Print Server\</code>).</li>
+                <li><strong>iDash Print Server is installed</strong> (places the Seagull DLLs into <code>C:\Program Files (x86)\ID Integration Inc.\iDash Print Server\</code>).</li>
                 <li><strong>The system is restarted (rebooted)</strong> to initialize BarTender system services, register native COM objects, and update system environment variables.</li>
             </ol>
         </div>

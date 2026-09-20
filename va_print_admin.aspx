@@ -968,7 +968,7 @@ async function runWizard() {
     ];
     stepNames.forEach(function(name, i) {
         stepLog.innerHTML += '<div id="wizStep' + (i+1) + '" class="wiz-step" style="display:flex; align-items:flex-start; gap:10px; padding:10px 12px; margin-bottom:6px; border-radius:8px; border:1px solid var(--line); opacity:0.4;">' +
-            '<span class="wiz-icon" style="font-size:16px; min-width:20px; text-align:center;">&#11036;</span>' +
+            '<span class="wiz-icon" style="font-size:16px; min-width:20px; text-align:center;">&#x2B1C;</span>' +
             '<div style="flex:1;"><div style="font-weight:700; font-size:13px;">' + name + '</div>' +
             '<div class="wiz-detail muted" style="font-size:11px; margin-top:2px;"></div></div></div>';
     });
@@ -1011,15 +1011,15 @@ function animateStep(step, index) {
             var detail = el.querySelector('.wiz-detail');
 
             if (step.status === 'pass') {
-                icon.innerHTML = '&#9989;';
+                icon.textContent = '\u2705';
                 el.style.borderColor = 'color-mix(in srgb, #10b981 40%, transparent)';
                 el.style.background = 'color-mix(in srgb, #10b981 5%, transparent)';
             } else if (step.status === 'warn') {
-                icon.innerHTML = '&#9888;';
+                icon.textContent = '\u26A0\uFE0F';
                 el.style.borderColor = 'color-mix(in srgb, #f59e0b 40%, transparent)';
                 el.style.background = 'color-mix(in srgb, #f59e0b 5%, transparent)';
             } else {
-                icon.innerHTML = '&#10060;';
+                icon.textContent = '\u274C';
                 el.style.borderColor = 'color-mix(in srgb, #ef4444 40%, transparent)';
                 el.style.background = 'color-mix(in srgb, #ef4444 5%, transparent)';
             }
