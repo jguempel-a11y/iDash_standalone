@@ -1206,7 +1206,18 @@ public partial class va_print_admin : System.Web.UI.Page
             }
             else
             {
-                steps.Add(MakeStep(stepNum, "Set UseForPrinting = true", "fail", "File not found: " + WebClientAppSettingsPath));
+                // Auto-create with defaults if missing
+                var newCfg = new Dictionary<string, object>
+                {
+                    { "UseForPrinting", true },
+                    { "MqttServer", mqttServer },
+                    { "MqttServerPort", mqttPort },
+                    { "PrintClientUsername", username },
+                    { "PrintClientPassword", password }
+                };
+                File.WriteAllText(WebClientAppSettingsPath, FormatJson(js.Serialize(newCfg)));
+                steps.Add(MakeStep(stepNum, "Set UseForPrinting = true", "pass",
+                    "Created new appsettings.json with UseForPrinting = true", WebClientAppSettingsPath));
             }
         }
         catch (Exception ex)
@@ -1259,7 +1270,18 @@ public partial class va_print_admin : System.Web.UI.Page
             }
             else
             {
-                steps.Add(MakeStep(stepNum, "Sync credentials to WebClient config", "fail", "File not found"));
+                // Auto-create with credentials if missing
+                var newCfg = new Dictionary<string, object>
+                {
+                    { "UseForPrinting", true },
+                    { "MqttServer", mqttServer },
+                    { "MqttServerPort", mqttPort },
+                    { "PrintClientUsername", username },
+                    { "PrintClientPassword", password }
+                };
+                File.WriteAllText(WebClientAppSettingsPath, FormatJson(js.Serialize(newCfg)));
+                steps.Add(MakeStep(stepNum, "Sync credentials to WebClient config", "pass",
+                    "Created new appsettings.json with credentials", WebClientAppSettingsPath));
             }
         }
         catch (Exception ex)

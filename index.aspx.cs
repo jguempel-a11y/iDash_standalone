@@ -45,9 +45,7 @@ public partial class index : System.Web.UI.Page
         {
             string connStr = ConfigurationManager.ConnectionStrings["iDash"] != null
                 ? ConfigurationManager.ConnectionStrings["iDash"].ConnectionString
-                : ConfigurationManager.ConnectionStrings["AssetWorx"] != null
-                    ? ConfigurationManager.ConnectionStrings["AssetWorx"].ConnectionString
-                    : "";
+                : "";
 
             var result = new System.Collections.Generic.Dictionary<string, object>();
             using (var cn = new System.Data.SqlClient.SqlConnection(connStr))
