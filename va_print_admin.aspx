@@ -1011,20 +1011,20 @@ function animateStep(step, index) {
             var detail = el.querySelector('.wiz-detail');
 
             if (step.status === 'pass') {
-                icon.textContent = '&#9989;';
+                icon.innerHTML = '&#9989;';
                 el.style.borderColor = 'color-mix(in srgb, #10b981 40%, transparent)';
                 el.style.background = 'color-mix(in srgb, #10b981 5%, transparent)';
             } else if (step.status === 'warn') {
-                icon.textContent = '&#9888;';
+                icon.innerHTML = '&#9888;';
                 el.style.borderColor = 'color-mix(in srgb, #f59e0b 40%, transparent)';
                 el.style.background = 'color-mix(in srgb, #f59e0b 5%, transparent)';
             } else {
-                icon.textContent = '&#10060;';
+                icon.innerHTML = '&#10060;';
                 el.style.borderColor = 'color-mix(in srgb, #ef4444 40%, transparent)';
                 el.style.background = 'color-mix(in srgb, #ef4444 5%, transparent)';
             }
 
-            detail.textContent = step.detail || '';
+            detail.innerHTML = (step.detail || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
             if (step.filePath) {
                 detail.innerHTML += '<br><code style="font-size:10px; opacity:0.7;">' + step.filePath + '</code>';
             }
