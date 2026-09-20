@@ -309,7 +309,7 @@
                     <!-- Quick Actions -->
                     <div class="quick-actions">
                         <a href="va_asset_master.aspx" class="quick-btn quick-btn-primary">&#128202; Asset Master</a>
-                        <a href="va_reader_config.aspx" class="quick-btn quick-btn-secondary">&#128225; Fixed Readers</a>
+                        <a href="va_fixed_reader.aspx" class="quick-btn quick-btn-secondary">&#128225; Fixed Readers</a>
                         <a href="documentation/index.aspx" class="quick-btn quick-btn-secondary">&#128218; Documentation</a>
                         <a href="about.html" class="quick-btn quick-btn-secondary">&#9432; About iDash</a>
                     </div>
@@ -319,7 +319,7 @@
                 <!-- ====== KPI STRIP ====== -->
                 <div class="kpi-strip">
                     <div class="kpi-card"><div class="kpi-value" id="kpiAssets">—</div><div class="kpi-label">Total Assets</div></div>
-                    <div class="kpi-card"><div class="kpi-value" id="kpiTagged">—</div><div class="kpi-label">Tag Rate</div></div>
+                    <div class="kpi-card"><div class="kpi-value" id="kpiTagged">—</div><div class="kpi-label">Parts Tagged</div></div>
                     <div class="kpi-card"><div class="kpi-value" id="kpiSites">—</div><div class="kpi-label">Active Sites</div></div>
                     <div class="kpi-card"><div class="kpi-value" id="kpiPrinted">—</div><div class="kpi-label">Printed Today</div></div>
                 </div>
@@ -800,9 +800,7 @@ function loadKPIs() {
     fetch('index.aspx?action=kpi').then(r => r.json()).then(d => {
         if (!d.error) {
             animateCount(document.getElementById('kpiAssets'), d.totalAssets || 0);
-            var tagPct = d.totalAssets > 0 ? Math.round((d.totalTagged / d.totalAssets) * 100) : 0;
-                        var tagEl = document.getElementById('kpiTagged');
-                        if (tagEl) { animateCount(tagEl, tagPct); tagEl.textContent = tagEl.textContent + '%'; }
+            animateCount(document.getElementById('kpiTagged'), d.totalTagged || 0);
             animateCount(document.getElementById('kpiSites'), d.activeSites || 0);
             animateCount(document.getElementById('kpiPrinted'), d.printedToday || 0);
         }
