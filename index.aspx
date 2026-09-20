@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="index.aspx.cs" Inherits="index" ResponseEncoding="utf-8" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="index.aspx.cs" Inherits="index" ResponseEncoding="utf-8" %>
     <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
 
 
@@ -19,402 +19,260 @@
             <meta http-equiv="Expires" content="0" />
 
             <style>
-                /* ---------- iDash Global Header ---------- */
-                .aw-header-brand {
-                    margin-top: 8px;
-                    margin-bottom: 14px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    opacity: 0.95;
-                }
-
-                .aw-header-logo {
-                    height: 26px;
-                    width: auto;
-                }
-
-                .aw-header-text {
-                    font-size: 14px;
-                    font-weight: 600;
-                    color: var(--accent);
-                    letter-spacing: 0.4px;
-                }
-
-                .aw-header-text .bang {
-                    color: var(--accent-2);
-                }
-
-                .aw-header-copy {
-                    display: block;
-                    font-size: 12px;
-                    font-weight: 400;
-                    color: var(--muted);
-                    margin-top: 2px;
-                }
-
-                /* ---------- iDash Global Footer ---------- */
-                .aw-footer {
-                    margin-top: 28px;
-                    padding: 12px 16px;
-                    border-top: 1px solid var(--line);
-                    font-size: 20px;
-                    color: var(--muted);
-                    opacity: 0.9;
-                }
-
-                .aw-footer-inner {
-                    max-width: 1400px;
-                    margin: 0 auto;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    gap: 16px;
-                }
-
-                .aw-left,
-                .aw-right {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                }
-
-                .aw-logo {
-                    height: 20px;
-                    width: auto;
-                }
-
-                .aw-name {
-                    font-weight: 600;
-                    color: var(--accent);
-                    letter-spacing: 0.4px;
-                }
-
-                .aw-name .bang {
-                    color: var(--accent-2);
-                }
-
-                .copy {
-                    white-space: nowrap;
-                }
-
-                .id-logo {
-                    height: 16px;
-                    width: auto;
-                    opacity: 0.85;
-                }
-
-
                 /* ============================================================
-   GLOBAL THEME (Matches dbupdate & autodbupdate)
+   iDash REDESIGNED HUB — Premium CSS
    ============================================================ */
 
-                :root {
-                    --chip-br:  var(--line);
+                /* ---------- Global ---------- */
+                :root { --chip-br: var(--line); --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.4); --glass: rgba(255,255,255,0.03); --glass-border: rgba(255,255,255,0.06); }
+                [data-theme="light"] { --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); --glass: rgba(255,255,255,0.6); --glass-border: rgba(0,0,0,0.06); }
+                body { margin:0; background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,-apple-system,sans-serif; }
+                * { box-sizing:border-box; }
+
+                /* ---------- Hero Section ---------- */
+                .hero {
+                    background: linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #0f172a 100%);
+                    padding: 32px 40px 28px;
+                    position: relative;
+                    overflow: hidden;
+                    border-bottom: 1px solid rgba(255,255,255,0.06);
                 }
-
-                [data-theme="light"] {
-                    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-                }
-
-                :root {
-                    --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.4);
-                }
-
-
-                body {
-                    margin: 0;
-                    background: var(--bg);
-                    color: var(--text);
-                    font-family: Segoe UI, Tahoma, Arial, sans-serif;
-                }
-
-                * {
-                    box-sizing: border-box;
-                }
-
-                /* ============================================================
-   PAGE LAYOUT
-   ============================================================ */
-
-                .page {
-                    max-width: 1300px;
-                    margin: 40px auto;
-                    padding: 0 40px;
-                }
-
-                /* ============================================================
-   HEADER
-   ============================================================ */
-                .aw-header-brand {
-                    margin-top: 8px;
-                    margin-bottom: 14px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    opacity: 0.95;
-                }
-
-                .aw-header-logo {
-                    height: 26px;
-                    width: auto;
-                }
-
-                .aw-header-text {
-                    font-size: 14px;
-                    font-weight: 600;
-                    color: var(--accent);
-                    letter-spacing: 0.4px;
-                }
-
-                .aw-header-text .bang {
-                    color: var(--accent-2);
-                }
-
-                .aw-header-copy {
-                    display: block;
-                    font-size: 12px;
-                    font-weight: 400;
-                    color: var(--muted);
-                    margin-top: 2px;
-                }
-
-                .header-title {
-                    font-size: 32px;
-                    font-weight: 700;
-                    margin-bottom: 6px;
-                }
-
-                .header-sub {
-                    font-size: 14px;
-                    color: var(--muted);
-                    margin-bottom: 32px;
-                }
-
-                /* ============================================================
-   SECTION HEADINGS
-   ============================================================ */
-
-                .section-title {
-                    margin-top: 36px;
-                    margin-bottom: 14px;
-                    font-size: 20px;
-                    font-weight: 600;
-                    color: var(--accent);
-                }
-
-                /* ============================================================
-   DASHBOARD TILE GRID
-   ============================================================ */
-
-                .tile-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-                    gap: 24px;
-                    margin-bottom: 12px;
-                }
-
-                /* ============================================================
-   TILE STYLING
-   ============================================================ */
-
-                .card {
-                    background: var(--card);
-                    border: 1px solid var(--line);
-                    border-radius: 12px;
-                    padding: 24px;
-                    box-shadow: var(--shadow);
-                    transition: transform 0.2s, box-shadow 0.2s;
-                }
-
-                .tile {
-                    background: var(--card);
-                    border: 1px solid var(--line);
-                    border-radius: 14px;
-                    padding: 22px;
-                    cursor: pointer;
-                    transition: 0.15s ease;
-                    box-shadow: var(--shadow);
-                }
-
-                .tile:hover {
-                    transform: translateY(-4px);
-                    box-shadow: 0 12px 28px rgba(0, 0, 0, .4);
-                    border-color: var(--accent);
-                }
-
-                .tile-title {
-                    font-size: 18px;
-                    font-weight: 600;
-                    margin-bottom: 6px;
-                }
-
-                .tile-desc {
-                    font-size: 13px;
-                    color: var(--muted);
-                    line-height: 1.4em;
-                }
-
-                /* ============================================================
-   FOOTER
-   ============================================================ */
-
-                .footer {
-                    margin-top: 50px;
-                    font-size: 12px;
-                    color: var(--muted);
-                    text-align: center;
-                }
-
-                .status-bar {
-                    display: flex;
-                    justify-content: space-between;
-                    background: #1a243a;
-                    padding: 8px 20px;
-                    font-size: 13px;
+                [data-theme="light"] .hero {
+                    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 40%, #f1f5f9 100%);
                     border-bottom: 1px solid var(--line);
                 }
-                
-                #connection-indicator {
-                    font-size: 14px;
-                    font-weight: 700;
-                    color: #10b981;
+                .hero::before {
+                    content:''; position:absolute; inset:0;
+                    background: radial-gradient(ellipse at 20% 50%, rgba(59,130,246,0.08) 0%, transparent 60%),
+                                radial-gradient(ellipse at 80% 50%, rgba(16,185,129,0.06) 0%, transparent 50%);
+                    pointer-events: none;
+                }
+                .hero > * { position:relative; z-index:1; }
+                .hero-top { display:flex; align-items:center; justify-content:space-between; max-width:1300px; margin:0 auto; }
+                .hero-brand { display:flex; align-items:center; gap:12px; }
+                .hero-brand img { height:28px; width:auto; border-radius:4px; }
+                .hero-brand-name { font-size:22px; font-weight:800; color:#f8fafc; letter-spacing:-0.3px; }
+                [data-theme="light"] .hero-brand-name { color: var(--text); }
+                .hero-brand-name .accent { color:#3b82f6; }
+                .hero-brand-sub { font-size:11px; color:#64748b; font-weight:500; margin-left:4px; letter-spacing:0.3px; }
+                .hero-actions { display:flex; align-items:center; gap:12px; }
+                .hero-user { font-size:12px; color:#94a3b8; display:flex; align-items:center; gap:6px; }
+                [data-theme="light"] .hero-user { color: var(--muted); }
+                .hero-user strong { color:#e2e8f0; }
+                [data-theme="light"] .hero-user strong { color: var(--text); }
+
+                /* ---------- Command Palette ---------- */
+                .cmd-bar {
+                    max-width: 580px; margin: 20px auto 0;
+                    position: relative;
+                }
+                .cmd-input {
+                    width: 100%; padding: 12px 18px 12px 42px;
+                    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+                    border-radius: 12px; color: #e2e8f0; font-size: 14px;
+                    outline: none; transition: all 0.2s;
+                }
+                [data-theme="light"] .cmd-input {
+                    background: #fff; border-color: var(--line); color: var(--text);
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+                }
+                .cmd-input::placeholder { color: #64748b; }
+                .cmd-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+                .cmd-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:16px; color:#64748b; pointer-events:none; }
+                .cmd-results {
+                    display:none; position:absolute; top:calc(100% + 6px); left:0; right:0;
+                    background: var(--card); border:1px solid var(--line); border-radius:12px;
+                    max-height: 320px; overflow-y:auto; z-index:500;
+                    box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+                }
+                [data-theme="light"] .cmd-results { box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+                .cmd-results.active { display:block; }
+                .cmd-item {
+                    padding: 10px 16px; cursor:pointer; font-size:13px;
+                    display:flex; align-items:center; gap:10px;
+                    border-bottom: 1px solid var(--line); transition: background 0.15s;
+                }
+                .cmd-item:last-child { border-bottom:none; }
+                .cmd-item:hover, .cmd-item.selected { background: rgba(59,130,246,0.08); }
+                .cmd-item-icon { font-size:18px; flex-shrink:0; }
+                .cmd-item-text { font-weight:600; }
+                .cmd-item-desc { font-size:11px; color:var(--muted); margin-top:2px; }
+
+                /* ---------- KPI Strip ---------- */
+                .kpi-strip {
+                    display: grid; grid-template-columns: repeat(4, 1fr);
+                    gap: 16px; max-width: 1300px; margin: -20px auto 0;
+                    padding: 0 40px; position: relative; z-index: 2;
+                }
+                .kpi-card {
+                    background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+                    border: 1px solid var(--glass-border); border-radius: 14px;
+                    padding: 18px 20px; text-align: center;
+                    transition: transform 0.2s, border-color 0.2s;
+                }
+                .kpi-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+                .kpi-value {
+                    font-size: 28px; font-weight: 800; letter-spacing: -1px;
+                    background: linear-gradient(135deg, #3b82f6, #10b981);
+                    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                }
+                .kpi-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+
+                /* ---------- Page Layout ---------- */
+                .page { max-width:1300px; margin:32px auto; padding:0 40px; }
+
+                /* ---------- Section Cards ---------- */
+                .section-card {
+                    background: var(--glass); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+                    border: 1px solid var(--glass-border); border-radius: 16px;
+                    margin-bottom: 20px; overflow: hidden;
+                    transition: border-color 0.2s;
+                }
+                .section-card:hover { border-color: rgba(59,130,246,0.2); }
+                .section-header {
+                    padding: 16px 24px; cursor: pointer; user-select: none;
+                    display: flex; align-items: center; justify-content: space-between;
+                    transition: background 0.2s;
+                }
+                .section-header:hover { background: rgba(59,130,246,0.03); }
+                .section-title {
+                    font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px;
+                    margin: 0; padding: 0; border: none;
+                }
+                .section-badge {
+                    font-size: 11px; padding: 2px 8px; border-radius: 10px;
+                    background: rgba(59,130,246,0.1); color: #3b82f6; font-weight: 700;
+                }
+                .section-chevron {
+                    font-size: 12px; color: var(--muted); transition: transform 0.3s;
+                    width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+                    border-radius: 6px; background: var(--chip);
+                }
+                .section-card.collapsed .section-chevron { transform: rotate(-90deg); }
+                .section-body {
+                    padding: 0 24px 20px; transition: max-height 0.35s ease, opacity 0.25s ease, padding 0.3s;
+                    max-height: 2000px; opacity: 1; overflow: hidden;
+                }
+                .section-card.collapsed .section-body {
+                    max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0;
                 }
 
-                .fav-star:hover {
-                    color: #facc15 !important;
-                    transform: scale(1.1);
+                /* ---------- Tile Grid ---------- */
+                .tile-grid {
+                    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                    gap: 14px;
                 }
 
+                /* ---------- Tile Cards (Glassmorphism) ---------- */
+                .tile {
+                    background: var(--card); border: 1px solid var(--line);
+                    border-radius: 12px; padding: 18px 20px;
+                    cursor: pointer; position: relative;
+                    transition: transform 0.25s ease, border-color 0.25s, box-shadow 0.25s;
+                    border-left: 4px solid transparent;
+                    opacity: 0; animation: fadeInUp 0.4s ease forwards;
+                }
+                .tile:hover {
+                    transform: translateY(-4px);
+                    border-color: var(--accent);
+                    box-shadow: 0 8px 32px rgba(59,130,246,0.1);
+                }
+                .tile-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+                .tile-desc { font-size: 12px; color: var(--muted); line-height: 1.55; }
+
+                @keyframes fadeInUp {
+                    from { opacity: 0; transform: translateY(12px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+
+                /* ---------- Favorites ---------- */
+                #favoritesSection .tile {
+                    border-image: linear-gradient(135deg, #3b82f6, #10b981) 1;
+                    border-left: 4px solid;
+                    box-shadow: 0 0 20px rgba(59,130,246,0.06);
+                }
+                #favoritesSection .tile:hover {
+                    box-shadow: 0 8px 40px rgba(59,130,246,0.15);
+                }
+
+                /* ---------- Star Button ---------- */
+                .fav-star {
+                    position: absolute; top: 10px; right: 10px;
+                    font-size: 16px; cursor: pointer; opacity: 0.3;
+                    transition: opacity 0.2s, transform 0.2s;
+                    z-index: 5; background: none; border: none; padding: 4px;
+                }
+                .fav-star:hover { opacity: 1; transform: scale(1.2); }
+                .fav-star.active { opacity: 1; color: #facc15; }
+
+                /* ---------- Nav Tabs ---------- */
                 .nav-tab {
-                    color: var(--text);
-                    text-decoration: none;
-                    padding: 8px 16px;
-                    background: var(--card);
-                    border: 1px solid var(--line);
-                    border-radius: 30px;
-                    font-size: 13px;
-                    font-weight: 600;
-                    transition: 0.2s;
+                    display: inline-flex; align-items: center; gap: 6px;
+                    padding: 6px 16px; text-decoration: none;
+                    color: var(--muted); border: 1px solid var(--line);
+                    background: var(--card); border-radius: 30px;
+                    font-size: 13px; font-weight: 600; transition: 0.2s;
+                    white-space: nowrap;
                 }
+                .nav-tab:hover { background: var(--accent) !important; color: #fff !important; border-color: var(--accent) !important; }
 
-                .nav-tab:hover {
-                    background: var(--accent) !important;
-                    color: #fff !important;
-                    border-color: var(--accent) !important;
+                /* ---------- Quick Actions ---------- */
+                .quick-actions { display: flex; gap: 10px; margin-top: 16px; justify-content: center; flex-wrap: wrap; }
+                .quick-btn {
+                    display: inline-flex; align-items: center; gap: 8px;
+                    padding: 8px 18px; border-radius: 10px; font-size: 13px; font-weight: 600;
+                    text-decoration: none; transition: all 0.2s; border: 1px solid;
                 }
+                .quick-btn-primary {
+                    background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff;
+                    border-color: transparent; box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+                }
+                .quick-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,0.4); }
+                .quick-btn-secondary {
+                    background: rgba(255,255,255,0.06); color: #94a3b8;
+                    border-color: rgba(255,255,255,0.1);
+                }
+                [data-theme="light"] .quick-btn-secondary { background: #fff; color: var(--text); border-color: var(--line); }
+                .quick-btn-secondary:hover { border-color: #3b82f6; color: #3b82f6; }
+
                 /* ---------- Support Request Modal ---------- */
-                .sr-overlay {
-                    display:none;
-                    position:fixed;
-                    inset:0;
-                    background:rgba(0,0,0,0.72);
-                    z-index:9000;
-                    align-items:center;
-                    justify-content:center;
-                }
+                .sr-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.72); z-index:9000; align-items:center; justify-content:center; }
                 .sr-overlay.active { display:flex; }
-                .sr-modal {
-                    background:var(--card);
-                    border:1px solid var(--line);
-                    border-radius:16px;
-                    padding:32px 36px;
-                    width:540px;
-                    max-width:94vw;
-                    max-height:90vh;
-                    overflow-y:auto;
-                    box-shadow:0 24px 64px rgba(0,0,0,0.5);
-                    position:relative;
-                }
-                .sr-modal h2 {
-                    margin:0 0 6px;
-                    font-size:20px;
-                    color:var(--accent);
-                }
-                .sr-modal .sr-sub {
-                    color:var(--muted);
-                    font-size:13px;
-                    margin-bottom:22px;
-                    line-height:1.5;
-                }
+                .sr-modal { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:32px 36px; width:540px; max-width:94vw; max-height:90vh; overflow-y:auto; box-shadow:0 24px 64px rgba(0,0,0,0.5); position:relative; }
+                .sr-modal h2 { margin:0 0 6px; font-size:20px; color:var(--accent); }
+                .sr-modal .sr-sub { color:var(--muted); font-size:13px; margin-bottom:22px; line-height:1.5; }
                 .sr-field { margin-bottom:16px; }
-                .sr-label {
-                    display:block;
-                    font-size:12px;
-                    font-weight:700;
-                    text-transform:uppercase;
-                    letter-spacing:.05em;
-                    color:var(--muted);
-                    margin-bottom:6px;
-                }
-                .sr-input {
-                    width:100%;
-                    box-sizing:border-box;
-                    padding:10px 13px;
-                    border-radius:9px;
-                    border:1px solid var(--line);
-                    background:var(--bg);
-                    color:var(--text);
-                    font-size:14px;
-                    font-family:inherit;
-                    outline:none;
-                    transition:border-color .15s;
-                }
+                .sr-label { display:block; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin-bottom:6px; }
+                .sr-input { width:100%; box-sizing:border-box; padding:10px 13px; border-radius:9px; border:1px solid var(--line); background:var(--bg); color:var(--text); font-size:14px; font-family:inherit; outline:none; transition:border-color .15s; }
                 .sr-input:focus { border-color:var(--accent); }
                 .sr-input.invalid { border-color:var(--danger) !important; }
                 .sr-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
                 .sr-textarea { min-height:110px; resize:vertical; }
-                .sr-subject-display {
-                    padding:10px 13px;
-                    border-radius:9px;
-                    border:1px solid var(--line);
-                    background:var(--chip);
-                    color:var(--muted);
-                    font-size:13px;
-                }
+                .sr-subject-display { padding:10px 13px; border-radius:9px; border:1px solid var(--line); background:var(--chip); color:var(--muted); font-size:13px; }
                 .sr-footer { display:flex; justify-content:flex-end; gap:10px; margin-top:22px; }
-                .sr-send {
-                    padding:10px 26px;
-                    background:var(--accent);
-                    color:#fff;
-                    border:none;
-                    border-radius:10px;
-                    font-weight:700;
-                    font-size:14px;
-                    cursor:pointer;
-                    transition:filter .15s;
-                }
+                .sr-send { padding:10px 26px; background:var(--accent); color:#fff; border:none; border-radius:10px; font-weight:700; font-size:14px; cursor:pointer; transition:filter .15s; }
                 .sr-send:hover { filter:brightness(1.12); }
-                .sr-cancel {
-                    padding:10px 20px;
-                    background:transparent;
-                    color:var(--muted);
-                    border:1px solid var(--line);
-                    border-radius:10px;
-                    font-size:14px;
-                    cursor:pointer;
-                }
+                .sr-cancel { padding:10px 20px; background:transparent; color:var(--muted); border:1px solid var(--line); border-radius:10px; font-size:14px; cursor:pointer; }
                 .sr-cancel:hover { border-color:var(--accent); color:var(--accent); }
                 .sr-msg-ok  { background:color-mix(in srgb,#10b981 15%,transparent); border:1px solid #10b981; color:#10b981; padding:10px 14px; border-radius:8px; margin-bottom:14px; font-size:14px; }
                 .sr-msg-err { background:color-mix(in srgb,var(--danger) 15%,transparent); border:1px solid var(--danger); color:var(--danger); padding:10px 14px; border-radius:8px; margin-bottom:14px; font-size:14px; }
-                .sr-pill {
-                    display:inline-flex;
-                    align-items:center;
-                    gap:5px;
-                    padding:4px 13px;
-                    border-radius:20px;
-                    border:1px solid var(--accent);
-                    background:color-mix(in srgb,var(--accent) 12%,transparent);
-                    color:var(--accent);
-                    font-size:12px;
-                    font-weight:700;
-                    cursor:pointer;
-                    text-decoration:none;
-                    transition:background .15s, color .15s;
-                }
-                .sr-pill:hover {
-                    background:var(--accent);
-                    color:#fff;
+                .sr-pill { display:inline-flex; align-items:center; gap:5px; padding:4px 13px; border-radius:20px; border:1px solid var(--accent); background:color-mix(in srgb,var(--accent) 12%,transparent); color:var(--accent); font-size:12px; font-weight:700; cursor:pointer; text-decoration:none; transition:background .15s, color .15s; }
+                .sr-pill:hover { background:var(--accent); color:#fff; }
+
+                /* ---------- Status Bar ---------- */
+                .status-bar { display:flex; justify-content:space-between; padding:5px 20px; font-size:11px; background:var(--chip); color:var(--muted); border-bottom:1px solid var(--line); }
+
+                /* ---------- Responsive ---------- */
+                @media (max-width: 768px) {
+                    .hero { padding: 24px 16px 20px; }
+                    .hero-top { flex-direction: column; gap: 12px; text-align: center; }
+                    .hero-actions { justify-content: center; }
+                    .kpi-strip { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 16px; margin-top: -16px; }
+                    .page { padding: 0 16px; }
+                    .tile-grid { grid-template-columns: 1fr; }
+                    .quick-actions { flex-direction: column; align-items: center; }
+                    .cmd-bar { margin-top: 16px; }
                 }
             </style>
 
@@ -423,18 +281,45 @@
         <body>
 
             <form id="form1" runat="server">
-                <div class="status-bar">
-                    <span>Integrated Intelligence Hub &mdash; SERVER: <%= System.Environment.MachineName %> (<%= Request.ServerVariables["LOCAL_ADDR"] %>)</span>
-                    <span id="connection-indicator">&bull; CONNECTED</span>
-                </div>
+                <!-- ====== HERO SECTION ====== -->
                 <% if (IsLoggedIn) { %>
-                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card); padding:8px 20px; font-size:13px; border-bottom:1px solid var(--line);">
-                    <span style="color:var(--accent-2);">&#128100; Signed in as <strong style="color:var(--text);"><%= Server.HtmlEncode(Convert.ToString(Session["IdashUsername"])) %></strong></span>
-                    <span style="display:flex; align-items:center; gap:14px;">
-                        <a href="#" class="sr-pill" onclick="openSupportModal(); return false;"><img src="Assets/branding/rfid.png" style="height:13px;width:auto;vertical-align:middle;margin-right:4px;" alt="RFID" />Support Request</a>
-                        <button type="button" id="themeToggleBtn" onclick="toggleIdashTheme()" title="Toggle Light/Dark Mode" style="background:none; border:1px solid var(--line); border-radius:8px; padding:4px 10px; cursor:pointer; font-size:14px; color:var(--text); transition:all 0.2s; display:inline-flex; align-items:center; gap:5px;"><span id="themeIcon">&#127769;</span><span id="themeLabel" style="font-size:12px; font-weight:600;">Dark</span></button>
-                        <asp:LinkButton ID="BtnUserLogout" runat="server" OnClick="BtnLogout_Click" style="color:var(--muted); font-size:12px; text-decoration:underline;">Sign Out</asp:LinkButton>
-                    </span>
+                <div class="hero">
+                    <div class="hero-top">
+                        <div class="hero-brand">
+                            <img src="<%= ResolveUrl("~/Assets/branding/IDIntegration.jpg") %>" alt="ID Integration" />
+                            <div>
+                                <span class="hero-brand-name">iDash<span class="accent">.</span></span>
+                                <span class="hero-brand-sub">Integrated Intelligence Hub</span>
+                            </div>
+                        </div>
+                        <div class="hero-actions">
+                            <a href="#" class="sr-pill" onclick="openSupportModal(); return false;">&#128172; Support</a>
+                            <button type="button" id="themeToggleBtn" onclick="toggleIdashTheme()" title="Toggle Light/Dark Mode" style="background:none; border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:4px 10px; cursor:pointer; font-size:14px; color:#94a3b8; transition:all 0.2s; display:inline-flex; align-items:center; gap:5px;"><span id="themeIcon">&#127769;</span><span id="themeLabel" style="font-size:12px; font-weight:600;">Dark</span></button>
+                            <div class="hero-user">&#128100; <strong><%= Server.HtmlEncode(Convert.ToString(Session["IdashUsername"])) %></strong></div>
+                            <asp:LinkButton ID="BtnUserLogout" runat="server" OnClick="BtnLogout_Click" style="color:#94a3b8; font-size:11px; text-decoration:underline;">Sign Out</asp:LinkButton>
+                        </div>
+                    </div>
+                    <!-- Command Palette -->
+                    <div class="cmd-bar">
+                        <span class="cmd-icon">&#128269;</span>
+                        <input type="text" class="cmd-input" id="cmdSearch" placeholder="Jump to any page..." autocomplete="off" />
+                        <div class="cmd-results" id="cmdResults"></div>
+                    </div>
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <a href="va_asset_master.aspx" class="quick-btn quick-btn-primary">&#128202; Asset Master</a>
+                        <a href="va_tagteam_scan.aspx" class="quick-btn quick-btn-secondary">&#127991;&#65039; Tag Team Scan</a>
+                        <a href="documentation/index.aspx" class="quick-btn quick-btn-secondary">&#128218; Documentation</a>
+                        <a href="about.html" class="quick-btn quick-btn-secondary">&#9432; About iDash</a>
+                    </div>
+                </div>
+
+                <!-- ====== KPI STRIP ====== -->
+                <div class="kpi-strip">
+                    <div class="kpi-card"><div class="kpi-value" id="kpiAssets">—</div><div class="kpi-label">Total Assets</div></div>
+                    <div class="kpi-card"><div class="kpi-value" id="kpiTagged">—</div><div class="kpi-label">RFID Tagged</div></div>
+                    <div class="kpi-card"><div class="kpi-value" id="kpiSites">—</div><div class="kpi-label">Active Sites</div></div>
+                    <div class="kpi-card"><div class="kpi-value" id="kpiPrinted">—</div><div class="kpi-label">Printed Today</div></div>
                 </div>
                 <% } %>
                 <div class="page">
@@ -470,19 +355,6 @@
                     </div>
                     <% } else { %>
 
-                    <!-- ======================================================
-         HEADER
-         ====================================================== -->
-                    <div class="header-title">Integrated Intelligence Hub</div>
-                    <div class="header-sub">View reports, search for assets, download files, and manage RFID inventory &mdash; everything your team needs, in one place.</div>
-                    <div class="aw-header-brand" style="display:flex; align-items:center; gap:8px;">
-                        <img src="<%= ResolveUrl("~/Assets/branding/IDIntegration.jpg") %>" style="height:22px; width:auto; border-radius:3px;" alt="ID Integration" />
-                        <span class="aw-header-text" style="font-weight:700; font-size:16px;">
-                            iDash<span class="bang" style="color:var(--accent);">.</span>
-                        </span>
-                        <span class="aw-header-copy" style="font-size:12px; color:var(--muted); font-style:italic;">by ID Integration Inc.</span>
-                    </div>
-
                     <!-- TAB BAR -->
                     <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:25px; margin-bottom:10px; border-bottom:1px solid var(--line); padding-bottom:15px;" id="nav-tabs">
                         <a href="#favoritesSection" class="nav-tab">&#11088; Favorites</a>
@@ -496,9 +368,6 @@
                         <% if (IsLoggedIn && Convert.ToString(Session["IdashUserRole"]) == "admin") { %>
                         <a href="#sec-admin" class="nav-tab" style="border-color:#ef4444; color:#ef4444;">&#128274; Admin Tools</a>
                         <% } %>
-                    </div>
-                    <div style="font-size:12px; color:var(--muted); margin-bottom:18px; padding-left:2px;">
-                        &#11088; <strong>Tip:</strong> Click the <strong style="color:#facc15;">&#9733;</strong> star on any tile to save it to your Favorites for quick access.
                     </div>
 
 
@@ -531,11 +400,7 @@
          DOCUMENTATION & PROCEDURES
          ====================================================== -->
                     <% if (CanSeeSection("downloads","docs")) { %>
-                    <div class="section-title" id="sec-docs">&#128218; Guides &amp; Downloads
-                        <span style="display:block; font-size:13px; font-weight:400; color:var(--muted); margin-top:4px;">Step-by-step procedures, reference documents, approved software downloads, and file uploads.</span>
-                    </div>
-
-                    <div class="tile-grid">
+                    <div class="section-card collapsed" id="sec-docs-card"><div class="section-header" onclick="toggleSection('sec-docs-card')"><div class="section-title" id="sec-docs">&#128218; Guides &amp; Downloads</div><span class="section-chevron">&#9660;</span></div><div class="section-body"><div class="tile-grid">
                     
                         <!-- Secure Downloads Hub -->
                         <% if (CanSeeTile("downloads")) { %>
@@ -578,7 +443,7 @@
                         </div>
                         <% } %>
 
-                    </div>
+                    </div></div></div>
 
                     <% } /* end guides */ %>
 
@@ -586,11 +451,7 @@
          REPORTS
          ====================================================== -->
                     <% if (CanSeeSection("rpt_")) { %>
-                    <div class="section-title" id="sec-reports">&#128202; Reports
-                        <span style="display:block; font-size:13px; font-weight:400; color:var(--muted); margin-top:4px;">Browse dashboards and download inventory data for your site.</span>
-                    </div>
-
-                    <div class="tile-grid">
+                    <div class="section-card collapsed" id="sec-reports-card"><div class="section-header" onclick="toggleSection('sec-reports-card')"><div class="section-title" id="sec-reports">&#128202; Reports</div><span class="section-chevron">&#9660;</span></div><div class="section-body"><div class="tile-grid">
 
                         <% if (CanSeeTile("rpt_notifications")) { %><div class="tile" id="tileNotifications" onclick="location.href='va_notifications.aspx'" style="border-left: 4px solid #3b82f6; background: color-mix(in srgb, #3b82f6, transparent 94%);">
                             <div class="tile-title" style="color:#3b82f6; display:flex; align-items:center; justify-content:space-between;">
@@ -602,7 +463,7 @@
                             </div>
                         </div><% } %>
 
-                        <%-- REMOVED: rpt_overview � accessible via Asset Master Stats pill link (08/02) --%>
+                        <%-- REMOVED: rpt_overview — accessible via Asset Master Stats pill link (08/02) --%>
 
                         <% if (CanSeeTile("rpt_asset_master")) { %><div class="tile" onclick="location.href='va_asset_master.aspx'" style="border-left: 4px solid var(--accent-2); background: color-mix(in srgb, var(--accent-2), transparent 95%);">
                             <div class="tile-title" style="color:var(--accent-2);">&#128203; Asset Master &mdash; Unified Portal</div>
@@ -619,7 +480,7 @@
                         </div><% } %>
 
 
-                        <%-- REMOVED: rpt_activity � consolidated into Tagging Dashboards & Activity (08/17) --%>
+                        <%-- REMOVED: rpt_activity — consolidated into Tagging Dashboards & Activity (08/17) --%>
 
 
                         <% if (CanSeeTile("rpt_ennx") || CanSeeTile("rpt_sessions")) { %><div class="tile" onclick="location.href='va_ennx.aspx'">
@@ -652,26 +513,26 @@
                             </div>
                         </div><% } %>
 
-                        <%-- REMOVED: rpt_data_research � consolidated into Asset Master (07/31) --%>
+                        <%-- REMOVED: rpt_data_research — consolidated into Asset Master (07/31) --%>
 
-                        <%-- REMOVED: rpt_tag_audit � consolidated into Tagging Progress & Activity (08/17) --%>
+                        <%-- REMOVED: rpt_tag_audit — consolidated into Tagging Progress & Activity (08/17) --%>
 
                         <% if (CanSeeTile("rpt_data_quality")) { %><div class="tile" onclick="location.href='va_data_quality.aspx'" style="border-left: 4px solid #ef4444; background: color-mix(in srgb, #ef4444, transparent 95%);">
                             <div class="tile-title" style="color:#ef4444;">&#9989; Data Quality Command Center</div>
                             <div class="tile-desc">Live health score (0&ndash;100), missing EIL/CMR detection, unassigned locations, malformed EE numbers, interactive AJAX drill-down, and Excel export.</div>
                         </div><% } %>
 
-                        <%-- REMOVED: rpt_cmr � consolidated into Asset Master CMR filter + KPI (07/31) --%>
+                        <%-- REMOVED: rpt_cmr — consolidated into Asset Master CMR filter + KPI (07/31) --%>
 
-                        <%-- REMOVED: rpt_tag_stats � consolidated into Tagging Progress & Activity (08/17) --%>
+                        <%-- REMOVED: rpt_tag_stats — consolidated into Tagging Progress & Activity (08/17) --%>
 
-                        <%-- REMOVED: rpt_tagging_detail � consolidated into Tagging Dashboards & Activity (08/17) --%>
+                        <%-- REMOVED: rpt_tagging_detail — consolidated into Tagging Dashboards & Activity (08/17) --%>
 
-                        <%-- REMOVED: rpt_location_list � consolidated into Asset Master location column + detail panel (07/31) --%>
+                        <%-- REMOVED: rpt_location_list — consolidated into Asset Master location column + detail panel (07/31) --%>
 
-                        <%-- REMOVED: search_history, search_asset, search_location � all consolidated into Asset Master detail panel (07/31) --%>
+                        <%-- REMOVED: search_history, search_asset, search_location — all consolidated into Asset Master detail panel (07/31) --%>
 
-                    </div>
+                    </div></div></div>
 
                     <% } /* end reports */ %>
 
@@ -679,10 +540,7 @@
          SCANNING & TOOLS
          ====================================================== -->
                     <% if (CanSeeSection("scan_", "print_", "excel_print")) { %>
-                    <div class="section-title" id="sec-scanning">&#128241; Scanning &amp; Tools
-                        <span style="display:block; font-size:13px; font-weight:400; color:var(--muted); margin-top:4px;">Live scanning dashboards, inventory tools, and print mapping.</span>
-                    </div>
-                    <div class="tile-grid">
+                    <div class="section-card collapsed" id="sec-scanning-card"><div class="section-header" onclick="toggleSection('sec-scanning-card')"><div class="section-title" id="sec-scanning">&#128241; Scanning &amp; Tools</div><span class="section-chevron">&#9660;</span></div><div class="section-body"><div class="tile-grid">
 
                             <% if (CanSeeTile("scan_maps")) { %><div class="tile" onclick="location.href='va_site_maps.aspx'" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05);">
                                 <div class="tile-title" style="color:#3b82f6;">&#x1f5fa;&#xfe0f; Site Maps &amp; Tagging</div>
@@ -865,7 +723,7 @@
                                 <div class="tile-desc">Manage fixed RFID reader registrations, antenna port mappings, power levels, network discovery, and live online/offline status.</div>
                             </div>
                             <% } %>
-                            <!-- Tag Types � tagging team analysis page -->
+                            <!-- Tag Types — tagging team analysis page -->
                             <% if (CanSeeTile("admin_tag_type")) { %>
                             <div class="tile" onclick="location.href='va_tag_type.aspx'" style="border-left: 4px solid #10b981; background: rgba(16,185,129,0.05);">
                                 <div class="tile-title" style="color:#10b981;">&#127991; Tag Type Analysis</div>
@@ -925,7 +783,79 @@
                         }
                     }
 
+                    // ======= KPI FETCH + COUNT-UP =======
+function animateCount(el, target) {
+    if (!el || isNaN(target)) return;
+    var duration = 1200, start = 0, step = Math.ceil(target / (duration / 16));
+    function tick() {
+        start = Math.min(start + step, target);
+        el.textContent = start.toLocaleString();
+        if (start < target) requestAnimationFrame(tick);
+    }
+    tick();
+}
+function loadKPIs() {
+    fetch('index.aspx?action=kpi').then(r => r.json()).then(d => {
+        if (!d.error) {
+            animateCount(document.getElementById('kpiAssets'), d.totalAssets || 0);
+            animateCount(document.getElementById('kpiTagged'), d.totalTagged || 0);
+            animateCount(document.getElementById('kpiSites'), d.activeSites || 0);
+            animateCount(document.getElementById('kpiPrinted'), d.printedToday || 0);
+        }
+    }).catch(function(){});
+}
+if (document.getElementById('kpiAssets')) loadKPIs();
+
+// ======= SECTION TOGGLE =======
+function toggleSection(id) {
+    var card = document.getElementById(id);
+    if (card) card.classList.toggle('collapsed');
+}
+
+// ======= COMMAND PALETTE =======
+(function() {
+    var input = document.getElementById('cmdSearch');
+    var results = document.getElementById('cmdResults');
+    if (!input || !results) return;
+
+    input.addEventListener('input', function() {
+        var q = this.value.toLowerCase().trim();
+        if (q.length < 1) { results.classList.remove('active'); return; }
+        var tiles = document.querySelectorAll('.page .tile-grid:not(#favoritesGrid) .tile');
+        var matches = [];
+        tiles.forEach(function(t) {
+            var title = t.querySelector('.tile-title');
+            var desc = t.querySelector('.tile-desc');
+            var text = ((title ? title.textContent : '') + ' ' + (desc ? desc.textContent : '')).toLowerCase();
+            if (text.indexOf(q) > -1) {
+                var href = t.getAttribute('data-href') || (t.getAttribute('onclick') || '').match(/'([^']+)'/);
+                href = href ? (typeof href === 'string' ? href : href[1]) : '#';
+                matches.push({ icon: (title ? title.textContent.substring(0,2) : '??'), title: title ? title.textContent.replace(/^.{1,2}\s*/, '') : 'Page', desc: desc ? desc.textContent.substring(0,80) + '...' : '', href: href });
+            }
+        });
+        if (matches.length === 0) { results.classList.remove('active'); return; }
+        results.innerHTML = matches.slice(0, 8).map(function(m) {
+            return '<div class="cmd-item" onclick="location.href=\'' + m.href + '\'"><div class="cmd-item-icon">' + m.icon + '</div><div><div class="cmd-item-text">' + m.title + '</div><div class="cmd-item-desc">' + m.desc + '</div></div></div>';
+        }).join('');
+        results.classList.add('active');
+    });
+    input.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') { results.classList.remove('active'); input.blur(); }
+        if (e.key === 'Enter') {
+            var sel = results.querySelector('.cmd-item');
+            if (sel) sel.click();
+        }
+    });
+    document.addEventListener('click', function(e) {
+        if (!input.contains(e.target) && !results.contains(e.target)) results.classList.remove('active');
+    });
+})();
+
                     document.addEventListener('DOMContentLoaded', function() {
+                        // Stagger tile animations
+                        var allTilesAnim = document.querySelectorAll('.page .tile');
+                        allTilesAnim.forEach(function(t, i) { t.style.animationDelay = (i * 0.04) + 's'; });
+
                         // -- Welcome card --
                         if (!localStorage.getItem('aw_welcomed')) {
                             var card = document.getElementById('welcomeCard');
@@ -1265,7 +1195,7 @@
                 </div>
 
                 <script>
-                    /* ── Support Request Modal (AJAX — no postback) ── */
+                    /* â”€â”€ Support Request Modal (AJAX â€” no postback) â”€â”€ */
                     function openSupportModal() {
                         var ov = document.getElementById('srOverlay');
                         ov.classList.add('active');
@@ -1358,8 +1288,8 @@
                                         var badge = document.getElementById('tileWatchBadge');
                                         if (badge && d.summary.totalWatched > 0) {
                                             var txt = d.summary.totalWatched + ' Watched';
-                                            if (d.summary.high > 0) txt += ' � ' + d.summary.high + ' High';
-                                            if (d.summary.mismatch > 0) txt += ' � ?? ' + d.summary.mismatch;
+                                            if (d.summary.high > 0) txt += ' • ' + d.summary.high + ' High';
+                                            if (d.summary.mismatch > 0) txt += ' • ?? ' + d.summary.mismatch;
                                             badge.textContent = txt;
                                             badge.style.display = 'inline-block';
                                         }

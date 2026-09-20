@@ -5,8 +5,10 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Web.Configuration;
+using System.Web.Script.Serialization;
 
 // Session key constants (shared with va_user_management.aspx.cs)
 // SESSION_AUTH  = "IsAdminAuthenticated"  (bool  — true when logged in)
@@ -23,10 +25,58 @@ public partial class index : System.Web.UI.Page
         Response.Cache.SetExpires(DateTime.UtcNow.AddHours(-1));
         Response.Cache.SetNoStore();
 
+        // Handle KPI API request
+        if (Request.QueryString["action"] == "kpi")
+        {
+            HandleKpiRequest();
+            return;
+        }
+
         if (!IsPostBack)
         {
             CheckLoginState();
         }
+    }
+
+    private void HandleKpiRequest()
+    {
+        Response.ContentType = "application/json";
+        try
+        {
+            string connStr = ConfigurationManager.ConnectionStrings["iDash"] != null
+                ? ConfigurationManager.ConnectionStrings["iDash"].ConnectionString
+                : ConfigurationManager.ConnectionStrings["AssetWorx"] != null
+                    ? ConfigurationManager.ConnectionStrings["AssetWorx"].ConnectionString
+                    : "";
+
+            var result = new System.Collections.Generic.Dictionary<string, object>();
+            using (var cn = new System.Data.SqlClient.SqlConnection(connStr))
+            {
+                cn.Open();
+                using (var cmd = new System.Data.SqlClient.SqlCommand("SELECT COUNT(*) FROM v_asset", cn))
+                    result["totalAssets"] = Convert.ToInt64(cmd.ExecuteScalar());
+
+                using (var cmd = new System.Data.SqlClient.SqlCommand("SELECT COUNT(*) FROM company WHERE ISNULL(name,'')<>''", cn))
+                    result["activeSites"] = Convert.ToInt32(cmd.ExecuteScalar());
+
+                try {
+                    using (var cmd = new System.Data.SqlClient.SqlCommand("SELECT COUNT(*) FROM printjob WHERE CAST(datecreated AS DATE)=CAST(GETDATE() AS DATE)", cn))
+                        result["printedToday"] = Convert.ToInt32(cmd.ExecuteScalar());
+                } catch { result["printedToday"] = 0; }
+
+                using (var cmd = new System.Data.SqlClient.SqlCommand("SELECT COUNT(*) FROM v_asset WHERE ISNULL(rfidtag,'')<>''", cn))
+                    result["totalTagged"] = Convert.ToInt64(cmd.ExecuteScalar());
+            }
+            var js = new System.Web.Script.Serialization.JavaScriptSerializer();
+            Response.Write(js.Serialize(result));
+        }
+        catch (Exception ex)
+        {
+            Response.Write("{\"error\":\"" + ex.Message.Replace("\"", "'") + "\"}");
+        }
+        Response.Flush();
+        Response.SuppressContent = true;
+        HttpContext.Current.ApplicationInstance.CompleteRequest();
     }
 
     private void CheckLoginState()
