@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="index.aspx.cs" Inherits="index" ResponseEncoding="utf-8" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="index.aspx.cs" Inherits="index" ResponseEncoding="utf-8" %>
     <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
 
 
@@ -462,6 +462,12 @@
                             <asp:Label ID="LblLoginGateError" runat="server" ForeColor="#ef4444" style="display:block; margin-top:10px; font-size:13px;"></asp:Label>
                         </div>
                         <div style="font-size:11px; color:var(--muted); margin-top:16px;">Contact your administrator if you need an account.</div>
+                        <div style="margin-top:14px; display:flex; align-items:center; justify-content:center; gap:10px;">
+                            <a href="https://github.com/jguempel-a11y/iDash_standalone" target="_blank" style="display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); text-decoration:none; padding:6px 12px; border:1px solid var(--line); border-radius:6px; transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--line)';this.style.color='var(--muted)'">
+                                <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                                View on GitHub
+                            </a>
+                        </div>
                     </div>
                     <% } else { %>
 
@@ -597,7 +603,7 @@
                             </div>
                         </div><% } %>
 
-                        <%-- REMOVED: rpt_overview � accessible via Asset Master Stats pill link (08/02) --%>
+                        <%-- REMOVED: rpt_overview — accessible via Asset Master Stats pill link (08/02) --%>
 
                         <% if (CanSeeTile("rpt_asset_master")) { %><div class="tile" onclick="location.href='va_asset_master.aspx'" style="border-left: 4px solid var(--accent-2); background: color-mix(in srgb, var(--accent-2), transparent 95%);">
                             <div class="tile-title" style="color:var(--accent-2);">&#128203; Asset Master &mdash; Unified Portal</div>
@@ -614,7 +620,7 @@
                         </div><% } %>
 
 
-                        <%-- REMOVED: rpt_activity � consolidated into Tagging Dashboards & Activity (08/17) --%>
+                        <%-- REMOVED: rpt_activity — consolidated into Tagging Dashboards & Activity (08/17) --%>
 
 
                         <% if (CanSeeTile("rpt_ennx") || CanSeeTile("rpt_sessions")) { %><div class="tile" onclick="location.href='va_ennx.aspx'">
@@ -647,24 +653,24 @@
                             </div>
                         </div><% } %>
 
-                        <%-- REMOVED: rpt_data_research � consolidated into Asset Master (07/31) --%>
+                        <%-- REMOVED: rpt_data_research — consolidated into Asset Master (07/31) --%>
 
-                        <%-- REMOVED: rpt_tag_audit � consolidated into Tagging Progress & Activity (08/17) --%>
+                        <%-- REMOVED: rpt_tag_audit — consolidated into Tagging Progress & Activity (08/17) --%>
 
                         <% if (CanSeeTile("rpt_data_quality")) { %><div class="tile" onclick="location.href='va_data_quality.aspx'" style="border-left: 4px solid #ef4444; background: color-mix(in srgb, #ef4444, transparent 95%);">
                             <div class="tile-title" style="color:#ef4444;">&#9989; Data Quality Command Center</div>
                             <div class="tile-desc">Live health score (0&ndash;100), missing EIL/CMR detection, unassigned locations, malformed EE numbers, interactive AJAX drill-down, and Excel export.</div>
                         </div><% } %>
 
-                        <%-- REMOVED: rpt_cmr � consolidated into Asset Master CMR filter + KPI (07/31) --%>
+                        <%-- REMOVED: rpt_cmr — consolidated into Asset Master CMR filter + KPI (07/31) --%>
 
-                        <%-- REMOVED: rpt_tag_stats � consolidated into Tagging Progress & Activity (08/17) --%>
+                        <%-- REMOVED: rpt_tag_stats — consolidated into Tagging Progress & Activity (08/17) --%>
 
-                        <%-- REMOVED: rpt_tagging_detail � consolidated into Tagging Dashboards & Activity (08/17) --%>
+                        <%-- REMOVED: rpt_tagging_detail — consolidated into Tagging Dashboards & Activity (08/17) --%>
 
-                        <%-- REMOVED: rpt_location_list � consolidated into Asset Master location column + detail panel (07/31) --%>
+                        <%-- REMOVED: rpt_location_list — consolidated into Asset Master location column + detail panel (07/31) --%>
 
-                        <%-- REMOVED: search_history, search_asset, search_location � all consolidated into Asset Master detail panel (07/31) --%>
+                        <%-- REMOVED: search_history, search_asset, search_location — all consolidated into Asset Master detail panel (07/31) --%>
 
                     </div>
 
@@ -860,7 +866,7 @@
                                 <div class="tile-desc">Manage fixed RFID reader registrations, antenna port mappings, power levels, network discovery, and live online/offline status.</div>
                             </div>
                             <% } %>
-                            <!-- Tag Types � tagging team analysis page -->
+                            <!-- Tag Types — tagging team analysis page -->
                             <% if (CanSeeTile("admin_tag_type")) { %>
                             <div class="tile" onclick="location.href='va_tag_type.aspx'" style="border-left: 4px solid #10b981; background: rgba(16,185,129,0.05);">
                                 <div class="tile-title" style="color:#10b981;">&#127991; Tag Type Analysis</div>
@@ -1260,7 +1266,7 @@
                 </div>
 
                 <script>
-                    /* ── Support Request Modal (AJAX — no postback) ── */
+                    /* â”€â”€ Support Request Modal (AJAX â€” no postback) â”€â”€ */
                     function openSupportModal() {
                         var ov = document.getElementById('srOverlay');
                         ov.classList.add('active');
@@ -1353,8 +1359,8 @@
                                         var badge = document.getElementById('tileWatchBadge');
                                         if (badge && d.summary.totalWatched > 0) {
                                             var txt = d.summary.totalWatched + ' Watched';
-                                            if (d.summary.high > 0) txt += ' � ' + d.summary.high + ' High';
-                                            if (d.summary.mismatch > 0) txt += ' � ?? ' + d.summary.mismatch;
+                                            if (d.summary.high > 0) txt += ' • ' + d.summary.high + ' High';
+                                            if (d.summary.mismatch > 0) txt += ' • ?? ' + d.summary.mismatch;
                                             badge.textContent = txt;
                                             badge.style.display = 'inline-block';
                                         }
