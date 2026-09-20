@@ -1,4 +1,4 @@
-# AssetWorx Cart 1 & Cart 2 Configuration & License Reference
+# iDash Cart 1 & Cart 2 Configuration & License Reference
 
 This guide documents the setup instructions, fixes, and validated license keys for **Beckley Cart 1** and **Beckley Cart 2**.
 
@@ -21,7 +21,7 @@ ew0KICAiTGljZW5zZUtleSI6ICJCZWNrbGV5IENhcnQgMXwtMXw1fDE1fFx1MjAyQTA0NjRGQUZFN0ZB
 ```powershell
 $lic = "ew0KICAiTGljZW5zZUtleSI6ICJCZWNrbGV5IENhcnQgMXwtMXw1fDE1fFx1MjAyQTA0NjRGQUZFN0ZBOCIsDQogICJTaWduYXR1cmUiOiAiSFpPY3F6NjZpQUwvYnNEQjBBejBRR3dVZGg1VnNwNG9FQ1JJVVVXZXNmb3p3TkMxTENmQXVlVTZxVG5MczB5NkZuT3pqdEZBbUhCR0J1ek1wc0FxSy9KMXVqSFAycVdcdTAwMkJyRXJFVnhmTFx1MDAyQmJ1TmpsNmFxekdHWmFnVW5xdFJOQjNcdTAwMkJCUmNiMk82cTJIaElES1ZBYkJ1WHJuRThtczMyOXpSbUFvekxVTk9uUUtjPSINCn0="
 
-$conn = New-Object System.Data.SqlClient.SqlConnection("Server=localhost\sqlexpress;Database=assetworx;User Id=assetworxadmin;Password=assetworxadmin;")
+$conn = New-Object System.Data.SqlClient.SqlConnection("Server=localhost\sqlexpress;Database=idash;User Id=idashadmin;Password=idashadmin;")
 $conn.Open()
 $cmd = $conn.CreateCommand()
 $cmd.CommandText = "UPDATE applicationsetting SET licensekey = @lic"
@@ -51,7 +51,7 @@ ew0KICAiTGljZW5zZUtleSI6ICJCZWNrbGV5IENhcnQgMXwtMXw1fDE1fCBcdTIwMkEwNDY0RkFGRTgw
 ```powershell
 $lic = "ew0KICAiTGljZW5zZUtleSI6ICJCZWNrbGV5IENhcnQgMXwtMXw1fDE1fCBcdTIwMkEwNDY0RkFGRTgwQzYiLA0KICAiU2lnbmF0dXJlIjogIkliV0x1cXlmRVQ2ZTNRcWxOMlpBYWVYYkdYc0Jkalx1MDAyQjY1aDd1QlhjVE95d1dpSFVNRnpJRUJ5MzdIN1Q1ZHBETm5VaWhnN3pCUDdhWEJua2xsZXFDcTdmXHUwMDJCZFJnWm5RL0VkVVVZS3p5L1hSZHo4Tk1JYnI1aFJCeG9NQXp4QzNtWXFudG53M1RwQkxKWEtZdXY3djBNbGNtZjQ3NGdMWjBXVm5adkVnRk1TRnM9Ig0KfQ=="
 
-$conn = New-Object System.Data.SqlClient.SqlConnection("Server=localhost\sqlexpress;Database=assetworx;User Id=assetworxadmin;Password=assetworxadmin;")
+$conn = New-Object System.Data.SqlClient.SqlConnection("Server=localhost\sqlexpress;Database=idash;User Id=idashadmin;Password=idashadmin;")
 $conn.Open()
 $cmd = $conn.CreateCommand()
 $cmd.CommandText = "UPDATE applicationsetting SET licensekey = @lic"
@@ -71,7 +71,7 @@ iisreset
   `IDX20803: Unable to obtain configuration from: 'http://<MACHINENAME>/.well-known/openid-configuration'`
   followed by a socket timeout (`10060`).
 - **Root Cause:** In cloned or copied installations, `appsettings.json` points `AuthServerUrl` to the old machine name (e.g. `http://BECKLEYCART1`). The .NET authentication handler attempts to make an internal HTTP call across the network instead of locally.
-- **Fix:** In `C:\inetpub\wwwroot\AssetWorx.WebClient\appsettings.json`, ensure:
+- **Fix:** In `C:\inetpub\wwwroot\iDash\appsettings.json`, ensure:
   ```json
   "AuthServerUrl": "http://localhost"
   ```
