@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="index.aspx.cs" Inherits="index" ResponseEncoding="utf-8" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="index.aspx.cs" Inherits="index" ResponseEncoding="utf-8" %>
     <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
 
 
@@ -20,7 +20,7 @@
 
             <style>
                 /* ============================================================
-   iDash REDESIGNED HUB — Premium CSS
+   iDash REDESIGNED HUB � Premium CSS
    ============================================================ */
 
                 /* ---------- Global ---------- */
@@ -206,6 +206,9 @@
                 .fav-star:hover { opacity: 1; transform: scale(1.2); }
                 .fav-star.active { opacity: 1; color: #facc15; }
 
+                .quick-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.12); margin: 0 4px; }
+                [data-theme="light"] .quick-divider { background: var(--line); }
+
                 /* ---------- Nav Tabs ---------- */
                 .nav-tab {
                     display: inline-flex; align-items: center; gap: 6px;
@@ -218,14 +221,14 @@
                 .nav-tab:hover { background: var(--accent) !important; color: #fff !important; border-color: var(--accent) !important; }
 
                 /* ---------- Quick Actions ---------- */
-                .quick-actions { display: flex; gap: 12px; margin-top: 16px; justify-content: flex-start; flex-wrap: wrap; }
+                .quick-actions { display: flex; gap: 8px; margin-top: 16px; align-items: center; flex-wrap: wrap; }
                 .quick-btn {
                     display: inline-flex; align-items: center; gap: 8px;
-                    padding: 10px 24px; border-radius: 10px; font-size: 13px; font-weight: 600;
+                    padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600;
                     text-decoration: none; transition: all 0.2s; border: 1px solid;
                 }
                 .quick-btn-primary {
-                    background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff;
+                    background: linear-gradient(135deg, #3b82f6, #2563eb); color: #ffffff;
                     border-color: transparent; box-shadow: 0 4px 12px rgba(59,130,246,0.3);
                 }
                 .quick-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,0.4); }
@@ -306,22 +309,29 @@
                         <input type="text" class="cmd-input" id="cmdSearch" placeholder="Jump to any page..." autocomplete="off" />
                         <div class="cmd-results" id="cmdResults"></div>
                     </div>
-                    <!-- Quick Actions -->
+                    <!-- Navigation Strip -->
                     <div class="quick-actions">
                         <a href="va_asset_master.aspx" class="quick-btn quick-btn-primary">&#128202; Asset Master</a>
                         <a href="va_fixed_reader.aspx" class="quick-btn quick-btn-secondary">&#128225; Fixed Readers</a>
-                        <a href="documentation/index.aspx" class="quick-btn quick-btn-secondary">&#128218; Documentation</a>
-                        <a href="about.html" class="quick-btn quick-btn-secondary">&#9432; About iDash</a>
+                        <div class="quick-divider"></div>
+                        <a href="#favoritesSection" class="quick-btn quick-btn-secondary">&#11088; Favorites</a>
+                        <% if (CanSeeSection("downloads","docs")) { %><a href="#sec-docs-card" class="quick-btn quick-btn-secondary" onclick="var c=document.getElementById('sec-docs-card');if(c)c.classList.remove('collapsed');">&#128218; Guides</a><% } %>
+                        <% if (CanSeeSection("rpt_")) { %><a href="#sec-reports-card" class="quick-btn quick-btn-secondary" onclick="var c=document.getElementById('sec-reports-card');if(c)c.classList.remove('collapsed');">&#128202; Reports</a><% } %>
+                        <% if (CanSeeSection("scan_", "print_", "excel_print")) { %><a href="#sec-scanning-card" class="quick-btn quick-btn-secondary" onclick="var c=document.getElementById('sec-scanning-card');if(c)c.classList.remove('collapsed');">&#128241; Scanning</a><% } %>
+                        <% if (IsLoggedIn && Convert.ToString(Session["IdashUserRole"]) == "admin") { %><a href="#sec-admin" class="quick-btn quick-btn-secondary" style="border-color:rgba(239,68,68,0.3); color:#ef4444;">&#128274; Admin</a><% } %>
+                        <div class="quick-divider"></div>
+                        <a href="documentation/index.aspx" class="quick-btn quick-btn-secondary" style="opacity:0.7; font-size:12px;">Docs</a>
+                        <a href="about.html" class="quick-btn quick-btn-secondary" style="opacity:0.7; font-size:12px;">About</a>
                     </div>
                     </div>
                 </div>
 
                 <!-- ====== KPI STRIP ====== -->
                 <div class="kpi-strip">
-                    <div class="kpi-card"><div class="kpi-value" id="kpiAssets">—</div><div class="kpi-label">Total Assets</div></div>
-                    <div class="kpi-card"><div class="kpi-value" id="kpiTagged">—</div><div class="kpi-label">Parts Tagged</div></div>
-                    <div class="kpi-card"><div class="kpi-value" id="kpiSites">—</div><div class="kpi-label">Active Sites</div></div>
-                    <div class="kpi-card"><div class="kpi-value" id="kpiPrinted">—</div><div class="kpi-label">Printed Today</div></div>
+                    <div class="kpi-card"><div class="kpi-value" id="kpiAssets">�</div><div class="kpi-label">Total Assets</div></div>
+                    <div class="kpi-card"><div class="kpi-value" id="kpiTagged">�</div><div class="kpi-label">Parts Tagged</div></div>
+                    <div class="kpi-card"><div class="kpi-value" id="kpiSites">�</div><div class="kpi-label">Active Sites</div></div>
+                    <div class="kpi-card"><div class="kpi-value" id="kpiPrinted">�</div><div class="kpi-label">Printed Today</div></div>
                 </div>
                 <% } %>
                 <div class="page">
@@ -357,8 +367,8 @@
                     </div>
                     <% } else { %>
 
-                    <!-- TAB BAR -->
-                    <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:25px; margin-bottom:10px; border-bottom:1px solid var(--line); padding-bottom:15px;" id="nav-tabs">
+                    <!-- SECTION NAV (merged into hero) -->
+                    <div id="nav-tabs" style="display:none;">
                         <a href="#favoritesSection" class="nav-tab">&#11088; Favorites</a>
                         
                         <% if (CanSeeSection("downloads","docs")) { %><a href="#sec-docs" class="nav-tab">&#128218; Guides &amp; Downloads</a><% } %>
@@ -465,7 +475,7 @@
                             </div>
                         </div><% } %>
 
-                        <%-- REMOVED: rpt_overview — accessible via Asset Master Stats pill link (08/02) --%>
+                        <%-- REMOVED: rpt_overview � accessible via Asset Master Stats pill link (08/02) --%>
 
                         <% if (CanSeeTile("rpt_asset_master")) { %><div class="tile" onclick="location.href='va_asset_master.aspx'" style="border-left: 4px solid var(--accent-2); background: color-mix(in srgb, var(--accent-2), transparent 95%);">
                             <div class="tile-title" style="color:var(--accent-2);">&#128203; Asset Master &mdash; Unified Portal</div>
@@ -482,7 +492,7 @@
                         </div><% } %>
 
 
-                        <%-- REMOVED: rpt_activity — consolidated into Tagging Dashboards & Activity (08/17) --%>
+                        <%-- REMOVED: rpt_activity � consolidated into Tagging Dashboards & Activity (08/17) --%>
 
 
                         <% if (CanSeeTile("rpt_ennx") || CanSeeTile("rpt_sessions")) { %><div class="tile" onclick="location.href='va_ennx.aspx'">
@@ -515,24 +525,24 @@
                             </div>
                         </div><% } %>
 
-                        <%-- REMOVED: rpt_data_research — consolidated into Asset Master (07/31) --%>
+                        <%-- REMOVED: rpt_data_research � consolidated into Asset Master (07/31) --%>
 
-                        <%-- REMOVED: rpt_tag_audit — consolidated into Tagging Progress & Activity (08/17) --%>
+                        <%-- REMOVED: rpt_tag_audit � consolidated into Tagging Progress & Activity (08/17) --%>
 
                         <% if (CanSeeTile("rpt_data_quality")) { %><div class="tile" onclick="location.href='va_data_quality.aspx'" style="border-left: 4px solid #ef4444; background: color-mix(in srgb, #ef4444, transparent 95%);">
                             <div class="tile-title" style="color:#ef4444;">&#9989; Data Quality Command Center</div>
                             <div class="tile-desc">Live health score (0&ndash;100), missing EIL/CMR detection, unassigned locations, malformed EE numbers, interactive AJAX drill-down, and Excel export.</div>
                         </div><% } %>
 
-                        <%-- REMOVED: rpt_cmr — consolidated into Asset Master CMR filter + KPI (07/31) --%>
+                        <%-- REMOVED: rpt_cmr � consolidated into Asset Master CMR filter + KPI (07/31) --%>
 
-                        <%-- REMOVED: rpt_tag_stats — consolidated into Tagging Progress & Activity (08/17) --%>
+                        <%-- REMOVED: rpt_tag_stats � consolidated into Tagging Progress & Activity (08/17) --%>
 
-                        <%-- REMOVED: rpt_tagging_detail — consolidated into Tagging Dashboards & Activity (08/17) --%>
+                        <%-- REMOVED: rpt_tagging_detail � consolidated into Tagging Dashboards & Activity (08/17) --%>
 
-                        <%-- REMOVED: rpt_location_list — consolidated into Asset Master location column + detail panel (07/31) --%>
+                        <%-- REMOVED: rpt_location_list � consolidated into Asset Master location column + detail panel (07/31) --%>
 
-                        <%-- REMOVED: search_history, search_asset, search_location — all consolidated into Asset Master detail panel (07/31) --%>
+                        <%-- REMOVED: search_history, search_asset, search_location � all consolidated into Asset Master detail panel (07/31) --%>
 
                     </div></div></div>
 
@@ -725,7 +735,7 @@
                                 <div class="tile-desc">Manage fixed RFID reader registrations, antenna port mappings, power levels, network discovery, and live online/offline status.</div>
                             </div>
                             <% } %>
-                            <!-- Tag Types — tagging team analysis page -->
+                            <!-- Tag Types � tagging team analysis page -->
                             <% if (CanSeeTile("admin_tag_type")) { %>
                             <div class="tile" onclick="location.href='va_tag_type.aspx'" style="border-left: 4px solid #10b981; background: rgba(16,185,129,0.05);">
                                 <div class="tile-title" style="color:#10b981;">&#127991; Tag Type Analysis</div>
@@ -1197,7 +1207,7 @@ function toggleSection(id) {
                 </div>
 
                 <script>
-                    /* â”€â”€ Support Request Modal (AJAX â€” no postback) â”€â”€ */
+                    /* ── Support Request Modal (AJAX — no postback) ── */
                     function openSupportModal() {
                         var ov = document.getElementById('srOverlay');
                         ov.classList.add('active');
@@ -1290,8 +1300,8 @@ function toggleSection(id) {
                                         var badge = document.getElementById('tileWatchBadge');
                                         if (badge && d.summary.totalWatched > 0) {
                                             var txt = d.summary.totalWatched + ' Watched';
-                                            if (d.summary.high > 0) txt += ' • ' + d.summary.high + ' High';
-                                            if (d.summary.mismatch > 0) txt += ' • ?? ' + d.summary.mismatch;
+                                            if (d.summary.high > 0) txt += ' � ' + d.summary.high + ' High';
+                                            if (d.summary.mismatch > 0) txt += ' � ?? ' + d.summary.mismatch;
                                             badge.textContent = txt;
                                             badge.style.display = 'inline-block';
                                         }
