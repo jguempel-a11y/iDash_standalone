@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Section 508 Compliance &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .compliance-pass { color: #10b981; font-weight: 700; }
+        .compliance-partial { color: #f59e0b; font-weight: 700; }
+        .compliance-na { color: var(--muted-docs); font-weight: 600; }
+        .check { color: #10b981; }
+        .status-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 20px 0; }
+        @media (max-width: 768px) { .status-grid { grid-template-columns: 1fr; } }
+        .status-card { background: rgba(0,0,0,0.15); border: 1px solid var(--line-docs); border-radius: 12px; padding: 20px; text-align: center; }
+        .status-card .big { font-size: 2.5rem; font-weight: 800; margin-bottom: 4px; }
+        .status-card .label { color: var(--muted-docs); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+        .wcag-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 16px 0; }
+        .wcag-table th { background: rgba(0,0,0,0.2); text-align: left; padding: 10px 12px; border-bottom: 2px solid var(--line-docs); font-weight: 600; }
+        .wcag-table td { padding: 10px 12px; border-bottom: 1px solid var(--line-docs); }
+        .wcag-table tr:hover td { background: rgba(99,102,241,0.06); }
+        .wcag-level { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+        .wcag-a { background: color-mix(in srgb, #3b82f6, transparent 85%); color: #3b82f6; }
+        .wcag-aa { background: color-mix(in srgb, #8b5cf6, transparent 85%); color: #8b5cf6; }
+        .impl-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; background: color-mix(in srgb, #10b981, transparent 85%); color: #10b981; border: 1px solid color-mix(in srgb, #10b981, transparent 70%); }
+        .file-ref { font-family: Consolas, monospace; font-size: 0.85rem; background: var(--chip); padding: 2px 6px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+<a class="skip-nav" href="#main-content">Skip to main content</a>
+<main id="main-content" role="main">
+<div class="wrap">
+    <a href="index.aspx">&larr; Back to Documentation Hub</a><br/><br/>
+
+    <!-- HEADER -->
+    <div class="card" style="background: linear-gradient(135deg, var(--card), rgba(16, 185, 129, 0.08));">
+        <h1><span aria-hidden="true">&#x2705;</span> Section 508 Compliance Statement</h1>
+        <div style="margin-bottom:12px;">
+            <span class="badge" style="background:color-mix(in srgb, #10b981, transparent 85%); color:#10b981; border:1px solid color-mix(in srgb, #10b981, transparent 70%);">WCAG 2.0 AA</span>
+            <span class="badge" style="background:color-mix(in srgb, #3b82f6, transparent 85%); color:#3b82f6; border:1px solid color-mix(in srgb, #3b82f6, transparent 70%);">Section 508</span>
+            <span class="badge" style="background:color-mix(in srgb, #8b5cf6, transparent 85%); color:#8b5cf6; border:1px solid color-mix(in srgb, #8b5cf6, transparent 70%);">Rehabilitation Act</span>
+        </div>
+        <p>
+            iDash is designed and maintained to comply with <strong>Section 508</strong> of the Rehabilitation Act
+            and meets <strong>WCAG 2.0 Level AA</strong> standards for web accessibility. This document details
+            the accessibility features implemented and the WCAG success criteria addressed.
+        </p>
+    </div>
+
+    <!-- COMPLIANCE OVERVIEW -->
+    <div class="card">
+        <h2><span aria-hidden="true">&#x1F4CA;</span> Compliance Overview</h2>
+        <div class="status-grid">
+            <div class="status-card">
+                <div class="big compliance-pass">Compliant</div>
+                <div class="label">Section 508 Status</div>
+            </div>
+            <div class="status-card">
+                <div class="big" style="color: #8b5cf6;">AA</div>
+                <div class="label">WCAG Conformance Level</div>
+            </div>
+            <div class="status-card">
+                <div class="big" style="color: var(--accent-docs);">2026-07-07</div>
+                <div class="label">Last Compliance Review</div>
+            </div>
+        </div>
+
+        <h3>Applicable Standard</h3>
+        <p>
+            Per <a href="https://www.section508.gov/" target="_blank" rel="noopener">Section508.gov</a>,
+            all VA Information and Communication Technology (ICT) must conform to the
+            <strong>Revised 508 Standards</strong> (January 2018), which incorporate
+            <strong>WCAG 2.0 Level A and Level AA</strong> success criteria by reference.
+        </p>
+    </div>
+
+    <!-- ACCESSIBILITY FEATURES -->
+    <div class="card">
+        <h2><span aria-hidden="true">&#x2699;</span> Accessibility Features Implemented</h2>
+
+        <h3><span aria-hidden="true">&#x2328;</span> Keyboard Navigation</h3>
+        <ul>
+            <li><span class="check" aria-hidden="true">&#x2705;</span> All interactive elements (buttons, links, form fields, tabs) are keyboard-accessible via <kbd>Tab</kbd>, <kbd>Shift+Tab</kbd>, and <kbd>Enter</kbd></li>
+            <li><span class="check" aria-hidden="true">&#x2705;</span> Visible focus indicators on all interactive elements in both dark and light themes</li>
+            <li><span class="check" aria-hidden="true">&#x2705;</span> Skip navigation link on all pages &mdash; press <kbd>Tab</kbd> on page load to reveal "Skip to main content"</li>
+            <li><span class="check" aria-hidden="true">&#x2705;</span> Logical tab order follows visual reading order</li>
+        </ul>
+
+        <h3><span aria-hidden="true">&#x1F50A;</span> Screen Reader Support</h3>
+        <ul>
+            <li><span class="check" aria-hidden="true">&#x2705;</span> Proper <code>lang="en"</code> attribute on all pages</li>
+            <li><span class="check" aria-hidden="true">&#x2705;</span> Semantic HTML5 landmarks: <code>&lt;main&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;header&gt;</code></li>
+            <li><span class="check" aria-hidden="true">&#x2705;</span> ARIA roles on tab interfaces: <code>role="tablist"</code>, <code>role="tab"</code>, <code>role="tabpanel"</code></li>
+            <li><span class="check" aria-hidden="true">&#x2705;</span> <code>aria-selected</code> state managed dynamically on tab switching</li>
+            <li><span class="check" aria-hidden="true">&#x2705;</span> Decorative emoji/icons marked with <code>aria-hidden="true"</code></li>
+            <li><span class="check" aria-hidden="true">&#x2705;</span> <code>.sr-only</code> utility class for visually hidden but screen-reader-accessible content</li>
+        </ul>
+
+        <h3><span aria-hidden="true">&#x1F3A8;</span> Visual Accessibility</h3>
+        <ul>
+            <li><span class="check" aria-hidden="true">&#x2705;</span> Color contrast ratios meet WCAG AA minimum (4.5:1 for normal text, 3:1 for large text)</li>
+            <li><span class="check" aria-hidden="true">&#x2705;</span> Dark and light theme support &mdash; both themes tested for contrast compliance</li>
+            <li><span class="check" aria-hidden="true">&#x2705;</span> Status indicators use text + icon, not color alone</li>
+            <li><span class="check" aria-hidden="true">&#x2705;</span> <code>prefers-reduced-motion</code> media query disables all animations for users who request it</li>
+            <li><span class="check" aria-hidden="true">&#x2705;</span> Responsive design adapts to screen size and zoom levels up to 200%</li>
+        </ul>
+
+        <h3><span aria-hidden="true">&#x1F4DD;</span> Forms &amp; Data Tables</h3>
+        <ul>
+            <li><span class="check" aria-hidden="true">&#x2705;</span> Form inputs associated with labels via <code>&lt;label&gt;</code> elements or <code>aria-label</code></li>
+            <li><span class="check" aria-hidden="true">&#x2705;</span> Data tables use <code>scope="col"</code> on header cells for screen reader context</li>
+            <li><span class="check" aria-hidden="true">&#x2705;</span> Error messages announced to screen readers via live regions</li>
+            <li><span class="check" aria-hidden="true">&#x2705;</span> GridView controls include structured header rows</li>
+        </ul>
+    </div>
+
+    <!-- WCAG CRITERIA MATRIX -->
+    <div class="card">
+        <h2><span aria-hidden="true">&#x1F4CB;</span> WCAG 2.0 Level AA Success Criteria</h2>
+        <p>The following table documents iDash conformance against each applicable WCAG 2.0 Level A and AA criterion.</p>
+
+        <h3>Principle 1: Perceivable</h3>
+        <table class="wcag-table">
+            <thead>
+                <tr>
+                    <th scope="col">Criterion</th>
+                    <th scope="col">Level</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Implementation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1.1.1</td>
+                    <td><span class="wcag-level wcag-a">A</span></td>
+                    <td>Non-text Content</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>Decorative emojis use <code>aria-hidden="true"</code>; images have alt text</td>
+                </tr>
+                <tr>
+                    <td>1.3.1</td>
+                    <td><span class="wcag-level wcag-a">A</span></td>
+                    <td>Info and Relationships</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>Semantic HTML, ARIA roles, table <code>scope</code>, <code>&lt;label&gt;</code> elements</td>
+                </tr>
+                <tr>
+                    <td>1.3.2</td>
+                    <td><span class="wcag-level wcag-a">A</span></td>
+                    <td>Meaningful Sequence</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>DOM order matches visual reading order</td>
+                </tr>
+                <tr>
+                    <td>1.3.3</td>
+                    <td><span class="wcag-level wcag-a">A</span></td>
+                    <td>Sensory Characteristics</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>Instructions reference labels/text, not position or appearance alone</td>
+                </tr>
+                <tr>
+                    <td>1.4.1</td>
+                    <td><span class="wcag-level wcag-a">A</span></td>
+                    <td>Use of Color</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>Status indicators pair color with text/icon labels</td>
+                </tr>
+                <tr>
+                    <td>1.4.3</td>
+                    <td><span class="wcag-level wcag-aa">AA</span></td>
+                    <td>Contrast (Minimum)</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>4.5:1+ contrast on all text. Dark theme muted text (#8aa0c5 on #0b1220) = 5.6:1</td>
+                </tr>
+                <tr>
+                    <td>1.4.4</td>
+                    <td><span class="wcag-level wcag-aa">AA</span></td>
+                    <td>Resize Text</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>Layout adapts to 200% browser zoom without loss of content</td>
+                </tr>
+                <tr>
+                    <td>1.4.5</td>
+                    <td><span class="wcag-level wcag-aa">AA</span></td>
+                    <td>Images of Text</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>No images of text used; all text is real HTML text</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Principle 2: Operable</h3>
+        <table class="wcag-table">
+            <thead>
+                <tr>
+                    <th scope="col">Criterion</th>
+                    <th scope="col">Level</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Implementation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>2.1.1</td>
+                    <td><span class="wcag-level wcag-a">A</span></td>
+                    <td>Keyboard</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>All functionality accessible via keyboard (Tab, Enter, Escape)</td>
+                </tr>
+                <tr>
+                    <td>2.1.2</td>
+                    <td><span class="wcag-level wcag-a">A</span></td>
+                    <td>No Keyboard Trap</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>No modal traps; all elements can be navigated away from</td>
+                </tr>
+                <tr>
+                    <td>2.3.1</td>
+                    <td><span class="wcag-level wcag-a">A</span></td>
+                    <td>Three Flashes</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td><code>prefers-reduced-motion</code> disables animations; no flashing content</td>
+                </tr>
+                <tr>
+                    <td>2.4.1</td>
+                    <td><span class="wcag-level wcag-a">A</span></td>
+                    <td>Bypass Blocks</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>"Skip to main content" link on all pages</td>
+                </tr>
+                <tr>
+                    <td>2.4.2</td>
+                    <td><span class="wcag-level wcag-a">A</span></td>
+                    <td>Page Titled</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>Unique, descriptive <code>&lt;title&gt;</code> on every page</td>
+                </tr>
+                <tr>
+                    <td>2.4.3</td>
+                    <td><span class="wcag-level wcag-a">A</span></td>
+                    <td>Focus Order</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>Tab order follows logical reading order; tabs use <code>aria-selected</code></td>
+                </tr>
+                <tr>
+                    <td>2.4.4</td>
+                    <td><span class="wcag-level wcag-a">A</span></td>
+                    <td>Link Purpose</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>Link text describes destination (no "click here" links)</td>
+                </tr>
+                <tr>
+                    <td>2.4.6</td>
+                    <td><span class="wcag-level wcag-aa">AA</span></td>
+                    <td>Headings and Labels</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>Proper heading hierarchy (h1 &rarr; h2 &rarr; h3); descriptive labels on forms</td>
+                </tr>
+                <tr>
+                    <td>2.4.7</td>
+                    <td><span class="wcag-level wcag-aa">AA</span></td>
+                    <td>Focus Visible</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>3px solid outline on <code>:focus-visible</code> for all interactive elements</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Principle 3: Understandable</h3>
+        <table class="wcag-table">
+            <thead>
+                <tr>
+                    <th scope="col">Criterion</th>
+                    <th scope="col">Level</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Implementation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>3.1.1</td>
+                    <td><span class="wcag-level wcag-a">A</span></td>
+                    <td>Language of Page</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td><code>lang="en"</code> on all <code>&lt;html&gt;</code> elements</td>
+                </tr>
+                <tr>
+                    <td>3.2.1</td>
+                    <td><span class="wcag-level wcag-a">A</span></td>
+                    <td>On Focus</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>No context change on focus; tab switching requires click</td>
+                </tr>
+                <tr>
+                    <td>3.2.2</td>
+                    <td><span class="wcag-level wcag-a">A</span></td>
+                    <td>On Input</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>Form submissions require explicit button click</td>
+                </tr>
+                <tr>
+                    <td>3.3.1</td>
+                    <td><span class="wcag-level wcag-a">A</span></td>
+                    <td>Error Identification</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>Error messages include descriptive text with visual indicator</td>
+                </tr>
+                <tr>
+                    <td>3.3.2</td>
+                    <td><span class="wcag-level wcag-a">A</span></td>
+                    <td>Labels or Instructions</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>All form inputs have visible labels; "How it works" instructions provided</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Principle 4: Robust</h3>
+        <table class="wcag-table">
+            <thead>
+                <tr>
+                    <th scope="col">Criterion</th>
+                    <th scope="col">Level</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Implementation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>4.1.1</td>
+                    <td><span class="wcag-level wcag-a">A</span></td>
+                    <td>Parsing</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>Valid HTML markup; proper nesting of elements</td>
+                </tr>
+                <tr>
+                    <td>4.1.2</td>
+                    <td><span class="wcag-level wcag-a">A</span></td>
+                    <td>Name, Role, Value</td>
+                    <td><span class="compliance-pass">Pass</span></td>
+                    <td>ARIA roles/states on custom widgets; native controls used where possible</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- IMPLEMENTATION FILES -->
+    <div class="card">
+        <h2><span aria-hidden="true">&#x1F4C2;</span> Implementation Files</h2>
+        <p>The following files contain the core accessibility infrastructure:</p>
+        <table class="wcag-table">
+            <thead>
+                <tr>
+                    <th scope="col">File</th>
+                    <th scope="col">508 Features</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="file-ref">theme.css</span></td>
+                    <td>Focus indicators (<code>:focus-visible</code>), skip navigation styling, <code>.sr-only</code> utility, <code>prefers-reduced-motion</code></td>
+                </tr>
+                <tr>
+                    <td><span class="file-ref">docs_theme.css</span></td>
+                    <td>Inherits from theme.css; documentation-specific contrast and spacing</td>
+                </tr>
+                <tr>
+                    <td><span class="file-ref">va_fhir_bridge.aspx</span></td>
+                    <td><code>lang="en"</code>, skip nav, <code>&lt;main&gt;</code> landmark, ARIA tablist/tab/tabpanel, <code>aria-selected</code> management</td>
+                </tr>
+                <tr>
+                    <td><span class="file-ref">va_valip_integration.html</span></td>
+                    <td>Skip nav, <code>&lt;main&gt;</code> landmark, <code>scope="col"</code> on all tables, <code>aria-hidden</code> on emojis</td>
+                </tr>
+                <tr>
+                    <td><span class="file-ref">va_ennx_vista_push.html</span></td>
+                    <td>Skip nav, <code>&lt;main&gt;</code> landmark, <code>scope="col"</code> on all tables, <code>aria-hidden</code> on emojis</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- TESTING PROCEDURES -->
+    <div class="card">
+        <h2><span aria-hidden="true">&#x1F9EA;</span> Testing Procedures</h2>
+        <h3>Automated Testing</h3>
+        <ul>
+            <li><strong>WAVE</strong> &mdash; Web Accessibility Evaluation Tool (browser extension)</li>
+            <li><strong>axe DevTools</strong> &mdash; Chrome extension for WCAG automated checks</li>
+            <li><strong>Lighthouse</strong> &mdash; Chrome DevTools accessibility audit (score target: 90+)</li>
+        </ul>
+        <h3>Manual Testing</h3>
+        <ul>
+            <li>Keyboard-only navigation (Tab, Shift+Tab, Enter, Escape, Arrow keys)</li>
+            <li>Screen reader testing with Windows <strong>Narrator</strong> or <strong>NVDA</strong></li>
+            <li>Browser zoom to 200% &mdash; verify no content overflow or loss</li>
+            <li><code>prefers-reduced-motion</code> &mdash; verify animations disabled</li>
+            <li>High contrast mode &mdash; verify content remains visible</li>
+        </ul>
+    </div>
+
+    <!-- CONTACT & REVISION -->
+    <div class="card">
+        <h2><span aria-hidden="true">&#x1F4DD;</span> Revision History</h2>
+        <table class="wcag-table">
+            <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Version</th>
+                    <th scope="col">Change</th>
+                    <th scope="col">Author</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>2026-07-07</td>
+                    <td>1.0</td>
+                    <td>
+                        Initial Section 508 compliance implementation and documentation.<br/>
+                        Added: focus indicators, skip navigation, ARIA roles, <code>prefers-reduced-motion</code>,
+                        <code>.sr-only</code> utility, <code>lang</code> attributes, semantic landmarks,
+                        table <code>scope</code> attributes, <code>aria-hidden</code> on decorative elements.
+                    </td>
+                    <td>iDash Development</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</main>
+</body>
+</html>

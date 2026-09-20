@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>AEMS MERS INTEGRATION &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <div class="wrap">
+        <a href="index.aspx">&larr; Back to Documentation Hub</a>
+        <br/><br/>
+
+        <div class="card">
+            <h1>&#128257; AEMS-MERS &amp; VistA Integration Strategy</h1>
+            <p style="color:var(--muted-docs); font-size:16px;">
+                This document outlines the <strong>ID Integration Inc.</strong> approach to bridging the gap between iDash/Dashboard and the VA's primary systems of record: <strong>AEMS-MERS</strong> and <strong>VistA</strong>.
+            </p>
+            <div class="alert alert-info">
+                <strong>Strategic Context:</strong> Modern VA logistics require a bi-directional flow of data. Dashboard serves as the "Live Edge" of inventory scanning and RTLS tracking, while AEMS-MERS serves as the "Financial Core" and compliance record.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Interface Architecture</h2>
+            <p>Our approach utilizes a RESTful middleware architecture to facilitate secure, authenticated communication between the Dashboard SQL environment and the VistA MUMPS database. This follows the <strong>Enterprise Systems Engineering (ESE)</strong> pattern for VA system interactions.</p>
+            
+            <div class="diagram">
+                <code style="color:var(--accent2-docs); font-weight:bold;">[ iDash / Dashboard ] <--> [ Dashboard Integration Service ] <--> [ VistA Service API ] <--> [ VistA / AEMS-MERS ]</code>
+            </div>
+
+            <h3>Key Integration Components</h3>
+            <ul>
+                <li><strong>Dashboard Integration Service (IIS):</strong> A dedicated worker process that orchestrates data synchronization, mapping RTLS events to VistA updates.</li>
+                <li><strong>VistA Service API:</strong> A RESTful wrapper around VistA Remote Procedure Calls (RPCs), allowing modern JSON/XML communication with the legacy MUMPS environment.</li>
+                <li><strong>Bidirectional Synchronization:</strong> Continuous polling for asset updates from VistA and real-time pushing of inventory/location events from Dashboard.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>Data Mapping &amp; Logic</h2>
+            <p>To maintain data integrity, we utilize a standardized mapping of fields between the two systems. The <strong>EE Number</strong> (Equipment Entry Number) serves as the primary unique identifier.</p>
+
+            <h3>1. Inbound to Dashboard (AEMS &rarr; Dashboard)</h3>
+            <p>Asset details are imported into Dashboard to ensure users see up-to-date descriptions, serial numbers, and ownership data.</p>
+            <table>
+                <tr><th>VistA Field</th><th>Dashboard/iDash Field</th><th>Description</th></tr>
+                <tr><td><code>ENTRY NUMBER (6914, .01)</code></td><td><code>Barcode / EE Number</code></td><td>Unique Primary Key</td></tr>
+                <tr><td><code>MANUFACTURER (6914, 1)</code></td><td><code>Manufacturer</code></td><td>Equipment OEM</td></tr>
+                <tr><td><code>MODEL (6914, 4)</code></td><td><code>Model</code></td><td>OEM Model Name/Number</td></tr>
+                <tr><td><code>SERIAL # (6914, 5)</code></td><td><code>Serial Number</code></td><td>Unique Serial Number</td></tr>
+                <tr><td><code>CMR (6914, 19)</code></td><td><code>Owner / CMR</code></td><td>Consolidated Management Report owner</td></tr>
+                <tr><td><code>ACQUISITION DATE (6914, 13)</code></td><td><code>Placed in Service</code></td><td>Date the asset entered the inventory</td></tr>
+            </table>
+
+            <h3>2. Outbound to AEMS (Dashboard &rarr; AEMS)</h3>
+            <p>Critical updates are pushed to AEMS whenever a physical inventory occurs or an asset moves location.</p>
+            <table>
+                <tr><th>Event Type</th><th>Action / RPC</th><th>Result</th></tr>
+                <tr>
+                    <td><span class="badge chip-api">Location Move</span></td>
+                    <td><code>VIAA ENG ASSET MOVE</code></td>
+                    <td>Updates the <strong>ROOM NUMBER</strong> and <strong>DATE ENTERED LOCATION</strong> in VistA.</td>
+                </tr>
+                <tr>
+                    <td><span class="badge chip-db">Physical Inventory</span></td>
+                    <td><code>VIAA ENG ASSET MOVE</code></td>
+                    <td>Updates the <strong>PHYSICAL INVENTORY DATE</strong> for audit compliance.</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>Location &amp; Space Mapping</h2>
+            <p>A central challenge in RTLS is mapping physical sensor zones to administrative rooms defined in the <strong>VistA Space File (#6928)</strong>.</p>
+            
+            <h3>Mapping Methodology</h3>
+            <p>We implement a <strong>One-to-Many</strong> mapping system using the <code>esf-room-number</code> key. This allows Dashboard to track assets at a higher resolution (e.g., specific hallway segments) while still reporting to the correct administrative room in VistA.</p>
+            
+            <pre>// Example: Mapping three RTLS locations to a single VistA Room
+RTLS Location: 506-A101-ZoneA  --> VistA: 506 1A101|1
+RTLS Location: 506-A101-ZoneB  --> VistA: 506 1A101|2
+RTLS Location: 506-A101-ZoneC  --> VistA: 506 1A101|3
+
+// The "|" suffix is stripped during the AEMS push to match VistA Room "1A101"</pre>
+
+            <div class="alert alert-warn">
+                <strong>Data Integrity Guard:</strong> If a location move is detected in Dashboard but the target room does not exist in the VistA Space File, the update is logged in the <em>Exception Report</em> and suppressed until corrected by a Space Manager.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Implementation &amp; Deployment</h2>
+            <p>The ID Integration approach to deployment follows a phased "Scan-First" methodology.</p>
+            
+            <div style="margin-top:20px;">
+                <h3>Phase 1: Database Baseline</h3>
+                <p>Perform an initial bulk export of AEMS-MERS assets via <code>SQLCMD</code> or <code>BCP</code> extraction. Import this into the iDash SQL database to seed the system.</p>
+                
+                <h3>Phase 2: API Integration</h3>
+                <p>Configure the <code>Dashboard Integration Service</code> with appropriate OIT-provided credentials and firewall ACLs. Verify connectivity to the <code>VistaService</code> REST endpoints.</p>
+
+                <h3>Phase 3: Active Synchronization</h3>
+                <p>Enable automated inventory date updates. As staff scan assets via Dashboard <strong>Tag Team Scan</strong>, the system automatically triggers the <code>VIAA ENG ASSET MOVE</code> RPC to satisfy the physical inventory requirement in AEMS-MERS.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Security &amp; Compliance</h2>
+            <ul>
+                <li><strong>Authentication:</strong> All API calls utilize VistALink or OIT-approved Web Service credentials.</li>
+                <li><strong>No Database Direct Writes:</strong> We never write directly to the VistA SQL/MUMPS database. All updates MUST go through approved RPCs to ensure business logic and audit trails are preserved.</li>
+                <li><strong>Audit Logging:</strong> Every outbound transaction is logged in the Dashboard <code>App_Data/logs</code> folder, capturing the EE Number, target Room, and VistA response code.</li>
+            </ul>
+        </div>
+
+        <div style="text-align:center; color:var(--muted-docs); font-size:12px; margin-top:40px;">
+            ID Integration Inc. Integration Documentation &copy; 2026
+        </div>
+    </div>
+</body>
+</html>
+

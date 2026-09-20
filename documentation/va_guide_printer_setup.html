@@ -1,0 +1,293 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>iDash Docs &mdash; Guide: RFID Printer Setup &amp; Troubleshooting</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <style>
+        .step-card { background: color-mix(in srgb, var(--text, #e2e8f0), transparent 97%); border: 1px solid var(--line, #2a3441); border-radius: 14px; padding: 28px; margin-bottom: 32px; }
+        .step-num { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: #ef4444; color: #fff; font-weight: 800; font-size: 16px; margin-right: 12px; flex-shrink: 0; }
+        .step-num.media { background: #f59e0b; }
+        .step-num.connect { background: #3b82f6; }
+        .step-num.fix { background: #8B5CF6; }
+        .step-title { font-size: 20px; font-weight: 700; display: flex; align-items: center; margin-bottom: 12px; }
+        .step-desc { color: var(--muted-docs, #8b95a5); font-size: 14px; line-height: 1.7; margin-bottom: 16px; }
+        .tip-box { background: color-mix(in srgb, #10b981, transparent 88%); border: 1px solid rgba(16,185,129,0.3); border-left: 4px solid #10b981; padding: 14px 18px; border-radius: 8px; font-size: 13px; margin: 16px 0; color: #10b981; }
+        .warn-box { background: color-mix(in srgb, #f59e0b, transparent 88%); border: 1px solid rgba(245,158,11,0.3); border-left: 4px solid #f59e0b; padding: 14px 18px; border-radius: 8px; font-size: 13px; margin: 16px 0; color: #f59e0b; }
+        .danger-box { background: color-mix(in srgb, #ef4444, transparent 88%); border: 1px solid rgba(239,68,68,0.3); border-left: 4px solid #ef4444; padding: 14px 18px; border-radius: 8px; font-size: 13px; margin: 16px 0; color: #ef4444; }
+        .info-box { background: color-mix(in srgb, #3b82f6, transparent 88%); border: 1px solid rgba(59,130,246,0.3); border-left: 4px solid #3b82f6; padding: 14px 18px; border-radius: 8px; font-size: 13px; margin: 16px 0; color: #3b82f6; }
+        .section-divider { border: none; border-top: 2px solid var(--line, #2a3441); margin: 40px 0; }
+        .phase-header { font-size: 18px; font-weight: 800; margin: 32px 0 12px 0; padding: 10px 16px; border-radius: 10px; display: flex; align-items: center; gap: 10px; }
+        .phase-header.settings { background: color-mix(in srgb, #ef4444, transparent 88%); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; }
+        .phase-header.media { background: color-mix(in srgb, #f59e0b, transparent 88%); border: 1px solid rgba(245,158,11,0.3); color: #f59e0b; }
+        .phase-header.connect { background: color-mix(in srgb, #3b82f6, transparent 88%); border: 1px solid rgba(59,130,246,0.3); color: #3b82f6; }
+        .phase-header.troubleshoot { background: color-mix(in srgb, #8B5CF6, transparent 88%); border: 1px solid rgba(139,92,246,0.3); color: #8B5CF6; }
+        .model-card { border: 1px solid var(--line, #2a3441); border-radius: 10px; padding: 18px; margin: 8px 0; }
+        .model-name { font-weight: 800; font-size: 16px; margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <a href="index.aspx" class="back-link">&larr; Documentation Hub</a>
+
+    <div class="doc-container">
+        <h1>&#128424; Guide: RFID Printer Setup &amp; Troubleshooting</h1>
+        <p class="doc-subtitle">How to configure Zebra ZT411R and ZD621R RFID printers &mdash; basic settings, media/ribbon installation, network connections, and troubleshooting common print failures.</p>
+
+        <div class="callout callout-info">
+            <strong>Printers covered:</strong> This guide covers both the <strong>Zebra ZT411R</strong> (industrial tabletop) and the <strong>Zebra ZD621R</strong> (desktop). Both are RFID-enabled label printers used for encoding and printing iDash tags.
+        </div>
+
+        <p class="step-desc"><strong>Source:</strong> <em>VISN 5 Use and Configuration Guide for iDash 4.0.8.7</em>, Sections XIII&ndash;XVI (pages 50&ndash;63)</p>
+
+        <!-- ════════ PHASE 1: SETTINGS ════════ -->
+        <div class="phase-header settings">&#9881; Phase 1: Basic Printer Settings</div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">1</span> Access Printer Menu</div>
+            <div class="step-desc">
+                On the printer's front panel, use the <strong>navigation buttons</strong> to access the settings menu. The exact method differs by model:
+            </div>
+            <div class="model-card">
+                <div class="model-name" style="color: #ef4444;">Zebra ZT411R (Industrial)</div>
+                <div class="step-desc" style="margin-bottom: 0;">Use the <strong>touchscreen display</strong> or <strong>navigation arrows</strong> to browse menu options. Press the center button to select.</div>
+            </div>
+            <div class="model-card">
+                <div class="model-name" style="color: #3b82f6;">Zebra ZD621R (Desktop)</div>
+                <div class="step-desc" style="margin-bottom: 0;">Press and hold the <strong>FEED</strong> button for 3 seconds to enter the settings menu. Use short presses to navigate, long press to select.</div>
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">2</span> Configure Darkness (Print Quality)</div>
+            <div class="step-desc">
+                The <strong>Darkness</strong> setting controls how much heat the printhead applies. Proper darkness ensures clear, readable text and barcodes:
+            </div>
+            <table class="doc-table">
+                <thead><tr><th>Printer Model</th><th>Recommended Darkness</th><th>Notes</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>ZT411R</strong></td><td><strong>25</strong></td><td>Higher setting for industrial-grade label stock</td></tr>
+                    <tr><td><strong>ZD621R</strong></td><td><strong>20</strong></td><td>Lower setting for desktop label stock</td></tr>
+                </tbody>
+            </table>
+            <div class="warn-box">
+                <strong>&#9888; Too high = smearing.</strong> If labels print with smeared text or barcodes, reduce darkness by 2&ndash;3. Too low = faded or incomplete printing. Adjust in small increments.
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">3</span> Set Head Close Action</div>
+            <div class="step-desc">
+                Navigate to <strong>Settings &rarr; Print &rarr; Head Close</strong> and set the <strong>"Head Close Action"</strong> to <strong>"Calibrate"</strong>. This ensures the printer automatically calibrates the gap sensor every time the printhead is closed after loading new media.
+            </div>
+            <div class="tip-box">
+                <strong>&#128161; Why this matters:</strong> Without auto-calibration on head close, the printer may misalign labels or feed too much media between prints.
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">4</span> Set Print Speed</div>
+            <div class="step-desc">
+                For RFID label printing, set print speed to <strong>2&ndash;4 inches per second</strong>:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li><strong>2 in/s</strong> &mdash; Best for RFID encoding reliability (recommended for initial setup)</li>
+                <li><strong>3&ndash;4 in/s</strong> &mdash; Good balance of speed and encoding success rate</li>
+                <li><strong>5+ in/s</strong> &mdash; May cause RFID encoding failures (VOID labels)</li>
+            </ul>
+            <div class="info-box">
+                <strong>&#128225; RFID encoding happens during the print pass.</strong> If the label moves too fast past the RFID antenna, the chip won't have enough time to be written. Slower = more reliable encoding.
+            </div>
+        </div>
+
+        <!-- ════════ PHASE 2: MEDIA ════════ -->
+        <hr class="section-divider" />
+        <div class="phase-header media">&#128230; Phase 2: Load Media &amp; Ribbon</div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num media">5</span> Install the Ribbon (Thermal Transfer)</div>
+            <div class="step-desc">
+                For thermal-transfer printing (most RFID labels):
+            </div>
+            <ol style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li><strong>Open</strong> the printhead cover / media door</li>
+                <li>Unpack the new <strong>ribbon roll</strong> from its packaging</li>
+                <li>Place the <strong>supply roll</strong> (full roll) on the rear spindle</li>
+                <li>Thread the ribbon <strong>under the printhead</strong> (ink-side facing down toward the labels)</li>
+                <li>Attach the leader to the <strong>take-up spindle</strong> (front spindle) and wind a few turns</li>
+                <li>Ensure the ribbon is <strong>smooth and wrinkle-free</strong> under the printhead</li>
+            </ol>
+            <div class="warn-box">
+                <strong>&#9888; Ribbon orientation matters!</strong> The ink-coated side must face the label. To test: press sticky tape to each side of the ribbon &mdash; the side that leaves a mark is the ink side and should face down.
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num media">6</span> Load RFID Label Media</div>
+            <div class="step-desc">
+                Thread the RFID label media through the printer:
+            </div>
+            <ol style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li>Place the label roll on the <strong>media supply holder</strong></li>
+                <li>Thread the label strip through the <strong>media guides</strong></li>
+                <li>Route the media <strong>under the printhead</strong> and out the front</li>
+                <li>Adjust the <strong>media guides</strong> to be snug against the label edges (not too tight)</li>
+                <li>Close the printhead &mdash; you should hear a <strong>click</strong></li>
+            </ol>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num media">7</span> Align the Gap Sensor</div>
+            <div class="step-desc">
+                The gap sensor detects the space between labels. Proper alignment is critical:
+            </div>
+            <div class="model-card">
+                <div class="model-name" style="color: #f59e0b;">Standard Labels (non-flag)</div>
+                <div class="step-desc" style="margin-bottom: 0;">Align the gap sensor with the <strong>inter-label gap</strong> (the space between labels on the backing). The sensor should be positioned at the <strong>center of the label width</strong>.</div>
+            </div>
+            <div class="model-card" style="margin-top: 12px;">
+                <div class="model-name" style="color: #f59e0b;">Flag Tags (double-folded)</div>
+                <div class="step-desc" style="margin-bottom: 0;">For flag-style tags, align the gap sensor with the <strong>fold line</strong> or <strong>perforation</strong>. Flag tags use a different gap spacing than standard labels. You may need to adjust the sensor's <strong>sensitivity</strong> in the menu.</div>
+            </div>
+            <div class="tip-box">
+                <strong>&#128161; After loading:</strong> Close the printhead. If "Head Close Action" is set to "Calibrate" (Step 3), the printer will auto-calibrate. Otherwise, perform a manual calibration: go to <strong>Menu &rarr; Calibrate</strong>.
+            </div>
+        </div>
+
+        <!-- ════════ PHASE 3: CONNECT ════════ -->
+        <hr class="section-divider" />
+        <div class="phase-header connect">&#128268; Phase 3: Connect the Printer</div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num connect">8</span> Choose a Connection Method</div>
+            <div class="step-desc">
+                Connect the printer to the laptop or network using one of these methods:
+            </div>
+            <table class="doc-table">
+                <thead><tr><th style="width:20%">Method</th><th>Setup</th><th>Best For</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>USB</strong></td><td>Connect the USB cable from the printer to the laptop. Windows should auto-install drivers.</td><td>Direct connection, single-laptop use</td></tr>
+                    <tr><td><strong>LAN (Ethernet)</strong></td><td>Connect an Ethernet cable from the printer to the same network/switch as the laptop. Note the printer's IP from its display.</td><td>Network/shared printing</td></tr>
+                    <tr><td><strong>Bluetooth</strong></td><td>Enable Bluetooth on the printer, pair from Windows Bluetooth settings.</td><td>Wireless, close-range printing</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num connect">9</span> Find the Printer's MAC/IP Address</div>
+            <div class="step-desc">
+                You may need the printer's network identity for BarTender or iDash configuration:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li><strong>MAC Address</strong> &mdash; Found on the printer's <strong>label on the back/bottom</strong> of the unit, or via <strong>Menu &rarr; Network &rarr; MAC Address</strong></li>
+                <li><strong>IP Address</strong> &mdash; Displayed on the printer's screen under <strong>Menu &rarr; Network &rarr; IP Address</strong>, or print a configuration label (hold FEED for 5 seconds)</li>
+            </ul>
+            <div class="info-box">
+                <strong>&#128225; Static IP recommended:</strong> If using LAN, configure a static IP address on the printer to prevent it from changing after a reboot. This ensures BarTender can always find the printer.
+            </div>
+        </div>
+
+        <!-- ════════ PHASE 4: TROUBLESHOOT ════════ -->
+        <hr class="section-divider" />
+        <div class="phase-header troubleshoot">&#128295; Phase 4: Troubleshooting</div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num fix">10</span> Labels Printing with Horizontal Offset</div>
+            <div class="step-desc">
+                If printed content is shifted left or right on the label:
+            </div>
+            <ol style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li>Go to <strong>Menu &rarr; Print &rarr; Position</strong></li>
+                <li>Adjust the <strong>"Left Position"</strong> or <strong>"Horizontal Offset"</strong> value</li>
+                <li>Print a test label and repeat until centered</li>
+            </ol>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num fix">11</span> Labels Printing with Vertical Offset</div>
+            <div class="step-desc">
+                If content is shifted up or down on the label (or the label stops at the wrong position):
+            </div>
+            <ol style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li>Go to <strong>Menu &rarr; Print &rarr; Position</strong></li>
+                <li>Adjust the <strong>"Top Position"</strong> or <strong>"Vertical Offset"</strong> value</li>
+                <li>Also check the <strong>"Tear Off"</strong> position &mdash; this controls where the label stops relative to the tear bar</li>
+                <li>Print a test label and repeat until aligned</li>
+            </ol>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num fix">12</span> VOID Labels (RFID Encoding Failure)</div>
+            <div class="step-desc">
+                When the printer prints a <strong>line through the label</strong> (VOID), the RFID chip failed to encode. Common causes and fixes:
+            </div>
+            <table class="doc-table">
+                <thead><tr><th style="width:35%">Cause</th><th>Fix</th></tr></thead>
+                <tbody>
+                    <tr><td>Print speed too fast</td><td>Reduce to <strong>2&ndash;3 in/s</strong> (see Step 4)</td></tr>
+                    <tr><td>RFID chip defective</td><td>Normal &mdash; the printer auto-retries on the next label. Discard the voided label.</td></tr>
+                    <tr><td>Media not RFID-enabled</td><td>Verify you loaded RFID label stock (with embedded chips), not standard labels.</td></tr>
+                    <tr><td>RFID antenna misaligned</td><td>Check that the media is threaded correctly over the RFID antenna position (consult printer manual for antenna location).</td></tr>
+                    <tr><td>Consistent VOIDs on every label</td><td>Run <strong>RFID Calibration</strong> (see Step 13)</td></tr>
+                </tbody>
+            </table>
+            <div class="danger-box">
+                <strong>&#9888; Excessive VOIDs waste label stock.</strong> If more than 10% of labels are being voided, stop printing and troubleshoot. Do not continue burning through a roll of expensive RFID labels.
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num fix">13</span> Run RFID Calibration</div>
+            <div class="step-desc">
+                If VOID errors persist, run the printer's built-in RFID calibration:
+            </div>
+            <ol style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li>Navigate to <strong>Menu &rarr; RFID &rarr; RFID Calibrate</strong> (or <strong>Menu &rarr; Sensors &rarr; RFID Calibrate</strong>)</li>
+                <li>Select <strong>"Start"</strong> &mdash; the printer will feed several labels and test encoding at different power levels and positions</li>
+                <li>When complete, the printer displays <strong>"RFID Calibration Complete"</strong> or similar</li>
+                <li>Try printing again &mdash; the success rate should improve</li>
+            </ol>
+            <div class="info-box">
+                <strong>&#128225; When to RFID calibrate:</strong> After loading a <strong>new type of label media</strong> (different brand, size, or chip type), or when switching between regular labels and flag tags.
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num fix">14</span> Tear-Off Calibration</div>
+            <div class="step-desc">
+                If labels don't tear cleanly at the tear bar:
+            </div>
+            <ol style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li>Go to <strong>Menu &rarr; Print &rarr; Tear Off</strong></li>
+                <li>Adjust the <strong>tear-off offset</strong> in small increments (positive moves label forward, negative moves it back)</li>
+                <li>Print a test label, tear it, and verify the cut position is at the label gap</li>
+                <li>Repeat until labels tear cleanly between the gap</li>
+            </ol>
+        </div>
+
+        <!-- ═══════ QUICK REFERENCE TABLE ═══════ -->
+        <h2><span class="section-num">&#128203;</span> Quick Reference: Recommended Settings</h2>
+        <table class="doc-table">
+            <thead><tr><th style="width:30%">Setting</th><th>ZT411R</th><th>ZD621R</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Darkness</strong></td><td>25</td><td>20</td></tr>
+                <tr><td><strong>Print Speed</strong></td><td>2&ndash;3 in/s</td><td>2&ndash;3 in/s</td></tr>
+                <tr><td><strong>Head Close Action</strong></td><td>Calibrate</td><td>Calibrate</td></tr>
+                <tr><td><strong>Print Mode</strong></td><td>Tear Off</td><td>Tear Off</td></tr>
+                <tr><td><strong>Media Type</strong></td><td>Thermal Transfer</td><td>Thermal Transfer</td></tr>
+                <tr><td><strong>Sensor Type</strong></td><td>Gap (Transmissive)</td><td>Gap (Transmissive)</td></tr>
+                <tr><td><strong>RFID</strong></td><td>Enabled</td><td>Enabled</td></tr>
+            </tbody>
+        </table>
+
+        <h2><span class="section-num">&#128279;</span> Related Guides</h2>
+        <ul>
+            <li><a href="va_guide_offline_printing.html">Offline Printing Station</a> &mdash; Using BarTender to print labels</li>
+            <li><a href="va_printing_walkthrough.html">Printing Guide: Excel Import</a> &mdash; Printing labels from iDash</li>
+            <li><a href="va_printing_walkthrough_asset_master.html">Printing Guide: Asset Master</a> &mdash; Printing from Asset Master</li>
+            <li><a href="va_guide_scanner_setup.html">Zebra TC53 Scanner Setup</a> &mdash; Setting up the handheld reader</li>
+        </ul>
+    </div>
+</body>
+</html>

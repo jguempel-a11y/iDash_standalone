@@ -1,0 +1,212 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>iDash Docs &mdash; Guide: Locate Feature &amp; Reader Settings</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <style>
+        .step-card { background: color-mix(in srgb, var(--text, #e2e8f0), transparent 97%); border: 1px solid var(--line, #2a3441); border-radius: 14px; padding: 28px; margin-bottom: 32px; }
+        .step-num { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: #8B5CF6; color: #fff; font-weight: 800; font-size: 16px; margin-right: 12px; flex-shrink: 0; }
+        .step-num.orange { background: #f59e0b; }
+        .step-num.red { background: #ef4444; }
+        .step-num.blue { background: #3b82f6; }
+        .step-title { font-size: 20px; font-weight: 700; display: flex; align-items: center; margin-bottom: 12px; }
+        .step-desc { color: var(--muted-docs, #8b95a5); font-size: 14px; line-height: 1.7; margin-bottom: 16px; }
+        .tip-box { background: color-mix(in srgb, #10b981, transparent 88%); border: 1px solid rgba(16,185,129,0.3); border-left: 4px solid #10b981; padding: 14px 18px; border-radius: 8px; font-size: 13px; margin: 16px 0; color: #10b981; }
+        .warn-box { background: color-mix(in srgb, #f59e0b, transparent 88%); border: 1px solid rgba(245,158,11,0.3); border-left: 4px solid #f59e0b; padding: 14px 18px; border-radius: 8px; font-size: 13px; margin: 16px 0; color: #f59e0b; }
+        .danger-box { background: color-mix(in srgb, #ef4444, transparent 88%); border: 1px solid rgba(239,68,68,0.3); border-left: 4px solid #ef4444; padding: 14px 18px; border-radius: 8px; font-size: 13px; margin: 16px 0; color: #ef4444; }
+        .section-divider { border: none; border-top: 2px solid var(--line, #2a3441); margin: 40px 0; }
+        .topic-header { font-size: 22px; font-weight: 800; margin: 40px 0 8px 0; padding: 14px 20px; border-radius: 12px; display: flex; align-items: center; gap: 12px; }
+        .topic-header.purple { background: color-mix(in srgb, #8B5CF6, transparent 88%); border: 1px solid rgba(139,92,246,0.3); color: #8B5CF6; }
+        .topic-header.orange { background: color-mix(in srgb, #f59e0b, transparent 88%); border: 1px solid rgba(245,158,11,0.3); color: #f59e0b; }
+        .topic-header.red { background: color-mix(in srgb, #ef4444, transparent 88%); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; }
+        .topic-header.blue { background: color-mix(in srgb, #3b82f6, transparent 88%); border: 1px solid rgba(59,130,246,0.3); color: #3b82f6; }
+        .topic-desc { color: var(--muted-docs, #8b95a5); font-size: 14px; margin: 8px 0 24px 0; padding-left: 4px; }
+    </style>
+</head>
+<body>
+    <a href="index.aspx" class="back-link">&larr; Documentation Hub</a>
+
+    <div class="doc-container">
+        <h1>&#128205; Guide: Locate Feature &amp; Reader Settings</h1>
+        <p class="doc-subtitle">How to use the RFID "Locate" feature to find specific assets, adjust reader antenna power, handle missing location tags, and properly log out of the scanner.</p>
+
+        <div class="callout callout-info">
+            <strong>This guide covers 4 topics:</strong> Locate mode, antenna power adjustment, missing location tags, and the scanner logout procedure. All procedures use the Zebra TC53 with RFID sled.
+        </div>
+
+        <p class="step-desc"><strong>Source:</strong> <em>VISN 5 Use and Configuration Guide for iDash 4.0.8.7</em>, Sections VI&ndash;IX (pages 32&ndash;44)</p>
+
+        <!-- ═══════════════════════════════════════
+             TOPIC A: LOCATE FEATURE
+             ═══════════════════════════════════════ -->
+        <div class="topic-header purple" id="locate">&#128205; Using the "Locate" Feature</div>
+        <div class="topic-desc"><strong>Use when:</strong> You need to find a specific asset that you know is somewhere nearby but can't see it. The Locate feature turns the reader into a proximity detector.</div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">1</span> Open Locate Mode</div>
+            <div class="step-desc">
+                From the iDash main menu, tap <strong>"Locate"</strong>. This switches the reader from bulk-scan mode to single-asset proximity mode.
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">2</span> Enter the Asset to Find</div>
+            <div class="step-desc">
+                Enter the <strong>asset tag ID</strong> or <strong>asset name</strong> in the search field. You can also scan a barcode to look up the asset. The reader will now search only for this specific tag.
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">3</span> Walk and Listen</div>
+            <div class="step-desc">
+                Hold the trigger and walk around the area. The reader works like a <strong>Geiger counter</strong>:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li><strong>Far away</strong> &mdash; Slow beeping, low signal bar</li>
+                <li><strong>Getting closer</strong> &mdash; Beeping speeds up, signal bar grows</li>
+                <li><strong>Very close</strong> &mdash; Rapid beeping, near-full signal bar</li>
+                <li><strong>Found it</strong> &mdash; Continuous tone, full signal</li>
+            </ul>
+            <div class="step-desc">
+                The screen shows a <strong>signal strength meter</strong> that fills as you approach the tag. Walk slowly and rotate the sled to pinpoint the exact direction.
+            </div>
+            <div class="tip-box">
+                <strong>&#128161; Tip:</strong> Lower the antenna power when using Locate mode (see <a href="#power">Adjusting Power</a> below). Lower power = shorter range = more precise locating. Start with the lowest setting and increase if needed.
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════
+             TOPIC B: ADJUST POWER
+             ═══════════════════════════════════════ -->
+        <hr class="section-divider" />
+        <div class="topic-header orange" id="power">&#9889; Adjusting Reader Antenna Power</div>
+        <div class="topic-desc"><strong>Use when:</strong> You need to change the scan range &mdash; wider for inventory sweeps, narrower for precision locating.</div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num orange">1</span> Open Power Settings</div>
+            <div class="step-desc">
+                On the Zebra sled reader, the power adjustment is in the <strong>iDash Settings</strong> menu. Tap the <strong>gear icon</strong> and look for <strong>"Antenna Power"</strong> or <strong>"RF Power Level"</strong>.
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num orange">2</span> Choose Your Power Level</div>
+            <div class="step-desc">
+                The power level is measured in <strong>dBm</strong> (decibels-milliwatts). Adjust the slider or select a preset:
+            </div>
+            <table class="doc-table">
+                <thead><tr><th>Level</th><th>Range</th><th>Best For</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Low</strong> (5&ndash;10 dBm)</td><td>~1&ndash;3 feet</td><td>Precision locating, dense tag environments</td></tr>
+                    <tr><td><strong>Medium</strong> (15&ndash;20 dBm)</td><td>~5&ndash;10 feet</td><td>Room-level scanning, shelves and cabinets</td></tr>
+                    <tr><td><strong>High</strong> (25&ndash;30 dBm)</td><td>~15&ndash;25 feet</td><td>Full room sweeps, large open areas</td></tr>
+                </tbody>
+            </table>
+            <div class="warn-box">
+                <strong>&#9888; Higher is not always better.</strong> High power reads tags from adjacent rooms, corridors, and through walls &mdash; this creates false positives (assets that appear to be in the room but are actually next door). Use the lowest power that covers your target area.
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════
+             TOPIC C: MISSING LOCATION TAG
+             ═══════════════════════════════════════ -->
+        <hr class="section-divider" />
+        <div class="topic-header red" id="missing-tag">&#128680; Missing Location Tag: What Do I Do?</div>
+        <div class="topic-desc"><strong>Situation:</strong> You arrive at a room and the RFID location tag on the wall is missing, damaged, or not scanning. Here's how to handle it.</div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num red">1</span> Try to Re-Scan the Area</div>
+            <div class="step-desc">
+                Before reporting a missing tag:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li>Check if the tag has fallen off the wall &mdash; look on the floor or behind furniture near the doorframe</li>
+                <li>Try scanning from multiple angles and distances</li>
+                <li>Inspect the tag for physical damage (torn, wet, peeled off)</li>
+            </ul>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num red">2</span> Manually Select the Location</div>
+            <div class="step-desc">
+                If the location tag truly cannot be scanned, you can <strong>manually select the location</strong> instead:
+            </div>
+            <ol style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li>In the iDash app, tap the <strong>location search field</strong></li>
+                <li>Type the <strong>room number</strong> or <strong>location code</strong> (e.g. <code>1B-123</code>)</li>
+                <li>Select the correct location from the search results</li>
+                <li>Proceed with your scan as normal</li>
+            </ol>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num red">3</span> Report the Missing Tag</div>
+            <div class="step-desc">
+                After completing your scan, report the missing location tag so a replacement can be installed:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li><strong>Note the room number</strong> and building</li>
+                <li><strong>Report to your team lead</strong> or submit an <strong>iDash Support Request</strong> from the hub</li>
+                <li>Include whether the tag is <strong>missing entirely</strong>, <strong>physically damaged</strong>, or <strong>present but not scanning</strong></li>
+            </ul>
+            <div class="tip-box">
+                <strong>&#128161; Tip:</strong> Tags that are present but not scanning may have a dead RFID chip. These need replacement even though the paper label looks fine.
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════
+             TOPIC D: LOGOUT
+             ═══════════════════════════════════════ -->
+        <hr class="section-divider" />
+        <div class="topic-header blue" id="logout">&#128274; Logging Out of the Scanner</div>
+        <div class="topic-desc"><strong>Always log out</strong> when you're done scanning or handing the device to another user. This ensures scan sessions are properly attributed to the correct user.</div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num blue">1</span> Sync Before Logging Out</div>
+            <div class="step-desc">
+                <strong>Always sync your data before logging out.</strong> If you're in Batch Mode, upload all pending sessions first. Unsent data remains tied to your login &mdash; the next user won't be able to send it.
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num blue">2</span> Tap Logout</div>
+            <div class="step-desc">
+                From the iDash main menu:
+            </div>
+            <ol style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li>Tap the <strong>menu icon</strong> (hamburger or three-dot menu) in the top corner</li>
+                <li>Select <strong>"Logout"</strong></li>
+                <li>Confirm the logout when prompted</li>
+                <li>The app returns to the login screen</li>
+            </ol>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num blue">3</span> Return or Hand Off the Device</div>
+            <div class="step-desc">
+                After logging out:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li>Return the scanner to the charging cradle</li>
+                <li>If handing to another user, they can log in with their own credentials</li>
+                <li>The sled reader can be left attached &mdash; no need to disconnect</li>
+            </ul>
+            <div class="danger-box">
+                <strong>&#9888; Security:</strong> Do NOT leave the app logged in when the device is unattended. Another user's scans would be recorded under your name, creating inaccurate audit trails.
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════ -->
+        <h2><span class="section-num">&#128279;</span> Related Guides</h2>
+        <ul>
+            <li><a href="va_guide_adhoc_scanning.html">ADHOC Scanning &amp; Inventory</a></li>
+            <li><a href="va_guide_batch_scanning.html">Batch Mode Scanning (Offline)</a></li>
+            <li><a href="va_guide_scanner_setup.html">Zebra TC53 Scanner Setup</a></li>
+            <li><a href="va_guide_offline_printing.html">Offline Printing Station</a></li>
+        </ul>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1016 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>IDASH ARCHITECTURE RATIONALE &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<div class="wrap">
+
+    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
+    <br/><br/>
+
+    <!-- ============================================================ -->
+    <!--  INTRO HEADER                                                  -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h1>&#9998; iDash Architecture Rationale &amp; Developer Handoff Guide</h1>
+        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px;">
+            <span class='badge' style='background:#7c3aed;color:#ede9fe;border:1px solid #a78bfa;'>Rev. 2026-09-10</span>
+            <span class='badge badge-db'>Production System</span>
+            <span class='badge' style='background:color-mix(in srgb, #f59e0b 15%, transparent);color:#f59e0b;border:1px solid #f59e0b;'>Executive &amp; Developer Reference</span>
+        </div>
+        <p style="font-size:16px;">
+            This document serves three audiences: <strong>company leadership</strong> evaluating the platform's scope and value,
+            <strong>developers</strong> taking over support or extending the codebase, and <strong>implementation teams</strong>
+            deploying iDash to VA medical centers, VISNs, and mobile tagging cart fleets nationwide. It explains <em>what</em> iDash is,
+            <em>why</em> it is built the way it is, what business problems it solves, and gives any technical
+            team member a clear map of how everything fits together.
+        </p>
+        <div class="alert-blue">
+            <strong>Bottom line up front:</strong> iDash is a purpose-built VA operations portal comprising
+            <strong>64 ASP.NET modules</strong> with <strong>117 dedicated documentation pages</strong>.
+            It provides live RFID scanning, RFID asset location hunting, executive reporting dashboards,
+            automated ENNX generation, fixed reader management, RFID print routing, database administration,
+            dual-layer cryptographic licensing with air-gapped activation, mobile cart fleet registry,
+            unified user access control (both iDash portal and scanner and system users), multi-site field server data sync,
+            login audit trail, secure file exchange, and automated email delivery
+            &mdash; all from a single IIS deployment with zero external build dependencies.
+            It deliberately layers direct SQL analytics <em>on top of</em> (not instead of) the iDash
+            REST API, because the API was never designed to serve pre-aggregated dashboard data.
+        </div>
+
+        <h3 style="margin-top:20px;">Capability Summary (as deployed)</h3>
+        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:12px; margin-top:12px;">
+            <div class="box" style="text-align:center;"><div style="font-size:2rem; font-weight:800; color:var(--accent-docs);">64</div><div style="font-size:0.85rem; color:var(--muted-docs);">ASP.NET Modules</div></div>
+            <div class="box" style="text-align:center;"><div style="font-size:2rem; font-weight:800; color:var(--accent2-docs);">117</div><div style="font-size:0.85rem; color:var(--muted-docs);">Documentation Pages</div></div>
+            <div class="box" style="text-align:center;"><div style="font-size:2rem; font-weight:800; color:var(--accent-docs);">5</div><div style="font-size:0.85rem; color:var(--muted-docs);">Live Scan Engines</div></div>
+            <div class="box" style="text-align:center;"><div style="font-size:2rem; font-weight:800; color:var(--accent2-docs);">7</div><div style="font-size:0.85rem; color:var(--muted-docs);">Executive Dashboards</div></div>
+            <div class="box" style="text-align:center;"><div style="font-size:2rem; font-weight:800; color:var(--accent-docs);">4</div><div style="font-size:0.85rem; color:var(--muted-docs);">ENNX Generation Tools</div></div>
+            <div class="box" style="text-align:center;"><div style="font-size:2rem; font-weight:800; color:var(--accent2-docs);">6</div><div style="font-size:0.85rem; color:var(--muted-docs);">Automated Pipelines</div></div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  EXECUTIVE BUSINESS VALUE                                     -->
+    <!-- ============================================================ -->
+    <div class="card" style="border-color: var(--accent2-docs);">
+        <h2 style="color:var(--accent2-docs);">&#128188; Executive Summary &mdash; Business Value &amp; Impact</h2>
+        <p style="font-size:15px;">
+            iDash was built because no off-the-shelf product addresses the VA's unique combination of
+            barcode/RFID scanning, real-time ENNX government reporting, and multi-site inventory management.
+            It fills the operational gap between the iDash inventory database and the VA's daily
+            compliance and reporting requirements.
+        </p>
+
+        <h3>Problems Solved</h3>
+        <table class="tbl">
+            <thead><tr><th>Before iDash</th><th>With iDash</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>ENNX files were manually assembled from spreadsheets, often with errors and inconsistent formatting</td>
+                    <td>One-click ENNX generation with built-in validation, preview, Excel export, and email delivery</td>
+                </tr>
+                <tr>
+                    <td>Scanning teams had no real-time visibility into which assets had been tagged or where</td>
+                    <td>TagTeam Scan provides live barcode scanning with instant database writes, OIT detection, and auto-print</td>
+                </tr>
+                <tr>
+                    <td>Data imports from VA CDW extracts required manual SQL scripting by a DBA</td>
+                    <td>Web-based two-pass import workflow (enrichment + standard) executable by any trained admin</td>
+                </tr>
+                <tr>
+                    <td>Print label routing required manual BarTender configuration per workstation</td>
+                    <td>Centralized web-based print routing with template mapping and hardware routing JSON configs</td>
+                </tr>
+                <tr>
+                    <td>Executive reporting required ad-hoc SQL queries run by technical staff</td>
+                    <td>Seven self-service analytics dashboards with Chart.js visualizations and CSV/Excel export</td>
+                </tr>
+                <tr>
+                    <td>No documentation existed for any of these processes</td>
+                    <td>68-page integrated documentation hub with changelogs, SOPs, architecture guides, search filtering, and training modules</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Scale &amp; Deployment</h3>
+        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap:12px; margin-top:12px;">
+            <div class="box" style="text-align:center;"><div style="font-size:2rem; font-weight:800; color:var(--accent2-docs);">64</div><div style="font-size:0.85rem; color:var(--muted-docs);">Functional Modules</div></div>
+            <div class="box" style="text-align:center;"><div style="font-size:2rem; font-weight:800; color:var(--accent-docs);">117</div><div style="font-size:0.85rem; color:var(--muted-docs);">Documentation Pages</div></div>
+            <div class="box" style="text-align:center;"><div style="font-size:2rem; font-weight:800; color:var(--accent2-docs);">5</div><div style="font-size:0.85rem; color:var(--muted-docs);">DLL Dependencies</div></div>
+            <div class="box" style="text-align:center;"><div style="font-size:2rem; font-weight:800; color:var(--accent-docs);">0</div><div style="font-size:0.85rem; color:var(--muted-docs);">Build Tools Required</div></div>
+            <div class="box" style="text-align:center;"><div style="font-size:2rem; font-weight:800; color:var(--accent2-docs);">0</div><div style="font-size:0.85rem; color:var(--muted-docs);">External Cloud Services</div></div>
+            <div class="box" style="text-align:center;"><div style="font-size:2rem; font-weight:800; color:var(--accent-docs);">National</div><div style="font-size:0.85rem; color:var(--muted-docs);">VA Scale &amp; Carts</div></div>
+        </div>
+
+        <div class="alert-green" style="margin-top:16px;">
+            <strong>Deployment simplicity is a feature, not a limitation.</strong>
+            iDash runs on the same Windows Server and IIS instance as iDash &mdash; no additional
+            infrastructure, no cloud subscriptions, no CI/CD pipeline, no Node.js. Copy the folder,
+            update <code>web.config</code>, and it's live. This is deliberate for VA environments where
+            server provisioning requires months of ATO approvals.
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  THE CRITICISM &mdash; ADDRESSED DIRECTLY                            -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>Addressing the "Not Fully on API" Concern</h2>
+        <p>
+            The concern raised is that iDash should be routing all data access through the iDash REST API
+            rather than talking to SQL Server directly. Here is why that concern, while understandable, does not
+            apply to what iDash is doing:
+        </p>
+
+        <div class="two-col">
+            <div class="box">
+                <h3>&#128308; What &quot;fully API&quot; would require</h3>
+                <ul>
+                    <li>A dedicated API endpoint for every aggregate query (inventory aging buckets, CMR lifecycle stats, tagging completion %, ENNX session rollups, etc.)</li>
+                    <li>The iDash backend team adding 20+ custom report endpoints that don't exist today and aren't on the roadmap</li>
+                    <li>Turning every dashboard page into an async JavaScript SPA making multiple API calls just to render a single KPI card</li>
+                    <li>Losing the ability to write ad-hoc SQL optimization without touching the backend codebase</li>
+                </ul>
+            </div>
+            <div class="box">
+                <h3>&#128994; What iDash actually does</h3>
+                <ul>
+                    <li>Uses the REST API for all <strong>entity-level write operations</strong>: print jobs, live scan commits, EIL reconciliation</li>
+                    <li>Uses direct SQL only for <strong>read-only multi-row analytics</strong> that the API doesn't expose&mdash;aggregations, bucket counts, joins across tables</li>
+                    <li>The API client (<code>IdashApiClient.cs</code>) is fully wired and used; it is not decoration</li>
+                    <li>A feature flag (<code>UseRestApi</code> in <code>web.config</code>) controls which path is active</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="alert-green" style="margin-top:16px;">
+            <strong>A REST API is an interface contract, not a performance substitute for SQL.</strong>
+            Asking the API for 5,000 individual asset records and summing them in C# is not better than writing
+            a single <code>SELECT COUNT(*) GROUP BY</code> query. iDash picks the right tool for each job.
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  ARCHITECTURE MAP                                              -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>Architecture at a Glance</h2>
+        <p>
+            iDash has three clearly defined data access layers. Every page in the system falls into one of these
+            categories or intentionally uses a combination:
+        </p>
+
+        <div style="margin-top:12px;">
+            <div class="arch-row">
+                <div class="arch-num">1</div>
+                <div class="arch-body">
+                    <strong style="color:var(--text);">Direct SQL Analytics</strong>
+                    <span class="chip chip-db">Database Driven</span>
+                    <p style="margin:4px 0 0;">
+                        Used by reporting and dashboard pages: <code>va_asset_stats.aspx</code>, <code>va_cmr_stats.aspx</code>,
+                        <code>va_tag_stats.aspx</code>, <code>va_data_quality.aspx</code>, and others.
+                        These pages run server-side C# code (<code>.aspx.cs</code>) with parameterized SQL queries
+                        against the local <code>iDash</code> SQL Server database. Dashboard/report pages typically query
+                        <code>dbo.v_asset</code> (a view with INNER JOINs), while scanning and ENNX pages query
+                        <code>dbo.asset</code> directly (the base table) to ensure visibility of all scanned records
+                        including those missing foreign-key relationships.
+                        This is intentional &mdash; the data is complex, pre-aggregated, and cannot be practically fetched from a REST endpoint.
+                    </p>
+                </div>
+            </div>
+
+            <div class="arch-row">
+                <div class="arch-num">2</div>
+                <div class="arch-body">
+                    <strong style="color:var(--text);">REST API Integration</strong>
+                    <span class="chip chip-api">API Driven</span>
+                    <p style="margin:4px 0 0;">
+                        Used for all write operations and entity-level lookups: printing, scan commits, live scan
+                        payloads, and asset explorer queries. The <code>IdashApiClient.cs</code> class handles
+                        OAuth 2.0 client-credentials token management and is called from code-behind on pages like
+                        <code>va_tagteam_scan.aspx</code>, <code>va_eil_live_scan.aspx</code>, and others.
+                        The JavaScript frontend also calls <code>/api/printjobs/print</code> directly with a Bearer token.
+                    </p>
+                </div>
+            </div>
+
+            <div class="arch-row">
+                <div class="arch-num">3</div>
+                <div class="arch-body">
+                    <strong style="color:var(--text);">Hybrid &mdash; SQL Read + API Write</strong>
+                    <span class="chip chip-hybrid">Hybrid</span>
+                    <p style="margin:4px 0 0;">
+                        Pages like <code>va_tagteam_scan.aspx</code> and <code>va_ennx_live_scan.aspx</code> use
+                        direct SQL to load and filter asset data efficiently, then use the iDash REST API to
+                        commit changes. This is by design &mdash; reads are fast SQL, writes go through the authoritative
+                        API layer to ensure business logic rules are enforced at the API level.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  KEY FILES &mdash; DEVELOPER MAP                                     -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>Key Files Every Developer Should Know</h2>
+
+        <table class="tbl">
+            <thead>
+                <tr>
+                    <th>File</th>
+                    <th>What it does</th>
+                    <th>Layer</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>web.config</code></td>
+                    <td>
+                        Infrastructure credentials, connection strings, SMTP settings, feature flags, and API base URLs live here.
+                        <strong>This is the source of truth for environment-level configuration</strong> &mdash; settings that are
+                        established once per deployment and rarely change during normal operation.
+                        <br/><br/>
+                        <strong style="color:#f59e0b;">&Warning:</strong> Writing to <code>web.config</code> at runtime triggers an
+                        IIS application pool recycle, destroying all in-memory sessions. Frequently-modified data
+                        (like email recipients) must be stored in standalone JSON files under <code>config/</code> instead.
+                        See <a href="va_email_recipient_storage.html">Email Recipient Storage</a> for the full rationale.
+                    </td>
+                    <td><span class="chip chip-db">Config</span></td>
+                </tr>
+                <tr>
+                    <td><code>IdashApiClient.cs</code></td>
+                    <td>
+                        The shared static HTTP client for the iDash REST API. Handles OAuth 2.0 token acquisition,
+                        caching, expiry, and refresh automatically. Call <code>IdashApiClient.GetToken()</code>
+                        from any page to get a valid Bearer token without re-authenticating.
+                    </td>
+                    <td><span class="chip chip-api">API Client</span></td>
+                </tr>
+                <tr>
+                    <td><code>api/LiveScanHandler.ashx</code></td>
+                    <td>
+                        An HTTP handler (not a full ASPX page) used as a lightweight JSON endpoint for the live scan
+                        modules. Returns scan session data as JSON consumed by client-side JavaScript.
+                    </td>
+                    <td><span class="chip chip-hybrid">Hybrid</span></td>
+                </tr>
+                <tr>
+                    <td><code>index.aspx</code> / <code>index.aspx.cs</code></td>
+                    <td>
+                        The main iDash home dashboard. Loads site selector, email configuration, system automation
+                        controls, and navigation to all modules. Code-behind is minimal &mdash; mostly config reads
+                        and control population.
+                    </td>
+                    <td><span class="chip chip-db">DB Driven</span></td>
+                </tr>
+                <tr>
+                    <td><code>va_tagteam_scan.aspx.cs</code></td>
+                    <td>
+                        The most complex file in the project. Handles RFID scanning sessions, session state,
+                        print job routing, API token injection into JavaScript, MQTT integration, and Auto Print mode.
+                        Read the <a href="va_tagteam_scan.html">Tag Team Scan documentation</a> before touching this file.
+                    </td>
+                    <td><span class="chip chip-hybrid">Hybrid</span></td>
+                </tr>
+                <tr>
+                    <td><code>va_cron_daily.aspx.cs</code></td>
+                    <td>
+                        Headless cron endpoint called by Windows Task Scheduler. Runs SQL data aggregation jobs,
+                        generates CSV exports, and dispatches automated email reports. Not for manual use.
+                    </td>
+                    <td><span class="chip chip-db">DB Driven</span></td>
+                </tr>
+                <tr>
+                    <td><code>print_mapping_config.json</code></td>
+                    <td>
+                        JSON config file managed by <code>va_print_mapping.aspx</code>. Maps RFID tag type strings
+                        (e.g., <code>IQ350</code>) to a specific BarTender template ID and optional print client target.
+                        Read at page load by <code>InjectPrintScript()</code> in <code>va_tagteam_scan.aspx.cs</code>
+                        and injected as <code>window.awPrintConfig.templateMappings</code> for the web UI print buttons.
+                        <strong>Does not control hardware printer selection</strong> &mdash; that is handled by <code>printer_routing.json</code>.
+                    </td>
+                    <td><span class="chip chip-db">Config</span></td>
+                </tr>
+                <tr>
+                    <td><code>printer_routing.json</code></td>
+                    <td>
+                        Maps a <code>.btw</code> filename key (e.g., <code>AW_IQ350.btw</code>) to the exact Windows
+                        printer name (e.g., <code>Metal_Small</code>). Read fresh on every print job by
+                        <code>Run_Bypass_Spooler.ps1</code> from <code>$PSScriptRoot</code>.
+                        <strong>Critical:</strong> Must exist in the same folder as the running spooler script.
+                        Multiple copies can exist on a server &mdash; always edit the one co-located with the active script.
+                    </td>
+                    <td><span class="chip chip-db">Config</span></td>
+                </tr>
+                <tr>
+                    <td><code>Run_Bypass_Spooler.ps1</code></td>
+                    <td>
+                        The primary PowerShell print spooler. Polls the SQL <code>printjob</code> table every 3 seconds,
+                        opens the resolved <code>.btw</code> file via the BarTender .NET SDK, injects label SubStrings
+                        (name, description, EIL, RFID tag), applies hardware routing from <code>printer_routing.json</code>,
+                        prints, and marks the job <code>completed=1</code>. Must be running on the print server.
+                        See the <a href="print_server_setup.html">Print Server Setup Guide</a>.
+                    </td>
+                    <td><span class="chip chip-hybrid">Hybrid</span></td>
+                </tr>
+                <tr>
+                    <td><code>ApplicationSettingRepository.cs</code></td>
+                    <td>
+                        A repository layer (used in the ASP.NET Core API side, not iDash directly) for reading
+                        and writing application settings programmatically. Included here as reference for understanding
+                        how the backing API layer reads its own config.
+                    </td>
+                    <td><span class="chip chip-api">API Layer</span></td>
+                </tr>
+                <tr>
+                    <td><code>App_Code/EmailHelper.cs</code></td>
+                    <td>
+                        Shared static helper for sending SMTP email and managing the global email recipient list.
+                        Recipients are stored in <code>config/email_recipients.json</code> (not <code>web.config</code>)
+                        to avoid triggering IIS app pool recycles on every add/remove. Reads SMTP connection settings
+                        from <code>web.config</code> appSettings at send time.
+                    </td>
+                    <td><span class="chip chip-db">Config</span></td>
+                </tr>
+                <tr>
+                    <td><code>config/email_recipients.json</code></td>
+                    <td>
+                        JSON array of email addresses for automated report delivery and admin notifications.
+                        Auto-created on first access by <code>EmailHelper.cs</code>. Edited via the
+                        <code>va_report_automation.aspx</code> UI. <strong>Writing to this file does NOT trigger
+                        an app pool recycle</strong>, so users stay logged in when adding/removing recipients.
+                    </td>
+                    <td><span class="chip chip-db">Config</span></td>
+                </tr>
+                <tr>
+                    <td><code>config/report_automation.json</code></td>
+                    <td>
+                        Stores report automation settings: enable/disable toggle, scheduled time, subject line template,
+                        and Excel field selections. Managed by <code>va_report_automation.aspx</code>.
+                    </td>
+                    <td><span class="chip chip-db">Config</span></td>
+                </tr>
+                <tr>
+                    <td><code>App_Code/UserManager.cs</code></td>
+                    <td>
+                        Backend authentication and authorization engine. Stores users in <code>App_Data/idash_users.json</code>
+                        with SHA-256 password hashing. Implements three-dimensional authorization:
+                        <strong>Portal Role</strong> (Admin/User/ReadOnly), <strong>Site Permissions</strong>
+                        (Full/ENNX-Only per site), and <strong>Tile Access</strong> (deny-by-default module-level visibility).
+                        Tile keys map 1:1 to hub dashboard tiles and are evaluated at page load to show/hide modules.
+                    </td>
+                    <td><span class="chip chip-db">Config</span></td>
+                </tr>
+                <tr>
+                    <td><code>va_field_sync_merge.sql</code></td>
+                    <td>
+                        The SQL script that merges field server data into the central database.
+                        Performs cross-database asset sync from <code>idash_staging</code> to <code>idash</code>:
+                        company matching (by station number prefix), location insertion, asset UPDATE with
+                        field-level change detection, new asset INSERT, and <code>locationid</code> re-linking.
+                        Uses <code>CASE/ISNULL</code> guards to never overwrite existing data with blanks.
+                        <strong>Critical fix (July 2026):</strong> Changed WHERE clause from broken <code>lastmodified</code>
+                        timestamp comparison to actual field-value comparison; added <code>lastmodifiedby</code>
+                        sync on UPDATE (was previously only synced on INSERT).
+                    </td>
+                    <td><span class="chip chip-db">DB Driven</span></td>
+                </tr>
+                <tr>
+                    <td><code>theme.css</code> / <code>theme-init.js</code></td>
+                    <td>
+                        Global theming system. <code>theme.css</code> defines CSS custom properties
+                        (<code>--bg</code>, <code>--text</code>, <code>--accent</code>, etc.) for both light and dark modes.
+                        <code>theme-init.js</code> reads the user's theme preference from <code>localStorage</code>
+                        (key: <code>theme</code>) and applies it before first paint to prevent flash-of-wrong-theme.
+                        All pages include both files; the toggle is in the hub sidebar.
+                    </td>
+                    <td><span class="chip chip-db">Config</span></td>
+                </tr>
+                <tr>
+                    <td><code>App_Code/LoginAuditHelper.cs</code></td>
+                    <td>
+                        Persistent login audit trail. Logs every sign-in attempt (success/failure) to
+                        <code>logs/login_audit.jsonl</code> with username, IP, timestamp, role, and result.
+                        Auto-trims at 90 days or 5,000 entries (whichever first) &mdash; file never exceeds ~500 KB.
+                        Zero external dependencies (manual JSON serialization). Read by both <code>va_user_management.aspx</code>
+                        (Login History card) and <code>va_log_viewer.aspx</code> (Login Audit tab).
+                    </td>
+                    <td><span class="chip chip-db">Config</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  ACCESS CONTROL & SECURITY MODEL                               -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>Access Control &amp; Security Model</h2>
+        <p>
+            iDash implements a custom JSON-backed authentication system (<code>UserManager.cs</code>) to restrict access to reporting, scanning tools, and the administrative console without requiring active directory integration.
+        </p>
+
+        <h3>Three-Dimensional Authorization</h3>
+        <p>
+            iDash authorization evaluates three separate dimensions simultaneously: <strong>Portal Role</strong>, <strong>Site Permissions</strong>, and <strong>Tile Access</strong>.
+        </p>
+        
+        <table class="tbl">
+            <thead>
+                <tr>
+                    <th>Dimension</th>
+                    <th>How It Works</th>
+                    <th>Enforced Via</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Portal Role</strong></td>
+                    <td>
+                        Dictates <em>what class of modules</em> the user can access.<br/>
+                        <span class="chip chip-db" style="background:#7f1d1d; border-color:#ef4444;">Admin</span> Full access to everything, bypassing site restrictions.<br/>
+                        <span class="chip chip-api" style="background:#1e3a8a; border-color:#3b82f6;">User</span> Access to live scanning, standard reports, and docs.<br/>
+                        <span class="chip chip-hybrid" style="background:#334155; border-color:#94a3b8; color:#f8fafc;">ReadOnly</span> Reports and doc access only &mdash; no scanning or editing.
+                    </td>
+                    <td><code>UserManager.CanAccessAdmin()</code><br/><code>UserManager.CanAccessDocs()</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Site Permissions</strong></td>
+                    <td>
+                        Dictates <em>which data</em> the user can see, and what operations they can perform per site.<br/>
+                        <strong style="color:var(--accent2-docs);">Full Access:</strong> View site data, move assets, and execute scan commits.<br/>
+                        <strong style="color:var(--accent-docs);">ENNX/Report Only:</strong> View site data and generate ENNX exports; cannot perform active tag scans.
+                    </td>
+                    <td><code>UserManager.CanWriteSite()</code><br/><code>UserManager.CanReportSite()</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Tile Access</strong></td>
+                    <td>
+                        Dictates <em>which specific hub tiles</em> (modules) appear on a user's dashboard.<br/>
+                        Deny-by-default: tiles are only shown if explicitly granted. Tile keys map 1:1 to
+                        functional modules (e.g., <code>scan_tagteam</code>, <code>report_ennx</code>,
+                        <code>admin_users</code>). Admins see all tiles regardless of grants.
+                    </td>
+                    <td><code>UserManager.CanAccessTile()</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Unified User Management</h3>
+        <p>
+            As of July 2026, user management is consolidated into a single page (<code>va_user_management.aspx</code>)
+            with a system toggle at the top:
+        </p>
+        <ul>
+            <li><strong>iDash Portal Users</strong> &mdash; JSON-backed authentication for the iDash web portal. Create/edit/delete users with role, site, and tile-level permissions.</li>
+            <li><strong>Scanner &amp; System Users</strong> &mdash; SQL-backed (<code>dbo.sysuser</code>) authentication for RFID scanners and the RFID mobile scanner. Managed via an embedded iframe (<code>va_aw_user_management.aspx?embed=1</code>) to preserve ASP.NET ViewState isolation.</li>
+        </ul>
+        <div class="alert-amber">
+            <strong>Why the iframe?</strong> The scanner user management page uses ASP.NET postbacks
+            and ViewState. Embedding it inline would cause ViewState corruption when the parent page's form
+            also posts back. The iframe pattern isolates the two form contexts completely.
+        </div>
+
+        <h3>Storage &amp; Portability</h3>
+        <ul>
+            <li>iDash users are stored locally in <code>App_Data/idash_users.json</code>, fully decoupled from the iDash SQL database.</li>
+            <li>scanner users are stored in <code>dbo.sysuser</code> in the SQL database and managed through the legacy ASPX forms.</li>
+            <li>Passwords are secured via <strong>SHA-256</strong> hashing (iDash) or the iDash native hash scheme (iDash).</li>
+            <li>In the event of an authentication lockout, deleting the JSON file forces <code>UserManager</code> to auto-seed the default <code>idashadmin</code> account on the next load.</li>
+        </ul>
+
+        <h3>Login Audit Trail</h3>
+        <p>
+            Every sign-in attempt (success or failure) is logged to <code>logs/login_audit.jsonl</code> by
+            <code>LoginAuditHelper.cs</code>. Each entry records timestamp, username, IP address, role, and result.
+            The file auto-trims at 90 days or 5,000 entries, keeping it under ~500 KB.
+        </p>
+        <ul>
+            <li><strong>User Management</strong> (<code>va_user_management.aspx</code>) &mdash; Login History card with KPI stats (logins today, failures today, unique users this week) and last 50 entries.</li>
+            <li><strong>Log Viewer</strong> (<code>va_log_viewer.aspx</code>) &mdash; Login Audit tab (Tab 4) with the same KPIs and last 100 entries.</li>
+        </ul>
+
+        <h3>Per-User Site Access Enforcement</h3>
+        <p>
+            As of July 2026, site access filtering is enforced server-side on all data pages. When a non-admin user
+            logs in, their <code>SiteAccess</code> dictionary is stored in the session. Centralized helpers in
+            <code>UserManager.cs</code> (<code>GetAllowedCompanyIds</code>, <code>BuildSiteFilter</code>,
+            <code>FilterCompanyDropdown</code>) restrict SQL queries and dropdown options to only the sites
+            the user has been granted access to. Admin users bypass all site filters.
+        </p>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  DUAL-LAYER LICENSING & MOBILE CART ARCHITECTURE                -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>Dual-Layer Licensing &amp; Mobile Cart Registry Architecture</h2>
+        <p>
+            Operating in air-gapped VA hospital subnets imposes strict architectural constraints:
+            cloud license servers, phone-home telemetry, and internet-based activation endpoints are strictly
+            prohibited by VA OIT security policies. To solve this, iDash implements a <strong>dual-layer licensing architecture</strong>
+            combining asymmetric cryptography for portal features with native SQL storage for RFID hardware devices.
+        </p>
+
+        <div class="two-col" style="margin-top:16px;">
+            <div class="box">
+                <h3>&#128272; Layer 1: iDash Portal Cryptographic License</h3>
+                <p>
+                    The iDash web application is governed by <code>LicenseManager.cs</code>, an in-memory
+                    cryptographic verification engine that operates completely offline:
+                </p>
+                <ul>
+                    <li><strong>RSA-2048 Asymmetric Signatures:</strong> Licenses are generated by administrators using <code>New-IdashLicense.ps1</code> with a private signing key. iDash embeds only the public key to verify authenticity and tamper-evidence.</li>
+                    <li><strong>Node Locking (Installation ID):</strong> Each iDash server or mobile tagging cart derives a deterministic <code>IDASH-XXXX-XXXX-XXXX</code> installation fingerprint from local machine parameters. Licenses are locked to this ID.</li>
+                    <li><strong>Zero Network Footprint:</strong> Verification happens entirely in memory during session authorization. Zero external calls, zero API dependencies.</li>
+                    <li><strong>Offline <code>.idashlic</code> Activation:</strong> Technicians transfer signed <code>.idashlic</code> files via USB or secure network share. <code>va_license_activation.aspx</code> reads the file client-side via JavaScript <code>FileReader</code>, automatically populates the validation pipeline, and persists activation.</li>
+                </ul>
+            </div>
+
+            <div class="box">
+                <h3>&#128225; Layer 2: iDash core &amp; Fixed Reader License</h3>
+                <p>
+                    The underlying iDash RFID tracking engine maintains its own hardware license layer:
+                </p>
+                <ul>
+                    <li><strong>Database-Backed:</strong> Stored as a Base64-encoded JSON payload directly inside <code>dbo.applicationsetting</code> under <code>licensekey</code>.</li>
+                    <li><strong>MAC Address Locking:</strong> Tied directly to the primary physical network adapter of the host Windows server.</li>
+                    <li><strong>Capacity Caps:</strong> Enforces physical RFID hardware limits (standard tier: <strong>5 Fixed Readers</strong>) and client access seats (standard tier: <strong>15 Handheld/Thick-Client Users</strong>).</li>
+                    <li><strong>Real-Time Reader Auditing:</strong> <code>va_license_manager.aspx</code> queries active reader configurations against database entitlements to alert administrators when reader limits are approached.</li>
+                </ul>
+            </div>
+        </div>
+
+        <h3 style="margin-top:20px;">Mobile Carts &amp; Workstations Registry</h3>
+        <p>
+            VA medical centers deploy mobile RFID tagging carts (e.g., Tagging Cart 1, Cart 2) and roaming workstations
+            that travel between buildings, clinics, and satellite facilities. Rather than requiring isolated license tracking,
+            iDash centralizes cart visibility in <code>App_Data/cart_licenses.json</code>:
+        </p>
+        <ul>
+            <li><strong>Nationwide Fleet Registry:</strong> National and facility administrators can view all registered tagging carts, assigned station numbers, host names, installation IDs, and perpetual license statuses from a single screen.</li>
+            <li><strong>Seamless Navigation:</strong> Integrated 3-tab navigation bar allows administrators to seamlessly pivot between <em>Active Readers &amp; Device Licenses</em>, <em>Mobile Carts &amp; Workstations Registry</em>, and <em>Local iDash Activation</em> without returning to the main hub.</li>
+            <li><strong>Air-Gapped Portability:</strong> The JSON-backed cart registry is independent of SQL database restores, ensuring cart records are preserved during cross-site database merges or disaster recovery.</li>
+        </ul>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  WHY WEBFORMS &mdash; NOT A MISTAKE                                  -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>Why ASP.NET WebForms &mdash; A Deliberate Choice</h2>
+        <p>
+            It is fair to ask why iDash wasn't built as a React SPA, a Blazor app, or a .NET 8 Razor Pages project.
+            Here is the honest answer:
+        </p>
+        <ul>
+            <li>
+                <strong>iDash is a department-internal ops tool, not a product.</strong>
+                It lives on a single IIS server already running the iDash application pool. WebForms deploys
+                in seconds &mdash; no build pipeline, no Node, no CI/CD. Any developer with a text editor can open
+                a <code>.aspx</code> file and immediately understand the HTML structure.
+            </li>
+            <li>
+                <strong>WebForms does not mean "old" or "bad."</strong>
+                The pages use modern HTML5 semantics, CSS custom properties, DataTables, Chart.js, and fetch-based
+                JavaScript. The <code>.aspx.cs</code> code-behind is a thin controller that populates data &mdash;
+                it is not WebForms-era spaghetti code. Every SQL call is parameterized. Every error is caught.
+            </li>
+            <li>
+                <strong>Re-writing in a modern framework would provide zero functional improvement</strong>
+                for an internal dashboard &mdash; and would require standing up a new build environment, rewriting
+                all SQL queries into API endpoint handlers, and retraining staff. The cost dramatically
+                outweighs any benefit.
+            </li>
+            <li>
+                <strong>The code is not wrapped up or inaccessible.</strong>
+                Every operation in iDash follows the same pattern: the <code>.aspx</code> file is the view (HTML),
+                the <code>.aspx.cs</code> file is the controller (C#). There are no hidden layers, no compiled
+                DLLs containing business logic, no opaque abstractions. Open any file and read it top to bottom.
+            </li>
+        </ul>
+        <div class="alert-amber">
+            <strong>Note on the decompiled files:</strong> <code>DecompiledPrintServer.cs</code> and related files
+            in the root are reverse-engineered reference copies of the iDash Print Server binary &mdash;
+            they are for study only and are not compiled into iDash. They exist so the team can understand
+            the print server's internal behavior without access to the vendor's source code.
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  WEBSERIAL INPUT METHOD                                       -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>WebSerial &mdash; Browser-Native USB Scanning</h2>
+        <p>
+            As of 07/25/2026, six scanning modules support the <strong>WebSerial API</strong>, a W3C standard implemented in
+            Chrome and Edge that allows web pages to communicate directly with USB serial devices without any middleware.
+        </p>
+
+        <h3>Why WebSerial Was Added</h3>
+        <p>
+            The original scanning architecture relied exclusively on <strong>keyboard-wedge</strong> input (DataWedge on Zebra devices,
+            or HID-mode barcode scanners that emulate a keyboard). This works well with handheld devices but creates friction for
+            desktop-tethered USB RFID readers that communicate over a serial port (COM port). Previously, connecting these readers
+            required a third-party COM-port relay application or DataWedge profile. WebSerial eliminates that middleware entirely.
+        </p>
+        <ul>
+            <li><strong>No client software:</strong> No DataWedge, no COM-port relay, no native app. The browser handles it.</li>
+            <li><strong>Any serial device:</strong> Works with any reader that outputs newline-terminated data over USB-serial.</li>
+            <li><strong>Same scan pipeline:</strong> Serial data feeds into the exact same processing function used by keyboard input. All validation, filtering, and export logic applies identically.</li>
+        </ul>
+
+        <h3>Modules With WebSerial Support</h3>
+        <table class="tbl">
+            <thead><tr><th>Module</th><th>File</th><th>Scan Function</th><th>Notes</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>ENNX Live Scan</td>
+                    <td><code>va_ennx_live_scan.aspx</code></td>
+                    <td><code>handleScan()</code></td>
+                    <td>Client-side JS. Serial stays open continuously.</td>
+                </tr>
+                <tr>
+                    <td>EIL Live Scan</td>
+                    <td><code>va_eil_live_scan.aspx</code></td>
+                    <td><code>handleScan()</code></td>
+                    <td>Client-side JS. Serial stays open continuously.</td>
+                </tr>
+                <tr>
+                    <td>Universal ENNX Creator</td>
+                    <td><code>va_universal_ennx.aspx</code></td>
+                    <td><code>handle()</code></td>
+                    <td>Client-side JS. Serial stays open continuously.</td>
+                </tr>
+                <tr>
+                    <td>VA Site Inventory</td>
+                    <td><code>va_inventory.aspx</code></td>
+                    <td><code>__doPostBack</code></td>
+                    <td>Server-side postback. Serial port closes after each scan due to page reload.</td>
+                </tr>
+                <tr>
+                    <td>RFID Asset Locator</td>
+                    <td><code>va_rfid_locator.aspx</code></td>
+                    <td><code>processRead()</code></td>
+                    <td>Client-side JS. Serial stays open continuously. Tag normalization (F-padding strip + EE fuzzy match) applied to all serial reads identically to keyboard reads.</td>
+                </tr>
+                <tr>
+                    <td>Fixed Reader Configuration</td>
+                    <td><code>va_reader_config.aspx</code></td>
+                    <td>N/A &mdash; management UI only</td>
+                    <td>Connects to iDash REST API with OAuth2 to manage fixed reader registrations. WebSerial not applicable (fixed readers communicate server-to-reader, not browser-to-reader).</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Technical Flow (All Modules)</h3>
+        <ol>
+            <li>User clicks <strong>&quot;Select/Open Serial Port&quot;</strong> inside a collapsible <code>&lt;details&gt;</code> panel.</li>
+            <li>The browser displays its native serial port picker (explicit user consent required by the WebSerial spec).</li>
+            <li>JavaScript opens the selected port at <strong>115200 baud, 8N1, hardware flow control</strong>.</li>
+            <li>An async read loop buffers incoming UTF-8 bytes. On each newline, the buffered line is trimmed and passed to the module's scan function.</li>
+            <li>The scan function processes the input identically to keyboard input &mdash; all validation, filtering, and export logic applies.</li>
+        </ol>
+
+        <div class="alert-amber">
+            <strong>Deployment prerequisite:</strong> WebSerial requires <strong>HTTPS</strong> (or <code>localhost</code>).
+            If iDash is served over plain HTTP, the WebSerial panel displays &quot;Not Available&quot; on all six pages.
+            Keyboard/DataWedge scanning is unaffected.
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  HOW TO MAKE A CHANGE                                          -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>How to Make a Change &mdash; The Pattern</h2>
+        <p>
+            Every page in iDash follows a consistent pattern. Once you know it for one page, you know it for all of them.
+        </p>
+
+        <h3>Reading data from the database</h3>
+        <pre>// 1. Get the connection string from web.config &mdash; always
+string connStr = WebConfigurationManager.ConnectionStrings["iDash"].ConnectionString;
+
+// 2. Open a connection, write a parameterized query
+using (SqlConnection conn = new SqlConnection(connStr))
+{
+    conn.Open();
+    // Use dbo.v_asset for reporting (INNER JOINed view)
+    // Use dbo.asset for scanning/ENNX (base table, includes all records)
+    string sql = "SELECT id, name FROM dbo.asset WHERE companyid = @cid ORDER BY name";
+    using (SqlCommand cmd = new SqlCommand(sql, conn))
+    {
+        cmd.Parameters.Add(new SqlParameter("@cid", SqlDbType.Int) { Value = myCompanyId });
+        using (SqlDataReader rdr = cmd.ExecuteReader())
+        {
+            // bind, read, render
+        }
+    }
+}</pre>
+        <div class="alert-amber">
+            <strong>Important: <code>dbo.v_asset</code> vs. <code>dbo.asset</code></strong><br/>
+            <code>dbo.v_asset</code> is a SQL view that INNER JOINs across company, location, and other lookup tables.
+            Assets missing any of those foreign keys (common for newly-scanned assets) are silently excluded from this view.
+            Scanning and ENNX pages now query <code>dbo.asset</code> directly with LEFT JOINs to ensure every scanned
+            record is visible. <strong>Always use <code>dbo.asset</code> for any new scanning or operational pages.</strong>
+            Use <code>dbo.v_asset</code> only for reports where you want fully-resolved, clean data.
+        </div>
+
+        <h3>Calling the iDash API from code-behind</h3>
+        <pre>// Get a valid Bearer token (cached automatically, refreshed when expired)
+string token = IdashApiClient.GetToken();
+
+// Inject the token into the page so JavaScript can use it for print calls
+LitToken.Text = "&lt;script&gt;var AW_TOKEN = '" + token + "';&lt;/script&gt;";</pre>
+
+        <h3>Adding a new configuration value</h3>
+        <p>
+            <strong>For infrastructure settings</strong> (server names, credentials, feature flags, SMTP config) that are set
+            once per deployment: add it to <code>web.config</code> inside the <code>&lt;appSettings&gt;</code> block.
+            Read it anywhere via <code>ConfigurationManager.AppSettings["MyKey"]</code>. Do not hardcode server names,
+            credentials, or URLs anywhere in <code>.aspx.cs</code> files.
+        </p>
+        <div class="alert-amber">
+            <strong>For user-editable settings</strong> (recipient lists, report schedules, toggle states that users
+            change through the UI during normal operation): store them in a JSON file under the <code>config/</code>
+            directory. Writing to <code>web.config</code> at runtime triggers an IIS application pool recycle, which
+            destroys all active sessions and forces every logged-in user to re-authenticate. Use
+            <code>System.IO.File.ReadAllText()</code> / <code>WriteAllText()</code> with <code>JavaScriptSerializer</code>
+            for reads and writes. See <code>EmailHelper.cs</code> and <code>va_report_automation.aspx.cs</code>
+            for working examples of this pattern.
+        </div>
+
+        <h3>Adding a new page</h3>
+        <ol>
+            <li>Create <code>my_page.aspx</code> (copy the shell from any existing page for consistent styling)</li>
+            <li>Create the matching <code>my_page.aspx.cs</code> code-behind</li>
+            <li>Add a link to <code>index.aspx</code> in the navigation section</li>
+            <li>Create a <code>documentation/my_page.html</code> doc entry and link it from <code>documentation/index.aspx</code></li>
+        </ol>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  THE HYBRID STRATEGY GOING FORWARD                             -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>The Hybrid Strategy Going Forward</h2>
+        <p>
+            The current architecture is intentionally hybrid and will remain so. Here is how each layer will evolve:
+        </p>
+
+        <table class="tbl">
+            <thead>
+                <tr>
+                    <th>Operation Type</th>
+                    <th>Recommended Layer</th>
+                    <th>Rationale</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Write operations</strong> (scan commit, create asset, print job)</td>
+                    <td><span class="chip chip-api">iDash API</span></td>
+                    <td>API enforces business rules, audit logs, and data integrity constraints</td>
+                </tr>
+                <tr>
+                    <td><strong>Entity lookups</strong> (single asset by ID, user by name)</td>
+                    <td><span class="chip chip-api">iDash API</span></td>
+                    <td>API is authoritative for individual entity reads</td>
+                </tr>
+                <tr>
+                    <td><strong>Dashboard aggregates</strong> (counts, aging buckets, %, groupings)</td>
+                    <td><span class="chip chip-db">Direct SQL</span></td>
+                    <td>No equivalent API endpoint exists; SQL is the only practical option</td>
+                </tr>
+                <tr>
+                    <td><strong>Bulk data exports</strong> (CSV downloads, Excel, report generation)</td>
+                    <td><span class="chip chip-db">Direct SQL</span></td>
+                    <td>API pagination would require dozens of round-trips for the same data</td>
+                </tr>
+                <tr>
+                    <td><strong>Administrative operations</strong> (DB updates, SQL uploads, log viewing)</td>
+                    <td><span class="chip chip-db">Direct SQL</span></td>
+                    <td>These operations exist specifically because the API doesn't expose admin-level access</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="alert-green" style="margin-top:16px;">
+            <strong>The migration path is clear:</strong> As the iDash API team adds aggregate endpoints
+            or reporting capabilities, the corresponding iDash pages can be updated to use them &mdash; one page at a time,
+            controlled by the <code>UseRestApi</code> toggle in <code>web.config</code>. No big-bang rewrite required.
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  DEPLOYMENT & REGIONAL SERVER SETUP                            -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>&#128640; Deployment &amp; Regional Server Setup</h2>
+        <p>
+            When deploying iDash to a new VA regional server, moving the iDash SQL database (<code>.mdf</code>) and IIS web files is <strong>not enough</strong>. You must also migrate the external state.
+        </p>
+        <ul>
+            <li><strong>User Accounts:</strong> You must copy <code>App_Data/idash_users.json</code>, otherwise all portal users and their site-level permissions will be lost.</li>
+            <li><strong>Print Configuration:</strong> You must copy <code>print_mapping_config.json</code> and ensure <code>printer_routing.json</code> exists alongside the PowerShell Spooler script.</li>
+            <li><strong>Config Directory:</strong> You must copy the entire <code>config/</code> directory, which contains <code>email_recipients.json</code> (global email recipient list) and <code>report_automation.json</code> (report scheduling settings). These files are not in <code>web.config</code> &mdash; they are stored separately to avoid IIS app pool recycles.</li>
+            <li><strong>Automations:</strong> You must re-create the Windows Task Scheduler triggers for <code>va_autodbupdate.aspx</code> (autoload polling) and <code>AutoReportRunner.ps1</code> (Daily ENNX exports).</li>
+            <li><strong>Field Sync:</strong> You must copy <code>va_field_sync_merge.sql</code> and ensure <code>downloads/Scripts/va_field_sync_merge.sql</code> stays in sync. The merge script is executed by <code>va_field_sync.aspx</code> to sync field server data into the central database.</li>
+            <li><strong>Mobile Carts Registry:</strong> You must preserve <code>App_Data/cart_licenses.json</code> and any applied <code>.idashlic</code> files, which maintain the nationwide mobile tagging cart registrations and local node-locked activation status.</li>
+            <li><strong>Site Maps:</strong> You must copy the entire <code>site_maps/</code> directory tree, which contains facility and site architectural floor plan images organized by building number.</li>
+            <li><strong>Web.config:</strong> Ensure the SMTP server, database connection strings, and API credentials are updated for the new environment.</li>
+        </ul>
+        <div class="alert-blue">
+            <strong>See the full map:</strong> Read the <a href="va_system_architecture.html">External State &amp; Dependencies Guide</a> for a complete checklist of files that exist outside the SQL database.
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  HANDOFF CHECKLIST                                             -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>&#128203; Developer Handoff Checklist</h2>
+        <p>If you are taking over iDash support, here is what you need to verify before you can work on it confidently:</p>
+
+        <ul>
+            <li>
+                <strong>Read <code>web.config</code> top to bottom.</strong>
+                Every configurable value in the system is there. You will understand 80% of the app just from this file.
+            </li>
+            <li>
+                <strong>Browse to <code>/documentation/index.aspx</code> on the server.</strong>
+                Over 50 individual module documentation pages exist. Read the one for any module before editing it.
+            </li>
+            <li>
+                <strong>Understand the two data layers.</strong>
+                Dashboard/report pages query <code>dbo.v_asset</code> (a SQL view that INNER JOINs asset metadata across tables).
+                Scanning and ENNX pages query <code>dbo.asset</code> directly (the base table) to include all records.
+                Run <code>SELECT TOP 10 * FROM dbo.v_asset</code> and <code>SELECT TOP 10 * FROM dbo.asset</code>
+                in SQL Server Management Studio to see the difference in shape and row count.
+            </li>
+            <li>
+                <strong>Know about the iDash API.</strong>
+                It runs at <code>http://localhost/api</code> (configurable in <code>web.config</code> via <code>iDash_ApiBase</code>).
+                It uses OAuth 2.0 client credentials &mdash; the client ID and secret are in <code>web.config</code>.
+                Token management is entirely handled by <code>IdashApiClient.cs</code>.
+            </li>
+            <li>
+                <strong>Know about the Print Pipeline.</strong>
+                The iDash print stack has three layers: (1) the mobile app selects a template via
+                <code>template.name</code> matching in SQL, (2) the iDash web UI uses
+                <code>print_mapping_config.json</code> to resolve template IDs when printing from
+                Tag Team Scan, Asset Master, and Excel Print, and (3) <code>IdashApiHelper</code>
+                dispatches the print request natively via <code>POST /api/printjob/print</code> using site OAuth credentials.
+                The API publishes the MQTT trigger on port 8883 to the native <code>iDash.PrintServer</code> Windows service,
+                which executes BarTender and routes the label to the hardware printer.
+                The system operates 100% independently without requiring any external PowerShell scripts on VA production servers.
+            </li>
+            <li>
+                <strong>IIS runs two pipelines side by side.</strong>
+                ASPX pages run under ASP.NET 4.8 (classic mode). The <code>/api/*</code> path is routed to an
+                ASP.NET Core application via the <code>AspNetCoreModuleV2</code> handler. Both are configured in
+                <code>web.config</code> under <code>&lt;system.webServer&gt;&lt;handlers&gt;</code>.
+            </li>
+        </ul>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  COMPLETE FEATURE INVENTORY                                    -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>&#128218; Complete Feature Inventory</h2>
+        <p>The following is an exhaustive list of every functional module in iDash, organized by operational domain. Each module has a dedicated documentation page accessible from <code>/documentation/index.aspx</code>.</p>
+
+        <h3>Live Scanning &amp; Field Operations</h3>
+        <table class="tbl">
+            <thead><tr><th>Module</th><th>Function</th><th>Layer</th></tr></thead>
+            <tbody>
+                <tr><td><code>va_tagteam_scan.aspx</code></td><td>Primary field scanning tool. Session-based RFID tagging with real-time grid, auto-print, bulk location assignment, CMR tracking, and print job routing via <code>print_mapping_config.json</code>.</td><td><span class="chip chip-hybrid">Hybrid</span></td></tr>
+                <tr><td><code>va_inventory.aspx</code></td><td>Location-based inventory sweep tool. Scans a room, compares to expected assets, identifies out-of-place equipment, and auto-relocates assets to the correct EIL.</td><td><span class="chip chip-hybrid">Hybrid</span></td></tr>
+                <tr><td><code>va_ennx_live_scan.aspx</code></td><td>Live ENNX file generation. Scans assets in real-time and compiles them into downloadable ENNX files for VistA import.</td><td><span class="chip chip-hybrid">Hybrid</span></td></tr>
+                <tr><td><code>va_eil_live_scan.aspx</code></td><td>EIL reconciliation scanner. Cross-references scanned barcodes against location records to identify discrepancies.</td><td><span class="chip chip-hybrid">Hybrid</span></td></tr>
+                <tr><td><code>va_universal_ennx.aspx</code></td><td>Scanner-agnostic ENNX builder for any VA facility. No site selection or database required &mdash; works offline from any browser.</td><td><span class="chip chip-api">Standalone</span></td></tr>
+                <tr><td><code>va_rfid_locator.aspx</code></td><td><strong>RFID Asset Locator (07/24/2026).</strong> Dedicated missing-asset hunting tool. Pre-load specific targets (by EE number, barcode, serial, or rfidtag), then walk with a Zebra reader to find them using geiger counter-style proximity metering, audio feedback, and proximity-scaled beeps. Uses a 3-tier tag matching strategy: exact match, substring match, and EE-number fuzzy match after stripping F-padding. Includes raw read debug log for diagnosing format mismatches. WebMethod <code>LookupAssets</code> queries SQL with space-agnostic normalization. DataWedge keystroke + WebSerial USB supported.</td><td><span class="chip chip-api">API Driven (JSON)</span></td></tr>
+                <tr><td><code>va_reader_config.aspx</code></td><td><strong>Fixed Reader Configuration (07/24/2026).</strong> Manages fixed infrastructure RFID reader registrations. Add/edit/delete readers; configure antenna ports, power levels, and location mappings; discover unregistered hardware on the network; view live online/offline status. Connects to iDash REST API with OAuth2. Per-site location filtering enforced via <code>UserManager.BuildSiteFilter()</code>.</td><td><span class="chip chip-api">API Driven</span></td></tr>
+                <tr><td><code>va_site_maps.aspx</code></td><td>Visual facility map dashboard. Tracks tagging progress floor-by-floor with color-coded completion status, ENNX file import overlay, per-asset note editing, sortable/filterable column data, column chooser, XLSX export, and version history tracking.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+            </tbody>
+        </table>
+
+        <h3>Executive Reporting &amp; Analytics</h3>
+        <table class="tbl">
+            <thead><tr><th>Module</th><th>Function</th><th>Layer</th></tr></thead>
+            <tbody>
+                <tr><td><code>va_tag_stats.aspx</code></td><td>4-tab tagging analytics dashboard: Overview KPIs, Employee Performance, Tag Type Breakdown, and Site-by-Site progress. Chart.js visualizations with CSV export.</td><td><span class="chip chip-hybrid">Hybrid</span></td></tr>
+                <tr><td><code>va_asset_stats.aspx</code></td><td>4-tab asset analytics platform: Overview, Data Quality audit, Not-In-Use analysis, and Analytics deep-dive with aging buckets and disposition tracking.</td><td><span class="chip chip-hybrid">Hybrid</span></td></tr>
+                <tr><td><code>va_cmr_stats.aspx</code></td><td>CMR lifecycle accountability dashboard. Tracks CMR aging, scan coverage, and multi-CMR filtering with scanner attribution.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+                <tr><td><code>va_data_quality.aspx</code></td><td>Data integrity audit. Identifies records missing critical fields (serial numbers, EIL codes, CMR assignments).</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+                <tr><td><code>va_ennx.aspx</code></td><td>ENNX export dashboard with multi-day date range, site/user filtering, OIT item detection, No-Data item tracking, inline preview panels, Excel export with optional OIT/No-Data sections, and email delivery. Queries <code>dbo.asset</code> directly for complete scan coverage.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+                <tr><td><code>ennxhistory.aspx</code></td><td>ENNX session history viewer. Groups tagging sessions by site/user/date with drill-down preview, ENNX text regeneration, CSV/Excel export, and batch email delivery. Includes sortable/filterable columns, session-scoped preview grids with CMR/EIL/RFID columns, and minimum date filtering to exclude legacy data.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+                <tr><td><code>va_tag_audit_report.aspx</code></td><td>Detailed audit trail of all tagging activity with date filtering and employee-level breakdown.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+                <tr><td><code>va_not_in_use.aspx</code></td><td>Tracks assets marked as Not In Use with disposition status and aging analysis.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+            </tbody>
+        </table>
+
+        <h3>Asset Search &amp; Data Research</h3>
+        <table class="tbl">
+            <thead><tr><th>Module</th><th>Function</th><th>Layer</th></tr></thead>
+            <tbody>
+                <tr><td><code>va_asset_api.aspx</code></td><td>Single-asset lookup by barcode, EE number, or RFID tag. Returns full asset record from the API.</td><td><span class="chip chip-api">API Driven</span></td></tr>
+                <tr><td><code>va_asset_master.aspx</code></td><td>Full-database asset search with multi-column sorting, per-column filters, column toggle pills with drag-reorder, CSV/Excel export, and pagination. Enforces per-user site access filtering.</td><td><span class="chip chip-hybrid">Hybrid</span></td></tr>
+                <tr><td><code>va_previous_location.aspx</code></td><td>Location and scan history search. Shows where an asset has been observed over time.</td><td><span class="chip chip-api">API Driven</span></td></tr>
+                <tr><td><code>va_data_research.aspx</code></td><td>Advanced bulk data querying system for viewing and exporting massive datasets with custom filters.</td><td><span class="chip chip-api">API Driven</span></td></tr>
+                <tr><td><code>va_location_list.aspx</code></td><td>Complete EIL location registry with asset counts per location.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+                <tr><td><code>va_assets_by_location.aspx</code></td><td>Drill-down view showing all assets assigned to a specific EIL location.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+            </tbody>
+        </table>
+
+        <h3>Print Pipeline &amp; RFID Label Management</h3>
+        <table class="tbl">
+            <thead><tr><th>Module</th><th>Function</th><th>Layer</th></tr></thead>
+            <tbody>
+                <tr><td><code>va_print_mapping.aspx</code></td><td>Web UI for managing <code>print_mapping_config.json</code>. Maps tag type strings (IQ350, Large_Metal, etc.) to BarTender template IDs.</td><td><span class="chip chip-db">Config</span></td></tr>
+                <tr><td><code>va_printer_routing.aspx</code></td><td>Web UI for managing <code>printer_routing.json</code>. Maps <code>.btw</code> template filenames to physical Windows printer names.</td><td><span class="chip chip-db">Config</span></td></tr>
+                <tr><td><code>Run_Bypass_Spooler.ps1</code></td><td>PowerShell print spooler. Polls <code>printjob</code> table, opens BarTender templates via .NET SDK, injects label data, routes to hardware printers, marks jobs complete.</td><td><span class="chip chip-hybrid">Hybrid</span></td></tr>
+            </tbody>
+        </table>
+
+        <h3>Database Administration</h3>
+        <table class="tbl">
+            <thead><tr><th>Module</th><th>Function</th><th>Layer</th></tr></thead>
+            <tbody>
+                <tr><td><code>va_dbupdate.aspx</code></td><td>Standard and enrichment database update workflows. Processes CDW extract files into the local iDash database.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+                <tr><td><code>va_autodbupdate.aspx</code></td><td>Automated DB update with autoload folder polling. Monitors a directory for <code>.bak</code> files and processes them unattended via Windows Task Scheduler.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+                <tr><td><code>va_sql_upload.aspx</code></td><td>Direct SQL script upload and execution tool for administrative bulk operations.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+                <tr><td><code>va_db_restore.aspx</code></td><td>Database backup restore utility with danger-zone safety controls and log output.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+                <tr><td><code>va_excel.aspx</code></td><td>Excel file merge tool for combining multiple CDW extract workbooks into a single importable dataset.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+                <tr><td><code>va_field_sync.aspx</code></td><td>Multi-facility field server sync pipeline. Restores remote <code>.bak</code> files into <code>idash_staging</code>, then executes <code>va_field_sync_merge.sql</code> for cross-database merge with field-level change detection, company matching by station number prefix, and <code>locationid</code> re-linking. Supports national multi-site deployment.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+            </tbody>
+        </table>
+
+        <h3>Automation &amp; Scheduled Operations</h3>
+        <table class="tbl">
+            <thead><tr><th>Module</th><th>Function</th><th>Layer</th></tr></thead>
+            <tbody>
+                <tr><td><code>va_cron_daily.aspx</code></td><td>Headless cron endpoint. Runs SQL aggregation, generates CSV exports, dispatches automated email reports. Called by Windows Task Scheduler.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+                <tr><td><code>va_automated_reports.aspx</code></td><td>System automations admin panel. Configures SMS routing, email report schedules, and status notifications. Writes to <code>web.config</code> (one-time setup).</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+                <tr><td><code>va_report_automation.aspx</code></td><td>Report automation pipeline. Configures recurring ENNX exports and manages the email recipient list. Stores settings in <code>config/report_automation.json</code> and recipients in <code>config/email_recipients.json</code> (not <code>web.config</code>) to avoid session loss.</td><td><span class="chip chip-db">Config + JSON</span></td></tr>
+                <tr><td><code>va_report_automator_runner.aspx</code></td><td>Headless execution endpoint triggered by Windows Task Scheduler. Generates the actual ENNX export and dispatches it via SMTP to all configured email recipients.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+            </tbody>
+        </table>
+
+        <h3>Security &amp; User Management</h3>
+        <table class="tbl">
+            <thead><tr><th>Module</th><th>Function</th><th>Layer</th></tr></thead>
+            <tbody>
+                <tr><td><code>va_user_management.aspx</code></td><td>Unified user management console with system toggle. <strong>iDash tab:</strong> JSON-backed portal users with three-dimensional authorization (Role &times; Site &times; Tile). <strong>iDash tab:</strong> SQL-backed RFID scanner/thick-client users via embedded iframe. Includes login history card with KPI stats and audit trail. Both systems managed from a single hub tile.</td><td><span class="chip chip-db">Config</span></td></tr>
+                <tr><td><code>va_aw_user_management.aspx</code></td><td>iDash/RFID user administration. CRUD operations against <code>dbo.sysuser</code>. Supports standalone mode and <code>?embed=1</code> mode (hides chrome for iframe embedding in unified page).</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+                <tr><td><code>UserManager.cs</code></td><td>Backend authentication engine. SHA-256 password hashing, JSON-backed user store, three-dimensional authorization (Role &times; Site &times; Tile), deny-by-default tile access. Auto-seeds default admin on empty user store.</td><td><span class="chip chip-db">Config</span></td></tr>
+            </tbody>
+        </table>
+
+        <h3>Licensing, Carts &amp; Device Architecture</h3>
+        <table class="tbl">
+            <thead><tr><th>Module</th><th>Function</th><th>Layer</th></tr></thead>
+            <tbody>
+                <tr><td><code>va_license_manager.aspx</code></td><td>Dual-view enterprise licensing console. <strong>Tab 1:</strong> Active reader allocation and device seat status parsed from <code>dbo.applicationsetting</code>. <strong>Tab 2:</strong> Mobile Carts &amp; Workstations Registry backed by <code>App_Data/cart_licenses.json</code> with direct links to offline cart key verification.</td><td><span class="chip chip-db">DB + JSON</span></td></tr>
+                <tr><td><code>va_license_activation.aspx</code></td><td>Local machine cryptographic activation console. Displays hardware-derived Installation ID (<code>IDASH-...</code>), provides client-side drag-and-drop <code>.idashlic</code> file ingestion, and verifies RSA-2048 digital signatures offline.</td><td><span class="chip chip-db">Config</span></td></tr>
+                <tr><td><code>LicenseManager.cs</code></td><td>Cryptographic licensing engine. Generates deterministic node signatures, verifies RSA-2048 digital signatures using embedded public key, evaluates expiration dates and feature flags, and operates 100% in-memory with zero external network connectivity.</td><td><span class="chip chip-db">Config</span></td></tr>
+            </tbody>
+        </table>
+
+        <h3>Diagnostics &amp; System Tools</h3>
+        <table class="tbl">
+            <thead><tr><th>Module</th><th>Function</th><th>Layer</th></tr></thead>
+            <tbody>
+                <tr><td><code>va_log_viewer.aspx</code></td><td>Four-tab log analysis dashboard: IIS W3C access logs with KPI charts and filtering, Serilog application service logs with error diagnosis, active TCP connection viewer with DNS resolution, and login audit trail with KPI stats (logins today, failures, unique users) and last 100 sign-in entries.</td><td><span class="chip chip-db">File Driven</span></td></tr>
+                <tr><td><code>va_site_config.aspx</code></td><td>Facility and system deployment wizard. One-stop setup page for configuring database connections, API/OAuth credentials, SMTP email, Twilio SMS, and one-time company SQL. Writes directly to <code>web.config</code>. Also serves as the anchor for the <a href="va_site_config.html">Installation &amp; Component Manifest</a> (OIT Security Review document).</td><td><span class="chip chip-db">Config</span></td></tr>
+                <tr><td><code>va_downloads.aspx</code></td><td>Secure file downloads and uploads center. Admins manage downloadable files (scanner firmware, field tools). Customers and employees can upload files directly to the iDash team via drag-and-drop with extension blocking and 100 MB limit. Uploads saved to <code>uploads/incoming/</code> with <code>.info.txt</code> manifest.</td><td><span class="chip chip-db">Config</span></td></tr>
+                <tr><td><code>va_training.aspx</code></td><td>Training materials and video library for field technicians.</td><td><span class="chip chip-db">Config</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  FOOTER                                                        -->
+    <!-- ============================================================ -->
+    <div style="text-align:center; color:var(--muted-docs); font-size:12px; margin-top:40px;">
+        iDash iDash &mdash; Architecture Rationale &amp; Developer Handoff Guide &copy; 2026<br/>
+        Last revised: September 10, 2026 &bull; ID Integration Inc.<br/>
+        For questions, start with the <a href="index.aspx">Documentation Hub</a> &mdash; 117 dedicated module pages cover every detail.
+    </div>
+
+</div>
+</body>
+</html>

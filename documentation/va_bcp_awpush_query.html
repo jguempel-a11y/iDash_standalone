@@ -1,0 +1,734 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>VA BCP AW PUSH &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <script src="theme-init.js"></script>
+    <link rel="stylesheet" href="docs_theme.css" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: color-mix(in srgb, var(--accent-docs), transparent 85%);
+            border: 1px solid color-mix(in srgb, var(--accent-docs), transparent 60%);
+            color: var(--accent-docs);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 20px;
+        }
+        .section-badge.green {
+            background: color-mix(in srgb, var(--accent2-docs), transparent 85%);
+            border-color: color-mix(in srgb, var(--accent2-docs), transparent 60%);
+            color: var(--accent2-docs);
+        }
+        .section-badge.warn {
+            background: color-mix(in srgb, var(--warn-docs), transparent 85%);
+            border-color: color-mix(in srgb, var(--warn-docs), transparent 60%);
+            color: var(--warn-docs);
+        }
+        .flow-arrow {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin: 20px 0 28px;
+        }
+        .flow-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted-docs);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            text-align: center;
+        }
+        .flow-node span.icon {
+            font-size: 28px;
+            line-height: 1;
+        }
+        .flow-sep {
+            font-size: 22px;
+            color: var(--accent-docs);
+            flex-shrink: 0;
+        }
+        .row-fields {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .row-fields .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 30px;
+            font-size: 14px;
+            color: var(--muted-docs);
+        }
+        .back-link:hover { color: var(--accent-docs); }
+
+        .tip-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .tip-card {
+            flex: 1;
+            min-width: 220px;
+            background: rgba(0,0,0,0.15);
+            border: 1px solid var(--line-docs);
+            border-radius: 12px;
+            padding: 16px 18px;
+        }
+        .tip-card .tc-title {
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--accent-docs);
+            margin-bottom: 8px;
+        }
+        .tip-card p {
+            font-size: 13px;
+            color: var(--muted-docs);
+            margin: 0;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Floating theme toggle — matches all other iDash pages -->
+    <button id="themeToggleBtn" onclick="toggleIdashTheme()"
+        title="Toggle Light / Dark Mode"
+        style="position:fixed; top:14px; right:18px; z-index:9999;
+               background:var(--card); border:1px solid var(--line);
+               border-radius:10px; padding:6px 12px; cursor:pointer;
+               font-size:18px; color:var(--text); transition:all 0.2s;
+               box-shadow:0 4px 14px rgba(0,0,0,0.25);"
+        onmouseover="this.style.borderColor='var(--accent-docs)'"
+        onmouseout="this.style.borderColor='var(--line)'">&#127769;</button>
+
+    <div class="container">
+
+        <!-- Back link -->
+        <a href="index.aspx" class="back-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back to Documentation Hub
+        </a>
+
+        <!-- Header -->
+        <h1>VA BCP Push &mdash; iDash to VA SQL Export</h1>
+        <div class="section-badge green">&#128228; Push (AW &rarr; VA SQL)</div>
+        <p style="color:var(--muted-docs); font-size:15px; margin-top:0; margin-bottom:30px; line-height:1.6;">
+            This tool is the <strong>reverse</strong> of the VA On Network Queries page.
+            Instead of pulling data <em>from</em> a CDW/VistA server into iDash, this tool generates
+            <strong>BCP out</strong> commands to extract data from the local iDash SQL database, plus
+            a <strong>SQLCMD</strong> insert script to push that extracted file into a remote VA SQL server (e.g.&nbsp;an
+            AEMS-MERS or reporting endpoint). All fields are editable and are persisted in your browser.
+        </p>
+
+        <!-- How it works -->
+        <div class="alert alert-info" style="margin-bottom:30px;">
+            <strong>&#8505;&#65039; How this works</strong><br>
+            1. <strong>BCP OUT</strong> &mdash; runs <code>bcp … queryout</code> against your local iDash SQL
+            instance to dump asset records into a tab-delimited flat file on a shared path.<br>
+            2. <strong>SQLCMD PUSH</strong> &mdash; creates a staging table on the remote VA server and bulk-inserts the
+            flat file, then maps/updates rows to the target table.<br>
+            Run both scripts in order from a Windows command prompt on a machine that has network access to
+            <em>both</em> the iDash SQL Server and the destination VA SQL server.
+        </div>
+
+        <!-- Data-flow diagram -->
+        <div class="flow-arrow">
+            <div class="flow-node"><span class="icon">&#129518;</span>iDash<br>SQL Server</div>
+            <div class="flow-sep">&rarr;</div>
+            <div class="flow-node"><span class="icon">&#128196;</span>BCP OUT<br>(flat file)</div>
+            <div class="flow-sep">&rarr;</div>
+            <div class="flow-node"><span class="icon">&#128441;&#65039;</span>Shared Network<br>Path</div>
+            <div class="flow-sep">&rarr;</div>
+            <div class="flow-node"><span class="icon">&#128190;</span>SQLCMD<br>BULK INSERT</div>
+            <div class="flow-sep">&rarr;</div>
+            <div class="flow-node"><span class="icon">&#127970;</span>Remote VA<br>SQL Server</div>
+        </div>
+
+        <hr>
+
+        <!-- ========== SECTION 1: BCP OUT (AW Source) ========== -->
+        <h2 style="margin-top:36px;">Step 1 &mdash; BCP OUT from iDash</h2>
+        <p style="color:var(--muted-docs); font-size:14px; margin-top:-8px; margin-bottom:24px;">
+            Configure the source iDash SQL Server and what data to extract. The generated <code>bcp … queryout</code>
+            command will dump a tab-delimited file to the shared path below.
+        </p>
+
+        <!-- AW SQL Server (source) -->
+        <div class="row-fields">
+            <div class="form-group">
+                <label for="awServer">iDash SQL Server (-S)</label>
+                <input type="text" id="awServer" class="form-control" value="LingCod\SQLEXPRESS"
+                    oninput="updateScript()">
+                <small style="color:var(--muted-docs); margin-top:5px; font-size:12px; display:block;">
+                    The SQL Server hosting the iDash database (source). Use <code>hostname\instance</code> for named
+                    instances.
+                </small>
+            </div>
+            <div class="form-group">
+                <label for="awDb">iDash database</label>
+                <input type="text" id="awDb" class="form-control" value="iDash" oninput="updateScript()">
+            </div>
+        </div>
+
+        <!-- Auth mode -->
+        <div class="form-group">
+            <label>Authentication</label>
+            <div style="display:flex; gap:16px; flex-wrap:wrap; margin-top:4px;">
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; color:var(--text-docs); font-size:14px; font-weight:400; text-transform:none; letter-spacing:0;">
+                    <input type="radio" name="authMode" id="authWindows" value="windows" checked onchange="updateScript()">
+                    Windows Auth (<code>-T</code>)
+                </label>
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; color:var(--text-docs); font-size:14px; font-weight:400; text-transform:none; letter-spacing:0;">
+                    <input type="radio" name="authMode" id="authSql" value="sql" onchange="updateScript()">
+                    SQL Auth (<code>-U</code>/<code>-P</code>)
+                </label>
+            </div>
+        </div>
+
+        <div id="sqlAuthFields" style="display:none;">
+            <div class="row-fields">
+                <div class="form-group">
+                    <label for="awUser">AW SQL Username (-U)</label>
+                    <input type="text" id="awUser" class="form-control" value="scannerUser" oninput="updateScript()">
+                </div>
+                <div class="form-group">
+                    <label for="awPass">AW SQL Password (-P)</label>
+                    <input type="text" id="awPass" class="form-control" value="" oninput="updateScript()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Company / station filter -->
+        <div class="form-group">
+            <label for="awCompanyIds">Company IDs to Export (comma-separated)</label>
+            <input type="text" id="awCompanyIds" class="form-control" value="1,2,3,4,5,6,7"
+                oninput="updateScript()">
+            <small style="color:var(--muted-docs); margin-top:5px; font-size:12px; display:block;">
+                Maps to <code>companyid</code> in <code>dbo.asset</code>. Use <code>*</code> to export all companies.
+            </small>
+        </div>
+
+        <!-- Columns to export -->
+        <div class="form-group">
+            <label for="awColumns">Columns to Export (SELECT list)</label>
+            <textarea id="awColumns" class="form-control" rows="4" oninput="updateScript()">a.id, a.name, a.description, a.rfidtag, a.assettype, a.lastobservedlocation, a.lastobservedtime, a.checkinstatus, a.text1, a.text2, a.text3, a.text4, a.text5, a.text6, a.text7, a.text8, a.text9, a.text10, a.text11, a.text12, a.text19, a.text20, a.companyid, a.lastinventoried, a.lastmodified, a.listvalue1</textarea>
+            <small style="color:var(--muted-docs); margin-top:5px; font-size:12px; display:block;">
+                Adjust to include only the columns required by the destination table. Use table alias <code>a</code> for
+                <code>dbo.asset</code>.
+            </small>
+        </div>
+
+        <!-- Additional WHERE clause -->
+        <div class="form-group">
+            <label for="awWhere">Additional WHERE Clause (optional)</label>
+            <input type="text" id="awWhere" class="form-control" value=""
+                placeholder="e.g. a.lastmodified > DATEADD(day, -7, GETDATE())" oninput="updateScript()">
+            <small style="color:var(--muted-docs); margin-top:5px; font-size:12px; display:block;">
+                Leave blank to export all records matching the Company IDs above. Appended after <code>WHERE … companyid IN (…)</code> using <code>AND</code>.
+            </small>
+        </div>
+
+        <!-- Output path -->
+        <div class="form-group">
+            <label for="outputPath">Output File Path (shared network path or local path)</label>
+            <input type="text" id="outputPath" class="form-control"
+                value="\\vhavanapprfidp\idashsqlcmd\AW_Push\AWExport.txt" oninput="updateScript()">
+        </div>
+
+        <!-- BCP OUT Script -->
+        <h3 style="margin-top:28px;">Generated BCP OUT Script</h3>
+        <div class="alert alert-ok" style="margin-bottom:14px; font-size:13px;">
+            Run this on a machine with network access to the iDash SQL Server. Requires the BCP utility
+            (included with SQL Server tools). <strong>This reads from iDash &mdash; it does not modify any data.</strong>
+        </div>
+        <div class="script-container">
+            <button class="btn-copy" onclick="copyScript('bcpOutScript', 'btnCopyBcpOut')" id="btnCopyBcpOut">
+                Copy BCP OUT Script
+            </button>
+            <div class="script-box" id="bcpOutScript"></div>
+        </div>
+
+        <hr style="margin:40px 0;">
+
+        <!-- ========== SECTION 2: SQLCMD PUSH (Remote Destination) ========== -->
+        <h2>Step 2 &mdash; SQLCMD PUSH to Remote VA SQL Server</h2>
+        <p style="color:var(--muted-docs); font-size:14px; margin-top:-8px; margin-bottom:24px;">
+            Configure the destination VA SQL server. The generated script creates a staging table, bulk-inserts
+            the flat file from Step 1, then merges rows into the destination table.
+        </p>
+
+        <div class="row-fields">
+            <div class="form-group">
+                <label for="destServer">Destination SQL Server (-S)</label>
+                <input type="text" id="destServer" class="form-control" value="OITPORSQL016.R01.MED.VA.GOV"
+                    oninput="updateScript()">
+            </div>
+            <div class="form-group">
+                <label for="destDb">Destination Database</label>
+                <input type="text" id="destDb" class="form-control" value="VAAssetSync" oninput="updateScript()">
+            </div>
+        </div>
+        <div class="row-fields">
+            <div class="form-group">
+                <label for="destUser">Destination Username (-U)</label>
+                <input type="text" id="destUser" class="form-control" value="vadbuser" oninput="updateScript()">
+            </div>
+            <div class="form-group">
+                <label for="destPass">Destination Password (-P)</label>
+                <input type="text" id="destPass" class="form-control" value="" oninput="updateScript()">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="destTable">Destination Table Name</label>
+            <input type="text" id="destTable" class="form-control" value="dbo.AWAssetSync" oninput="updateScript()">
+            <small style="color:var(--muted-docs); margin-top:5px; font-size:12px; display:block;">
+                The SQLCMD script will create a staging table, bulk-insert the flat file, then
+                <code>MERGE</code> (upsert) rows into this destination table using <code>rfidtag</code> as the key.
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label for="importFile">Flat File Path on Destination Server</label>
+            <input type="text" id="importFile" class="form-control"
+                value="\\vhavanapprfidp\idashsqlcmd\AW_Push\AWExport.txt" oninput="updateScript()">
+            <small style="color:var(--muted-docs); margin-top:5px; font-size:12px; display:block;">
+                The path as seen from the <em>destination</em> SQL Server. Must match or be the same UNC path used in Step 1.
+            </small>
+        </div>
+
+        <!-- SQLCMD Push Script -->
+        <h3 style="margin-top:28px;">Generated SQLCMD PUSH Script</h3>
+        <div class="alert alert-warn" style="margin-bottom:14px; font-size:13px;">
+            <strong>&#9888;&#65039; Caution:</strong> This script performs a <code>MERGE</code> (insert+update) on the
+            destination server. Run Step 1 first to ensure the flat file is current. Verify the destination table
+            definition matches the column list you configured in Step 1 before executing.
+        </div>
+        <div class="script-container">
+            <button class="btn-copy" onclick="copyScript('sqlcmdPushScript', 'btnCopySqlcmd')" id="btnCopySqlcmd">
+                Copy SQLCMD PUSH Script
+            </button>
+            <div class="script-box" id="sqlcmdPushScript"></div>
+        </div>
+
+        <hr style="margin:40px 0;">
+
+        <!-- ========== SECTION 3: T-SQL Monolithic ========== -->
+        <h2>Alternative: T-SQL Monolithic Merge Script (SSMS)</h2>
+        <p style="color:var(--muted-docs); font-size:14px; margin-top:-8px; margin-bottom:20px;">
+            Run directly inside SQL Server Management Studio on the <em>destination</em> server if you have linked server
+            access or are already connected to it. Uses a single batch with a <code>MERGE</code> statement for safe
+            upsert behavior.
+        </p>
+        <div class="script-container">
+            <button class="btn-copy" onclick="copyScript('tsqlMergeScript', 'btnCopyTsql')" id="btnCopyTsql">
+                Copy T-SQL Merge Script
+            </button>
+            <div class="script-box" id="tsqlMergeScript" style="max-height:500px; overflow-y:auto;"></div>
+        </div>
+
+        <hr style="margin:40px 0;">
+
+        <!-- ========== HOW TO USE ========== -->
+        <h2>How to Use This Page</h2>
+
+        <div class="tip-row">
+            <div class="tip-card">
+                <div class="tc-title">&#128221; What is this tool?</div>
+                <p>This page generates ready-to-run command-line scripts that extract iDash asset data and push it
+                    to a remote VA SQL Server endpoint. No manual SQL writing required &mdash; just fill in the fields
+                    and copy the scripts.</p>
+            </div>
+            <div class="tip-card">
+                <div class="tc-title">&#128260; Direction of data flow</div>
+                <p><strong>BCP PULL</strong> (va_bcp_query.html) reads from CDW/VistA &rarr; into iDash.<br>
+                    <strong>BCP PUSH</strong> (this page) reads from iDash &rarr; pushes to a remote VA SQL server.
+                </p>
+            </div>
+            <div class="tip-card">
+                <div class="tc-title">&#128190; Save my settings</div>
+                <p>Click <strong>Save Current Values as Default</strong> at the bottom to persist all field values in
+                    your browser. They will reload automatically next time.</p>
+            </div>
+        </div>
+
+        <h3>Step-by-Step Workflow</h3>
+
+        <div class="step">
+            <div class="step-num sn-blue">1</div>
+            <div>
+                <strong>Fill in the Source fields</strong> (Section 1) with your iDash SQL Server name, database,
+                and authentication. Adjust the column list and company ID filter to match what the destination server
+                expects.
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num sn-blue">2</div>
+            <div>
+                <strong>Set the Output Path</strong> to a shared UNC path or local path that both the source machine
+                (running BCP) and the destination SQL Server can access. Both scripts must reference the same path.
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num sn-blue">3</div>
+            <div>
+                <strong>Copy and run the BCP OUT script</strong> from a Windows command prompt. This creates a
+                tab-delimited flat file at the output path containing your iDash asset records.
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num sn-green">4</div>
+            <div>
+                <strong>Fill in the Destination fields</strong> (Section 2) with the remote VA SQL server name, database,
+                credentials, destination table, and the path to the flat file.
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num sn-green">5</div>
+            <div>
+                <strong>Copy and run the SQLCMD PUSH script</strong>. This creates a staging table on the remote server,
+                bulk-inserts the flat file, then merges records into your destination table using
+                <code>rfidtag</code> as the unique key.
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num sn-warn">6</div>
+            <div>
+                <strong>Verify</strong> the row count on the destination server:
+                <code>SELECT COUNT(*) FROM [destination_table]</code>. Compare against your iDash company filter.
+            </div>
+        </div>
+
+        <h3>Frequently Asked Questions</h3>
+
+        <div class="info-box" style="margin-bottom:16px;">
+            <strong>Q: What is the difference between this page and va_bcp_query.html?</strong><br>
+            va_bcp_query.html generates a BCP command that <em>pulls</em> data out of a remote CDW/VistA server into
+            iDash (the input pipeline). <strong>This page</strong> generates a BCP command that <em>pushes</em> data
+            out of iDash to a remote VA SQL server (the output/reporting pipeline).
+        </div>
+
+        <div class="info-box" style="margin-bottom:16px;">
+            <strong>Q: Which columns should I include?</strong><br>
+            Include only the columns that the destination table is designed to receive. If sending to an AEMS-MERS endpoint,
+            align your column list with that schema. The defaults cover the most commonly transferred iDash fields.
+        </div>
+
+        <div class="info-box" style="margin-bottom:16px;">
+            <strong>Q: Can I filter to only recently changed records?</strong><br>
+            Yes &mdash; use the <strong>Additional WHERE Clause</strong> field, e.g.:
+            <code>a.lastmodified &gt; DATEADD(day, -1, GETDATE())</code> for a daily delta push.
+        </div>
+
+        <div class="info-box" style="margin-bottom:16px;">
+            <strong>Q: What happens if a record already exists in the destination?</strong><br>
+            The SQLCMD and T-SQL scripts use a <code>MERGE</code> statement keyed on <code>rfidtag</code>. Existing
+            rows are updated; new rows are inserted. No duplicates are created.
+        </div>
+
+        <div class="warn-box" style="margin-bottom:16px;">
+            <strong>&#9888;&#65039; Security reminder:</strong> These scripts contain database credentials in plaintext.
+            Do not save or share generated scripts via email or untrusted channels. Use Windows Auth (<code>-T</code>)
+            wherever possible for the iDash source to avoid embedding passwords.
+        </div>
+
+        <!-- Save defaults -->
+        <div style="margin-top: 40px; text-align: right; border-top: 1px solid var(--line); padding-top: 20px;">
+            <span id="saveMsg"
+                style="display:inline-block; margin-right:15px; font-size:14px; color:var(--accent2-docs); font-weight:bold; opacity:0; transition:opacity 0.3s;">
+                Saved successfully!
+            </span>
+            <button class="btn-copy" style="position:static; background:var(--accent2-docs); color:var(--bg-docs);"
+                onclick="saveDefaults()" id="btnSaveDefaults">&#8722;&rsquo;&#8722; Save Current Values as Default</button>
+        </div>
+
+    </div><!-- /container -->
+
+    <script>
+        // ---------------------------------------------------------------
+        // Field persistence
+        // ---------------------------------------------------------------
+        const fieldIds = [
+            'awServer', 'awDb', 'awUser', 'awPass', 'awCompanyIds',
+            'awColumns', 'awWhere', 'outputPath',
+            'destServer', 'destDb', 'destUser', 'destPass', 'destTable', 'importFile'
+        ];
+
+        function saveDefaults() {
+            fieldIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) localStorage.setItem('aw_awpush_' + id, el.value);
+            });
+            // Save auth mode
+            const mode = document.querySelector('input[name="authMode"]:checked');
+            if (mode) localStorage.setItem('aw_awpush_authMode', mode.value);
+
+            const msg = document.getElementById('saveMsg');
+            msg.style.opacity = 1;
+            setTimeout(() => msg.style.opacity = 0, 2000);
+        }
+
+        function loadDefaults() {
+            fieldIds.forEach(id => {
+                const saved = localStorage.getItem('aw_awpush_' + id);
+                const el = document.getElementById(id);
+                if (saved !== null && el) el.value = saved;
+            });
+            const savedAuth = localStorage.getItem('aw_awpush_authMode');
+            if (savedAuth) {
+                const radio = document.querySelector(`input[name="authMode"][value="${savedAuth}"]`);
+                if (radio) radio.checked = true;
+            }
+            toggleAuthFields();
+            updateScript();
+        }
+
+        function toggleAuthFields() {
+            const mode = document.querySelector('input[name="authMode"]:checked');
+            document.getElementById('sqlAuthFields').style.display =
+                (mode && mode.value === 'sql') ? 'block' : 'none';
+            updateScript();
+        }
+
+        document.querySelectorAll('input[name="authMode"]').forEach(r => r.addEventListener('change', toggleAuthFields));
+
+        // ---------------------------------------------------------------
+        // Script generation
+        // ---------------------------------------------------------------
+        function v(id) {
+            const el = document.getElementById(id);
+            return el ? el.value.trim() : '';
+        }
+
+        function updateScript() {
+            const awServer      = v('awServer');
+            const awDb          = v('awDb');
+            const awUser        = v('awUser');
+            const awPass        = v('awPass');
+            const awCompanyIds  = v('awCompanyIds');
+            const awColumns     = v('awColumns');
+            const awWhere       = v('awWhere');
+            const outputPath    = v('outputPath');
+            const destServer    = v('destServer');
+            const destDb        = v('destDb');
+            const destUser      = v('destUser');
+            const destPass      = v('destPass');
+            const destTable     = v('destTable');
+            const importFile    = v('importFile');
+
+            const authMode = (document.querySelector('input[name="authMode"]:checked') || {}).value || 'windows';
+
+            // ---- Build company filter ----
+            let companyFilter = '';
+            if (awCompanyIds && awCompanyIds !== '*') {
+                const ids = awCompanyIds.split(',').map(s => s.trim()).filter(Boolean).join(',');
+                companyFilter = `WHERE a.companyid IN (${ids})`;
+            }
+            if (awWhere) {
+                companyFilter = companyFilter
+                    ? `${companyFilter} AND (${awWhere})`
+                    : `WHERE (${awWhere})`;
+            }
+
+            // ---- BCP OUT ----
+            const authFlags = authMode === 'windows'
+                ? '-T'
+                : `-U ${awUser} -P ${awPass}`;
+
+            const bcpQuery = `SELECT ${awColumns} FROM ${awDb}.dbo.asset AS a ${companyFilter}`;
+            const bcpOut = `bcp "${bcpQuery}" queryout "${outputPath}" -S ${awServer} -d ${awDb} ${authFlags} -c -t "\\t" -r "\\n"`;
+            document.getElementById('bcpOutScript').innerText = bcpOut;
+
+            // ---- SQLCMD PUSH ----
+            // Derive column names from awColumns (strip table alias and casts, best effort)
+            const rawCols = awColumns.split(',').map(c => {
+                c = c.trim();
+                // Handle "a.colname" -> "colname"
+                c = c.replace(/^[a-z]\./i, '');
+                // Handle "expression AS alias" -> "alias"
+                const asMatch = c.match(/\s+(?:AS\s+)?(\w+)$/i);
+                if (asMatch) return asMatch[1];
+                return c.replace(/[^a-zA-Z0-9_]/g, '');
+            }).filter(Boolean);
+
+            // Build staging table DDL (all nvarchar(500) for safety)
+            const stagingColsDDL = rawCols.map(c => `    [${c}] nvarchar(500) NULL`).join(',\n');
+            const stagingColsList = rawCols.map(c => `[${c}]`).join(', ');
+
+            const prefix = `SQLCMD -S ${destServer} -d ${destDb} -U ${destUser} -P ${destPass} -Q`;
+
+            const sqlcmds = [
+                `${prefix} "IF OBJECT_ID('dbo.AWPushStaging', 'U') IS NOT NULL DROP TABLE dbo.AWPushStaging;"`,
+                `${prefix} "CREATE TABLE dbo.AWPushStaging (${rawCols.map(c => `[${c}] nvarchar(500) NULL`).join(', ')});"`,
+                `${prefix} "BULK INSERT dbo.AWPushStaging FROM '${importFile}' WITH (FIELDTERMINATOR = '\\t', ROWTERMINATOR = '\\n', FIRSTROW = 1, TABLOCK);"`,
+                `${prefix} "IF OBJECT_ID('${destTable}', 'U') IS NULL CREATE TABLE ${destTable} (${rawCols.map(c => `[${c}] nvarchar(500) NULL`).join(', ')});"`,
+                `${prefix} "MERGE ${destTable} AS tgt USING dbo.AWPushStaging AS src ON tgt.[rfidtag] = src.[rfidtag] WHEN MATCHED THEN UPDATE SET ${rawCols.filter(c => c !== 'rfidtag').map(c => `tgt.[${c}] = src.[${c}]`).join(', ')} WHEN NOT MATCHED BY TARGET THEN INSERT (${stagingColsList}) VALUES (${rawCols.map(c => `src.[${c}]`).join(', ')});"`,
+                `${prefix} "SELECT '${destTable} row count' AS [Result], COUNT(*) AS [Rows] FROM ${destTable};"`,
+                `${prefix} "DROP TABLE IF EXISTS dbo.AWPushStaging;"`
+            ];
+            document.getElementById('sqlcmdPushScript').innerText = sqlcmds.join('\n\n');
+
+            // ---- T-SQL Monolithic ----
+            const tsql = `/* ================================================
+   VA AW PUSH MERGE SCRIPT  (Run in SSMS on destination server)
+   Source: iDash database
+   Destination: ${destTable} on [${destDb}]
+   Generated: ${new Date().toLocaleDateString()}
+   ================================================ */
+USE [${destDb}];
+GO
+
+SET NOCOUNT ON;
+SET XACT_ABORT ON;
+GO
+
+/* 1) Create or verify destination table */
+IF OBJECT_ID('${destTable}', 'U') IS NULL
+BEGIN
+    CREATE TABLE ${destTable} (
+${rawCols.map(c => `        [${c}] nvarchar(500) NULL`).join(',\n')}
+    );
+    PRINT 'Created ${destTable}';
+END
+ELSE
+    PRINT '${destTable} already exists - skipping CREATE';
+GO
+
+/* 2) Create staging table */
+IF OBJECT_ID('dbo.AWPushStaging', 'U') IS NOT NULL
+    DROP TABLE dbo.AWPushStaging;
+
+CREATE TABLE dbo.AWPushStaging (
+${rawCols.map(c => `    [${c}] nvarchar(500) NULL`).join(',\n')}
+);
+GO
+
+/* 3) Bulk Insert from flat file */
+BULK INSERT dbo.AWPushStaging
+FROM '${importFile}'
+WITH (
+    FIRSTROW        = 1,
+    FIELDTERMINATOR = '\\t',
+    ROWTERMINATOR   = '\\n',
+    KEEPNULLS,
+    TABLOCK
+);
+GO
+
+PRINT 'Staging loaded: ' + CAST(@@ROWCOUNT AS VARCHAR(20)) + ' rows';
+
+/* 4) MERGE staging -> destination (upsert keyed on rfidtag) */
+BEGIN TRY
+    BEGIN TRAN;
+
+    MERGE ${destTable} AS tgt
+    USING dbo.AWPushStaging AS src
+        ON tgt.[rfidtag] = src.[rfidtag]
+    WHEN MATCHED THEN
+        UPDATE SET
+${rawCols.filter(c => c !== 'rfidtag').map(c => `            tgt.[${c}] = src.[${c}]`).join(',\n')}
+    WHEN NOT MATCHED BY TARGET THEN
+        INSERT (${stagingColsList})
+        VALUES (${rawCols.map(c => `src.[${c}]`).join(', ')});
+
+    PRINT 'Merge complete. Rows affected: ' + CAST(@@ROWCOUNT AS VARCHAR(20));
+    COMMIT;
+END TRY
+BEGIN CATCH
+    IF XACT_STATE() <> 0 ROLLBACK;
+    PRINT 'ERROR: ' + ERROR_MESSAGE();
+    THROW;
+END CATCH;
+GO
+
+/* 5) Verify */
+SELECT '${destTable}' AS [Table], COUNT(*) AS [TotalRows] FROM ${destTable};
+
+/* 6) Cleanup staging */
+DROP TABLE IF EXISTS dbo.AWPushStaging;
+GO`;
+            document.getElementById('tsqlMergeScript').innerText = tsql;
+        }
+
+        // ---------------------------------------------------------------
+        // Copy helper
+        // ---------------------------------------------------------------
+        function copyScript(targetId, btnId) {
+            const text = document.getElementById(targetId).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById(btnId);
+                const orig = btn.innerText;
+                btn.innerText = 'Copied!';
+                btn.classList.add('flash');
+                setTimeout(() => {
+                    btn.innerText = orig;
+                    btn.classList.remove('flash');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy to clipboard.');
+            });
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', function() {
+            loadDefaults();
+            updateThemeIcon();
+        });
+
+        // ---------------------------------------------------------------
+        // Theme toggle — same pattern as iDash main portal
+        // ---------------------------------------------------------------
+        function toggleIdashTheme() {
+            var html = document.documentElement;
+            var current = html.getAttribute('data-theme');
+            if (current === 'light') {
+                html.removeAttribute('data-theme');
+                localStorage.removeItem('idash_theme');
+            } else {
+                html.setAttribute('data-theme', 'light');
+                localStorage.setItem('idash_theme', 'light');
+            }
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            var btn = document.getElementById('themeToggleBtn');
+            if (!btn) return;
+            var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            btn.innerHTML = isLight ? '&#9728;' : '&#127769;';
+            btn.title = isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode';
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,515 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VALIP Integration Reference &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .badge-valip { background: color-mix(in srgb, #3b82f6, transparent 85%); color: #3b82f6; border: 1px solid color-mix(in srgb, #3b82f6, transparent 70%); }
+        .badge-helm { background: color-mix(in srgb, #8b5cf6, transparent 85%); color: #8b5cf6; border: 1px solid color-mix(in srgb, #8b5cf6, transparent 70%); }
+        .badge-legacy { background: color-mix(in srgb, var(--warn-docs), transparent 85%); color: var(--warn-docs); border: 1px solid color-mix(in srgb, var(--warn-docs), transparent 70%); }
+        .badge-api { background: color-mix(in srgb, var(--accent2-docs), transparent 85%); color: var(--accent2-docs); border: 1px solid color-mix(in srgb, var(--accent2-docs), transparent 70%); }
+        .badge-security { background: color-mix(in srgb, var(--danger), transparent 85%); color: var(--danger); border: 1px solid color-mix(in srgb, var(--danger), transparent 70%); }
+        .why-box { background: color-mix(in srgb, #3b82f6, transparent 92%); border-left: 6px solid #3b82f6; padding: 16px 20px; border-radius: 0 12px 12px 0; margin: 20px 0; }
+        .warn-box { background: color-mix(in srgb, var(--warn-docs), transparent 92%); border-left: 6px solid var(--warn-docs); padding: 16px 20px; border-radius: 0 12px 12px 0; margin: 20px 0; }
+        .field-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 16px 0; }
+        .field-table th { background: rgba(0,0,0,0.2); text-align: left; padding: 8px 12px; border-bottom: 2px solid var(--line-docs); font-weight: 600; text-transform: uppercase; font-size: 0.8rem; letter-spacing: .5px; }
+        .field-table td { padding: 8px 12px; border-bottom: 1px solid var(--line-docs); }
+        .field-table tr:hover td { background: rgba(99,102,241,0.06); }
+        .arch-flow { background: rgba(0,0,0,0.2); border: 1px solid var(--line-docs); border-radius: 8px; padding: 16px; font-family: Consolas, monospace; font-size: 0.85rem; line-height: 1.6; white-space: pre; overflow-x: auto; text-align: center; }
+        .path-card { background: rgba(0,0,0,0.15); border: 1px solid var(--line-docs); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+        .path-card h3 { margin-top: 0; }
+        .path-a h3 { color: var(--accent2-docs); }
+        .path-b h3 { color: #3b82f6; }
+        .path-c h3 { color: #8b5cf6; }
+    </style>
+</head>
+<body>
+<a class="skip-nav" href="#main-content">Skip to main content</a>
+<main id="main-content" role="main">
+<div class="wrap">
+    <a href="index.aspx">&larr; Back to Documentation Hub</a><br/><br/>
+
+    <!-- ======================================================= -->
+    <!-- HEADER                                                  -->
+    <!-- ======================================================= -->
+    <div class="card" style="background: linear-gradient(135deg, var(--card), rgba(59, 130, 246, 0.08));">
+        <h1>&#x1F3D7; VALIP &amp; VA Integration Architecture Reference</h1>
+        <div style="margin-bottom:12px;">
+            <span class="badge badge-valip">&#x1F310; VALIP</span>
+            <span class="badge badge-helm">&#x2699; HELM Program</span>
+            <span class="badge badge-legacy">&#x1F4E6; AEMS/MERS</span>
+            <span class="badge badge-api">&#x1F517; API Integration</span>
+        </div>
+        <p>
+            Reference documentation for integrating iDash/iDash with VA systems of record.
+            Covers the VA Logistics Integration Platform (VALIP), AEMS/MERS modernization, and
+            the available integration paths for pushing ENNX scan data to VistA.
+        </p>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- WHAT IS VALIP                                           -->
+    <!-- ======================================================= -->
+    <div class="card">
+        <h2>&#x1F310; What is VALIP?</h2>
+        <p>
+            The <strong>VA Logistics Integration Platform (VALIP)</strong> is an enterprise-level IT platform
+            designed to modernize and integrate the VA's legacy supply chain and logistics systems.
+        </p>
+        <table class="field-table">
+            <tr><th scope="col">Attribute</th><th scope="col">Details</th></tr>
+            <tr><td><strong>Full Name</strong></td><td>VA Logistics Integration Platform</td></tr>
+            <tr><td><strong>Parent Program</strong></td><td>Healthcare Environment and Logistics Management (HELM)</td></tr>
+            <tr><td><strong>Hosted On</strong></td><td>VA Enterprise Cloud (VAEC) &mdash; AWS GovCloud or Azure Government</td></tr>
+            <tr><td><strong>Core Engine</strong></td><td>InterSystems IRIS&reg; for Health (ESB message integrator)</td></tr>
+            <tr><td><strong>Integration Stack</strong></td><td>Red Hat Integration (Fuse ESB + AMQ Streaming/Kafka)</td></tr>
+            <tr><td><strong>Architecture</strong></td><td>Cloud-native ESB: Integration Fabric (interoperability), Data Fabric (analytics), Zero Trust Architecture</td></tr>
+            <tr><td><strong>Zero Trust</strong></td><td>Zscaler ZPA IL5 SaaS + Application Connector</td></tr>
+            <tr><td><strong>Purpose</strong></td><td>Unified ESB message interface between SCM solution and all VA systems (FMS, CDW, POU, IFCAP, eCMS, FSC)</td></tr>
+            <tr><td><strong>PIA Reference</strong></td><td>FY24 VA Logistics Integration Platform VALIP PIA (July 2024)</td></tr>
+        </table>
+
+        <h3>What VALIP Provides</h3>
+        <ul>
+            <li><strong>API Management</strong> &mdash; centralized gateway for all logistics data exchange</li>
+            <li><strong>Real-time Messaging</strong> &mdash; event-driven data streaming between systems</li>
+            <li><strong>Service Orchestration</strong> &mdash; coordinates data flow between AEMS/MERS, RTLS, Maximo, and other systems</li>
+            <li><strong>Data Standardization</strong> &mdash; normalizes data formats across legacy and modern systems</li>
+        </ul>
+
+        <div class="why-box">
+            <strong>&#x1F4A1; Why This Matters for iDash:</strong><br/>
+            VALIP is the <strong>official middleware layer</strong> between external systems (like iDash/iDash) and
+            VA systems of record (AEMS/MERS, VistA). Instead of writing directly to VA SQL databases,
+            the intended integration path goes through VALIP's API gateway.
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- THE BIG PICTURE                                         -->
+    <!-- ======================================================= -->
+    <div class="card">
+        <h2>&#x1F3D7; Architecture: Where iDash Fits</h2>
+        <div class="arch-flow" style="font-family: inherit; white-space: normal; text-align: left;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <strong style="font-size: 1.1rem;">VA Logistics Data Flow</strong>
+            </div>
+
+            <table class="field-table" style="margin:0;">
+                <tr style="background: rgba(59,130,246,0.1);">
+                    <td style="text-align: center; font-weight: 700; width: 33%;">&#x1F4E1; Data Collection</td>
+                    <td style="text-align: center; font-weight: 700; width: 33%;">&#x1F504; Integration Layer</td>
+                    <td style="text-align: center; font-weight: 700; width: 33%;">&#x1F5C4; Systems of Record</td>
+                </tr>
+                <tr>
+                    <td style="vertical-align: top;">
+                        <strong>iDash / iDash</strong><br/>
+                        &bull; RFID scanning (ENNX)<br/>
+                        &bull; Asset tracking<br/>
+                        &bull; Location updates
+                    </td>
+                    <td style="vertical-align: top; background: rgba(59,130,246,0.05);">
+                        <strong>&#x1F310; VALIP</strong><br/>
+                        &bull; API gateway<br/>
+                        &bull; Data streaming<br/>
+                        &bull; Service orchestration<br/><br/>
+                        <strong>VA Lighthouse API</strong><br/>
+                        &bull; FHIR R4 endpoints<br/>
+                        &bull; OAuth 2.0 CCG auth<br/><br/>
+                        <strong>AWAssetSync SQL</strong><br/>
+                        &bull; Direct SQL (current)
+                    </td>
+                    <td style="vertical-align: top;">
+                        <strong>AEMS/MERS</strong><br/>
+                        &bull; Equipment management<br/>
+                        &bull; Maintenance records<br/><br/>
+                        <strong>VistA / FileMan</strong><br/>
+                        &bull; Core database<br/>
+                        &bull; MUMPS globals<br/><br/>
+                        <strong>IBM Maximo</strong><br/>
+                        &bull; Modern replacement<br/>
+                        &bull; In migration
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- THREE INTEGRATION PATHS                                 -->
+    <!-- ======================================================= -->
+    <div class="card">
+        <h2>&#x1F6E4; Three Integration Paths</h2>
+        <p>Based on current VA architecture, there are three possible ways to push ENNX scan data into VA systems of record:</p>
+
+        <div class="path-card path-a">
+            <h3>&#x2705; Path A: Direct SQL to AWAssetSync (Current Implementation)</h3>
+            <table class="field-table">
+                <tr><th scope="col">Attribute</th><th scope="col">Details</th></tr>
+                <tr><td><strong>Target</strong></td><td><code>OITPORSQL016.R01.MED.VA.GOV</code> &rarr; <code>dbo.AWAssetSync</code></td></tr>
+                <tr><td><strong>Method</strong></td><td>Direct SQL connection with MERGE upsert</td></tr>
+                <tr><td><strong>Auth</strong></td><td>SQL Server authentication (<code>vadbuser</code>)</td></tr>
+                <tr><td><strong>Status</strong></td><td><span style="color: var(--accent2-docs); font-weight: 700;">Built &amp; Ready to Test</span></td></tr>
+                <tr><td><strong>Pros</strong></td><td>Simple, fast, already coded, works if network/creds allow</td></tr>
+                <tr><td><strong>Cons</strong></td><td>Requires direct SQL access to VA server; may not be permitted in all environments; data must still get from AWAssetSync into AEMS/MERS via VA-side process</td></tr>
+            </table>
+        </div>
+
+        <div class="path-card path-b" style="opacity: 0.7;">
+            <h3>&#x274C; Path B: VA Lighthouse FHIR API &mdash; NOT APPLICABLE</h3>
+            <table class="field-table">
+                <tr><th scope="col">Attribute</th><th scope="col">Details</th></tr>
+                <tr><td><strong>Target</strong></td><td><code>developer.va.gov</code> (VA Lighthouse API Platform)</td></tr>
+                <tr><td><strong>Covers</strong></td><td>Patient Health, Benefits, Claims, Appeals &mdash; <strong>Veteran-facing data only</strong></td></tr>
+                <tr><td><strong>Status</strong></td><td><span style="color: var(--danger-docs); font-weight: 700;">Not Applicable &mdash; Does not cover supply chain / equipment data</span></td></tr>
+            </table>
+            <div class="warn-box">
+                <strong>&#x26A0; Why This Path Was Ruled Out:</strong><br/>
+                The VA Lighthouse API (<code>developer.va.gov</code>) is exclusively for <strong>Veteran-facing data</strong>:
+                Patient Health (FHIR), Benefits Claims, Appeals, Community Care, etc.<br/><br/>
+                <strong>iDash does not store, transmit, or access patient data.</strong> We only push
+                supply chain inventory data (equipment locations, last-inventoried dates) to AEMS/MERS.
+                The Lighthouse production access application requires selecting patient-facing APIs &mdash;
+                none of which apply to equipment/asset tracking.<br/><br/>
+                <strong>Correct path for supply chain:</strong> Path A (Direct SQL) or Path C (VALIP).
+            </div>
+        </div>
+
+        <div class="path-card path-c">
+            <h3>&#x1F310; Path C: VALIP API (Future &mdash; Recommended)</h3>
+            <table class="field-table">
+                <tr><th scope="col">Attribute</th><th scope="col">Details</th></tr>
+                <tr><td><strong>Target</strong></td><td>VALIP API Gateway (internal VA Platform One)</td></tr>
+                <tr><td><strong>Method</strong></td><td>REST API or event-driven messaging via VALIP middleware</td></tr>
+                <tr><td><strong>Auth</strong></td><td>VA-managed (likely OAuth or mTLS via Platform One)</td></tr>
+                <tr><td><strong>Status</strong></td><td><span style="color: var(--muted-docs); font-weight: 700;">Not Started &mdash; Requires VA Coordination</span></td></tr>
+                <tr><td><strong>Pros</strong></td><td>Official enterprise integration path; data flows directly to AEMS/MERS; future-proof (Maximo migration compatible); cloud-native</td></tr>
+                <tr><td><strong>Cons</strong></td><td>API specs are internal to VA; requires VA developer portal access; may require formal Integration Agreement</td></tr>
+            </table>
+            <div class="why-box">
+                <strong>&#x1F4A1; This is the Right Long-Term Path:</strong><br/>
+                VALIP is the VA's official middleware for logistics data. An integration through VALIP would:
+                <ul style="margin-bottom: 0;">
+                    <li>Push data directly into AEMS/MERS (no SQL staging table needed)</li>
+                    <li>Survive the AEMS/MERS &rarr; Maximo migration</li>
+                    <li>Be fully supported and auditable by the VA</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- AEMS/MERS & RTLS CONTEXT                                -->
+    <!-- ======================================================= -->
+    <div class="card">
+        <h2>&#x1F4E6; AEMS/MERS &amp; RTLS Background</h2>
+
+        <h3>AEMS/MERS (Automated Engineering Management System / Medical Equipment Reporting System)</h3>
+        <ul>
+            <li>Legacy VA system of record for medical equipment management</li>
+            <li>Runs on VistA / VA FileMan (MUMPS/M database)</li>
+            <li>Manages equipment inventory, maintenance schedules, work orders</li>
+            <li>Being migrated to <strong>IBM Maximo</strong> under the HELM program</li>
+        </ul>
+
+        <h3>RTLS (Real-Time Location Systems)</h3>
+        <ul>
+            <li>Technology for tracking equipment locations within VA facilities</li>
+            <li>VA uses various RTLS vendors at different facilities</li>
+            <li>Bi-directional interface with AEMS/MERS:
+                <ul>
+                    <li>AEMS/MERS &rarr; RTLS: equipment details (inventory records)</li>
+                    <li>RTLS &rarr; AEMS/MERS: updated location data (from scans)</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h3>The Current Manual Process (What We're Automating)</h3>
+        <ol>
+            <li>Scanner operator performs RFID scan at facility (creates ENNX)</li>
+            <li>VA staff manually copies ENNX content</li>
+            <li>VA staff pastes into AEMS/MERS terminal (VistA)</li>
+            <li>Each asset's location and inventory date updated individually</li>
+        </ol>
+        <p><strong>Our goal:</strong> Replace steps 2-4 with a single button click via VALIP or Lighthouse API.</p>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- VA FILEMAN REFERENCE                                    -->
+    <!-- ======================================================= -->
+    <div class="card">
+        <h2>&#x1F4DA; VA FileMan 22.2 &mdash; Developer Reference</h2>
+        <p>
+            VistA uses <strong>VA FileMan 22.2</strong> as its database layer (Patch DI*22.2*10, May 2018).
+            If direct VistA access is ever granted, these are the relevant APIs:
+        </p>
+        <table class="field-table">
+            <tr><th scope="col">FileMan API</th><th scope="col">Purpose</th><th scope="col">Use Case</th></tr>
+            <tr><td><code>UPDATE^DIE()</code></td><td>Update records in FileMan files</td><td>Update equipment location/inventory date</td></tr>
+            <tr><td><code>FILE^DDMP()</code></td><td>Data Import from external sources</td><td>Bulk import ENNX scan data</td></tr>
+            <tr><td><code>FIND^DIC()</code></td><td>Record lookup by cross-reference</td><td>Find equipment by EE number</td></tr>
+            <tr><td><code>$$FIND1^DIC()</code></td><td>Single record finder</td><td>Locate specific asset</td></tr>
+            <tr><td><code>$$GET1^DIQ()</code></td><td>Data Retriever (single field)</td><td>Read current field values</td></tr>
+            <tr><td><code>GETS^DIQ()</code></td><td>Data Retriever (multiple fields)</td><td>Bulk read equipment data</td></tr>
+            <tr><td><code>EXPORT^DDXP()</code></td><td>Data Export</td><td>Pull current VistA data for validation</td></tr>
+        </table>
+
+        <h3>SQLI (SQL Interface) &mdash; Patch DI*21.0*38</h3>
+        <p>
+            FileMan's SQLI module provides a relational mapping layer over VistA's hierarchical
+            MUMPS globals, creating SQL-compatible views. Key components:
+        </p>
+        <ul>
+            <li><strong>SQLI_TABLE_ELEMENT</strong> &mdash; maps FileMan fields to SQL columns</li>
+            <li><strong>SQLI_DATA_TYPE</strong> &mdash; maps MUMPS types to SQL types</li>
+            <li><strong>SQLI_DOMAIN</strong> &mdash; groups related tables</li>
+            <li><strong>SQLI_KEY_FORMAT</strong> &mdash; defines primary/foreign key relationships</li>
+        </ul>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- ACTION ITEMS                                            -->
+    <!-- ======================================================= -->
+    <div class="card">
+        <h2>&#x1F4CB; Next Steps &amp; Action Items</h2>
+        <table class="field-table">
+            <tr><th scope="col">#</th><th scope="col">Action</th><th scope="col">Owner</th><th scope="col">Status</th></tr>
+            <tr>
+                <td>1</td>
+                <td>Test Path A (Direct SQL) &mdash; verify network access and credentials to <code>OITPORSQL016</code></td>
+                <td>iDash Team</td>
+                <td>Ready to test</td>
+            </tr>
+            <tr style="opacity: 0.5; text-decoration: line-through;">
+                <td>2</td>
+                <td>Lighthouse API &mdash; <strong>Ruled Out</strong>. Lighthouse covers patient/Veteran data only, not supply chain equipment.</td>
+                <td>N/A</td>
+                <td>Not Applicable</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Request VALIP API documentation &mdash; contact VA System Owner or HELM Product Line</td>
+                <td>VA Coordination</td>
+                <td>Not started</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>Obtain VALIP Integration Agreement or ICD (Interface Control Document)</td>
+                <td>VA Coordination</td>
+                <td>Not started</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>Evaluate IBM Maximo API compatibility &mdash; if AEMS/MERS migration is in progress at target sites</td>
+                <td>Future</td>
+                <td>Not started</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- VA PRODUCTION ENVIRONMENT REFERENCE                      -->
+    <!-- ======================================================= -->
+    <div class="card" style="border: 1px solid color-mix(in srgb, #3b82f6, transparent 60%);">
+        <h2>&#x1F3DB; VA Production Environment Reference</h2>
+        <div class="why-box">
+            <strong>&#x1F4C4; Source Document:</strong><br/>
+            <em>VA Production Environment Description</em> &mdash; VA Supply Chain Modernization,
+            Office of Information and Technology, April 28, 2023. Marked <strong>FOR EXTERNAL DISTRIBUTION</strong>.
+        </div>
+
+        <!-- 1. VALIP Technical Architecture -->
+        <h3>1. VALIP Technical Architecture</h3>
+        <p>
+            Per the VA OIT production environment document, VALIP serves as the <strong>Enterprise Service Bus (ESB)</strong>
+            deployed in the VAEC production environment. VALIP provides high-volume transaction support,
+            process management, and monitoring for mission-critical supply chain applications.
+        </p>
+        <table class="field-table">
+            <tr><th scope="col">Component</th><th scope="col">Technology</th><th scope="col">Role</th></tr>
+            <tr><td><strong>Core Engine</strong></td><td>InterSystems IRIS&reg; for Health</td><td>ESB message integrator &mdash; normalizes and transforms data between SCM solution and VA systems</td></tr>
+            <tr><td><strong>Integration</strong></td><td>Red Hat Integration (Fuse ESB)</td><td>Enterprise integration patterns, service orchestration</td></tr>
+            <tr><td><strong>Streaming</strong></td><td>AMQ Streaming (Kafka)</td><td>Real-time event-driven data capture for analytics and control tower</td></tr>
+            <tr><td><strong>Data Fabric</strong></td><td>VALIP Data Fabric</td><td>Advanced analytics and supply chain control tower functions</td></tr>
+            <tr><td><strong>Integration Fabric</strong></td><td>VALIP Integration Fabric</td><td>Interoperability and data exchange across all connected systems</td></tr>
+            <tr><td><strong>Zero Trust</strong></td><td>Zscaler ZPA IL5 SaaS + Application Connector</td><td>Protects VA information systems leveraging VALIP; extends to SaaS and multi-cloud</td></tr>
+            <tr><td><strong>Cloud Hosting</strong></td><td>VAEC (AWS GovCloud or Azure Gov)</td><td>COMS team manages VPCs, core services, and cloud consulting</td></tr>
+        </table>
+        <div class="arch-flow" style="font-family: inherit; white-space: normal; text-align: center; font-size: 0.9rem;">
+            <strong>VALIP Message Flow (from VA OIT document):</strong><br/><br/>
+            <span style="background:rgba(16,185,129,0.15); padding:4px 12px; border-radius:6px;">SCM System (iDash/iDash)</span>
+            &nbsp;&#x27A1;&nbsp;
+            <span style="background:rgba(59,130,246,0.15); padding:4px 12px; border-radius:6px;">VALIP (IRIS ESB)</span>
+            &nbsp;&#x27A1;&nbsp;
+            <span style="background:rgba(139,92,246,0.15); padding:4px 12px; border-radius:6px;">FMS &bull; CDW &bull; POU &bull; IFCAP &bull; eCMS &bull; FSC</span>
+        </div>
+
+        <!-- 2. Interface Protocol Table -->
+        <h3>2. VALIP Interface Protocol Requirements</h3>
+        <p>The following tables reproduce the official VA interface specifications from the production environment document.</p>
+
+        <h4>Table 1: Supply Chain Solution &rarr; CDW and Financial Systems</h4>
+        <table class="field-table">
+            <tr><th scope="col">Source</th><th scope="col">Destination</th><th scope="col">Bi-directional?</th><th scope="col">Purpose</th><th scope="col">Protocol</th></tr>
+            <tr><td>SCM System</td><td>VALIP</td><td>Yes</td><td>Contract (eCMS), POU, POC, FSC Data Depot, CDW data traffic</td><td><code>HTTPS</code></td></tr>
+            <tr><td>VALIP</td><td>Mailman Gateway</td><td>Yes</td><td>Financial data transmission to VistA Mail Gateway</td><td><code>SMTP; TCP</code></td></tr>
+            <tr><td>FMS</td><td>VALIP</td><td>Yes</td><td>Document confirmation transfer from FMS</td><td><code>SFTP</code></td></tr>
+            <tr><td>VL Trader</td><td>VALIP</td><td>No</td><td>VersaLex sending CCS transactions to VALIP (VAEC AWS)</td><td><code>SFTP</code></td></tr>
+            <tr><td>VALIP</td><td>FSC Services</td><td>Yes</td><td>Financial Services Center data services integration</td><td><code>HTTPS</code></td></tr>
+            <tr><td>VALIP</td><td>eCMS Web Service</td><td>Yes</td><td>Contract data transfer to electronic Contract Management System</td><td><code>HTTPS</code></td></tr>
+            <tr><td>VALIP</td><td>IFCAP</td><td>No</td><td>IFCAP transactions to VistA instance at each VAMC</td><td><code>SMTP</code></td></tr>
+            <tr><td>VALIP</td><td>CDW</td><td>No</td><td>Supply chain data to Corporate Data Warehouse for ad-hoc reporting</td><td><code>SFTP</code></td></tr>
+        </table>
+
+        <h4>Table 2: Supply Chain Solution &rarr; Point of Use (POU) Systems</h4>
+        <table class="field-table">
+            <tr><th scope="col">Source</th><th scope="col">Destination</th><th scope="col">Bi-directional?</th><th scope="col">Purpose</th><th scope="col">Protocol</th></tr>
+            <tr><td>Par Excellence</td><td>VALIP</td><td>Yes</td><td>Gravimetric supply POU &mdash; data transfer to/from central repository</td><td><code>HTTPS</code></td></tr>
+            <tr><td>OmniCell Supply</td><td>VALIP</td><td>Yes</td><td>POU data transfer to/from central repository</td><td><code>HTTPS</code></td></tr>
+            <tr><td>Pyxis Supply</td><td>VALIP</td><td>Yes</td><td>POU data transfer to/from central repository</td><td><code>SFTP</code></td></tr>
+            <tr><td>Wavemark</td><td>VALIP</td><td>Yes</td><td>POU data transfer to/from central repository</td><td><code>SFTP</code></td></tr>
+        </table>
+
+        <h4>Table 3: SCM System &rarr; VA Modernization Systems</h4>
+        <table class="field-table">
+            <tr><th scope="col">Source</th><th scope="col">Destination</th><th scope="col">Bi-directional?</th><th scope="col">Purpose</th><th scope="col">Protocol</th></tr>
+            <tr><td>iFAMS</td><td>SCM System</td><td>Yes</td><td>Replaces FMS + eCMS &mdash; enterprise financial/acquisition. Interaction via VALIP.</td><td>TBD</td></tr>
+            <tr><td>Oracle Health Millennium</td><td>SCM System</td><td>Yes</td><td>Future VA EHRM system. Interaction via VALIP.</td><td>TBD</td></tr>
+        </table>
+
+        <div class="why-box">
+            <strong>&#x1F4A1; Key Takeaway for iDash Integration:</strong><br/>
+            The primary protocol for VALIP API integration is <strong>HTTPS</strong> (REST). SFTP is used for
+            file-based transfers (CDW reporting, FMS confirmations). SMTP/TCP is used for VistA Mailman
+            (IFCAP transactions). Our current Path A (Direct SQL) bypasses VALIP entirely; Path C would
+            use the HTTPS channel.
+        </div>
+
+        <!-- 3. Zero Trust Architecture -->
+        <h3>3. Zero Trust Architecture (ZTA) Requirements</h3>
+        <p>
+            VALIP implements Zero Trust via the <strong>Zscaler ZPA IL5 SaaS</strong> solution with the
+            <strong>Zscaler Application Connector</strong>. This ZTA capability:
+        </p>
+        <ul>
+            <li>Protects all VA Information Systems that leverage VALIP as their integration platform</li>
+            <li>Extends to support SaaS and multi-cloud integrations</li>
+            <li>Enforces <strong>least-privilege per-request access decisions</strong></li>
+            <li>Treats the network as potentially compromised (zero trust posture)</li>
+            <li>Integrates visibility from multiple vantage points with automated detection and response</li>
+        </ul>
+        <div class="warn-box">
+            <strong>&#x26A0; Implication for iDash:</strong><br/>
+            Any future VALIP integration (Path C) will require compliance with ZTA requirements.
+            This likely means mTLS certificates, application-level authentication tokens, and
+            approval through the Zscaler Application Connector for our traffic to reach VALIP endpoints.
+        </div>
+
+        <!-- 4. AEMS/MERS Scale -->
+        <h3>4. AEMS/MERS Inventory Scale &amp; Context</h3>
+        <p>The following data provides context for the scale of operations our ENNX push pipeline must support:</p>
+        <table class="field-table">
+            <tr><th scope="col">Metric</th><th scope="col">Count</th><th scope="col">Source</th></tr>
+            <tr><td><strong>Computers in AEMS/MERS</strong></td><td>544,688</td><td>Table 6 (Dec 2022 extract)</td></tr>
+            <tr><td><strong>Other Non-expendable Equipment</strong></td><td>1,146,923</td><td>Table 6</td></tr>
+            <tr><td><strong>Total AEMS/MERS Equipment</strong></td><td style="font-weight:700; color:var(--accent2-docs);">~1.69 million items</td><td>Table 6</td></tr>
+            <tr><td><strong>VistA Instances</strong></td><td>140 separate instances</td><td>&sect;3.4 (~170 VAMCs)</td></tr>
+            <tr><td><strong>Monitored Network Devices</strong></td><td>~2.7 million</td><td>&sect;3.2 (Jan 2023)</td></tr>
+            <tr><td><strong>Active IFCAP Users</strong></td><td>19,416</td><td>&sect;3.1 (FY2021)</td></tr>
+            <tr><td><strong>VISNs</strong></td><td>20</td><td>&sect;3.1</td></tr>
+            <tr><td><strong>Complexity Levels</strong></td><td>1a, 1b, 1c, 2, 3</td><td>&sect;3.1 (59 + 27 + 25 + 24 + 35 = 170 facilities)</td></tr>
+            <tr><td><strong>Maximo Sites</strong></td><td>38 sites + 3 non-VAMC locations</td><td>&sect;3.4</td></tr>
+            <tr><td><strong>Nuvolo VISNs</strong></td><td>2 VISNs</td><td>&sect;3.4</td></tr>
+            <tr><td><strong>DMLSS Sites</strong></td><td>1 VAMC</td><td>&sect;3.4</td></tr>
+        </table>
+        <div class="why-box">
+            <strong>&#x1F4A1; AssetWorks is Listed:</strong><br/>
+            The VA production environment document explicitly lists <strong>"Assetworks BarTender"</strong> as one of
+            the official VA Inventory/Asset Management supply chain systems (alongside AEMS/MERS, Maximo,
+            EQUIP, Nuvolo, SC Logic, SNOW, and others). This confirms iDash is a recognized component
+            in the VA supply chain ecosystem.
+        </div>
+
+        <!-- 5. Compliance Checklist -->
+        <h3>5. VA Compliance Checklist (from Production Environment Document)</h3>
+        <table class="field-table">
+            <tr><th scope="col">Requirement</th><th scope="col">Reference</th><th scope="col">iDash Status</th></tr>
+            <tr><td><strong>Authority to Operate (ATO)</strong></td><td>&sect;6.1</td><td style="color:var(--warn-docs);">Requires VA coordination</td></tr>
+            <tr><td><strong>FedRAMP Certification</strong></td><td>&sect;6.2</td><td style="color:var(--warn-docs);">Required for cloud-hosted solutions</td></tr>
+            <tr><td><strong>PIV Card Authentication</strong></td><td>&sect;2.2</td><td style="color:var(--muted-docs);">Preferred method; two-factor auth minimum</td></tr>
+            <tr><td><strong>SSO Internal (SSOi)</strong></td><td>&sect;2.2</td><td style="color:var(--muted-docs);">Via PIV card &mdash; reduces logins</td></tr>
+            <tr><td><strong>Section 508 Compliance</strong></td><td>&sect;7.4</td><td style="color:var(--accent2-docs);">&#x2705; Already implemented in iDash</td></tr>
+            <tr><td><strong>DevSecOps Methodology</strong></td><td>&sect;7.1</td><td style="color:var(--muted-docs);">VA TRM approved environment</td></tr>
+            <tr><td><strong>Human-Centered Design (HCD)</strong></td><td>&sect;7.3</td><td style="color:var(--accent2-docs);">&#x2705; iDash follows HCD practices</td></tr>
+            <tr><td><strong>Interoperability Standards</strong></td><td>&sect;7.5</td><td style="color:var(--accent2-docs);">&#x2705; ENNX/HL7 format support</td></tr>
+            <tr><td><strong>VA Directive 6004</strong></td><td>&sect;3.2</td><td style="color:var(--muted-docs);">Config/change/release management for OIT</td></tr>
+            <tr><td><strong>VA Directive 7002</strong></td><td>&sect;3.2</td><td style="color:var(--muted-docs);">IT asset tracking policy (ITAM)</td></tr>
+        </table>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- REFERENCE LINKS                                         -->
+    <!-- ======================================================= -->
+    <div class="card">
+        <h2>&#x1F517; Reference Links</h2>
+        <table class="field-table">
+            <tr><th scope="col">Resource</th><th scope="col">URL</th></tr>
+            <tr><td><strong>VA Production Environment Description</strong></td><td>VA Supply Chain Modernization, OIT, April 28, 2023 (PDF &mdash; For External Distribution)</td></tr>
+            <tr><td>VALIP PIA (FY24)</td><td><a href="https://department.va.gov/privacy/wp-content/uploads/sites/5/2024/07/FY24VALogisticsIntegrationPlatformVALIPPIA.pdf" target="_blank">VALIP Privacy Impact Assessment</a></td></tr>
+            <tr><td>VA API Developer Portal</td><td><a href="https://developer.va.gov/" target="_blank">developer.va.gov</a></td></tr>
+            <tr><td>VA Lighthouse API Docs</td><td><a href="https://developer.va.gov/explore" target="_blank">developer.va.gov/explore</a></td></tr>
+            <tr><td>AEMS/MERS Overview</td><td>Internal VA documentation (VistA FileMan)</td></tr>
+            <tr><td>HELM Program</td><td>Healthcare Environment and Logistics Management (VA internal)</td></tr>
+        </table>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- REVISION HISTORY                                        -->
+    <!-- ======================================================= -->
+    <div class="card">
+        <h2>&#x1F4DD; Revision History</h2>
+        <table class="field-table">
+            <tr><th scope="col">Date</th><th scope="col">Version</th><th scope="col">Change</th><th scope="col">Author</th></tr>
+            <tr>
+                <td>2026-07-07</td>
+                <td>1.0</td>
+                <td>Initial creation. Documented VALIP, AEMS/MERS, RTLS architecture. 
+                    Three integration paths (Direct SQL, Lighthouse FHIR, VALIP API).
+                    FileMan 22.2 and SQLI reference. Action items for VA coordination.</td>
+                <td>iDash Development</td>
+            </tr>
+            <tr>
+                <td>2026-07-07</td>
+                <td>1.1</td>
+                <td><strong>CORRECTION:</strong> Path B (VA Lighthouse FHIR API) marked as NOT APPLICABLE.
+                    Lighthouse API covers patient/Veteran-facing data only (Health, Benefits, Claims).
+                    iDash handles supply chain equipment inventory only &mdash; no patient data.
+                    Removed FHIR tabs from Supply Chain Bridge page. Updated action items.</td>
+                <td>iDash Development</td>
+            </tr>
+            <tr>
+                <td>2026-07-09</td>
+                <td>1.2</td>
+                <td><strong>VA PRODUCTION ENVIRONMENT:</strong> Integrated data from <em>VA Production
+                    Environment Description</em> (OIT, April 2023). Added VALIP technical architecture
+                    (InterSystems IRIS, Red Hat Integration/Kafka, VAEC hosting). Added official interface
+                    protocol tables (HTTPS, SFTP, SMTP/TCP). Added Zero Trust Architecture (Zscaler ZPA
+                    IL5) requirements. Added AEMS/MERS inventory scale context (~1.69M items, 140 VistA
+                    instances, 19K IFCAP users). Added VA compliance checklist (ATO, FedRAMP, PIV, 508,
+                    DevSecOps). Confirmed AssetWorks is listed as official VA inventory/asset management system.</td>
+                <td>iDash Development</td>
+            </tr>
+        </table>
+    </div>
+
+</div>
+</main>
+</body>
+</html>

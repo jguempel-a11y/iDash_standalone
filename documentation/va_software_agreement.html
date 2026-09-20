@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Software Usage &amp; Non-Duplication Agreement &mdash; iDash</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .agreement-card {
+            background: var(--card-docs, #0f172a);
+            border: 1px solid var(--line-docs, #334155);
+            border-radius: 12px;
+            padding: 28px 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+        .agreement-clause {
+            margin-bottom: 22px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid color-mix(in srgb, var(--line-docs, #334155) 60%, transparent);
+        }
+        .agreement-clause:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .clause-num {
+            display: inline-block;
+            color: #38bdf8;
+            font-weight: 800;
+            font-size: 15px;
+            margin-right: 6px;
+        }
+        .clause-title {
+            display: inline;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-docs, #f8fafc);
+        }
+        .clause-body {
+            margin-top: 8px;
+            font-size: 13.5px;
+            line-height: 1.65;
+            color: color-mix(in srgb, var(--text-docs, #f8fafc) 88%, transparent);
+        }
+        .prohibition-box {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            border-left: 4px solid #ef4444;
+            border-radius: 0 8px 8px 0;
+            padding: 14px 18px;
+            margin: 14px 0;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .prohibition-title {
+            color: #ef4444;
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .notice-banner {
+            background: color-mix(in srgb, #2563eb 12%, transparent);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            font-size: 13.5px;
+            line-height: 1.6;
+        }
+        .meta-stamp {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--muted-docs, #94a3b8);
+            padding-top: 14px;
+            border-top: 1px dashed var(--line-docs, #334155);
+            margin-top: 24px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: 1px solid var(--line-docs, #334155);
+            background: var(--card-docs, #0f172a);
+            color: var(--text-docs, #f8fafc);
+            transition: all 0.15s;
+        }
+        .btn-action:hover {
+            border-color: #38bdf8;
+            color: #38bdf8;
+        }
+        @media print {
+            body { background: #fff !important; color: #000 !important; }
+            .agreement-card { border: 1px solid #ccc !important; box-shadow: none !important; background: #fff !important; }
+            .btn-action, .nav-breadcrumb { display: none !important; }
+            .clause-title, .clause-num { color: #000 !important; }
+        }
+    </style>
+</head>
+<body>
+<div class="docs-container">
+
+    <div class="nav-breadcrumb">
+        <a href="index.aspx">&larr; Documentation Hub</a> / <a href="../va_license_manager.aspx">License Manager</a> / Software Usage &amp; Non-Duplication Agreement
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px; flex-wrap:wrap; gap:12px;">
+        <div>
+            <h1 style="margin:0 0 6px;">&#128220; Software Usage, Non-Duplication &amp; Proprietary Rights Agreement</h1>
+            <p class="docs-subtitle" style="margin:0;">
+                End-User Terms of Use, Non-Replication Covenant, and Operational License Agreement for iDash
+            </p>
+        </div>
+        <div style="display:flex; gap:8px;">
+            <button type="button" class="btn-action" onclick="window.print()">&#128424; Print Agreement</button>
+            <a href="../index.aspx" class="btn-action">&#8962; Back to Hub</a>
+        </div>
+    </div>
+
+    <div class="notice-banner">
+        <strong>IMPORTANT LEGAL NOTICE:</strong> By accessing, signing into, installing, copying, or utilizing the 
+        <strong>iDash Asset Intelligence Platform</strong> (including all associated web applications, synchronization services, 
+        APIs, database structures, scripts, and documentation), you ("User", "Operator", or "Organization") acknowledge that you have 
+        read, understand, and unconditionally agree to be bound by the terms and conditions set forth in this Agreement. 
+        <strong>If you do not agree to these terms, you must immediately cease all access and not use the software.</strong>
+    </div>
+
+    <div class="agreement-card">
+
+        <!-- Clause 1 -->
+        <div class="agreement-clause">
+            <span class="clause-num">1.</span>
+            <h3 class="clause-title">Grant of Limited License &amp; Authorized Scope of Use</h3>
+            <div class="clause-body">
+                Subject to the terms of this Agreement and verification of an active software license key, the software author and 
+                designated copyright holder ("Licensor") grant the authorized User a limited, revocable, non-exclusive, non-transferable 
+                license to execute and operate the iDash software solely for internal healthcare, operational, and inventory tracking purposes. 
+                Use of this software is strictly restricted to designated, authorized physical hardware or virtual servers (such as authorized 
+                RFID mobile carts and approved facility server nodes) for which a legitimate cryptographic license has been issued.
+            </div>
+        </div>
+
+        <!-- Clause 2 -->
+        <div class="agreement-clause">
+            <span class="clause-num">2.</span>
+            <h3 class="clause-title">Ownership &amp; Intellectual Property Rights</h3>
+            <div class="clause-body">
+                The software, including but not limited to its source code, compiled assemblies, algorithms, user interface designs, 
+                high-speed synchronization routines, database schemas, stored procedures, cryptographic key structures, and technical documentation, 
+                constitutes valuable intellectual property and confidential trade secrets of the Licensor. 
+                <strong>The software is licensed, not sold.</strong> Nothing in this Agreement transfers any title, copyright, patent right, 
+                trade secret, trademark, or ownership interest in the software to the User, the operating facility, or any third party. 
+                All rights not expressly granted herein are reserved exclusively by the Licensor.
+            </div>
+        </div>
+
+        <!-- Clause 3 -->
+        <div class="agreement-clause">
+            <span class="clause-num">3.</span>
+            <h3 class="clause-title">Strict Non-Duplication, No-Copying &amp; Anti-Circumvention Covenant</h3>
+            <div class="clause-body">
+                The User and Organization explicitly agree that they shall NOT, under any circumstances:
+                
+                <div class="prohibition-box">
+                    <div class="prohibition-title">&#128683; Expressly Prohibited Activities</div>
+                    <ul style="margin:6px 0 0 18px; padding:0;">
+                        <li><strong>No Copying or Duplication:</strong> Copy, duplicate, clone, replicate, or extract the software files, scripts, or application code for deployment onto unauthorized carts, servers, hardware, or virtual environments.</li>
+                        <li><strong>No Reverse Engineering:</strong> Decompile, disassemble, reverse engineer, decrypt, or attempt to derive the underlying source code, cryptographic routines, or proprietary algorithms.</li>
+                        <li><strong>No Redistribution or Reselling:</strong> Sell, rent, lease, sublicense, distribute, broadcast, or transmit the software or any portion thereof to any third party, competing contractor, or external entity.</li>
+                        <li><strong>No Circumvention:</strong> Modify, bypass, defeat, or tamper with the cryptographic licensing validation, hardware node-locking, clock rollback protection, or authorization mechanisms.</li>
+                        <li><strong>No Derivative Works:</strong> Create derivative works, wrapper utilities, or competing software platforms based upon the architectural designs or database schemas of iDash.</li>
+                    </ul>
+                </div>
+                
+                Any unauthorized duplication, transfer, or cloning of the software to unapproved hardware constitutes a material breach of this Agreement and willful infringement of copyright and trade secret protections.
+            </div>
+        </div>
+
+        <!-- Clause 4 -->
+        <div class="agreement-clause">
+            <span class="clause-num">4.</span>
+            <h3 class="clause-title">Confidentiality &amp; Access Credentials</h3>
+            <div class="clause-body">
+                Users are solely responsible for safeguarding their user accounts, administrative passwords, and license activation tokens. 
+                Sharing login credentials across multiple individuals or providing external contractors unauthorized access to administrative 
+                utilities is strictly forbidden. Any discovery of security vulnerabilities, unauthorized access attempts, or corrupted license 
+                state must be promptly reported to the designated system administrator.
+            </div>
+        </div>
+
+        <!-- Clause 5 -->
+        <div class="agreement-clause">
+            <span class="clause-num">5.</span>
+            <h3 class="clause-title">Data Privacy &amp; Healthcare Information</h3>
+            <div class="clause-body">
+                The software is designed to operate locally within secure facility subnets and on air-gapped carts. The User is responsible for 
+                ensuring that all operational data, equipment inventory records, and institutional information handled within iDash are maintained 
+                in compliance with applicable federal, state, and institutional privacy standards (including HIPAA and VA Information Security guidelines).
+            </div>
+        </div>
+
+        <!-- Clause 6 -->
+        <div class="agreement-clause">
+            <span class="clause-num">6.</span>
+            <h3 class="clause-title">Disclaimer of Warranties</h3>
+            <div class="clause-body">
+                TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE SOFTWARE IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS, 
+                WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE, INCLUDING BUT NOT LIMITED TO ANY IMPLIED 
+                WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, OR NON-INFRINGEMENT. THE LICENSOR DOES NOT WARRANT 
+                THAT THE OPERATION OF THE SOFTWARE WILL BE UNINTERRUPTED, VIRUS-FREE, OR ERROR-FREE, OR THAT ALL DEFECTS WILL BE CORRECTED.
+            </div>
+        </div>
+
+        <!-- Clause 7 -->
+        <div class="agreement-clause">
+            <span class="clause-num">7.</span>
+            <h3 class="clause-title">Limitation of Liability &amp; Indemnification</h3>
+            <div class="clause-body">
+                IN NO EVENT SHALL THE LICENSOR, ITS AUTHORS, CONTRACTORS, AFFILIATES, OR SUPPLIERS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, 
+                SPECIAL, EXEMPLARY, PUNITIVE, OR CONSEQUENTIAL DAMAGES WHATSOEVER (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF BUSINESS 
+                PROFITS, DATA LOSS, MEDICAL EQUIPMENT DOWNTIME, OR INTERRUPTIONS OF CLINICAL CARE) ARISING OUT OF THE USE OF OR INABILITY 
+                TO USE THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. THE USER AND ORGANIZATION AGREE TO HOLD HARMLESS 
+                THE LICENSOR FROM ANY CLAIMS ARISING FROM UNLICENSED REPLICATION OR MISUSE.
+            </div>
+        </div>
+
+        <!-- Clause 8 -->
+        <div class="agreement-clause">
+            <span class="clause-num">8.</span>
+            <h3 class="clause-title">Termination &amp; Legal Remedies</h3>
+            <div class="clause-body">
+                This Agreement remains in effect until terminated. A User's license and right to access terminate automatically without notice 
+                if the User fails to comply with any term of this Agreement, or upon the expiration or revocation of the underlying software license. 
+                Upon termination, all access must cease immediately. In the event of breach—particularly regarding unauthorized copying, replication, 
+                or reverse engineering—the Licensor reserves the right to pursue all civil remedies, injunctive relief without bond, and monetary damages 
+                available under law.
+            </div>
+        </div>
+
+        <!-- Clause 9 -->
+        <div class="agreement-clause">
+            <span class="clause-num">9.</span>
+            <h3 class="clause-title">Governing Law &amp; Severability</h3>
+            <div class="clause-body">
+                This Agreement shall be governed by and construed in accordance with applicable federal laws and the laws of the jurisdiction 
+                where the Licensor is registered, without regard to conflicts of law principles. If any provision of this Agreement is held to be 
+                unenforceable or invalid, such provision shall be modified to accomplish its objective to the greatest extent possible under law, 
+                and the remaining provisions shall continue in full force and effect.
+            </div>
+        </div>
+
+        <div class="meta-stamp">
+            <span>Document ID: <code>EULA-IDASH-2026-V1</code></span>
+            <span>Applicable Version: <strong>iDash Platform v2.9+</strong></span>
+            <span>Classification: <strong>Proprietary &amp; Licensed</strong></span>
+        </div>
+
+    </div>
+
+</div>
+</body>
+</html>

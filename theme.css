@@ -1,0 +1,319 @@
+/* ============================================================
+   IDASH GLOBAL THEME SYSTEM
+   Single source of truth for all color tokens.
+   Dark = default. Light = [data-theme="light"].
+   ============================================================ */
+
+:root {
+    --bg: #0b1220;
+    --card: #121a2b;
+    --muted: #8aa0c5;
+    --line: #1f2a44;
+    --accent: #2ea8ff;
+    --accent-2: #10b981;
+    --danger: #ef4444;
+    --warn: #f59e0b;
+    --text: #e6eefc;
+    --chip: #0e1729;
+    --chip-br: #2b3858;
+    --btn-alt: #1f2a44;
+    --preview-bg: #080c14;
+    --preview-text: #10b981;
+    --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.4);
+    --info-bg: rgba(46, 168, 255, 0.1);
+    --info-text: #bde0ff;
+    --log-text: #a78bfa;
+    --ok-text: var(--accent-2);
+    --err-text: var(--danger);
+    --warn-text: var(--warn);
+    --table-head: #182236;
+    --table-row-hover: #1c263a;
+}
+
+[data-theme="light"] {
+    --bg: #f5f3f0;
+    --card: #fefdfb;
+    --muted: #7c7268;
+    --line: #e0dbd4;
+    --accent: #2563a8;
+    --accent-2: #1a7a5a;
+    --danger: #c53030;
+    --warn: #b45309;
+    --text: #2d2a26;
+    --chip: #edeae6;
+    --chip-br: #d6d1ca;
+    --btn-alt: #e0dbd4;
+    --preview-bg: #edeae6;
+    --preview-text: #2d2a26;
+    --shadow: 0 1px 3px rgb(0 0 0 / 0.05), 0 2px 8px rgb(0 0 0 / 0.04);
+    --info-bg: #eaf3fb;
+    --info-text: #1a5276;
+    --log-text: #5b21b6;
+    --ok-text: #15603d;
+    --err-text: #991b1b;
+    --warn-text: #7c2d12;
+    --table-head: #eae7e2;
+    --table-row-hover: #f5f3f0;
+}
+
+/* ============================================================
+   GLOBAL TRANSITIONS
+   ============================================================ */
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.card, .tile, .panel {
+    transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, color 0.25s ease;
+}
+
+input, select, textarea, button {
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+/* ============================================================
+   LIGHT-MODE REFINEMENTS
+   Warm, soft aesthetic — easy on the eyes.
+   ============================================================ */
+
+/* Cards & Panels — gentle lift, warm border */
+[data-theme="light"] .card,
+[data-theme="light"] .panel {
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 2px 8px rgb(0 0 0 / 0.03);
+    border-color: var(--line);
+}
+
+/* Tiles — soft resting state, smooth lift on hover */
+[data-theme="light"] .tile {
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+    border-color: var(--line);
+}
+[data-theme="light"] .tile:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 16px rgb(0 0 0 / 0.07);
+}
+
+/* Status bars stay dark for authority */
+[data-theme="light"] .status-bar {
+    background: #2d2a26;
+    color: #f5f3f0;
+}
+
+/* Inputs — warm white with visible borders */
+[data-theme="light"] .txt,
+[data-theme="light"] input[type="text"],
+[data-theme="light"] input[type="date"],
+[data-theme="light"] input[type="password"],
+[data-theme="light"] input[type="number"],
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+    background: var(--card);
+    color: var(--text);
+    border-color: var(--line);
+}
+[data-theme="light"] .txt:focus,
+[data-theme="light"] input[type="text"]:focus,
+[data-theme="light"] select:focus,
+[data-theme="light"] textarea:focus {
+    border-color: var(--accent);
+    outline: 2px solid rgba(37, 99, 168, 0.15);
+    outline-offset: -1px;
+}
+
+/* Code — tinted background */
+[data-theme="light"] code {
+    background: var(--chip);
+    color: #5c3d0e;
+    border-radius: 4px;
+    padding: 1px 5px;
+}
+
+/* Links — warm blue, underline on hover */
+[data-theme="light"] a {
+    color: var(--accent);
+}
+
+/* Strong text — near-black for emphasis */
+[data-theme="light"] strong {
+    color: #1a1815;
+}
+
+/* Buttons — subtle depth */
+[data-theme="light"] .btn {
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
+}
+
+/* Tables — warm header, gentle hover */
+[data-theme="light"] .grid th,
+[data-theme="light"] table th {
+    background: var(--table-head) !important;
+    color: var(--text) !important;
+    border-bottom-color: var(--line) !important;
+}
+[data-theme="light"] .grid td,
+[data-theme="light"] table td {
+    border-bottom-color: var(--line) !important;
+}
+[data-theme="light"] .grid tr:hover td,
+[data-theme="light"] table tr:hover td {
+    background: var(--table-row-hover) !important;
+}
+
+/* DataTables overrides */
+[data-theme="light"] .dataTables_wrapper .dataTables_filter input,
+[data-theme="light"] .dataTables_wrapper .dataTables_length select {
+    background: var(--card) !important;
+    color: var(--text) !important;
+    border-color: var(--line) !important;
+}
+
+/* Scrollbar styling for webkit */
+[data-theme="light"] ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+[data-theme="light"] ::-webkit-scrollbar-track {
+    background: var(--chip);
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+    background: var(--chip-br);
+    border-radius: 4px;
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted);
+}
+
+/* ============================================================
+   SECTION 508 / WCAG 2.0 AA ACCESSIBILITY
+   Focus indicators, skip navigation, screen reader utilities,
+   reduced motion support.
+   ============================================================ */
+
+/* --- Focus indicators (all themes) --- */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="tab"]:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* High contrast focus for dark theme */
+:root a:focus-visible,
+:root button:focus-visible {
+    outline-color: #5bbfff;
+}
+
+/* --- Skip Navigation --- */
+.skip-nav {
+    position: absolute;
+    top: -100%;
+    left: 16px;
+    z-index: 10000;
+    padding: 12px 24px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    border-radius: 0 0 8px 8px;
+    text-decoration: none;
+    transition: top 0.15s ease;
+}
+.skip-nav:focus {
+    top: 0;
+    outline: 3px solid #fff;
+    outline-offset: 2px;
+}
+
+/* --- Screen Reader Only --- */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* --- Reduced Motion --- */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ============================================================
+   NAV PILL COMPONENT
+   Consistent pill-shaped navigation links used across all pages.
+   .nav-pill           — base shape (rounded, padded, flex)
+   .nav-pill-primary   — accent-colored (cross-page nav)
+   .nav-pill-docs      — purple (documentation links)
+   .nav-pill-ghost     — subtle outline (Hub, Refresh, etc.)
+   ============================================================ */
+.nav-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.nav-pill-primary {
+    background: color-mix(in srgb, var(--accent), transparent 88%);
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent), transparent 70%);
+}
+.nav-pill-primary:hover {
+    background: color-mix(in srgb, var(--accent), transparent 78%);
+}
+.nav-pill-primary--active {
+    background: color-mix(in srgb, var(--accent), transparent 82%);
+    border-color: var(--accent);
+    box-shadow: inset 0 1px 3px color-mix(in srgb, var(--accent), transparent 60%);
+}
+
+.nav-pill-docs {
+    background: color-mix(in srgb, #8b5cf6, transparent 90%);
+    color: #7c3aed;
+    border: 1px solid color-mix(in srgb, #8b5cf6, transparent 75%);
+}
+.nav-pill-docs:hover {
+    background: color-mix(in srgb, #8b5cf6, transparent 80%);
+}
+
+.nav-pill-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--line);
+}
+.nav-pill-ghost:hover {
+    background: var(--chip);
+    color: var(--text);
+}
+
+/* ============================================================
+   HDR PILL — DEPRECATED
+   Use .nav-pill + variant instead (same system as User Management):
+     actions/export  → nav-pill nav-pill-primary
+     nav links       → nav-pill nav-pill-ghost
+     docs links      → nav-pill nav-pill-docs
+   ============================================================ */

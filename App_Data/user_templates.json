@@ -1,0 +1,63 @@
+[
+  {
+    "name": "VA Standard User",
+    "description": "Standard user with documentation, key reports, and printing access",
+    "isBuiltIn": true,
+    "idash": {
+      "role": "user",
+      "tileAccess": [
+        "guides",
+        "docs",
+        "rpt_asset_master",
+        "rpt_ennx",
+        "rpt_sessions",
+        "excel_print"
+      ],
+      "siteAccess": { "*": "full" }
+    },
+    "idash": {
+      "autoCreate": true,
+      "userType": "Create, Edit, Delete",
+      "useFirstCompany": true
+    }
+  },
+  {
+    "name": "VA Admin (Full Access)",
+    "description": "Full administrator access to all iDash features and iDash",
+    "isBuiltIn": true,
+    "idash": {
+      "role": "admin",
+      "tileAccess": ["*"],
+      "siteAccess": { "*": "full" }
+    },
+    "idash": {
+      "autoCreate": true,
+      "userType": "Create, Edit, Delete",
+      "useFirstCompany": true
+    }
+  },
+  {
+    "name": "Read-Only / Reports Only",
+    "description": "View reports and documentation only, no scanning or admin tools",
+    "isBuiltIn": true,
+    "idash": {
+      "role": "readonly",
+      "tileAccess": [
+        "guides",
+        "docs",
+        "rpt_overview",
+        "rpt_asset_master",
+        "rpt_ennx",
+        "rpt_sessions",
+        "search_history",
+        "search_asset"
+      ],
+      "siteAccess": { "*": "ennx" }
+    },
+    "idash": {
+      "autoCreate": false,
+      "userType": "",
+      "useFirstCompany": false
+    }
+  }
+]

@@ -1,0 +1,685 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>IDASH DATABASE SETUP &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        pre { background:var(--code-bg, #1e1e2e); color:#cdd6f4; border-radius:10px; padding:18px 20px; font-size:13px; line-height:1.6; overflow-x:auto; margin:14px 0; border:1px solid var(--line); }
+        pre .kw { color:#cba6f7; }    /* keywords */
+        pre .fn { color:#89b4fa; }    /* functions */
+        pre .str { color:#a6e3a1; }   /* strings */
+        pre .cm { color:#6c7086; font-style:italic; }  /* comments */
+        pre .num { color:#fab387; }   /* numbers */
+        .step-card { background:var(--card-bg); border:1px solid var(--line); border-radius:14px; padding:24px 28px; margin-bottom:20px; }
+        .step-num { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--accent-docs); color:#fff; font-weight:800; font-size:14px; margin-right:10px; flex-shrink:0; }
+        .step-header { display:flex; align-items:center; margin-bottom:14px; }
+        .step-header h3 { margin:0; }
+        .copy-hint { display:inline-block; font-size:11px; color:var(--muted-docs); background:var(--code-bg, #1e1e2e); border:1px solid var(--line); border-radius:4px; padding:2px 8px; margin-left:8px; }
+        .warn-box { background:color-mix(in srgb, #ef4444 10%, transparent); border:1px solid #ef4444; border-radius:8px; padding:14px 18px; margin:14px 0; }
+        .info-box { background:color-mix(in srgb, #3b82f6 10%, transparent); border:1px solid #3b82f6; border-radius:8px; padding:14px 18px; margin:14px 0; }
+        .success-box { background:color-mix(in srgb, #10b981 10%, transparent); border:1px solid #10b981; border-radius:8px; padding:14px 18px; margin:14px 0; }
+        .tbl-schema { width:100%; border-collapse:collapse; margin:12px 0; }
+        .tbl-schema th { background:color-mix(in srgb, var(--accent-docs) 15%, transparent); text-align:left; padding:8px 12px; border:1px solid var(--line); font-size:13px; }
+        .tbl-schema td { padding:8px 12px; border:1px solid var(--line); font-size:13px; }
+        .tbl-schema code { font-size:12px; }
+        .toc { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+        .toc a { background:color-mix(in srgb, var(--accent-docs) 12%, transparent); color:var(--accent-docs); border:1px solid color-mix(in srgb, var(--accent-docs) 30%, transparent); border-radius:6px; padding:6px 14px; font-size:13px; text-decoration:none; font-weight:600; }
+        .toc a:hover { background:color-mix(in srgb, var(--accent-docs) 25%, transparent); }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <a href="index.aspx">&larr; Back to Documentation Hub</a><br/><br/>
+
+    <!-- ============================================================ -->
+    <!--  HEADER                                                       -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h1>&#128736; iDash Database Setup Guide</h1>
+        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px;">
+            <span class="badge" style="background:#7c3aed;color:#ede9fe;border:1px solid #a78bfa;">Rev. 2026-07-22</span>
+            <span class="badge badge-db">SQL Server</span>
+            <span class="badge" style="background:color-mix(in srgb, #f59e0b 15%, transparent);color:#f59e0b;border:1px solid #f59e0b;">Developer &amp; Admin Reference</span>
+        </div>
+        <p style="font-size:15px;">
+            This is a <strong>hands-on, script-by-script</strong> guide for creating the <code>iDash</code> database
+            from scratch. It covers every table, view, and index that iDash depends on &mdash; with copy-paste SQL scripts
+            that a developer can execute directly in <strong>SQL Server Management Studio (SSMS)</strong>.
+        </p>
+        <div class="info-box">
+            <strong>&#128161; When to use this guide:</strong> You are deploying iDash to a brand-new server that has
+            <strong>never had iDash installed</strong> and you do not have a <code>.bak</code> backup file to restore.
+            If you DO have a backup, simply restore it via SSMS or <code>va_db_restore.aspx</code> &mdash; the database
+            schema is already complete inside the backup.
+        </div>
+
+        <div class="toc">
+            <a href="#prerequisites">Prerequisites</a>
+            <a href="#step1">1. Create Database</a>
+            <a href="#step2">2. Core Tables</a>
+            <a href="#step3">3. Views</a>
+            <a href="#step4">4. iDash-Only Tables</a>
+            <a href="#step5">5. Seed Data</a>
+            <a href="#step6">6. Staging DB</a>
+            <a href="#step7">7. Verify</a>
+            <a href="#column-ref">Column Reference</a>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  PREREQUISITES                                                -->
+    <!-- ============================================================ -->
+    <div class="card" id="prerequisites">
+        <h2>Prerequisites</h2>
+        <ul>
+            <li><strong>SQL Server 2016+</strong> (or SQL Server Express &mdash; free edition works fine)</li>
+            <li><strong>SQL Server Management Studio (SSMS)</strong> installed</li>
+            <li>A SQL login with <code>dbcreator</code> and <code>sysadmin</code> privileges (for initial setup only)</li>
+            <li>The iDash <code>web.config</code> connection string ready (see <a href="idash_deployment_guide.html">Deployment Guide</a>)</li>
+        </ul>
+        <div class="warn-box">
+            <strong>&#9888; Important:</strong> The iDash database was originally created by the iDash installer.
+            The scripts below replicate the <strong>minimum schema that iDash requires</strong> to function. The full
+            iDash product creates additional tables and stored procedures used by the .NET API and thick client.
+            This guide gets iDash running &mdash; if you later install the full iDash product, it will add its
+            own tables without conflicting with these.
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  STEP 1: CREATE DATABASE                                      -->
+    <!-- ============================================================ -->
+    <div class="step-card" id="step1">
+        <div class="step-header">
+            <span class="step-num">1</span>
+            <h3>Create the Database</h3>
+        </div>
+        <p>Open SSMS, connect to your SQL Server instance, open a <strong>New Query</strong> window, and run:</p>
+        <pre><span class="cm">-- =============================================</span>
+<span class="cm">-- Step 1: Create the iDash database</span>
+<span class="cm">-- Run this ONCE on a new server.</span>
+<span class="cm">-- =============================================</span>
+
+<span class="kw">IF</span> <span class="fn">DB_ID</span>(<span class="str">'iDash'</span>) <span class="kw">IS NULL</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">CREATE DATABASE</span> [iDash];
+    <span class="fn">PRINT</span> <span class="str">'Database [iDash] created successfully.'</span>;
+<span class="kw">END</span>
+<span class="kw">ELSE</span>
+    <span class="fn">PRINT</span> <span class="str">'Database [iDash] already exists. Skipping.'</span>;
+<span class="kw">GO</span></pre>
+
+        <p>Then create the SQL login that iDash will use:</p>
+        <pre><span class="cm">-- Create the SQL login (change password for production!)</span>
+<span class="kw">IF NOT EXISTS</span> (<span class="kw">SELECT</span> <span class="num">1</span> <span class="kw">FROM</span> sys.server_principals <span class="kw">WHERE</span> name = <span class="str">'idashadmin'</span>)
+<span class="kw">BEGIN</span>
+    <span class="kw">CREATE LOGIN</span> [idashadmin]
+        <span class="kw">WITH PASSWORD</span> = <span class="str">'idashadmin'</span>,
+        <span class="kw">DEFAULT_DATABASE</span> = [iDash],
+        CHECK_POLICY = <span class="kw">OFF</span>;
+<span class="kw">END</span>
+<span class="kw">GO</span>
+
+<span class="kw">USE</span> [iDash];
+<span class="kw">GO</span>
+
+<span class="cm">-- Map login to database user with db_owner role</span>
+<span class="kw">IF NOT EXISTS</span> (<span class="kw">SELECT</span> <span class="num">1</span> <span class="kw">FROM</span> sys.database_principals <span class="kw">WHERE</span> name = <span class="str">'idashadmin'</span>)
+<span class="kw">BEGIN</span>
+    <span class="kw">CREATE USER</span> [idashadmin] <span class="kw">FOR LOGIN</span> [idashadmin];
+    <span class="kw">ALTER ROLE</span> db_owner <span class="kw">ADD MEMBER</span> [idashadmin];
+<span class="kw">END</span>
+<span class="kw">GO</span>
+
+<span class="cm">-- Grant server-level roles</span>
+<span class="cm">-- sysadmin: required for Database Restore page (orphan fix + normalization after .bak restore)</span>
+<span class="cm">-- bulkadmin: required for BCP/bulk data import operations</span>
+<span class="kw">ALTER SERVER ROLE</span> [sysadmin] <span class="kw">ADD MEMBER</span> [idashadmin];
+<span class="kw">ALTER SERVER ROLE</span> [bulkadmin] <span class="kw">ADD MEMBER</span> [idashadmin];
+<span class="kw">GO</span></pre>
+        <div class="info-box">
+            <strong>&#128161; Why sysadmin?</strong> When restoring a <code>.bak</code> backup from another server
+            (e.g., a tagging cart), the <code>idashadmin</code> database user becomes "orphaned" (SID mismatch).
+            The Database Restore page needs <code>sysadmin</code> to fix this orphan and run post-restore data
+            normalization (creating companies, fixing companyid mappings, SP location prefixes, etc.).
+            <strong>For SQL Express tagging systems:</strong> you can also grant this from a command prompt:
+            <br/><code>sqlcmd -S .\sqlexpress -E -Q "ALTER SERVER ROLE [sysadmin] ADD MEMBER [idashadmin]"</code>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  STEP 2: CORE TABLES                                          -->
+    <!-- ============================================================ -->
+    <div class="step-card" id="step2">
+        <div class="step-header">
+            <span class="step-num">2</span>
+            <h3>Create Core Tables</h3>
+        </div>
+        <p>These are the foundational tables that the iDash system (and iDash) depends on. Run them in order &mdash; <code>company</code> first, then <code>location</code>, then <code>asset</code>, then <code>sysuser</code>.</p>
+
+        <h4>2a. <code>dbo.company</code> &mdash; Site / Facility Registry</h4>
+        <p>Each VA medical center is a "company" identified by its 3-digit station number prefix (e.g., <code>688 Washington DC</code>).</p>
+        <pre><span class="kw">USE</span> [iDash];
+<span class="kw">GO</span>
+
+<span class="kw">IF OBJECT_ID</span>(<span class="str">'dbo.company'</span>, <span class="str">'U'</span>) <span class="kw">IS NULL</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">CREATE TABLE</span> dbo.company (
+        id          <span class="kw">INT IDENTITY</span>(<span class="num">1</span>,<span class="num">1</span>) <span class="kw">PRIMARY KEY</span>,
+        name        <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NOT NULL</span>,
+        description <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,
+        created     <span class="kw">DATETIMEOFFSET</span> <span class="kw">DEFAULT</span> <span class="fn">SYSDATETIMEOFFSET</span>()
+    );
+    <span class="fn">PRINT</span> <span class="str">'Created table: dbo.company'</span>;
+<span class="kw">END</span>
+<span class="kw">GO</span></pre>
+
+        <h4>2b. <code>dbo.location</code> &mdash; EIL Location Registry</h4>
+        <p>Each asset is assigned to an EIL (Equipment Inventory Listing) location. Location names look like <code>SP688-BD. 7</code>.</p>
+        <pre><span class="kw">IF OBJECT_ID</span>(<span class="str">'dbo.location'</span>, <span class="str">'U'</span>) <span class="kw">IS NULL</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">CREATE TABLE</span> dbo.location (
+        id          <span class="kw">INT IDENTITY</span>(<span class="num">1</span>,<span class="num">1</span>) <span class="kw">PRIMARY KEY</span>,
+        name        <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NOT NULL</span>,
+        site        <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        companyid   <span class="kw">INT</span> <span class="kw">NOT NULL DEFAULT</span> <span class="num">0</span>,
+        description <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,
+        created     <span class="kw">DATETIMEOFFSET</span> <span class="kw">DEFAULT</span> <span class="fn">SYSDATETIMEOFFSET</span>()
+    );
+    <span class="kw">CREATE NONCLUSTERED INDEX</span> IX_location_name <span class="kw">ON</span> dbo.location(name);
+    <span class="kw">CREATE NONCLUSTERED INDEX</span> IX_location_companyid <span class="kw">ON</span> dbo.location(companyid);
+    <span class="fn">PRINT</span> <span class="str">'Created table: dbo.location'</span>;
+<span class="kw">END</span>
+<span class="kw">GO</span></pre>
+
+        <h4>2c. <code>dbo.asset</code> &mdash; The Master Asset Table</h4>
+        <p>This is the single most important table in the system. Every RFID-tagged piece of VA equipment is a row here.
+           The <code>text1</code>&ndash;<code>text20</code> columns are customizable &mdash; in the VA deployment they map to
+           specific field meanings (see the <a href="#column-ref">Column Reference</a> below).</p>
+        <pre><span class="kw">IF OBJECT_ID</span>(<span class="str">'dbo.asset'</span>, <span class="str">'U'</span>) <span class="kw">IS NULL</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">CREATE TABLE</span> dbo.asset (
+        <span class="cm">-- Primary key</span>
+        id                      <span class="kw">INT IDENTITY</span>(<span class="num">1</span>,<span class="num">1</span>) <span class="kw">PRIMARY KEY</span>,
+
+        <span class="cm">-- Core identity</span>
+        name                    <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NOT NULL</span>,   <span class="cm">-- EE number (barcode)</span>
+        barcode                 <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        description             <span class="kw">NVARCHAR</span>(<span class="num">1000</span>) <span class="kw">NULL</span>,
+        serialnumber            <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        rfidtag                 <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        assettype               <span class="kw">NVARCHAR</span>(<span class="num">100</span>) <span class="kw">NULL</span>,
+
+        <span class="cm">-- Foreign keys</span>
+        companyid               <span class="kw">INT</span> <span class="kw">NOT NULL DEFAULT</span> <span class="num">0</span>,
+        locationid              <span class="kw">INT</span> <span class="kw">NULL</span>,
+
+        <span class="cm">-- Custom text fields (VA-specific mapping in Column Reference)</span>
+        text1                   <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,   <span class="cm">-- Manufacturer</span>
+        text2                   <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,   <span class="cm">-- Model</span>
+        text3                   <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,   <span class="cm">-- Serial Number (CDW)</span>
+        text4                   <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,   <span class="cm">-- Category</span>
+        text5                   <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,   <span class="cm">-- Service Pointer</span>
+        text6                   <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,   <span class="cm">-- Station+Location</span>
+        text7                   <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,   <span class="cm">-- Station Number</span>
+        text8                   <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,   <span class="cm">-- CMR Number</span>
+        text9                   <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,   <span class="cm">-- Purchase Order</span>
+        text10                  <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,   <span class="cm">-- Inventory Date</span>
+        text11                  <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,
+        text12                  <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,
+        text13                  <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,
+        text14                  <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,
+        text15                  <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,
+        text16                  <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,
+        text17                  <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,
+        text18                  <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,
+        text19                  <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,
+        text20                  <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,
+
+        <span class="cm">-- List value fields (dropdowns)</span>
+        listvalue1              <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,   <span class="cm">-- Status (In Use / Not In Use)</span>
+        listvalue2              <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        listvalue3              <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        listvalue4              <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        listvalue5              <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+
+        <span class="cm">-- Date fields</span>
+        date1                   <span class="kw">DATETIMEOFFSET</span> <span class="kw">NULL</span>,
+        date2                   <span class="kw">DATETIMEOFFSET</span> <span class="kw">NULL</span>,
+        date3                   <span class="kw">DATETIMEOFFSET</span> <span class="kw">NULL</span>,
+        date4                   <span class="kw">DATETIMEOFFSET</span> <span class="kw">NULL</span>,
+        date5                   <span class="kw">DATETIMEOFFSET</span> <span class="kw">NULL</span>,
+
+        <span class="cm">-- Tracking / scan fields</span>
+        lastobservedlocation    <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        lastobservedtime        <span class="kw">DATETIMEOFFSET</span> <span class="kw">NULL</span>,
+        lastinventoried         <span class="kw">DATETIMEOFFSET</span> <span class="kw">NULL</span>,
+        lastmodified            <span class="kw">DATETIMEOFFSET</span> <span class="kw">NULL</span>,
+        lastmodifiedby          <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        created                 <span class="kw">DATETIMEOFFSET</span> <span class="kw">DEFAULT</span> <span class="fn">SYSDATETIMEOFFSET</span>(),
+
+        <span class="cm">-- Status / disposition</span>
+        departmentcode          <span class="kw">NVARCHAR</span>(<span class="num">100</span>) <span class="kw">NULL</span>,
+        checkinstatus           <span class="kw">NVARCHAR</span>(<span class="num">100</span>) <span class="kw">NULL</span>,
+        checkedoutto            <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        disposalstatus          <span class="kw">INT</span> <span class="kw">NULL</span>,
+        disposalmethod          <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        disposaldate            <span class="kw">DATETIMEOFFSET</span> <span class="kw">NULL</span>,
+        disposaldestination     <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        additionalinformation   <span class="kw">NVARCHAR</span>(<span class="num">MAX</span>) <span class="kw">NULL</span>,
+
+        <span class="cm">-- Maintenance fields</span>
+        maintenancestartdate    <span class="kw">DATETIMEOFFSET</span> <span class="kw">NULL</span>,
+        maintenancesingledate   <span class="kw">DATETIMEOFFSET</span> <span class="kw">NULL</span>,
+        nextmaintenance         <span class="kw">DATETIMEOFFSET</span> <span class="kw">NULL</span>,
+        lastmaintenance         <span class="kw">DATETIMEOFFSET</span> <span class="kw">NULL</span>,
+        maintenancemethod       <span class="kw">INT</span> <span class="kw">NULL</span>,
+        maintenanceintervalmonths <span class="kw">INT</span> <span class="kw">NULL</span>,
+
+        <span class="cm">-- RFID / VTag hardware fields</span>
+        maxunseentime           <span class="kw">INT</span> <span class="kw">NULL</span>,
+        nearestfixed            <span class="kw">INT</span> <span class="kw">NULL</span>,
+        sensorreadinghistoryid  <span class="kw">INT</span> <span class="kw">NULL</span>,
+        alertingactionid        <span class="kw">INT</span> <span class="kw">NULL</span>,
+        sensorstatshistoryid    <span class="kw">INT</span> <span class="kw">NULL</span>,
+        readerid                <span class="kw">INT</span> <span class="kw">NULL</span>,
+        assetparentid           <span class="kw">INT</span> <span class="kw">NULL</span>,
+        assetchildcount         <span class="kw">INT</span> <span class="kw">NULL</span>,
+        vtagboxx                <span class="kw">FLOAT</span> <span class="kw">NULL</span>,
+        vtagboxy                <span class="kw">FLOAT</span> <span class="kw">NULL</span>,
+        vtagboxwidth            <span class="kw">FLOAT</span> <span class="kw">NULL</span>,
+        vtagboxheight           <span class="kw">FLOAT</span> <span class="kw">NULL</span>,
+        vtagx                   <span class="kw">FLOAT</span> <span class="kw">NULL</span>,
+        vtagy                   <span class="kw">FLOAT</span> <span class="kw">NULL</span>,
+        vtagz                   <span class="kw">FLOAT</span> <span class="kw">NULL</span>,
+        vtagaccelsensor         <span class="kw">INT</span> <span class="kw">NULL</span>,
+        vtagpositiontype        <span class="kw">INT</span> <span class="kw">NULL</span>,
+        vtagalgorithmtype       <span class="kw">INT</span> <span class="kw">NULL</span>,
+        batterylevel            <span class="kw">INT</span> <span class="kw">NULL</span>,
+        vtagid                  <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        vtaglastseen            <span class="kw">DATETIMEOFFSET</span> <span class="kw">NULL</span>,
+        vtaglastmoved           <span class="kw">DATETIMEOFFSET</span> <span class="kw">NULL</span>,
+        vtagtype                <span class="kw">INT</span> <span class="kw">NULL</span>,
+        parentvtag              <span class="kw">INT</span> <span class="kw">NULL</span>,
+        missedsatellitefixes    <span class="kw">INT</span> <span class="kw">NULL</span>,
+        vtaggpsdeviceid         <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        vtaggpsappkey           <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        deviceregistered        <span class="kw">BIT</span> <span class="kw">NULL</span>,
+        unseennotified          <span class="kw">BIT</span> <span class="kw">NULL</span>,
+
+        <span class="cm">-- GPS fields</span>
+        latitude                <span class="kw">FLOAT</span> <span class="kw">NULL</span>,
+        longitude               <span class="kw">FLOAT</span> <span class="kw">NULL</span>,
+        altitude                <span class="kw">FLOAT</span> <span class="kw">NULL</span>,
+        numberofsatellites      <span class="kw">INT</span> <span class="kw">NULL</span>,
+        gpsaccuracy             <span class="kw">FLOAT</span> <span class="kw">NULL</span>,
+        lastgpsfix              <span class="kw">DATETIMEOFFSET</span> <span class="kw">NULL</span>
+    );
+    <span class="fn">PRINT</span> <span class="str">'Created table: dbo.asset'</span>;
+<span class="kw">END</span>
+<span class="kw">GO</span>
+
+<span class="cm">-- Performance indexes for iDash queries</span>
+<span class="kw">CREATE NONCLUSTERED INDEX</span> IX_asset_name <span class="kw">ON</span> dbo.asset(name);
+<span class="kw">CREATE NONCLUSTERED INDEX</span> IX_asset_companyid <span class="kw">ON</span> dbo.asset(companyid);
+<span class="kw">CREATE NONCLUSTERED INDEX</span> IX_asset_locationid <span class="kw">ON</span> dbo.asset(locationid);
+<span class="kw">CREATE NONCLUSTERED INDEX</span> IX_asset_rfidtag <span class="kw">ON</span> dbo.asset(rfidtag);
+<span class="kw">CREATE NONCLUSTERED INDEX</span> IX_asset_lastmodified <span class="kw">ON</span> dbo.asset(lastmodified);
+<span class="kw">CREATE NONCLUSTERED INDEX</span> IX_asset_text8 <span class="kw">ON</span> dbo.asset(text8); <span class="cm">-- CMR lookups</span>
+<span class="kw">GO</span></pre>
+
+        <h4>2d. <code>dbo.sysuser</code> &mdash; iDash / RFID Scanner Users</h4>
+        <p>Scanner operator accounts used by the RFID handheld devices and RFID mobile scanner. Managed via <code>va_aw_user_management.aspx</code>.</p>
+        <pre><span class="kw">IF OBJECT_ID</span>(<span class="str">'dbo.sysuser'</span>, <span class="str">'U'</span>) <span class="kw">IS NULL</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">CREATE TABLE</span> dbo.sysuser (
+        id                    <span class="kw">INT IDENTITY</span>(<span class="num">1</span>,<span class="num">1</span>) <span class="kw">PRIMARY KEY</span>,
+        username              <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NOT NULL</span>,
+        password              <span class="kw">NVARCHAR</span>(<span class="num">500</span>) <span class="kw">NULL</span>,
+        firstname             <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        lastname              <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        email                 <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        phone                 <span class="kw">NVARCHAR</span>(<span class="num">100</span>) <span class="kw">NULL</span>,
+        cardid                <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        rfidtag               <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        usertype              <span class="kw">NVARCHAR</span>(<span class="num">50</span>) <span class="kw">NULL</span>,
+        companyid             <span class="kw">INT</span> <span class="kw">NULL</span>,
+        hideadminpopups       <span class="kw">BIT</span> <span class="kw">DEFAULT</span> <span class="num">0</span>,
+        inventorylimiteduser  <span class="kw">BIT</span> <span class="kw">DEFAULT</span> <span class="num">0</span>,
+        restricteditmobile    <span class="kw">BIT</span> <span class="kw">DEFAULT</span> <span class="num">0</span>,
+        created               <span class="kw">DATETIMEOFFSET</span> <span class="kw">DEFAULT</span> <span class="fn">SYSDATETIMEOFFSET</span>()
+    );
+    <span class="kw">CREATE UNIQUE NONCLUSTERED INDEX</span> IX_sysuser_username <span class="kw">ON</span> dbo.sysuser(username);
+    <span class="fn">PRINT</span> <span class="str">'Created table: dbo.sysuser'</span>;
+<span class="kw">END</span>
+<span class="kw">GO</span></pre>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  STEP 3: VIEWS                                                -->
+    <!-- ============================================================ -->
+    <div class="step-card" id="step3">
+        <div class="step-header">
+            <span class="step-num">3</span>
+            <h3>Create Views</h3>
+        </div>
+        <p>iDash reads from views rather than directly from the base tables in many reporting queries. This allows the iDash API to add computed columns without breaking iDash.</p>
+
+        <h4>3a. <code>dbo.v_asset</code> &mdash; Asset View</h4>
+        <p>Most iDash dashboards query <code>v_asset</code> instead of <code>asset</code> directly. This view joins the asset to its location and company for convenience.</p>
+        <pre><span class="kw">IF OBJECT_ID</span>(<span class="str">'dbo.v_asset'</span>, <span class="str">'V'</span>) <span class="kw">IS NOT NULL</span>
+    <span class="kw">DROP VIEW</span> dbo.v_asset;
+<span class="kw">GO</span>
+
+<span class="kw">CREATE VIEW</span> dbo.v_asset <span class="kw">AS</span>
+<span class="kw">SELECT</span>
+    a.*,
+    l.name     <span class="kw">AS</span> locationname,
+    c.name     <span class="kw">AS</span> companyname
+<span class="kw">FROM</span> dbo.asset a
+<span class="kw">LEFT JOIN</span> dbo.location l <span class="kw">ON</span> a.locationid = l.id
+<span class="kw">LEFT JOIN</span> dbo.company  c <span class="kw">ON</span> a.companyid  = c.id;
+<span class="kw">GO</span>
+
+<span class="fn">PRINT</span> <span class="str">'Created view: dbo.v_asset'</span>;
+<span class="kw">GO</span></pre>
+
+        <h4>3b. <code>dbo.v_sysuser</code> &mdash; User View</h4>
+        <p>Used by TagTeam Scan and Inventory to populate scanner operator dropdowns.</p>
+        <pre><span class="kw">IF OBJECT_ID</span>(<span class="str">'dbo.v_sysuser'</span>, <span class="str">'V'</span>) <span class="kw">IS NOT NULL</span>
+    <span class="kw">DROP VIEW</span> dbo.v_sysuser;
+<span class="kw">GO</span>
+
+<span class="kw">CREATE VIEW</span> dbo.v_sysuser <span class="kw">AS</span>
+<span class="kw">SELECT</span>
+    u.*,
+    c.name <span class="kw">AS</span> companyname
+<span class="kw">FROM</span> dbo.sysuser u
+<span class="kw">LEFT JOIN</span> dbo.company c <span class="kw">ON</span> u.companyid = c.id;
+<span class="kw">GO</span>
+
+<span class="fn">PRINT</span> <span class="str">'Created view: dbo.v_sysuser'</span>;
+<span class="kw">GO</span></pre>
+
+        <h4>3c. <code>dbo.v_locationhistory</code> &mdash; Location History View</h4>
+        <p>Used by the Previous Location page for asset movement tracking. This is a placeholder &mdash; the full iDash product populates a <code>locationhistory</code> base table that this view wraps.</p>
+        <pre><span class="kw">IF OBJECT_ID</span>(<span class="str">'dbo.v_locationhistory'</span>, <span class="str">'V'</span>) <span class="kw">IS NOT NULL</span>
+    <span class="kw">DROP VIEW</span> dbo.v_locationhistory;
+<span class="kw">GO</span>
+
+<span class="cm">-- Minimal stub: create the locationhistory table if it doesn't exist</span>
+<span class="kw">IF OBJECT_ID</span>(<span class="str">'dbo.locationhistory'</span>, <span class="str">'U'</span>) <span class="kw">IS NULL</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">CREATE TABLE</span> dbo.locationhistory (
+        id          <span class="kw">INT IDENTITY</span>(<span class="num">1</span>,<span class="num">1</span>) <span class="kw">PRIMARY KEY</span>,
+        assetid     <span class="kw">INT</span> <span class="kw">NOT NULL</span>,
+        locationid  <span class="kw">INT</span> <span class="kw">NULL</span>,
+        readerid    <span class="kw">INT</span> <span class="kw">NULL</span>,
+        timestamp   <span class="kw">DATETIMEOFFSET</span> <span class="kw">DEFAULT</span> <span class="fn">SYSDATETIMEOFFSET</span>()
+    );
+<span class="kw">END</span>
+<span class="kw">GO</span>
+
+<span class="kw">CREATE VIEW</span> dbo.v_locationhistory <span class="kw">AS</span>
+<span class="kw">SELECT</span>
+    lh.*,
+    a.name   <span class="kw">AS</span> assetname,
+    l.name   <span class="kw">AS</span> locationname
+<span class="kw">FROM</span> dbo.locationhistory lh
+<span class="kw">LEFT JOIN</span> dbo.asset    a <span class="kw">ON</span> lh.assetid    = a.id
+<span class="kw">LEFT JOIN</span> dbo.location l <span class="kw">ON</span> lh.locationid = l.id;
+<span class="kw">GO</span>
+
+<span class="fn">PRINT</span> <span class="str">'Created view: dbo.v_locationhistory'</span>;
+<span class="kw">GO</span></pre>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  STEP 4: IDASH-ONLY TABLES                                    -->
+    <!-- ============================================================ -->
+    <div class="step-card" id="step4">
+        <div class="step-header">
+            <span class="step-num">4</span>
+            <h3>Create iDash-Only Tables</h3>
+        </div>
+        <p>These tables are created by iDash itself and do <strong>not</strong> exist in the standard iDash schema. They support iDash-specific features.</p>
+
+        <h4>4a. <code>dbo.EnnxLiveSession</code> &mdash; Live Scan Session Log</h4>
+        <p>Records every live scanning session (ENNX Live, EIL Live). Queried by the daily cron job for automated reports.</p>
+        <pre><span class="kw">IF OBJECT_ID</span>(<span class="str">'dbo.EnnxLiveSession'</span>, <span class="str">'U'</span>) <span class="kw">IS NULL</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">CREATE TABLE</span> dbo.EnnxLiveSession (
+        Id            <span class="kw">INT IDENTITY</span>(<span class="num">1</span>,<span class="num">1</span>) <span class="kw">PRIMARY KEY</span>,
+        Station       <span class="kw">NVARCHAR</span>(<span class="num">50</span>) <span class="kw">NULL</span>,
+        CreatedBy     <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        StartedUtc    <span class="kw">DATETIME2</span> <span class="kw">NULL</span>,
+        EndedUtc      <span class="kw">DATETIME2</span> <span class="kw">NULL</span>,
+        Summary       <span class="kw">NVARCHAR</span>(<span class="num">MAX</span>) <span class="kw">NULL</span>,
+        JsonPayload   <span class="kw">NVARCHAR</span>(<span class="num">MAX</span>) <span class="kw">NULL</span>,
+        EnnxText      <span class="kw">NVARCHAR</span>(<span class="num">MAX</span>) <span class="kw">NULL</span>,
+        CreatedLocal  <span class="kw">DATETIME2</span> <span class="kw">DEFAULT</span> <span class="fn">GETDATE</span>()
+    );
+    <span class="fn">PRINT</span> <span class="str">'Created table: dbo.EnnxLiveSession'</span>;
+<span class="kw">END</span>
+<span class="kw">GO</span></pre>
+
+        <h4>4b. <code>dbo.AWPushStaging</code> &mdash; Supply Chain Bridge Staging</h4>
+        <p>Used by the VA FHIR Bridge (<code>va_fhir_bridge.aspx</code>) for staging asset data before pushing to VistA.</p>
+        <pre><span class="kw">IF OBJECT_ID</span>(<span class="str">'dbo.AWPushStaging'</span>, <span class="str">'U'</span>) <span class="kw">IS NULL</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">CREATE TABLE</span> dbo.AWPushStaging (
+        Id              <span class="kw">INT IDENTITY</span>(<span class="num">1</span>,<span class="num">1</span>) <span class="kw">PRIMARY KEY</span>,
+        AssetName       <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        Station         <span class="kw">NVARCHAR</span>(<span class="num">50</span>) <span class="kw">NULL</span>,
+        LocationName    <span class="kw">NVARCHAR</span>(<span class="num">255</span>) <span class="kw">NULL</span>,
+        PushStatus      <span class="kw">NVARCHAR</span>(<span class="num">50</span>) <span class="kw">DEFAULT</span> <span class="str">'Pending'</span>,
+        CreatedUtc      <span class="kw">DATETIME2</span> <span class="kw">DEFAULT</span> <span class="fn">GETUTCDATE</span>(),
+        ProcessedUtc    <span class="kw">DATETIME2</span> <span class="kw">NULL</span>,
+        ErrorMessage    <span class="kw">NVARCHAR</span>(<span class="num">MAX</span>) <span class="kw">NULL</span>
+    );
+    <span class="fn">PRINT</span> <span class="str">'Created table: dbo.AWPushStaging'</span>;
+<span class="kw">END</span>
+<span class="kw">GO</span></pre>
+
+        <div class="info-box">
+            <strong>&#128161; Note:</strong> Two additional temporary tables (<code>dbo.assettemp</code>, <code>dbo.locationtemp</code>)
+            are created and dropped dynamically by the Field Sync merge script. You do <strong>not</strong> need to create them manually.
+            Similarly, <code>dbo.AssetFileRaw</code> is a temporary staging table created during database update imports.
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  STEP 5: SEED DATA                                            -->
+    <!-- ============================================================ -->
+    <div class="step-card" id="step5">
+        <div class="step-header">
+            <span class="step-num">5</span>
+            <h3>Seed Initial Data</h3>
+        </div>
+        <p>At minimum, you need <strong>one company record</strong> per VA site and <strong>one scanner user</strong>.</p>
+
+        <h4>5a. Add Sites (Companies)</h4>
+        <p>Add one row per VA medical center. The <code>name</code> must start with the 3-digit station number:</p>
+        <pre><span class="cm">-- Add your VA sites (change station numbers and names!)</span>
+<span class="kw">INSERT INTO</span> dbo.company (name) <span class="kw">VALUES</span>
+    (<span class="str">'688 Washington DC'</span>),
+    (<span class="str">'613 Martinsburg'</span>),
+    (<span class="str">'512 Baltimore'</span>),
+    (<span class="str">'460 Wilmington'</span>),
+    (<span class="str">'693 Wilkes-Barre'</span>),
+    (<span class="str">'595 Lebanon'</span>);
+<span class="kw">GO</span>
+
+<span class="fn">PRINT</span> <span class="str">'Seeded company records.'</span>;
+<span class="kw">GO</span></pre>
+
+        <h4>5b. Add a Default Scanner User</h4>
+        <pre><span class="cm">-- Add a default scanner operator for field testing</span>
+<span class="kw">INSERT INTO</span> dbo.sysuser (username, password, firstname, lastname, usertype, companyid)
+<span class="kw">VALUES</span> (<span class="str">'admin'</span>, <span class="kw">NULL</span>, <span class="str">'Admin'</span>, <span class="str">'User'</span>, <span class="str">'Admin'</span>,
+    (<span class="kw">SELECT TOP</span> <span class="num">1</span> id <span class="kw">FROM</span> dbo.company));
+<span class="kw">GO</span>
+
+<span class="fn">PRINT</span> <span class="str">'Seeded default sysuser.'</span>;
+<span class="kw">GO</span></pre>
+
+        <div class="success-box">
+            <strong>&#9989; That's the minimum data needed.</strong> You can now import real asset data using iDash's
+            built-in tools: the <strong>Manual DB Update</strong> (<code>va_dbupdate.aspx</code>) two-pass workflow,
+            or by dropping a <code>.bak</code> file into the autoload directory for the <strong>Field Server Sync</strong> pipeline.
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  STEP 6: STAGING DATABASE                                     -->
+    <!-- ============================================================ -->
+    <div class="step-card" id="step6">
+        <div class="step-header">
+            <span class="step-num">6</span>
+            <h3>Create the Staging Database (Field Sync Only)</h3>
+        </div>
+        <p>If you plan to use the <strong>Field Server Sync</strong> feature (<code>va_field_sync.aspx</code>), you need a
+           staging database. The sync process restores a field server <code>.bak</code> file into this database, then merges it into the main <code>iDash</code> database.</p>
+        <pre><span class="kw">IF</span> <span class="fn">DB_ID</span>(<span class="str">'idash_staging'</span>) <span class="kw">IS NULL</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">CREATE DATABASE</span> [idash_staging];
+    <span class="fn">PRINT</span> <span class="str">'Created staging database: [idash_staging]'</span>;
+<span class="kw">END</span>
+<span class="kw">GO</span>
+
+<span class="cm">-- Grant the iDash login access to the staging DB</span>
+<span class="kw">USE</span> [idash_staging];
+<span class="kw">GO</span>
+
+<span class="kw">IF NOT EXISTS</span> (<span class="kw">SELECT</span> <span class="num">1</span> <span class="kw">FROM</span> sys.database_principals <span class="kw">WHERE</span> name = <span class="str">'idashadmin'</span>)
+<span class="kw">BEGIN</span>
+    <span class="kw">CREATE USER</span> [idashadmin] <span class="kw">FOR LOGIN</span> [idashadmin];
+    <span class="kw">ALTER ROLE</span> db_owner <span class="kw">ADD MEMBER</span> [idashadmin];
+<span class="kw">END</span>
+<span class="kw">GO</span></pre>
+        <div class="info-box">
+            <strong>&#128161;</strong> The staging database will be overwritten (via <code>RESTORE DATABASE ... WITH REPLACE</code>)
+            every time a field sync runs. Its contents are ephemeral &mdash; it just needs to exist so the restore command has a target.
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  STEP 7: VERIFICATION                                         -->
+    <!-- ============================================================ -->
+    <div class="step-card" id="step7">
+        <div class="step-header">
+            <span class="step-num">7</span>
+            <h3>Verify the Setup</h3>
+        </div>
+        <p>Run this verification script to confirm all required objects exist:</p>
+        <pre><span class="kw">USE</span> [iDash];
+<span class="kw">GO</span>
+
+<span class="kw">SELECT</span> <span class="str">'Tables'</span> <span class="kw">AS</span> Category, name, type_desc
+<span class="kw">FROM</span> sys.objects
+<span class="kw">WHERE</span> type = <span class="str">'U'</span> <span class="kw">AND</span> name <span class="kw">IN</span> (
+    <span class="str">'asset'</span>, <span class="str">'company'</span>, <span class="str">'location'</span>, <span class="str">'sysuser'</span>,
+    <span class="str">'EnnxLiveSession'</span>, <span class="str">'AWPushStaging'</span>, <span class="str">'locationhistory'</span>
+)
+<span class="kw">UNION ALL</span>
+<span class="kw">SELECT</span> <span class="str">'Views'</span>, name, type_desc
+<span class="kw">FROM</span> sys.objects
+<span class="kw">WHERE</span> type = <span class="str">'V'</span> <span class="kw">AND</span> name <span class="kw">IN</span> (
+    <span class="str">'v_asset'</span>, <span class="str">'v_sysuser'</span>, <span class="str">'v_locationhistory'</span>
+)
+<span class="kw">ORDER BY</span> Category, name;
+<span class="kw">GO</span></pre>
+
+        <p>Expected output:</p>
+        <table class="tbl-schema">
+            <tr><th>Category</th><th>Name</th><th>Type</th></tr>
+            <tr><td>Tables</td><td>asset</td><td>USER_TABLE</td></tr>
+            <tr><td>Tables</td><td>AWPushStaging</td><td>USER_TABLE</td></tr>
+            <tr><td>Tables</td><td>company</td><td>USER_TABLE</td></tr>
+            <tr><td>Tables</td><td>EnnxLiveSession</td><td>USER_TABLE</td></tr>
+            <tr><td>Tables</td><td>location</td><td>USER_TABLE</td></tr>
+            <tr><td>Tables</td><td>locationhistory</td><td>USER_TABLE</td></tr>
+            <tr><td>Tables</td><td>sysuser</td><td>USER_TABLE</td></tr>
+            <tr><td>Views</td><td>v_asset</td><td>VIEW</td></tr>
+            <tr><td>Views</td><td>v_locationhistory</td><td>VIEW</td></tr>
+            <tr><td>Views</td><td>v_sysuser</td><td>VIEW</td></tr>
+        </table>
+
+        <p>Then verify the iDash connection by navigating to <code>http://localhost/iDash/va_site_config.aspx</code> and clicking
+           <strong>Test Connection</strong>. You should see <span style="color:#10b981;font-weight:700;">&#9989; Connection successful</span>
+           with the core tables verified.</p>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  COLUMN REFERENCE                                             -->
+    <!-- ============================================================ -->
+    <div class="card" id="column-ref" style="margin-top:30px;">
+        <h2>&#128203; VA Field Mapping Reference</h2>
+        <p>The iDash <code>asset</code> table uses generic <code>text1</code>&ndash;<code>text20</code> columns.
+           In the VA VISN 5 deployment, these map to the following real-world fields:</p>
+
+        <table class="tbl-schema">
+            <tr><th>Column</th><th>VA Field Name</th><th>Example</th><th>Used By</th></tr>
+            <tr><td><code>name</code></td><td>EE Number (barcode)</td><td><code>EE12345</code></td><td>All pages (primary key for lookups)</td></tr>
+            <tr><td><code>description</code></td><td>Item Description</td><td><code>DEFIBRILLATOR, EXTERNAL</code></td><td>Search, ENNX, reports</td></tr>
+            <tr><td><code>rfidtag</code></td><td>RFID Tag EPC</td><td><code>E280116060000...</code></td><td>TagTeam Scan, tag audit</td></tr>
+            <tr><td><code>text1</code></td><td>Manufacturer</td><td><code>PHILIPS MEDICAL</code></td><td>Asset Master, data quality</td></tr>
+            <tr><td><code>text2</code></td><td>Model</td><td><code>HEARTSTART MRX</code></td><td>Asset Master</td></tr>
+            <tr><td><code>text3</code></td><td>Serial Number (CDW)</td><td><code>US12345678</code></td><td>Asset Master, data quality</td></tr>
+            <tr><td><code>text4</code></td><td>Category / NX Class</td><td><code>M2250</code></td><td>Asset Master</td></tr>
+            <tr><td><code>text5</code></td><td>Service Pointer</td><td><code>50-SP688</code></td><td>Reports</td></tr>
+            <tr><td><code>text6</code></td><td>Station + Location</td><td><code>688-BD. 7-109A</code></td><td>ENNX generation, site maps</td></tr>
+            <tr><td><code>text7</code></td><td>Station Number</td><td><code>688</code></td><td>Site filtering, ENNX</td></tr>
+            <tr><td><code>text8</code></td><td>CMR Number</td><td><code>A4890</code></td><td>CMR stats, ENNX, data quality</td></tr>
+            <tr><td><code>text9</code></td><td>Purchase Order</td><td><code>123-PO456</code></td><td>Asset Master</td></tr>
+            <tr><td><code>text10</code></td><td>Inventory Date</td><td><code>2026-03-15</code></td><td>Tag stats, aging reports</td></tr>
+            <tr><td><code>text11&ndash;20</code></td><td>(Site-specific custom)</td><td>Varies</td><td>Field sync, data export</td></tr>
+            <tr><td><code>listvalue1</code></td><td>Asset Status</td><td><code>In Use</code> / <code>Not In Use</code></td><td>Not-In-Use reports, data quality</td></tr>
+            <tr><td><code>listvalue2&ndash;5</code></td><td>(Site-specific)</td><td>Varies</td><td>Field sync</td></tr>
+            <tr><td><code>companyid</code></td><td>Site FK</td><td><code>1</code> (maps to company table)</td><td>All site-filtered queries</td></tr>
+            <tr><td><code>locationid</code></td><td>EIL Location FK</td><td><code>42</code> (maps to location table)</td><td>Location drill-down, site maps</td></tr>
+        </table>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  COMPLETE SCRIPT                                              -->
+    <!-- ============================================================ -->
+    <div class="card" style="margin-top:20px;">
+        <h2>&#128230; All-In-One Script</h2>
+        <p>For convenience, a combined script containing all of the above steps (except seed data) is available at:</p>
+        <pre style="background:var(--card-bg); color:var(--text); border:2px solid var(--accent-docs); font-weight:600;">
+iDash/sql/create_idash_database.sql</pre>
+        <p>You can run it directly in SSMS. It is fully idempotent &mdash; safe to re-run on an existing database (uses <code>IF NOT EXISTS</code> / <code>IF OBJECT_ID IS NULL</code> guards throughout).</p>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  ADDITIONAL RESOURCES                                         -->
+    <!-- ============================================================ -->
+    <div class="card" style="margin-top:20px;">
+        <h2>&#128218; Related Documentation</h2>
+        <ul>
+            <li><a href="idash_deployment_guide.html">Complete Deployment Guide</a> &mdash; Full server setup (IIS, web.config, Task Scheduler)</li>
+            <li><a href="va_field_sync.html">Field Server Sync Documentation</a> &mdash; Cross-database merge architecture</li>
+            <li><a href="va_dbupdate.html">Database Update Workflows</a> &mdash; Two-pass import process for CDW data</li>
+            <li><a href="va_system_architecture.html">System Architecture</a> &mdash; External state and dependencies map</li>
+            <li><a href="idash_architecture_rationale.html">Architecture Rationale</a> &mdash; Why iDash uses direct SQL alongside the API</li>
+        </ul>
+    </div>
+
+    <div style="margin-top:20px;"><a href="index.aspx">&larr; Back to Documentation Hub</a></div>
+
+    <footer>
+        <span style="display:block; margin-top:20px; padding-top:15px; border-top:1px solid var(--line); font-size:12px; color:var(--muted-docs);">
+            &copy; 2026 ID Integration Inc. &mdash; iDash Database Setup Guide &mdash; Created July 22, 2026
+        </span>
+    </footer>
+</div>
+</body>
+</html>

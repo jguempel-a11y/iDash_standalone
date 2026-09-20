@@ -1,0 +1,410 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Automated Reports &amp; Alert System &mdash; iDash Documentation</title>
+    <meta name="description" content="Complete reference for the iDash System Automations page: SMTP configuration, alert triggers, daily ENNX report automation, and Windows Task Scheduler setup." />
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <script src="theme-init.js"></script>
+    <link rel="stylesheet" href="docs_theme.css" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .cover-band{background:linear-gradient(135deg,color-mix(in srgb,#f59e0b 18%,transparent),color-mix(in srgb,#10b981 10%,transparent));border:1px solid var(--line-docs);border-radius:20px;padding:48px 40px 36px;margin-bottom:32px;position:relative;overflow:hidden;}
+        .cover-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:30px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-right:8px;margin-bottom:8px;}
+        .pill-amber{background:color-mix(in srgb,#f59e0b 18%,transparent);border:1px solid #f59e0b44;color:#f59e0b;}
+        .pill-green{background:color-mix(in srgb,#10b981 18%,transparent);border:1px solid #10b98144;color:#10b981;}
+        .pill-blue{background:color-mix(in srgb,#2ea8ff 18%,transparent);border:1px solid #2ea8ff44;color:#2ea8ff;}
+        .pill-red{background:color-mix(in srgb,#ef4444 18%,transparent);border:1px solid #ef444444;color:#ef4444;}
+        .pill-purple{background:color-mix(in srgb,#a855f7 18%,transparent);border:1px solid #a855f744;color:#a855f7;}
+        .fi-purple{background:#a855f7;}
+        .box-purple{background:color-mix(in srgb,#a855f7 10%,transparent);border:1px solid color-mix(in srgb,#a855f7 40%,transparent);border-left:5px solid #a855f7;border-radius:0 12px 12px 0;padding:12px 16px;font-size:13px;margin:12px 0;}
+        .cover-meta{display:flex;gap:28px;flex-wrap:wrap;margin-top:22px;padding-top:22px;border-top:1px solid var(--line-docs);}
+        .cover-meta .mi{font-size:13px;color:var(--muted-docs);}
+        .cover-meta .mi strong{color:var(--text-docs);display:block;margin-bottom:3px;}
+        .toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px 22px;}
+        .toc-item{display:flex;align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line-docs);text-decoration:none!important;color:var(--muted-docs);font-size:14px;transition:color .15s;}
+        .toc-item:hover{color:var(--accent-docs);}
+        .toc-num{width:30px;flex-shrink:0;font-size:11px;font-weight:800;color:var(--accent-docs);text-transform:uppercase;letter-spacing:.05em;}
+        .feat-card{background:var(--card-docs);border:1px solid var(--line-docs);border-radius:16px;padding:32px;margin-bottom:24px;scroll-margin-top:24px;}
+        .feat-header{display:flex;align-items:flex-start;gap:18px;margin-bottom:20px;}
+        .feat-icon{flex-shrink:0;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 14px rgba(0,0,0,.25);}
+        .fi-amber{background:#f59e0b}.fi-green{background:#10b981}.fi-blue{background:var(--accent-docs)}.fi-red{background:#ef4444}
+        .feat-title h2{margin:0 0 5px;font-size:1.25rem;border:none;padding:0;}
+        .feat-subtitle{font-size:13px;color:var(--muted-docs);line-height:1.5;}
+        .step-item{display:flex;gap:14px;margin-bottom:14px;align-items:flex-start;}
+        .step-list{counter-reset:step;margin:16px 0;}
+        .step-item::before{counter-increment:step;content:counter(step);flex-shrink:0;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;background:var(--accent-docs);color:#fff;margin-top:2px;}
+        .step-item.amber::before{background:#f59e0b}
+        .box-info{background:color-mix(in srgb,var(--accent-docs)10%,transparent);border:1px solid color-mix(in srgb,var(--accent-docs)40%,transparent);border-left:5px solid var(--accent-docs);border-radius:0 12px 12px 0;padding:12px 16px;font-size:13px;margin:12px 0;}
+        .box-green{background:color-mix(in srgb,#10b981 10%,transparent);border:1px solid color-mix(in srgb,#10b981 40%,transparent);border-left:5px solid #10b981;border-radius:0 12px 12px 0;padding:12px 16px;font-size:13px;margin:12px 0;}
+        .box-amber{background:color-mix(in srgb,#f59e0b 10%,transparent);border:1px solid color-mix(in srgb,#f59e0b 40%,transparent);border-left:5px solid #f59e0b;border-radius:0 12px 12px 0;padding:12px 16px;font-size:13px;margin:12px 0;}
+        .box-red{background:color-mix(in srgb,#ef4444 10%,transparent);border:1px solid color-mix(in srgb,#ef4444 40%,transparent);border-left:5px solid #ef4444;border-radius:0 12px 12px 0;padding:12px 16px;font-size:13px;margin:12px 0;}
+        .key-row{display:flex;align-items:baseline;gap:8px;padding:7px 0;border-bottom:1px solid var(--line-docs);font-size:13px;}
+        .key-name{min-width:240px;flex-shrink:0;}
+        .back-link{display:inline-flex;align-items:center;gap:8px;margin-bottom:26px;font-size:14px;color:var(--muted-docs);text-decoration:none;}
+        .back-link:hover{color:var(--accent-docs);}
+    </style>
+</head>
+<body>
+    <button id="themeToggleBtn" onclick="toggleIdashTheme()" title="Toggle theme"
+        style="position:fixed;top:14px;right:18px;z-index:9999;background:var(--card);border:1px solid var(--line);
+        border-radius:10px;padding:6px 12px;cursor:pointer;font-size:18px;color:var(--text);
+        box-shadow:0 4px 14px rgba(0,0,0,.25);">&#127769;</button>
+    <div class="wrap">
+        <a href="../index.aspx" class="back-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back to iDash Hub
+        </a>
+        <div class="cover-band">
+            <div style="margin-bottom:20px;">
+                <span class="cover-pill pill-amber">&#9993; Email Alerts</span>
+                <span class="cover-pill pill-green">&#128200; Daily ENNX Reports</span>
+                <span class="cover-pill pill-purple">&#127970; Multi-Site Routing</span>
+                <span class="cover-pill pill-blue">&#128272; Central SMTP</span>
+                <span class="cover-pill pill-red">&#9888; System Alerts</span>
+            </div>
+            <h1 style="margin:0 0 12px;font-size:2.4rem;letter-spacing:-.02em;line-height:1.1;">&#128229; Automated Reports &amp; Alert System</h1>
+            <p style="font-size:1.05rem;color:var(--muted-docs);max-width:750px;line-height:1.65;margin:0;">
+                Central control panel for <strong style="color:var(--text-docs);">all outgoing email</strong> from iDash &mdash; real-time system alerts,
+                automated daily ENNX extracts, per-site email routing and toggles, SMTP relay configuration, and custom subject templates.
+            </p>
+            <div class="cover-meta">
+                <div class="mi"><strong>Config Page</strong>va_automated_reports.aspx</div>
+                <div class="mi"><strong>Runner</strong>va_report_automator_runner.aspx</div>
+                <div class="mi"><strong>Email Engine</strong>App_Code/EmailHelper.cs &amp; SiteEmailConfigHelper.cs</div>
+                <div class="mi"><strong>Config Files</strong>web.config + ~/config/email_recipients.json + ~/config/site_email_config.json + ~/config/report_automation.json</div>
+                <div class="mi"><strong>Access Via</strong>System Configuration tile (<code>admin_site_config</code>) &mdash; no standalone tile</div>
+            </div>
+        </div>
+        <div class="card">
+            <h2 style="margin-top:0;">&#128203; In This Guide</h2>
+            <div class="toc-grid">
+                <a class="toc-item" href="#overview"><span class="toc-num">S1</span>How It Works</a>
+                <a class="toc-item" href="#master"><span class="toc-num">S2</span>Master Switch</a>
+                <a class="toc-item" href="#recipients"><span class="toc-num">S3</span>Global Recipients</a>
+                <a class="toc-item" href="#alerts"><span class="toc-num">S4</span>Alert Triggers</a>
+                <a class="toc-item" href="#smtp"><span class="toc-num">S5</span>SMTP &amp; Delivery Settings</a>
+                <a class="toc-item" href="#reports"><span class="toc-num">S6</span>Automated Daily Reports</a>
+                <a class="toc-item" href="#sites"><span class="toc-num">S7</span>Per-Site Routing &amp; Alerts</a>
+                <a class="toc-item" href="#scheduler"><span class="toc-num">S8</span>Task Scheduler Setup</a>
+                <a class="toc-item" href="#runner"><span class="toc-num">S9</span>Runner Engine Details</a>
+                <a class="toc-item" href="#emailhelper"><span class="toc-num">DEV</span>Email &amp; Routing Helpers</a>
+                <a class="toc-item" href="#webconfig"><span class="toc-num">CFG</span>Configuration Files &amp; Keys</a>
+            </div>
+        </div>
+
+        <!-- S1 OVERVIEW -->
+        <div class="feat-card" id="overview">
+            <div class="feat-header">
+                <div class="feat-icon fi-amber">&#9881;</div>
+                <div class="feat-title"><h2>How It Works</h2><div class="feat-subtitle">Two subsystems share one email engine.</div></div>
+            </div>
+            <table>
+                <tr><th>Subsystem</th><th>What It Does</th><th>When It Fires</th></tr>
+                <tr><td><strong>Alert Triggers</strong></td><td>Real-time email/SMS for system events (DB failure, print crash, folder missing, audit triggered)</td><td>Immediately when the condition occurs inside the relevant page handler</td></tr>
+                <tr><td><strong>Automated Daily Reports</strong></td><td>Scheduled batch email with ENNX .txt extract + Excel grid &mdash; one email per site with scans today</td><td>Daily at configured time via Windows Task Scheduler hitting va_report_automator_runner.aspx</td></tr>
+            </table>
+            <div class="box-info"><strong>&#8505; Shared engine:</strong> Both subsystems call <code>EmailHelper.SendEmail()</code>. SMTP settings, From Name, and From Email apply to <em>all</em> iDash outgoing email &mdash; ENNX exports, Tag Audit, diagnostics, inventory reports, and daily reports. No per-feature email identity exists.</div>
+        </div>
+
+        <!-- S2 MASTER SWITCH -->
+        <div class="feat-card" id="master">
+            <div class="feat-header">
+                <div class="feat-icon fi-red">&#9888;</div>
+                <div class="feat-title"><h2>Section 1 &mdash; Master Switch</h2><div class="feat-subtitle">Globally enables or disables the daily runner. Does not suppress in-page alert triggers.</div></div>
+            </div>
+            <p>Controls the <code>SmsAlertsEnabled</code> key in <code>web.config</code>.</p>
+            <ul>
+                <li><strong>OFF:</strong> <code>va_report_automator_runner.aspx</code> exits immediately &mdash; no emails sent.</li>
+                <li><strong>ON:</strong> runner checks recipients, finds active sites, sends per-site reports.</li>
+                <li>Alert triggers fire from their own page code-behind regardless of this switch &mdash; they check their individual <code>Alert_*</code> keys.</li>
+            </ul>
+        </div>
+
+        <!-- S3 RECIPIENTS -->
+        <div class="feat-card" id="recipients">
+            <div class="feat-header">
+                <div class="feat-icon fi-blue">&#128101;</div>
+                <div class="feat-title"><h2>Section 2 &mdash; Global Recipients</h2><div class="feat-subtitle">Default destination for all alerts and reports without custom routing.</div></div>
+            </div>
+            <p>Enter one address per line. Saved to <code>~/config/email_recipients.json</code> (not web.config) so changes never trigger an IIS app pool recycle.</p>
+            <div class="box-green"><strong>&#9989; Session-safe:</strong> Changes write to a JSON file. EmailHelper reads JSON first, falls back to legacy <code>web.config EmailRecipients</code> key, and auto-migrates to JSON on first use. No user sessions are disrupted.</div>
+            <table>
+                <tr><th>Format</th><th>Use Case</th></tr>
+                <tr><td><code>name@domain.com</code></td><td>Standard email recipient</td></tr>
+                <tr><td><code>5551234567@vtext.com</code></td><td>Verizon SMS gateway</td></tr>
+                <tr><td><code>5551234567@txt.att.net</code></td><td>AT&amp;T SMS gateway</td></tr>
+                <tr><td><code>5551234567@tmomail.net</code></td><td>T-Mobile SMS gateway</td></tr>
+            </table>
+            <div class="box-info"><strong>&#8505; Per-trigger override:</strong> Each alert and automated report has its own recipient field. If filled, it replaces the global list for that trigger only. Leave blank to fall through to global recipients.</div>
+        </div>
+
+        <!-- S4 ALERTS -->
+        <div class="feat-card" id="alerts">
+            <div class="feat-header">
+                <div class="feat-icon fi-red">&#128680;</div>
+                <div class="feat-title"><h2>Section 3 &mdash; Alert Triggers</h2><div class="feat-subtitle">Real-time notifications for system events.</div></div>
+            </div>
+            <table>
+                <tr><th>Alert</th><th>Key</th><th>What Triggers It</th></tr>
+                <tr><td><strong>Auto DB: Folder Missing</strong></td><td><code>Alert_DbFolderMissing</code></td><td>VistA import watch folder not found when import checks for new files</td></tr>
+                <tr><td><strong>Auto DB: SQL Exceptions</strong></td><td><code>Alert_DbCrash</code></td><td>Unhandled SQL exception during VistA file ingestion</td></tr>
+                <tr><td><strong>Print Server: API Disruption</strong></td><td><code>Alert_PrintFailure</code></td><td>MQTT/API spooler receives HTTP 500 on a print job submission</td></tr>
+                <tr><td><strong>Diagnostic: Tag Audit Report</strong></td><td><code>Alert_TagAuditReport</code></td><td>Any user generates/exports from va_tag_audit_report.aspx &mdash; useful for testing SMS routing</td></tr>
+            </table>
+            <p>Each alert stores custom routing in <code>SmsRecipients_Alert_*</code> in web.config. Empty = use global System Recipients.</p>
+        </div>
+
+        <!-- S5 SMTP -->
+        <div class="feat-card" id="smtp">
+            <div class="feat-header">
+                <div class="feat-icon fi-blue">&#128272;</div>
+                <div class="feat-title"><h2>Section 4 &mdash; Email Delivery &amp; SMTP Settings</h2><div class="feat-subtitle">Configures the outgoing mail server used for ALL iDash email.</div></div>
+            </div>
+            <h3>SMTP Server Connection</h3>
+            <table>
+                <tr><th>Field</th><th>Key</th><th>Default</th><th>Notes</th></tr>
+                <tr><td>SMTP Host</td><td><code>SMTP_Host</code></td><td><code>localhost</code></td><td>Hostname or IP of relay. Use localhost for IIS SMTP relay on VA internal network.</td></tr>
+                <tr><td>Port</td><td><code>SMTP_Port</code></td><td><code>25</code></td><td>Port 25 = anonymous. Port 587 = authenticated submission (Office 365, Gmail).</td></tr>
+                <tr><td>Enable SSL/TLS</td><td><code>SMTP_SSL</code></td><td><code>false</code></td><td>Enable for port 587. For IIS/localhost relay on port 25, leave off.</td></tr>
+            </table>
+            <h3>SMTP Authentication</h3>
+            <table>
+                <tr><th>Field</th><th>Key</th><th>Behavior</th></tr>
+                <tr><td>Username</td><td><code>SMTP_User</code></td><td>Leave blank for anonymous relay.</td></tr>
+                <tr><td>Password</td><td><code>SMTP_Password</code></td><td><strong>Leave blank to keep current.</strong> The field never pre-fills from storage for security. Only saved when you type a new value.</td></tr>
+            </table>
+            <div class="box-amber"><strong>&#9888; Password storage:</strong> Stored in web.config plain text (ASP.NET AppSettings limitation). Mitigations: restrict NTFS ACLs on web root; prefer IP-authenticated relay (no credentials needed); use a dedicated low-privilege relay account.</div>
+            <h3>From Address &amp; Presentation</h3>
+            <table>
+                <tr><th>Field</th><th>Storage</th><th>Applies To &amp; Behavior</th></tr>
+                <tr><td>"From" Email Address</td><td><code>web.config SMTP_FromEmail</code></td><td>All outgoing iDash email. Sets the sender mailbox and envelope address. Default: <code>no-reply@idash.com</code>.</td></tr>
+                <tr><td>"From" Display Name</td><td><code>web.config SMTP_FromName</code></td><td>Retained in <code>web.config</code> for legacy on-prem fallback. (Omitted from UI because Microsoft 365 / modern Exchange relays enforce the display identity of the authenticated user account).</td></tr>
+                <tr><td>ENNX Report Subject Template</td><td><code>report_automation.json SubjectTitle</code></td><td>Subject line template for daily ENNX report emails. Replaces static defaults with dynamic token replacement: <code>{Site}</code> (station number) and <code>{Date}</code> (report date MM-dd-yyyy). Features real-time client-side preview in the UI.</td></tr>
+            </table>
+            <div class="box-green"><strong>&#9989; Dynamic Subject Overrides:</strong> The legacy <code>Default_EmailSubject</code> in <code>web.config</code> should remain empty. Leaving it blank ensures that dynamic per-report subjects (including custom templates configured here) are delivered without global override.</div>
+            <h3>Common SMTP Scenarios</h3>
+            <table>
+                <tr><th>Scenario</th><th>Host</th><th>Port</th><th>SSL</th><th>Auth</th></tr>
+                <tr><td>VA network relay (anonymous)</td><td>localhost or relay FQDN</td><td>25</td><td>Off</td><td>None</td></tr>
+                <tr><td>Office 365 / M365</td><td>smtp.office365.com</td><td>587</td><td>On</td><td>Username + Password</td></tr>
+                <tr><td>Gmail SMTP relay</td><td>smtp.gmail.com</td><td>587</td><td>On</td><td>Username + App Password</td></tr>
+                <tr><td>On-premises Exchange</td><td>Exchange FQDN</td><td>25 or 587</td><td>Site policy</td><td>Optional</td></tr>
+            </table>
+            <div class="box-info"><strong>&#8505; Centralized SMTP Account:</strong> All iDash emails authenticate using the single relay account defined above. For multi-site VISN setups, this prevents <code>SendAsDenied</code> (5.2.252) errors.</div>
+        </div>
+
+        <!-- S6 REPORTS -->
+        <div class="feat-card" id="reports">
+            <div class="feat-header">
+                <div class="feat-icon fi-green">&#128200;</div>
+                <div class="feat-title"><h2>Section 5 &mdash; Automated Daily Reports</h2><div class="feat-subtitle">Scheduled batch emails triggered by Windows Task Scheduler.</div></div>
+            </div>
+            <table>
+                <tr><th>Report</th><th>Key</th><th>What It Sends</th></tr>
+                <tr><td><strong>Daily ENNX Extract</strong></td><td><code>Report_Ennx</code></td><td>Per-site ENNX .txt + Excel .xls attached. One email per site with scans today. Body shows site name, date, asset count.</td></tr>
+                <tr><td><strong>Daily Asset Statistics</strong></td><td><code>Report_Stats</code></td><td>Site-by-site Tagged vs Untagged rollup as CSV (mirrors va_asset_stats.aspx)</td></tr>
+            </table>
+            <div class="box-green"><strong>&#9989; Smart detection:</strong> Only sends for sites with scan activity today. Uses text7 (Station Number) to group by site. No empty reports. Also checks each site's <strong>Enabled</strong> toggle (Section 6) before processing.</div>
+            <div class="box-info"><strong>&#8505; Local backup:</strong> ENNX reports save to <code>C:\VA_RFID\ennx_live\saved\auto\auto_ennx_{site}_{date}.txt</code> before emailing. Local save succeeds even if email fails.</div>
+        </div>
+
+        <!-- S7 SITES -->
+        <div class="feat-card" id="sites">
+            <div class="feat-header">
+                <div class="feat-icon fi-purple">&#127970;</div>
+                <div class="feat-title"><h2>Section 6 &mdash; Per-Site Email Routing &amp; Station Alerts</h2><div class="feat-subtitle">Individual station recipients, enable/disable alert toggles, and centralized SMTP relay.</div></div>
+            </div>
+            <p>Designed for multi-facility VISN deployments where multiple stations (e.g. Baltimore, Beckley, Clarksburg, Huntington, Martinsburg) share one iDash instance or central database, but require independent report recipients and notification control.</p>
+
+            <h3>Key Features</h3>
+            <ul>
+                <li><strong>Database Auto-Discovery:</strong> Sites are queried live from the database <code>company</code> table (<code>dbo.company</code> columns: <code>id</code>, <code>name</code> &mdash; e.g. <em>512 Baltimore</em>, <em>517 Beckley</em>, <em>540 Clarksburg</em>, <em>581 Huntington</em>, <em>613 Martinsburg</em>). Any new site added to the company table is automatically discovered on page load without manual code changes.</li>
+                <li><strong>Station Enable / Disable Alert Switch:</strong> Each station card has an independent toggle switch. If toggled <strong>OFF</strong>, daily ENNX reports and automated emails for that site are completely suppressed and skipped by the runner engine, even if scan sessions occurred that day.</li>
+                <li><strong>Dedicated Station Recipients:</strong> Enter semicolon- or comma-separated email addresses for each station's supervisors or logistics leads. When populated, that station's daily report is dispatched <em>only</em> to its designated team.</li>
+                <li><strong>Global Fallback:</strong> If a station's recipient field is left blank, the runner automatically falls back to the <strong>Global System Recipients (Section 2)</strong>.</li>
+                <li><strong>Centralized SMTP Authentication:</strong> All outbound emails authenticate through one central M365 or Exchange account (configured in Section 4). This eliminates <code>SendAsDenied</code> (5.2.252) permission errors that occur when attempting to send from differing station addresses.</li>
+                <li><strong>Session-Safe JSON Storage:</strong> Per-site configurations and toggle states are saved to <code>~/config/site_email_config.json</code>, avoiding IIS application pool recycles.</li>
+            </ul>
+
+            <div class="box-purple">
+                <strong>&#8505; JSON Structure in <code>~/config/site_email_config.json</code>:</strong>
+                <pre style="background:transparent;border:none;margin:8px 0 0;padding:0;font-size:12px;color:inherit;overflow:auto;">[
+  {
+    "CompanyId": 2,
+    "StationKey": "517",
+    "DisplayName": "517 Beckley",
+    "Enabled": true,
+    "Recipients": "supervisor@va.gov; logistics@va.gov"
+  },
+  {
+    "CompanyId": 5,
+    "StationKey": "613",
+    "DisplayName": "613 Martinsburg",
+    "Enabled": true,
+    "Recipients": ""
+  }
+]</pre>
+            </div>
+        </div>
+
+        <!-- S8 SCHEDULER -->
+        <div class="feat-card" id="scheduler">
+            <div class="feat-header">
+                <div class="feat-icon fi-amber">&#128339;</div>
+                <div class="feat-title"><h2>Section 7 &mdash; Windows Task Scheduler Setup</h2><div class="feat-subtitle">How to wire up the daily runner to fire automatically each evening.</div></div>
+            </div>
+            <div class="step-list">
+                <div class="step-item amber">Open <strong>Task Scheduler</strong> (taskschd.msc) on the iDash server.</div>
+                <div class="step-item amber">Click <strong>Create Basic Task</strong>. Name it e.g. <em>iDash Daily ENNX Report</em>.</div>
+                <div class="step-item amber">Set trigger: <strong>Daily</strong>, start time <strong>7:00 PM</strong> (or after last TagTeam scan session).</div>
+                <div class="step-item amber">Set action: <strong>Start a program</strong> &mdash; <code>curl.exe</code> with argument: <code>http://localhost/iDash/va_report_automator_runner.aspx</code><br/>
+                    Or use PowerShell: <code>Invoke-WebRequest -Uri "http://localhost/iDash/va_report_automator_runner.aspx" -UseBasicParsing</code></div>
+                <div class="step-item amber">Run as: <strong>SYSTEM</strong> or a service account with IIS read permissions. Check <strong>"Run whether user is logged on or not."</strong></div>
+                <div class="step-item amber">Test: right-click task &rarr; <strong>Run</strong>. View the plain-text response for per-site results.</div>
+            </div>
+            <div class="box-red"><strong>&#128274; Security:</strong> The runner URL has no login check &mdash; restrict to localhost/internal IP via IIS IP Restrictions or a web.config allow rule. Do not expose it to the internet.</div>
+            <h3>Runner Output Example</h3>
+            <pre style="background:var(--chip-docs,var(--chip));padding:14px;border-radius:8px;font-size:12px;overflow:auto;">iDash Report Runner &mdash; 2026-09-11 19:00:02
+Run date : 2026-09-11
+Mode     : LIVE (will send email)
+------------------------------------------------------------
+Sites with scans: 517, 613
+
+Processing Site: 517 (517 Beckley)
+  Scanned assets today : 38
+  Recipients           : supervisor@va.gov; logistics@va.gov (site-specific)
+  Subject              : iDash ENNX Report | Site 517 | 09-11-2026
+  Saved local ENNX     : C:\VA_RFID\ennx_live\saved\auto\auto_ennx_517_09-11-2026.txt
+  Email sent           : SUCCESS
+
+Processing Site: 613 (613 Martinsburg)
+  [DISABLED] Alerts &amp; emails disabled for site 613; skipped.
+
+Automation completed successfully. Sent 1 reports.</pre>
+        </div>
+
+        <!-- S9 RUNNER ENGINE -->
+        <div class="feat-card" id="runner">
+            <div class="feat-header">
+                <div class="feat-icon fi-green">&#9881;</div>
+                <div class="feat-title"><h2>Section 8 &mdash; Runner Engine Details</h2><div class="feat-subtitle">How va_report_automator_runner.aspx builds, resolves, and sends reports.</div></div>
+            </div>
+            <h3>Per-Site Execution Pipeline</h3>
+            <ol style="padding-left:20px;font-size:14px;line-height:1.7;color:var(--text-docs);">
+                <li><strong>Discover Active Sites:</strong> Scans the database for assets scanned on the specified run date (defaults to today; testable via <code>?date=YYYY-MM-DD</code>). Groups assets by Station Number (<code>text7</code>).</li>
+                <li><strong>Check Site Enable Toggle:</strong> Queries <code>SiteEmailConfigHelper.GetSiteEnabled(site)</code>. If toggled <strong>OFF</strong>, logs <code>[DISABLED] Alerts &amp; emails disabled for site {site}; skipped.</code> and continues to the next site without sending.</li>
+                <li><strong>Render Subject:</strong> Reads the template from <code>~/config/report_automation.json</code> (<code>SubjectTitle</code>) and substitutes <code>{Site}</code> and <code>{Date}</code>.</li>
+                <li><strong>Generate Local Backup:</strong> Saves the full ENNX text payload to <code>C:\VA_RFID\ennx_live\saved\auto\auto_ennx_{site}_{date}.txt</code> before transmitting email.</li>
+                <li><strong>Resolve Site Recipients:</strong> Checks <code>SiteEmailConfigHelper.GetRecipientsForSite(site)</code>. If configured, uses the site-specific list; if empty, falls back seamlessly to <code>EmailHelper.GetRecipients()</code>.</li>
+                <li><strong>Dispatch Email:</strong> Calls <code>EmailHelper.SendEmailTo(recipients, subject, body, attachments)</code> using the central SMTP account.</li>
+            </ol>
+
+            <h3>ENNX File Format</h3>
+            <p>The .txt attachment follows the standard ENNX format:</p>
+            <pre style="background:var(--chip-docs,var(--chip));padding:14px;border-radius:8px;font-size:12px;">ENNX
+ID
+{Location Group A}
+{Asset Name 1}
+{Asset Name 2}
+{Location Group B}
+{Asset Name 3}
+***END***^{total line count}</pre>
+            <ul>
+                <li>Location resolved: <code>LocationTagged</code> &rarr; <code>Locationname</code> &rarr; <code>Previous_Location</code> (first non-empty, "MISSING" treated as empty)</li>
+                <li>Footer count includes: ENNX header + ID prefix + each location header + each asset name</li>
+                <li>ID prefix configurable via <code>IdPrefix</code> in <code>~/config/report_automation.json</code> (default: <code>ID</code>)</li>
+            </ul>
+
+            <h3>report_automation.json Keys</h3>
+            <table>
+                <tr><th>Key</th><th>Default</th><th>Purpose</th></tr>
+                <tr><td><code>SubjectTitle</code></td><td>"iDash ENNX Report | Site {Site} | {Date}"</td><td>Subject template. Dynamically substitutes {Site} and {Date}. Managed from Section 4.</td></tr>
+                <tr><td><code>Enabled</code></td><td>true</td><td>Automation subsystem switch (mirrors master switch)</td></tr>
+                <tr><td><code>ScheduledTime</code></td><td>"19:00"</td><td>Informational documentation &mdash; actual execution timing controlled by Task Scheduler</td></tr>
+                <tr><td><code>IdPrefix</code></td><td>"ID"</td><td>Second line prefix of generated ENNX extract</td></tr>
+                <tr><td><code>ExcelFields</code></td><td>Name, Description, EIL, Locationname, Station_Number, Tag_Date, Last_Modified_By</td><td>Columns included in the accompanying Excel spreadsheet</td></tr>
+            </table>
+        </div>
+
+        <!-- DEV -->
+        <div class="card" id="emailhelper">
+            <h2 style="margin-top:0;">&#128736; Email &amp; Routing Helpers Reference</h2>
+            <p style="color:var(--muted-docs);font-size:13px;">Backend helpers located in <code>App_Code/</code> that power all outbound communication.</p>
+
+            <h3>EmailHelper (App_Code/EmailHelper.cs)</h3>
+            <table>
+                <tr><th>Method</th><th>Purpose</th></tr>
+                <tr><td><code>SendEmailTo(toAddresses, subject, body, atts)</code></td><td>Sends email to an explicit list of destination addresses using the centralized SMTP relay credentials.</td></tr>
+                <tr><td><code>SendEmail(subject, body, atts)</code></td><td>Sends to the global system recipient list. Reads all SMTP settings from web.config at call time.</td></tr>
+                <tr><td><code>SendDirectEmail(...)</code></td><td>One-off to a single address with a 15-second timeout. Used by Support Request.</td></tr>
+                <tr><td><code>GetRecipients()</code></td><td>Reads global recipients from <code>email_recipients.json</code> (with fallback to legacy web.config key).</td></tr>
+                <tr><td><code>AddRecipient(email)</code> / <code>RemoveRecipient(email)</code></td><td>Mutates global recipients stored in <code>email_recipients.json</code> without recycling IIS.</td></tr>
+                <tr><td><code>GetFromEmailAddress()</code></td><td>Returns <code>SMTP_FromEmail</code> from web.config.</td></tr>
+                <tr><td><code>GetDefaultSubject()</code></td><td>Returns <code>Default_EmailSubject</code> from web.config (empty by default).</td></tr>
+            </table>
+
+            <h3 style="margin-top:24px;">SiteEmailConfigHelper (App_Code/SiteEmailConfigHelper.cs)</h3>
+            <table>
+                <tr><th>Method</th><th>Purpose</th></tr>
+                <tr><td><code>LoadConfig()</code></td><td>Deserializes and caches <code>~/config/site_email_config.json</code>. Returns <code>List&lt;SiteEmailEntry&gt;</code>.</td></tr>
+                <tr><td><code>SaveConfig(entries)</code></td><td>Serializes updated site list back to <code>site_email_config.json</code>.</td></tr>
+                <tr><td><code>GetSiteEntry(stationKey)</code></td><td>Finds the site configuration entry matching the station number (e.g. "613").</td></tr>
+                <tr><td><code>GetSiteEnabled(stationKey)</code></td><td>Returns <code>true</code> if the site is enabled (defaults to <code>true</code> if unconfigured).</td></tr>
+                <tr><td><code>GetRecipientsForSite(stationKey)</code></td><td>Returns <code>List&lt;string&gt;</code> of site-specific addresses, or <code>null</code> if disabled or empty (triggering global fallback).</td></tr>
+            </table>
+        </div>
+
+        <!-- CONFIG FILES & KEYS -->
+        <div class="card" id="webconfig">
+            <h2 style="margin-top:0;">&#128295; Configuration Files &amp; Settings</h2>
+            
+            <h3>JSON Configuration Files (Session-Safe)</h3>
+            <table>
+                <tr><th>File Path</th><th>Purpose</th></tr>
+                <tr><td><code>~/config/site_email_config.json</code></td><td>Per-station routing configuration: CompanyId, StationKey, DisplayName, Enabled toggle, and Recipients.</td></tr>
+                <tr><td><code>~/config/email_recipients.json</code></td><td>Global recipient email/SMS list. Changes here never trigger an IIS application pool recycle.</td></tr>
+                <tr><td><code>~/config/report_automation.json</code></td><td>Automation parameters: <code>SubjectTitle</code> template, <code>IdPrefix</code>, <code>ExcelFields</code>, and execution defaults.</td></tr>
+            </table>
+
+            <h3 style="margin-top:24px;">web.config AppSettings Keys</h3>
+            <div class="key-row"><div class="key-name"><code>SmsAlertsEnabled</code></div><div>Master switch for daily runner. true / false.</div></div>
+            <div class="key-row"><div class="key-name"><code>SMTP_Host</code></div><div>SMTP server hostname or IP. Default: localhost.</div></div>
+            <div class="key-row"><div class="key-name"><code>SMTP_Port</code></div><div>SMTP port. Default: 25. Use 587 for authenticated relay.</div></div>
+            <div class="key-row"><div class="key-name"><code>SMTP_SSL</code></div><div>Enable TLS. true / false.</div></div>
+            <div class="key-row"><div class="key-name"><code>SMTP_User</code></div><div>SMTP username. Central account for all outgoing emails.</div></div>
+            <div class="key-row"><div class="key-name"><code>SMTP_Password</code></div><div>SMTP password. Plain text. Only updated from UI when non-blank value typed.</div></div>
+            <div class="key-row"><div class="key-name"><code>SMTP_FromEmail</code></div><div>From address on all iDash email. Default: no-reply@idash.com.</div></div>
+            <div class="key-row"><div class="key-name"><code>SMTP_FromName</code></div><div>Legacy from display name. Retained for on-prem fallback.</div></div>
+            <div class="key-row"><div class="key-name"><code>Default_EmailSubject</code></div><div>Keep blank so that report-specific dynamic subject templates are utilized.</div></div>
+            <div class="key-row"><div class="key-name"><code>Alert_DbFolderMissing</code></div><div>Enable DB folder missing alert.</div></div>
+            <div class="key-row"><div class="key-name"><code>Alert_DbCrash</code></div><div>Enable SQL exception alert.</div></div>
+            <div class="key-row"><div class="key-name"><code>Alert_PrintFailure</code></div><div>Enable print API disruption alert.</div></div>
+            <div class="key-row"><div class="key-name"><code>Alert_TagAuditReport</code></div><div>Enable tag audit diagnostic alert.</div></div>
+            <div class="key-row"><div class="key-name"><code>Report_Ennx</code></div><div>Enable daily ENNX report automation.</div></div>
+            <div class="key-row"><div class="key-name"><code>Report_Stats</code></div><div>Enable daily asset statistics report.</div></div>
+            <div class="key-row"><div class="key-name"><code>SmsRecipients_Alert_*</code></div><div>Per-trigger custom routing. E.g. SmsRecipients_Alert_DbCrash. Semicolon-separated. Empty = global list.</div></div>
+            <div class="key-row" style="border:none;"><div class="key-name"><code>SmsRecipients_Report_*</code></div><div>Per-report custom routing. E.g. SmsRecipients_Report_Ennx. Semicolon-separated. Empty = global list.</div></div>
+        </div>
+
+        <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--line-docs);">
+            <a href="../index.aspx" style="font-weight:600;color:var(--accent-docs);">&larr; Back to iDash Hub</a>
+        </div>
+    </div>
+
+    <footer style="margin-top:40px;padding:20px;border-top:1px solid var(--line-docs);font-size:12px;
+        color:var(--muted-docs);display:flex;justify-content:space-between;align-items:center;
+        max-width:1000px;margin-left:auto;margin-right:auto;">
+        <span style="font-weight:600;font-size:14px;color:var(--text-docs);">iDash<span style="color:#2ea8ff;">!</span> iDash Documentation</span>
+        <span>&copy; 2026 ID Integration Inc. &mdash; September 11, 2026</span>
+    </footer>
+    <script>
+        function toggleIdashTheme(){var h=document.documentElement;if(h.getAttribute("data-theme")==="light"){h.removeAttribute("data-theme");localStorage.removeItem("idash_theme");}else{h.setAttribute("data-theme","light");localStorage.setItem("idash_theme","light");}updateThemeIcon();}
+        function updateThemeIcon(){var b=document.getElementById("themeToggleBtn");if(!b)return;var l=document.documentElement.getAttribute("data-theme")==="light";b.innerHTML=l?"&#9728;":"&#127769;";b.title=l?"Switch to Dark Mode":"Switch to Light Mode";}
+        document.addEventListener("DOMContentLoaded",updateThemeIcon);
+    </script>
+</body>
+</html>

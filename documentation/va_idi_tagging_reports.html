@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA IDI TAGGING REPORTS &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <div class="wrap">
+        <a href="index.aspx">&larr; Back to Documentation Hub</a>
+        
+        <h1 style="margin-top: 20px;">IDI Tagging Data Reports</h1>
+        <p style="color:var(--muted-docs); font-size:16px;">
+            The <b>IDI Tagging Data Reports</b> executive dashboard (<code>va_idi_tagging_reports.aspx</code>) provides an aggregated, real-time overview of the tagging progression via visual KPIs, charts, and metric tables. It is crafted primarily for use by leadership (CLO) offering immediate insights into deployment statistics without requiring manual report execution.
+        </p>
+
+        <h2>How It Works</h2>
+        <p>The dashboard is powered by a front-end UI displaying Chart.js driven visuals, while the back-end (<code>va_idi_tagging_reports.aspx.cs</code>) handles direct JSON responses representing SQL aggregates.</p>
+        
+        <ul style="color:var(--muted-docs);">
+            <li><b>Data Source:</b> Queries the <code>v_asset</code> view, isolating records tagged with <code>text18 = '1'</code>.</li>
+            <li><b>API Layer:</b> Acts as its own API endpoint. Passing <code>?api=dashboardstats&range={time_period}</code> allows the front-end to request the live numbers.</li>
+            <li><b>Auto-Refresh:</b> The page invokes JavaScript's <code>setTimeout</code> to recursively ping the endpoint every 5 minutes (300,000ms), ensuring an unattended monitor will always reflect active tagging outputs.</li>
+            <li><b>Live UI Filters:</b> Time ranges such as Today, This Week, and This Month execute zero-reload AJAX calls that dynamically re-render the charts and KPI ticker animations upon receipt of new data.</li>
+        </ul>
+
+        <h2>Calculated Data Points</h2>
+        <p>Metrics on the dashboard map specific database variables to functional descriptions:</p>
+        <ul style="color:var(--muted-docs);">
+            <li><b>Total Assets Tagged:</b> Derived directly from the condition <code>text18 = '1'</code>.</li>
+            <li><b>Tag Types Deployed:</b> A discrete count of values in the <code>text19</code> column where tracking represents typologies like "IQ350" or "Metal".</li>
+            <li><b>Personnel Tagging:</b> Distinct counts of <code>text13</code> representing unique employee IDs executing the tagging logic.</li>
+            <li><b>Active Locations:</b> Count of the <code>locationname</code> field among successfully tagged equipment.</li>
+            <li><b>Charts:</b> Top 10 locations bar chart categorizes counts by <code>locationname</code>, and the pie diagram processes percentages by counting <code>text19</code> tag types.</li>
+        </ul>
+
+        <h2>Exports Integration</h2>
+        <p>The page bridges the gap between executive high-level viewing and direct data manipulation by providing static outbound links to the legacy automated processes. Leadership can click the corresponding panels to jump directly to <code>va_ennx.aspx</code> to review scheduled log output payloads, or to <code>va_tag_stats.aspx</code> for full Excel flat-file dumps of the metrics.</p>
+        
+        <p style="text-align:center; font-size:12px; margin-top:50px; color:var(--muted-docs);">iDash Documentation &copy; 2026 ID Integration Inc.</p>
+    </div>
+</body>
+</html>

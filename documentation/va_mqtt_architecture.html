@@ -1,0 +1,672 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>MQTT Fixed Reader Architecture &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        /* ── Table of Contents ── */
+        .toc { background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:20px 28px; margin:16px 0 24px; }
+        .toc h3 { margin:0 0 10px; color:var(--accent-docs); font-size:15px; }
+        .toc ol { margin:0; padding-left:20px; columns:2; column-gap:32px; }
+        .toc li { font-size:13px; padding:3px 0; break-inside:avoid; }
+        .toc a { text-decoration:none; color:var(--text); }
+        .toc a:hover { color:var(--accent-docs); text-decoration:underline; }
+
+        /* ── Architecture flow ── */
+        .arch-flow { display:flex; align-items:stretch; gap:0; flex-wrap:wrap; margin:20px 0; }
+        .arch-step { flex:1; min-width:110px; padding:12px 14px; text-align:center; font-size:0.82rem; border:1px solid var(--line); background:var(--bg); border-radius:0; }
+        .arch-step:first-child { border-radius:10px 0 0 10px; }
+        .arch-step:last-child  { border-radius:0 10px 10px 0; }
+        .arch-step strong { display:block; color:var(--accent-docs); margin-bottom:4px; font-size:0.85rem; }
+        .arch-arrow { display:flex; align-items:center; color:var(--accent-docs); font-size:1.3rem; font-weight:700; padding:0 2px; }
+
+        /* ── Scale cards ── */
+        .scale-card { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin:16px 0; }
+        .sc-item { background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:16px; text-align:center; }
+        .sc-item .sc-num { font-size:2rem; font-weight:800; color:var(--accent-docs); }
+        .sc-item .sc-label { font-size:0.85rem; color:var(--muted-docs); margin-top:4px; }
+
+        /* ── Code blocks ── */
+        .code-block { background:#0d1117; border:1px solid #30363d; border-radius:8px; padding:14px 18px; font-family:'Cascadia Code','Fira Code',Consolas,monospace; font-size:0.82rem; overflow-x:auto; white-space:pre; line-height:1.6; color:#c9d1d9; margin:10px 0 16px; }
+
+        /* ── Steps ── */
+        .step-num { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--accent-docs); color:#fff; font-weight:800; font-size:0.9rem; margin-right:10px; flex-shrink:0; }
+        .step-row { display:flex; align-items:flex-start; margin:18px 0; }
+        .step-content { flex:1; }
+        .step-content h4 { margin:0 0 6px; font-size:1rem; }
+        .step-content p { margin:4px 0 0; font-size:0.9rem; }
+
+        /* ── Comparison table highlights ── */
+        .vs-table td:first-child { font-weight:700; white-space:nowrap; }
+
+        /* ── Status badge ── */
+        .status-deployed { display:inline-block; background:#1a3a2a; color:#3fb950; border:1px solid #3fb950; padding:3px 12px; border-radius:10px; font-size:12px; font-weight:700; margin-left:8px; }
+
+        /* ── Light mode overrides ── */
+        [data-theme="light"] .code-block { background:#f6f8fa; border-color:#d0d7de; color:#24292f; }
+        [data-theme="light"] .status-deployed { background:#dafbe1; color:#1a7f37; border-color:#1a7f37; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <a href="index.aspx">&larr; Back to Documentation Hub</a><br/><br/>
+
+    <!-- ═══════════════════════════════════════════════════════
+         HEADER
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card" style="background:linear-gradient(135deg,var(--card),rgba(46,168,255,0.05));">
+        <h1><img src="../Assets/branding/rfid.png" style="height:28px;vertical-align:middle;margin-right:10px;" alt="RFID" />MQTT Fixed Reader Architecture <span class="status-deployed">&#9989; DEPLOYED</span></h1>
+        <p style="color:var(--muted-docs);font-size:16px;line-height:1.6;max-width:800px;">
+            Architecture reference for integrating Zebra FX9600 fixed RFID readers with iDash and iDash
+            using MQTT (Message Queuing Telemetry Transport). Designed for VA network deployments
+            supporting 80+ readers with 360+ antennas across multiple facilities.
+        </p>
+        <div class="alert-green" style="margin-top:16px;">
+            <strong>&#9989; Production Status:</strong> <strong>RabbitMQ 4.3.5</strong> is deployed and operational as the MQTT broker
+            for fixed reader tag observation routing (deployed Aug 2026). All fixed readers publish tag data to RabbitMQ on port 1883.
+            The iDash <code>AntennaLocationService</code> subscribes and processes tags for real-time location tracking.
+        </div>
+        <div style="margin-top:12px;">
+            <span style="color:var(--muted-docs);font-size:0.9rem;">Related pages:&nbsp;</span>
+            <a href="va_fixed_reader.html">Fixed Reader Dashboard</a> &nbsp;&bull;&nbsp;
+            <a href="va_reader_config.html">Reader Configuration</a> &nbsp;&bull;&nbsp;
+            <a href="va_network_guidelines.html">Network Guidelines</a> &nbsp;&bull;&nbsp;
+            <a href="va_rabbitmq_setup.html" style="color:#3fb950;font-weight:600;">&#128007; RabbitMQ Setup Guide</a>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         TABLE OF CONTENTS
+         ═══════════════════════════════════════════════════════ -->
+    <div class="toc">
+        <h3>&#128209; Table of Contents</h3>
+        <ol>
+            <li><a href="#scale">Deployment Scale</a></li>
+            <li><a href="#architecture">Architecture Overview</a></li>
+            <li><a href="#why-broker">Why a Message Broker Is Required</a></li>
+            <li><a href="#idash-mqtt">iDash Built-In MQTT Infrastructure</a></li>
+            <li><a href="#trm">VA TRM Compliance</a></li>
+            <li><a href="#rabbitmq-vs-mosquitto">RabbitMQ vs. Mosquitto</a></li>
+            <li><a href="#topics">MQTT Topic Hierarchy</a></li>
+            <li><a href="#network">VA Network Requirements</a></li>
+            <li><a href="#fx9600">FX9600 Reader Configuration</a></li>
+            <li><a href="#register">Register Reader in iDash</a></li>
+            <li><a href="#prescott">VISN 22 &mdash; Prescott (649) Setup</a></li>
+            <li><a href="#troubleshooting">Troubleshooting</a></li>
+            <li><a href="#cli">CLI Quick Reference</a></li>
+            <li><a href="#fx9600-hw">FX9600 Hardware Reference</a></li>
+            <li><a href="#rollout">Rollout Phases</a></li>
+            <li><a href="#revision">Revision History</a></li>
+        </ol>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         DEPLOYMENT SCALE
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card" id="scale">
+        <h2>&#128200; Deployment Scale</h2>
+        <div class="scale-card">
+            <div class="sc-item"><div class="sc-num">80+</div><div class="sc-label">FX9600 Readers</div></div>
+            <div class="sc-item"><div class="sc-num">360+</div><div class="sc-label">Antennas</div></div>
+            <div class="sc-item"><div class="sc-num">4&ndash;8</div><div class="sc-label">Ports per Reader</div></div>
+            <div class="sc-item"><div class="sc-num">24/7</div><div class="sc-label">Continuous Monitoring</div></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         ARCHITECTURE OVERVIEW
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card" id="architecture">
+        <h2>&#127959; Architecture Overview</h2>
+        <h3>Data Flow</h3>
+        <div class="arch-flow">
+            <div class="arch-step"><strong>FX9600 Readers</strong>80+ readers<br/>IoT Connector</div>
+            <div class="arch-arrow">&rarr;</div>
+            <div class="arch-step"><strong>MQTT Publish</strong>Port 1883 TCP<br/>Persistent conn</div>
+            <div class="arch-arrow">&rarr;</div>
+            <div class="arch-step" style="border-color:#3fb950;"><strong>RabbitMQ 4.3.5</strong>MQTT Plugin<br/>Windows Service</div>
+            <div class="arch-arrow">&rarr;</div>
+            <div class="arch-step"><strong>AntennaLocationService</strong>MQTT Subscribe<br/>Tag processing</div>
+            <div class="arch-arrow">&rarr;</div>
+            <div class="arch-step"><strong>SQL Server</strong>iDash DB<br/>location tables</div>
+            <div class="arch-arrow">&rarr;</div>
+            <div class="arch-step"><strong>iDash</strong>Fixed Reader<br/>Live Feed &amp; Config</div>
+        </div>
+        <div class="alert-green">
+            <strong>&#9989; All traffic stays on-premise.</strong> No cloud dependency. No outbound internet access needed.
+            RabbitMQ runs on the same server as iDash. Readers connect inbound to the broker on port 1883.
+        </div>
+        <h3>Component Summary</h3>
+        <table>
+            <tr><th>Component</th><th>Role</th><th>Technology</th></tr>
+            <tr><td><strong>FX9600 Reader</strong></td><td>Reads RFID tags via antennas and publishes observations</td><td>Zebra IoT Connector &rarr; MQTT</td></tr>
+            <tr><td><strong>RabbitMQ</strong></td><td>MQTT broker &mdash; receives, queues, and routes tag data</td><td>RabbitMQ 4.3.5 + MQTT plugin, port 1883</td></tr>
+            <tr><td><strong>AntennaLocationService</strong></td><td>Subscribes to tag topics, resolves antenna &rarr; location, writes to DB</td><td>ASP.NET background service in iDash</td></tr>
+            <tr><td><strong>SQL Server</strong></td><td>Stores asset locations, location history, reader/antenna config</td><td>iDash <code>idash</code> database</td></tr>
+            <tr><td><strong>iDash Live Feed</strong></td><td>Real-time SSE stream of tag observations to browser</td><td>SSE via <code>va_live_feed.ashx</code></td></tr>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         WHY A BROKER IS REQUIRED
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card" id="why-broker">
+        <h2>&#128680; Why a Message Broker Is Required</h2>
+        <p>A message broker is the <strong>central nervous system</strong> between the RFID readers and iDash.
+           Without one, the system cannot reliably operate at the scale of 80+ readers with 360+ antennas
+           running 24/7 across VA facilities.</p>
+
+        <h3>What Is a Message Broker?</h3>
+        <p>A message broker is a dedicated service that sits between <em>producers</em> (the FX9600 readers)
+           and <em>consumers</em> (iDash/iDash). It receives messages, stores them temporarily, and delivers them to consumers.
+           Think of it as a post office for RFID data &mdash; it guarantees every letter gets delivered, even if the recipient isn&rsquo;t home.</p>
+
+        <h3>1. IIS App Pool Recycling = Guaranteed Data Loss</h3>
+        <div class="alert-red">
+            <strong>&#128683; This is the #1 reason a broker is mandatory.</strong>
+        </div>
+        <table>
+            <tr><th>Recycle Trigger</th><th>Default Setting</th><th>What Happens</th></tr>
+            <tr><td><strong>Scheduled recycle</strong></td><td>Every 29 hours</td><td>IIS shuts down <code>w3wp.exe</code> and restarts. During ~3&ndash;10 sec transition, no connections accepted.</td></tr>
+            <tr><td><strong>Memory limit</strong></td><td>Exceeds threshold</td><td>IIS kills the worker process immediately. In-flight requests terminated.</td></tr>
+            <tr><td><strong>Configuration change</strong></td><td>Any <code>web.config</code> edit</td><td>Automatic recycle on every deployment and config change.</td></tr>
+            <tr><td><strong>Idle timeout</strong></td><td>20 minutes inactivity</td><td>IIS shuts down worker process to save resources.</td></tr>
+        </table>
+        <div class="alert-amber">
+            <strong>&#9888; With RabbitMQ:</strong> Readers send data to the broker, not to IIS.
+            RabbitMQ is a standalone Windows Service that <strong>does not recycle</strong>. When IIS recycles, the broker holds all messages. <strong>Zero data loss.</strong>
+        </div>
+
+        <h3>2. Deployments &amp; Updates = Outage Windows</h3>
+        <ul>
+            <li><strong>iDash updates:</strong> App pool recycle &mdash; unavailable 30 sec to several minutes</li>
+            <li><strong>Windows Updates:</strong> Monthly patching &mdash; offline 5&ndash;15 minutes</li>
+            <li><strong>iDash changes:</strong> <code>web.config</code> edits trigger instant recycle</li>
+            <li><strong>SQL maintenance:</strong> Backups, index rebuilds, failovers</li>
+        </ul>
+        <div class="alert-green">
+            <strong>&#9989; With a broker:</strong> Readers never know the server went down. RabbitMQ queues everything.
+            When the server returns, the service reconnects and processes the backlog. No data lost.
+        </div>
+
+        <h3>3. Thread Pool Exhaustion &amp; SQL Write Contention</h3>
+        <table>
+            <tr><th>Metric</th><th>Value</th></tr>
+            <tr><td>Readers</td><td>80</td></tr>
+            <tr><td>HTTP POSTs per second (without broker)</td><td><strong>80</strong></td></tr>
+            <tr><td>IIS default thread pool</td><td>~100 threads</td></tr>
+            <tr><td>Individual SQL writes/sec (without broker)</td><td>80</td></tr>
+        </table>
+        <div class="alert-green">
+            <strong>&#9989; With a broker:</strong> RabbitMQ handles all connections on Erlang&rsquo;s thread pool.
+            The service batch-writes to SQL efficiently &mdash; reducing load by 95%. IIS is not involved in data ingest.
+        </div>
+
+        <h3>4. Reader Health Monitoring &amp; Remote Management</h3>
+        <p>MQTT includes <strong>&ldquo;Last Will and Testament&rdquo; (LWT)</strong> &mdash; if a reader disconnects unexpectedly,
+           RabbitMQ automatically publishes a notification. The pub/sub model is also <strong>bidirectional</strong>:
+           iDash can send commands to readers via MQTT control topics.</p>
+
+        <h3>Summary: Direct HTTP vs. Broker Architecture</h3>
+        <table>
+            <tr><th>Scenario</th><th>Without Broker</th><th>With RabbitMQ</th></tr>
+            <tr><td><strong>IIS recycles</strong></td><td style="color:#ef4444;">&#10060; Data lost 3&ndash;10 sec</td><td style="color:#10b981;">&#9989; Zero loss</td></tr>
+            <tr><td><strong>iDash deployment</strong></td><td style="color:#ef4444;">&#10060; Data lost 30 sec&ndash;min</td><td style="color:#10b981;">&#9989; Zero loss</td></tr>
+            <tr><td><strong>Windows Update reboot</strong></td><td style="color:#ef4444;">&#10060; Data lost 5&ndash;15 min</td><td style="color:#10b981;">&#9989; Backlog processed</td></tr>
+            <tr><td><strong>Burst load</strong></td><td style="color:#ef4444;">&#9888; Thread pool saturated</td><td style="color:#10b981;">&#9989; Broker absorbs burst</td></tr>
+            <tr><td><strong>Reader goes offline</strong></td><td style="color:#ef4444;">&#10060; No detection</td><td style="color:#10b981;">&#9989; LWT fires instantly</td></tr>
+            <tr><td><strong>Remote management</strong></td><td style="color:#ef4444;">&#10060; Per-reader login</td><td style="color:#10b981;">&#9989; Publish from iDash</td></tr>
+            <tr><td><strong>SQL write efficiency</strong></td><td style="color:#ef4444;">&#9888; 80 INSERTs/sec</td><td style="color:#10b981;">&#9989; Batch (95% reduction)</td></tr>
+        </table>
+        <div class="alert-red">
+            <strong>&#128683; Bottom line:</strong> The broker eliminates data loss windows entirely. <strong>It is not optional at this scale.</strong>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         IDASH BUILT-IN MQTT
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card" id="idash-mqtt">
+        <h2>&#128270; iDash Built-In MQTT Infrastructure <span style="font-size:13px; background:color-mix(in srgb, #f59e0b 15%, transparent); color:#f59e0b; border:1px solid #f59e0b; padding:3px 10px; border-radius:10px; margin-left:10px; font-weight:700;">Discovery Report</span></h2>
+        <p>Analysis of the iDash installation revealed a <strong>built-in MQTT broker</strong> &mdash; it does <strong>not</strong> use or install Mosquitto.</p>
+
+        <h3>Key Finding: MQTTnet, Not Mosquitto</h3>
+        <div class="alert-red">
+            <strong>&#9888; iDash does NOT use Mosquitto.</strong> The software ships with <strong>MQTTnet 3.1.2</strong> (<code>MQTTnet.dll</code>, 303 KB), a .NET library with an embedded MQTT broker/server. Mosquitto is not installed anywhere on this server.
+        </div>
+        <p>When enabled, the MQTTnet broker runs <strong>inside iDash.Web.exe</strong> &mdash; sharing memory, thread pool, and lifecycle with the web application. Fine for 1&ndash;10 readers, but cannot sustain 80+ in production.</p>
+
+        <h3>Current Configuration State</h3>
+        <table>
+            <tr><th>Setting</th><th>Source</th><th>Value</th><th>Meaning</th></tr>
+            <tr><td><code>mqttenabled</code></td><td>DB</td><td style="color:#ef4444; font-weight:700;">False</td><td>Embedded broker OFF</td></tr>
+            <tr><td><code>mqttlocation</code></td><td>DB</td><td>Web Server</td><td>Broker runs in-process</td></tr>
+            <tr><td><code>mqttusername</code></td><td>DB</td><td><code>mqttgateway</code></td><td>Default MQTT username</td></tr>
+            <tr><td><code>mqttpassword</code></td><td>DB</td><td><code>7fL845t!Cz</code></td><td>Default MQTT password</td></tr>
+            <tr><td><code>MqttServer</code></td><td>appsettings.json</td><td style="color:var(--muted-docs);">(empty)</td><td>Uses embedded</td></tr>
+            <tr><td><code>MqttServerPort</code></td><td>appsettings.json</td><td>8883</td><td>TLS-encrypted MQTT port (loopback, print routing only)</td></tr>
+        </table>
+        <div class="alert-blue">
+            <strong>&#128204; Port 8883 vs. 1883:</strong> The embedded MQTTnet broker on port 8883 is used exclusively for internal label print job routing. Fixed reader tag observations go through <strong>RabbitMQ on port 1883</strong>.
+        </div>
+
+        <h3>Database Tables &mdash; Schema Reference</h3>
+        <div class="alert-green">
+            <strong>&#10004; All required database tables exist and are correctly structured.</strong>
+        </div>
+
+        <h4><code>reader</code> Table (key columns)</h4>
+        <table>
+            <tr><th>Column</th><th>Type</th><th>Purpose</th></tr>
+            <tr><td><code>name</code></td><td>varchar(50)</td><td>Reader display name</td></tr>
+            <tr><td><code>readermodel</code></td><td>varchar(50)</td><td>Model: <strong>Zebra</strong>, Alien, Impinj Octane, LLRP, Motorola XR400, InfinID VG100/VG200</td></tr>
+            <tr><td><code>ipaddress</code></td><td>varchar(500)</td><td>Reader network address (static IP)</td></tr>
+            <tr><td><code>username</code> / <code>password</code></td><td>varchar(500)</td><td>Reader-level MQTT credentials</td></tr>
+            <tr><td><code>mqttcontroltopic</code></td><td>varchar(500)</td><td>MQTT control topic (e.g., <code>fx9600/reader01/control</code>)</td></tr>
+            <tr><td><code>locationid</code></td><td>int</td><td>FK to <code>location</code></td></tr>
+            <tr><td><code>connectionstatus</code></td><td>varchar(50)</td><td>Current connection status</td></tr>
+            <tr><td><code>lastseen</code></td><td>datetimeoffset</td><td>Last heartbeat (11-minute Up/Down cutoff)</td></tr>
+        </table>
+
+        <h4><code>antenna</code> Table</h4>
+        <table>
+            <tr><th>Column</th><th>Type</th><th>Purpose</th></tr>
+            <tr><td><code>readerid</code></td><td>int</td><td>FK to <code>reader</code></td></tr>
+            <tr><td><code>number</code></td><td>int</td><td>Antenna port number (1&ndash;4 per FX9600)</td></tr>
+            <tr><td><code>locationid</code></td><td>int</td><td><strong>Each antenna maps to a different location</strong> &mdash; critical for room-level tracking</td></tr>
+        </table>
+
+        <h4><code>mqttclient</code> Table (access control)</h4>
+        <table>
+            <tr><th>Column</th><th>Type</th><th>Purpose</th></tr>
+            <tr><td><code>username</code> / <code>password</code></td><td>varchar(500)</td><td>MQTT client credentials</td></tr>
+            <tr><td><code>accesstagmovements</code></td><td>bit</td><td>Subscribe to location changes?</td></tr>
+            <tr><td><code>accesstagobservations</code></td><td>bit</td><td>Subscribe to raw tag reads?</td></tr>
+            <tr><td><code>accessevents</code></td><td>bit</td><td>Subscribe to system events?</td></tr>
+            <tr><td><code>accessalarms</code></td><td>bit</td><td>Subscribe to alerts?</td></tr>
+        </table>
+
+        <h4><code>locationhistory</code> Table</h4>
+        <table>
+            <tr><th>Column</th><th>Type</th><th>Purpose</th></tr>
+            <tr><td><code>assetid</code></td><td>int</td><td>FK to <code>asset</code></td></tr>
+            <tr><td><code>locationid</code></td><td>int</td><td>FK to <code>location</code> &mdash; where asset was seen</td></tr>
+            <tr><td><code>timeseen</code></td><td>datetimeoffset</td><td><strong>Origination</strong> &mdash; when asset first arrived</td></tr>
+            <tr><td><code>timeleft</code></td><td>datetimeoffset</td><td><strong>Departure</strong> &mdash; when asset was last seen here</td></tr>
+        </table>
+
+        <h3>Built-In Location Tracking Pipeline</h3>
+        <div class="arch-flow">
+            <div class="arch-step"><strong>1. Tag Observation</strong>Every antenna read arrives as a TagObservation</div>
+            <div class="arch-arrow">&rarr;</div>
+            <div class="arch-step"><strong>2. Movement Check</strong>Compare read location vs. asset&rsquo;s current locationid</div>
+            <div class="arch-arrow">&rarr;</div>
+            <div class="arch-step"><strong>3a. Same Location</strong>Update <code>lastobservedtime</code> only</div>
+        </div>
+        <div class="arch-flow" style="margin-top:0;">
+            <div class="arch-step" style="visibility:hidden;">placeholder</div>
+            <div class="arch-arrow" style="visibility:hidden;">&rarr;</div>
+            <div class="arch-step"><strong>3b. New Location</strong>Create <code>locationhistory</code> record, update <code>asset.locationid</code></div>
+        </div>
+
+        <h3>Embedded Broker vs. RabbitMQ</h3>
+        <table class="vs-table">
+            <tr><th>Factor</th><th>Embedded MQTTnet</th><th>RabbitMQ 4.3.5</th></tr>
+            <tr><td>Process Isolation</td><td style="color:#ef4444;">&#10008; Shares IIS process</td><td style="color:#10b981;">&#10004; Separate Windows service</td></tr>
+            <tr><td>Crash Impact</td><td style="color:#ef4444;">&#10008; Broker crash = web crash</td><td style="color:#10b981;">&#10004; Independent process</td></tr>
+            <tr><td>Connection Limit</td><td style="color:#ef4444;">~10-15 max</td><td style="color:#10b981;">100,000+ connections</td></tr>
+            <tr><td>Throughput</td><td style="color:#ef4444;">~500 msg/sec</td><td style="color:#10b981;">50,000+ msg/sec</td></tr>
+            <tr><td>Persistence</td><td style="color:#ef4444;">&#10008; In-memory only</td><td style="color:#10b981;">&#10004; Disk-backed queues</td></tr>
+            <tr><td>Management UI</td><td style="color:#ef4444;">&#10008; None</td><td style="color:#10b981;">&#10004; Web console (15672)</td></tr>
+            <tr><td>VA TRM</td><td style="color:var(--muted-docs);">N/A (embedded)</td><td style="color:#10b981;">&#10004; Approved</td></tr>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         TRM COMPLIANCE
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card" id="trm">
+        <h2>&#127991; VA TRM Compliance</h2>
+        <p>All software deployed on VA networks must be approved in the
+           <strong>OIT Technical Reference Model (TRM)</strong> at
+           <a href="https://www.oit.va.gov/Services/TRM/SearchPage.aspx" target="_blank">oit.va.gov/Services/TRM</a>.</p>
+        <table>
+            <tr><th>Technology</th><th>Vendor</th><th>TRM Status</th><th>Approved Version</th><th>Expiration</th></tr>
+            <tr style="background:rgba(239,68,68,0.08);">
+                <td><strong>Eclipse Mosquitto</strong></td><td>Eclipse Foundation</td>
+                <td style="color:#ef4444; font-weight:700;">&#10060; NOT LISTED</td><td>&mdash;</td><td>&mdash;</td>
+            </tr>
+            <tr style="background:rgba(16,185,129,0.08);">
+                <td><strong>RabbitMQ</strong></td><td>VMware / Broadcom</td>
+                <td style="color:#10b981; font-weight:700;">&#9989; Authorized</td><td>Release 4.1.x</td><td>Q4 CY2027</td>
+            </tr>
+            <tr style="background:rgba(16,185,129,0.08);">
+                <td><strong>Apache ActiveMQ Artemis</strong></td><td>Apache Foundation</td>
+                <td style="color:#10b981; font-weight:700;">&#9989; Authorized</td><td>Release 2.x</td><td>Q4 CY2027</td>
+            </tr>
+        </table>
+        <div class="alert-red">
+            <strong>&#128683; Do not deploy Mosquitto on VA infrastructure.</strong> Unlisted software is classified as &ldquo;Unauthorized &mdash; Conditions Required.&rdquo;
+        </div>
+        <div class="alert-green">
+            <strong>&#9989; RabbitMQ 4.3.5 is TRM-approved and deployed</strong> as the production MQTT broker.
+            See <a href="va_rabbitmq_setup.html">RabbitMQ Setup Guide</a> for installation details.
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         RABBITMQ vs MOSQUITTO
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card" id="rabbitmq-vs-mosquitto">
+        <h2>&#9878; RabbitMQ vs. Mosquitto</h2>
+        <table class="vs-table">
+            <tr><th>Capability</th><th>Mosquitto</th><th>RabbitMQ 4.x</th><th>Winner</th></tr>
+            <tr><td>VA TRM Approved</td><td>&#10060; Not listed</td><td>&#9989; Authorized Q4 2027</td><td style="color:#10b981;font-weight:700;">RabbitMQ</td></tr>
+            <tr><td>MQTT Support</td><td>&#9989; Native</td><td>&#9989; Built-in plugin</td><td>Tie</td></tr>
+            <tr><td>Architecture</td><td>Single-threaded</td><td>Multi-threaded (Erlang)</td><td style="color:#10b981;font-weight:700;">RabbitMQ</td></tr>
+            <tr><td>Persistence</td><td>Minimal</td><td>&#9989; Durable queues</td><td style="color:#10b981;font-weight:700;">RabbitMQ</td></tr>
+            <tr><td>Clustering / HA</td><td>&#10060; None</td><td>&#9989; Built-in</td><td style="color:#10b981;font-weight:700;">RabbitMQ</td></tr>
+            <tr><td>Management UI</td><td>CLI only</td><td>&#9989; Web dashboard</td><td style="color:#10b981;font-weight:700;">RabbitMQ</td></tr>
+            <tr><td>Protocol Flexibility</td><td>MQTT only</td><td>AMQP, MQTT, STOMP, WS</td><td style="color:#10b981;font-weight:700;">RabbitMQ</td></tr>
+            <tr><td>Authentication</td><td>Password file</td><td>&#9989; User mgmt, LDAP, x509</td><td style="color:#10b981;font-weight:700;">RabbitMQ</td></tr>
+            <tr><td>Monitoring</td><td><code>$SYS</code> topics</td><td>&#9989; Prometheus, health checks</td><td style="color:#10b981;font-weight:700;">RabbitMQ</td></tr>
+            <tr><td>Memory</td><td>~5 MB</td><td>~100&ndash;200 MB</td><td style="color:var(--accent-docs);">Mosquitto</td></tr>
+            <tr><td>Complexity</td><td>Simple config</td><td>Erlang dependency</td><td style="color:var(--accent-docs);">Mosquitto</td></tr>
+        </table>
+        <div class="alert-green">
+            <strong>&#9989; Verdict:</strong> RabbitMQ wins 9 of 11 categories. Memory and complexity advantages are irrelevant on a dedicated VA server with 32+ GB RAM.
+        </div>
+        <div class="alert-blue">
+            <strong>&#x2139; Drop-in replacement:</strong> From the FX9600&rsquo;s perspective, RabbitMQ with the MQTT plugin is <em>identical</em> to Mosquitto. Same port, same protocol, same topic structure. Zero code changes required.
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         MQTT TOPIC HIERARCHY
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card" id="topics">
+        <h2>&#128193; MQTT Topic Hierarchy</h2>
+        <div class="code-block">zebra/
+&#9500;&#9472;&#9472; {site_id}/                          # e.g., "613" for Martinsburg
+&#9474;   &#9500;&#9472;&#9472; {reader_hostname}/              # e.g., "FX9600-SPR-DOCK1"
+&#9474;   &#9474;   &#9500;&#9472;&#9472; tag-data                    # Tag read events (EPC, RSSI, antenna, timestamp)
+&#9474;   &#9474;   &#9500;&#9472;&#9472; health                      # CPU temp, memory, uptime, antenna status
+&#9474;   &#9474;   &#9500;&#9472;&#9472; events                      # GPI triggers, reader start/stop, errors
+&#9474;   &#9474;   &#9492;&#9472;&#9472; mgmt/                       # Management commands (sent TO reader)
+&#9474;   &#9474;       &#9500;&#9472;&#9472; command                 # Start/stop inventory, reboot, etc.
+&#9474;   &#9474;       &#9492;&#9472;&#9472; response                # Reader's response to commands
+&#9474;   &#9492;&#9472;&#9472; ...more readers
+&#9492;&#9472;&#9472; ...more sites</div>
+        <h3>Subscribe Patterns</h3>
+        <table>
+            <tr><th>Pattern</th><th>Matches</th><th>Use Case</th></tr>
+            <tr><td><code>zebra/613/#</code></td><td>All data from Martinsburg</td><td>Site-level monitoring</td></tr>
+            <tr><td><code>zebra/+/+/tag-data</code></td><td>Tag reads from ALL readers</td><td>Main ingest subscription</td></tr>
+            <tr><td><code>zebra/+/+/health</code></td><td>Health from ALL readers</td><td>Reader status dashboard</td></tr>
+            <tr><td><code>zebra/613/FX9600-SPR-DOCK1/#</code></td><td>Everything from one reader</td><td>Debugging specific reader</td></tr>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         VA NETWORK REQUIREMENTS
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card" id="network">
+        <h2>&#128274; VA Network Requirements</h2>
+        <table>
+            <tr><th>Direction</th><th>Protocol</th><th>Port</th><th>Source &rarr; Destination</th><th>Purpose</th><th>Required</th></tr>
+            <tr style="background:color-mix(in srgb, #10b981 6%, transparent);"><td>Inbound</td><td>TCP</td><td><strong>1883</strong></td><td>FX9600 readers &rarr; iDash server</td><td>MQTT tag data + health (RabbitMQ)</td><td><span class="badge badge-req">YES</span></td></tr>
+            <tr><td>Loopback</td><td>TCP</td><td>15672</td><td>localhost</td><td>RabbitMQ Management API</td><td>Auto</td></tr>
+            <tr><td>Loopback</td><td>TCP</td><td>5672</td><td>localhost</td><td>AMQP internal</td><td>Auto</td></tr>
+            <tr><td>Loopback</td><td>TCP</td><td>8883</td><td>localhost</td><td>MQTTnet embedded (print routing)</td><td>Auto</td></tr>
+        </table>
+        <div class="alert-green">
+            <strong>&#9989; Minimal footprint:</strong> Only <strong>port 1883 inbound</strong> from the reader subnet requires a firewall rule. All other RabbitMQ ports are localhost-only.
+        </div>
+        <div class="alert-blue">
+            <strong>&#128196; Full port reference:</strong> See <a href="va_network_guidelines.html">VA Network Guidelines &mdash; Section 3</a> for the complete port table.
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         FX9600 CONFIGURATION
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card" id="fx9600">
+        <h2>&#128225; Configuring a Zebra FX9600 Reader</h2>
+        <p>Each FX9600 must be configured to connect to RabbitMQ via its <strong>Zebra IoT Connector</strong>.</p>
+
+        <div class="step-row">
+            <span class="step-num">1</span>
+            <div class="step-content">
+                <h4>Access the Reader Web Console</h4>
+                <p>Navigate to <code>http://&lt;reader-ip&gt;</code>. Default credentials: <code>admin</code> / <code>change</code>.</p>
+                <div class="alert-amber">
+                    <strong>&#9888; Firmware must be 3.10.x or higher.</strong> Update via 123RFID Desktop if needed.
+                </div>
+            </div>
+        </div>
+        <div class="step-row">
+            <span class="step-num">2</span>
+            <div class="step-content">
+                <h4>Configure MQTT Endpoint</h4>
+                <p>Navigate to <strong>Communication &rarr; Zebra IoT Connector</strong>:</p>
+                <table>
+                    <tr><th>Setting</th><th>Value</th><th>Notes</th></tr>
+                    <tr><td>Server Address</td><td><code>&lt;iDash-server-IP&gt;</code></td><td>IP of server running RabbitMQ</td></tr>
+                    <tr><td>Port</td><td><code>1883</code></td><td>Standard MQTT port</td></tr>
+                    <tr><td>Username</td><td><code>mqtt-{site}-{location}</code></td><td>Per-site credential</td></tr>
+                    <tr><td>Password</td><td>(site password)</td><td>From RabbitMQ setup</td></tr>
+                    <tr><td>Base Topic</td><td><code>zebra/{site_id}/{hostname}/</code></td><td>Unique per reader</td></tr>
+                    <tr><td>QoS</td><td><code>1</code></td><td>At-least-once delivery</td></tr>
+                </table>
+            </div>
+        </div>
+        <div class="step-row">
+            <span class="step-num">3</span>
+            <div class="step-content">
+                <h4>Configure Operating Mode</h4>
+                <table>
+                    <tr><th>Setting</th><th>Value</th></tr>
+                    <tr><td>Mode</td><td><strong>INVENTORY</strong></td></tr>
+                    <tr><td>Reporting Interval</td><td><code>1000</code> ms</td></tr>
+                </table>
+            </div>
+        </div>
+        <div class="step-row">
+            <span class="step-num">4</span>
+            <div class="step-content">
+                <h4>Verify Connection</h4>
+                <ul>
+                    <li>IoT Connector status should show <strong>&ldquo;Connected&rdquo;</strong></li>
+                    <li>RabbitMQ Management &rarr; Connections should list the reader</li>
+                    <li><code>netstat -an | findstr 1883</code> should show <code>ESTABLISHED</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <h3>FX9600 Read Deduplication</h3>
+        <table>
+            <tr><th>Strategy</th><th>Where</th><th>Effect</th></tr>
+            <tr><td><strong>Tag Transition Events</strong></td><td>FX9600</td><td>Only report tag enter/leave &mdash; reduces volume from ~1000/asset to ~2</td></tr>
+            <tr><td><strong>RSSI Filtering</strong></td><td>FX9600</td><td>Prevent duplicate reads from adjacent antennas</td></tr>
+            <tr><td><strong>Inventory Interval</strong></td><td>FX9600</td><td>Min time between same-tag reports (30 sec cooldown)</td></tr>
+            <tr><td><strong>Movement Check</strong></td><td>iDash</td><td>Only creates <code>locationhistory</code> when asset moves to a <em>different</em> location</td></tr>
+        </table>
+        <div class="alert-amber">
+            <strong>&#9888; Recommendation:</strong> Use <strong>Tag Transition Events + 30-second cooldown</strong>. Reduces MQTT volume by 99%.
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         REGISTER IN iDASH
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card" id="register">
+        <h2>&#128203; Register Reader in iDash</h2>
+        <p>After the FX9600 is connected to RabbitMQ, register it via <a href="../va_reader_config.aspx">Reader Configuration</a>:</p>
+        <table>
+            <tr><th>Field</th><th>Example Value</th><th>Notes</th></tr>
+            <tr><td><strong>Reader Name *</strong></td><td><code>FX9600-SPR-DOCK1</code></td><td>Unique descriptive name</td></tr>
+            <tr><td><strong>IP Address *</strong></td><td><code>10.0.5.101</code></td><td>Static IP on IoT VLAN</td></tr>
+            <tr><td><strong>Reader Model</strong></td><td><code>Zebra</code></td><td>Select from dropdown</td></tr>
+            <tr><td><strong>Physical ID</strong></td><td><code>FX9600A12345</code></td><td>Serial from label</td></tr>
+            <tr><td><strong>Location</strong></td><td>(select)</td><td>iDash location</td></tr>
+            <tr><td><strong>Site</strong></td><td>(select)</td><td>Company/site</td></tr>
+            <tr><td><strong>MQTT Control Topic</strong></td><td><code>zebra/613/FX9600-SPR-DOCK1/mgmt/command</code></td><td>Base topic + <code>mgmt/command</code></td></tr>
+            <tr><td><strong>Update Location</strong></td><td>&#9989; On</td><td>Updates asset location on tag detect</td></tr>
+            <tr><td><strong>Antennas</strong></td><td>Add 4 or 8 rows</td><td>Map each port to a location</td></tr>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         VISN 22 / PRESCOTT
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card" id="prescott">
+        <h2>&#127959; VISN 22 &mdash; Prescott (649) FX9600 Setup <span style="font-size:13px; background:color-mix(in srgb,#10b981 15%,transparent); color:#10b981; border:1px solid #10b981; padding:3px 10px; border-radius:10px; margin-left:10px; font-weight:700;">08/21/2026</span></h2>
+        <p>Prescott (station 649) is the first VISN 22 deployment. One 4-antenna Zebra FX9600 reader deployed for real-world testing.</p>
+
+        <h3>Pre-Provisioned Credentials</h3>
+        <table>
+            <tr><th>Item</th><th>Value</th><th>Notes</th></tr>
+            <tr><td>Company ID</td><td><code>10</code></td><td>649 Prescott in dbo.company</td></tr>
+            <tr><td>MQTT Username</td><td><code>mqtt_649_prescott</code></td><td>Enter on FX9600 IoT Connector</td></tr>
+            <tr><td>MQTT Password</td><td><em>See va_mqtt_config.aspx &rarr; Client Grid</em></td><td>Stored in dbo.mqttclient</td></tr>
+        </table>
+
+        <h3>Topic Strings</h3>
+        <table>
+            <tr><th>Topic</th><th>Value</th><th>Direction</th></tr>
+            <tr><td><strong>Base Topic</strong></td><td><code>zebra/649/{HOSTNAME}/</code></td><td>Set on reader</td></tr>
+            <tr><td>Tag reads</td><td><code>zebra/649/{HOSTNAME}/tag-data</code></td><td>Reader &rarr; Broker &rarr; iDash</td></tr>
+            <tr><td>Health</td><td><code>zebra/649/{HOSTNAME}/health</code></td><td>Reader &rarr; Broker &rarr; iDash</td></tr>
+            <tr><td><strong>Control Topic</strong></td><td><code>zebra/649/{HOSTNAME}/mgmt/command</code></td><td>iDash &rarr; Broker &rarr; Reader</td></tr>
+        </table>
+
+        <h3>Antenna Power</h3>
+        <table>
+            <tr><th>Port</th><th>Use</th><th>TX Power</th></tr>
+            <tr><td>1</td><td>Room primary</td><td>30 dBm</td></tr>
+            <tr><td>2</td><td>Room secondary</td><td>27 dBm</td></tr>
+            <tr><td>3</td><td>Doorway / chokepoint</td><td>25 dBm</td></tr>
+            <tr><td>4</td><td>Spare / test</td><td>20 dBm</td></tr>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         TROUBLESHOOTING
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card" id="troubleshooting">
+        <h2>&#128679; Troubleshooting</h2>
+        <table>
+            <tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+            <tr><td><strong>FX9600 can&rsquo;t connect</strong></td><td>Firewall, credentials, or MQTT plugin</td><td><code>rabbitmq-plugins list</code> to verify. <code>Test-NetConnection &lt;server&gt; -Port 1883</code>.</td></tr>
+            <tr><td><strong>RabbitMQ won&rsquo;t start</strong></td><td>Erlang missing or <code>ERLANG_HOME</code> wrong</td><td>Run <code>erl</code> in CMD. Check environment variable. Reinstall service.</td></tr>
+            <tr><td><strong>Reader shows &ldquo;Down&rdquo;</strong></td><td>No heartbeat in 11 min</td><td>Check power/network. Verify topic. Check RabbitMQ &rarr; Connections.</td></tr>
+            <tr><td><strong>Tags seen but not in iDash</strong></td><td>AntennaLocationService or topic mismatch</td><td>Check service. Verify topic naming. Check <code>va_live_feed.ashx</code>.</td></tr>
+            <tr><td><strong>ACCESS_REFUSED</strong></td><td>Wrong credentials or permissions</td><td><code>rabbitmqctl list_users</code>. <code>rabbitmqctl list_permissions</code>.</td></tr>
+            <tr><td><strong>Live Feed blank</strong></td><td>SSE connection not established</td><td>Check browser console. Verify AntennaLocationService is running.</td></tr>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         CLI REFERENCE
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card" id="cli">
+        <h2>&#128187; RabbitMQ CLI Quick Reference</h2>
+        <table>
+            <tr><th>Command</th><th>Purpose</th></tr>
+            <tr><td><code>rabbitmqctl status</code></td><td>Broker status, plugins, ports</td></tr>
+            <tr><td><code>rabbitmqctl list_connections</code></td><td>Connected clients (readers + services)</td></tr>
+            <tr><td><code>rabbitmqctl list_users</code></td><td>Configured users</td></tr>
+            <tr><td><code>rabbitmqctl list_permissions</code></td><td>User permissions</td></tr>
+            <tr><td><code>rabbitmq-plugins list</code></td><td>Plugin status</td></tr>
+            <tr><td><code>rabbitmq-diagnostics check_running</code></td><td>Quick health check</td></tr>
+            <tr><td><code>http://localhost:15672</code></td><td>Management Dashboard</td></tr>
+        </table>
+        <div class="alert-blue">
+            <strong>&#128196; Full install guide:</strong> See <a href="va_rabbitmq_setup.html">RabbitMQ Setup Guide</a> for step-by-step installation, plugin config, user creation, and firewall setup.
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         FX9600 HARDWARE
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card" id="fx9600-hw">
+        <h2>&#128225; Zebra FX9600 Hardware Reference</h2>
+        <table>
+            <tr><th>Spec</th><th>Value</th></tr>
+            <tr><td>Antenna Ports</td><td>4-port or 8-port (RP-TNC, monostatic)</td></tr>
+            <tr><td>Power</td><td>PoE (802.3af) +31.5 dBm &bull; PoE+ (802.3at) +33 dBm &bull; 24V DC</td></tr>
+            <tr><td>IP Rating</td><td>IP53 &mdash; dust and water spray protected</td></tr>
+            <tr><td>Housing</td><td>Die-cast aluminum, wall/ceiling/forklift mountable</td></tr>
+            <tr><td>Connectivity</td><td>10/100 Ethernet, USB host/client</td></tr>
+            <tr><td>Protocols</td><td>MQTT (IoT Connector), REST API, HTTP POST, LLRP</td></tr>
+            <tr><td>Firmware Required</td><td>3.10.x+ for IoT Connector MQTT</td></tr>
+            <tr><td>Management</td><td>Web console at <code>http://&lt;reader-ip&gt;</code></td></tr>
+            <tr><td>Config Tool</td><td>123RFID Desktop (free Zebra utility)</td></tr>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         ROLLOUT PHASES
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card" id="rollout">
+        <h2>&#128640; Rollout Phases</h2>
+        <table>
+            <tr><th>Phase</th><th>Scope</th><th>Deliverable</th><th>Status</th></tr>
+            <tr><td><strong>1 &mdash; POC</strong></td><td>1 reader</td><td>RabbitMQ + MQTT plugin, 1 FX9600 connected, tag data visible</td><td style="color:#10b981;font-weight:700;">&#9989; Complete</td></tr>
+            <tr><td><strong>2 &mdash; Integration</strong></td><td>5 readers</td><td>AntennaLocationService writing to SQL, Live Feed operational</td><td style="color:#10b981;font-weight:700;">&#9989; Complete</td></tr>
+            <tr><td><strong>3 &mdash; First Site</strong></td><td>10&ndash;20 readers</td><td>Full site deployment, staff training, monitoring</td><td style="color:#f59e0b;">In Progress</td></tr>
+            <tr><td><strong>4 &mdash; Scale</strong></td><td>80+ readers</td><td>Multi-site rollout, alerting, performance baseline</td><td style="color:var(--muted-docs);">Planned</td></tr>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         REVISION HISTORY
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card" id="revision">
+        <h2>&#128221; Revision History</h2>
+        <table>
+            <tr><th>Date</th><th>Version</th><th>Change</th></tr>
+            <tr style="background:color-mix(in srgb, #10b981, transparent 94%);">
+                <td><strong>2026-08-31</strong></td><td><strong>4.0</strong></td>
+                <td><strong style="color:#10b981;">Architecture Document Overhaul.</strong> Complete restructure with proper HTML nesting, TOC navigation, consistent styling (docs_theme.css alert classes), light mode support, deployment status badges, rollout phase tracking, streamlined content (removed RabbitMQ install duplication), updated component diagram (AntennaLocationService), updated RabbitMQ references to 4.3.5, added proper footer.</td>
+            </tr>
+            <tr style="background:color-mix(in srgb, #f59e0b, transparent 94%);">
+                <td><strong>2026-07-31</strong></td><td><strong>3.0</strong></td>
+                <td><strong style="color:#f59e0b;">Infrastructure Discovery Report.</strong> MQTTnet 3.1.2 embedded broker documented. Database schemas, location tracking pipeline, deduplication strategies, TRM compliance clarification.</td>
+            </tr>
+            <tr>
+                <td>2026-07-30</td><td>2.0</td>
+                <td><strong>TRM compliance + RabbitMQ.</strong> VA TRM research. RabbitMQ vs Mosquitto comparison. Installation guide. FX9600 configuration walkthrough.</td>
+            </tr>
+            <tr>
+                <td>2026-07-30</td><td>1.0</td>
+                <td>Initial documentation. MQTT architecture, topic hierarchy, network requirements.</td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="margin-top:40px;padding-top:20px;border-top:1px solid var(--line);">
+        <a href="index.aspx" style="font-weight:600;">&larr; Back to Documentation Hub</a>
+    </div>
+</div>
+
+<footer style="margin-top:40px;padding:20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted-docs);display:flex;justify-content:space-between;align-items:center;max-width:1100px;margin-left:auto;margin-right:auto;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
+        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
+        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+        <span>&copy; 2026 ID Integration Inc.</span>
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height:14px;opacity:0.9;">
+    </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,267 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fixed Reader Configuration &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="../theme.css" />
+    <script src="../theme-init.js"></script>
+    <style>
+        :root { --doc-accent: #8B5CF6; }
+        body { margin:0; background:var(--bg); color:var(--text); font-family:'Segoe UI',Tahoma,Arial,sans-serif; line-height:1.7; }
+        .doc-page { max-width:900px; margin:0 auto; padding:40px 32px 80px; }
+        .doc-nav { display:flex; gap:16px; margin-bottom:24px; font-size:13px; }
+        .doc-nav a { color:var(--accent); text-decoration:none; }
+        .doc-nav a:hover { text-decoration:underline; }
+        h1 { font-size:32px; font-weight:800; margin:0 0 8px; color:var(--doc-accent); }
+        .doc-sub { font-size:14px; color:var(--muted); margin-bottom:32px; }
+        h2 { font-size:22px; font-weight:700; margin:36px 0 12px; padding-bottom:6px; border-bottom:2px solid var(--line); }
+        h3 { font-size:17px; font-weight:700; margin:24px 0 8px; color:var(--doc-accent); }
+        p, li { font-size:15px; }
+        ul, ol { padding-left:24px; }
+        li { margin-bottom:6px; }
+        code { background:color-mix(in srgb, var(--accent), transparent 90%); padding:2px 6px; border-radius:4px; font-size:13px; font-family:Consolas,monospace; }
+        pre { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:16px; overflow-x:auto; font-size:13px; line-height:1.5; }
+        pre code { background:none; padding:0; }
+        table { width:100%; border-collapse:collapse; margin:16px 0; font-size:14px; }
+        th { background:var(--doc-accent); color:#fff; padding:10px 14px; text-align:left; font-weight:600; }
+        td { padding:10px 14px; border-bottom:1px solid var(--line); }
+        tr:hover td { background:color-mix(in srgb, var(--doc-accent), transparent 94%); }
+        .callout { padding:14px 18px; border-radius:8px; margin:16px 0; font-size:14px; }
+        .callout-info { background:color-mix(in srgb, #2ea8ff, transparent 90%); border-left:4px solid #2ea8ff; color:#2ea8ff; }
+        .callout-warn { background:color-mix(in srgb, #f59e0b, transparent 90%); border-left:4px solid #f59e0b; color:#f59e0b; }
+        .callout-ok { background:color-mix(in srgb, #10b981, transparent 90%); border-left:4px solid #10b981; color:#10b981; }
+        .field-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0; }
+        .field-card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; }
+        .field-card strong { display:block; font-size:13px; margin-bottom:4px; }
+        .field-card span { font-size:12px; color:var(--muted); }
+        @media(max-width:600px) { .field-grid { grid-template-columns:1fr; } }
+    </style>
+</head>
+<body>
+<div class="doc-page">
+    <div class="doc-nav">
+        <a href="../va_reader_config.aspx">&larr; Open Tool</a>
+        <a href="../index.aspx">&larr; Back to Hub</a>
+        <a href="index.aspx">&larr; Documentation Hub</a>
+    </div>
+
+    <h1>&#128225; Fixed Reader Configuration</h1>
+    <div class="doc-sub">Manage fixed RFID reader registrations, antenna mappings, and online/offline status — all from a single dashboard.</div>
+
+    <h2>Overview</h2>
+    <p>The Fixed Reader Configuration page is the central management tool for all fixed RFID readers deployed across VA sites. It connects to the iDash REST API to provide a real-time view of every registered reader and allows you to:</p>
+    <ul>
+        <li>View all readers with live online/offline status</li>
+        <li>Add, edit, and delete reader registrations</li>
+        <li>Configure per-antenna port mappings and TX power levels</li>
+        <li>Discover unregistered readers on the network</li>
+        <li>Filter readers by site and search by name, location, IP, or model</li>
+    </ul>
+
+    <h2>Dashboard KPIs</h2>
+    <p>The top of the page displays four key metrics that update each time the reader list refreshes:</p>
+    <table>
+        <tr><th>KPI</th><th>Description</th></tr>
+        <tr><td><strong>Total Readers</strong></td><td>Count of all registered readers (filtered by the selected site).</td></tr>
+        <tr><td><strong>Online</strong></td><td>Readers whose <code>lastSeen</code> timestamp is within the last 11 minutes.</td></tr>
+        <tr><td><strong>Offline</strong></td><td>Readers that have NOT reported within the last 11 minutes.</td></tr>
+        <tr><td><strong>Models</strong></td><td>Count of distinct reader models (CSL, Zebra, Impinj, etc.) across the filtered set.</td></tr>
+    </table>
+
+    <div class="callout callout-info">
+        <strong>Online/Offline logic:</strong> A reader is considered <em>Online</em> if its <code>lastSeen</code> timestamp is within 11 minutes of the current UTC time. Anything older is marked <em>Offline</em>.
+    </div>
+
+    <h2>Reader Table</h2>
+    <p>The main table displays one row per registered reader with the following columns:</p>
+    <table>
+        <tr><th>Column</th><th>Description</th></tr>
+        <tr><td><strong>Status Dot</strong></td><td>Green dot = Online, Red dot = Offline.</td></tr>
+        <tr><td><strong>Name</strong></td><td>Human-readable reader name (e.g., "Hallway Reader 1").</td></tr>
+        <tr><td><strong>Location</strong></td><td>The iDash location linked to this reader.</td></tr>
+        <tr><td><strong>IP Address</strong></td><td>Network IP address of the reader hardware.</td></tr>
+        <tr><td><strong>Model</strong></td><td>Reader manufacturer/model (CSL, Zebra, Impinj, Other).</td></tr>
+        <tr><td><strong>Status</strong></td><td>Badge showing "Online" or "Offline".</td></tr>
+        <tr><td><strong>Last Seen</strong></td><td>Relative timestamp of the last reader heartbeat (e.g., "3m ago", "2h ago").</td></tr>
+        <tr><td><strong>Batch</strong></td><td>Check mark if batch mode is enabled.</td></tr>
+        <tr><td><strong>Update Loc</strong></td><td>Check mark if the reader updates asset location on read.</td></tr>
+        <tr><td><strong>Actions</strong></td><td>Edit (&#9998;) and Delete (&#128465;) buttons.</td></tr>
+    </table>
+    <p>Use the <strong>search bar</strong> above the table to filter by reader name, location, IP address, or model. Use the <strong>Site</strong> dropdown in the header to filter by VA site.</p>
+
+    <h2>Adding a Reader</h2>
+    <p>Click the <strong>+ Add Reader</strong> button in the page header to open the registration modal. Required and optional fields:</p>
+
+    <div class="field-grid">
+        <div class="field-card">
+            <strong>Reader Name *</strong>
+            <span>A descriptive name for the reader (e.g., "ED Hallway Reader 1"). Required.</span>
+        </div>
+        <div class="field-card">
+            <strong>IP Address *</strong>
+            <span>The network IP address of the reader hardware (e.g., 10.0.1.50). Required.</span>
+        </div>
+        <div class="field-card">
+            <strong>Reader Model</strong>
+            <span>Select the manufacturer: CSL (Convergent Systems), Zebra, Impinj, or Other.</span>
+        </div>
+        <div class="field-card">
+            <strong>Physical ID / Serial</strong>
+            <span>The hardware serial number printed on the reader. Optional but recommended for inventory tracking.</span>
+        </div>
+        <div class="field-card">
+            <strong>Site</strong>
+            <span>The VA site (company) this reader belongs to. Loaded directly from <code>dbo.company</code> via the <code>api=companies</code> endpoint — always shows all available sites regardless of header filter.</span>
+        </div>
+        <div class="field-card">
+            <strong>Location</strong>
+            <span>The iDash location to associate with this reader. <strong>Dynamically filtered</strong> — only shows locations belonging to the site selected above. Changing the Site automatically reloads the location list.</span>
+        </div>
+        <div class="field-card">
+            <strong>MQTT Control Topic</strong>
+            <span>Optional MQTT topic for remote reader control commands. Leave blank if not using MQTT.</span>
+        </div>
+        <div class="field-card">
+            <strong>Batch Mode</strong>
+            <span>Toggle ON for readers that accumulate reads and send them periodically rather than in real-time.</span>
+        </div>
+    </div>
+
+    <h3>Update Location on Read</h3>
+    <p>When enabled (the default), any asset scanned by this reader will have its location automatically updated to the reader's assigned location. Disable this for readers used only for inventory verification where you do not want asset locations to change.</p>
+
+    <h2>Antenna Configuration</h2>
+    <p>Each reader can have multiple antennas, each with its own port number, location override, and transmit power setting. The antenna section appears at the bottom of the Add/Edit modal.</p>
+
+    <table>
+        <tr><th>Field</th><th>Description</th><th>Range</th></tr>
+        <tr><td><strong>Port</strong></td><td>The physical antenna port number on the reader hardware.</td><td>1 – 16</td></tr>
+        <tr><td><strong>Location</strong></td><td>Optional location override for this specific antenna. Useful when one reader covers multiple rooms.</td><td>Any location</td></tr>
+        <tr><td><strong>Power</strong></td><td>Transmit power in dBm. Higher = longer range but more interference.</td><td>0 – 33</td></tr>
+    </table>
+
+    <p>Click <strong>+ Add</strong> to add antenna rows, and click the <strong>✕</strong> icon to remove one. Antenna configurations are saved separately after the reader record is saved.</p>
+
+    <div class="callout callout-warn">
+        <strong>Antenna save order:</strong> When creating a <em>new</em> reader, save the reader first (which creates the record), then edit it to configure antennas. Antenna mappings require an existing reader ID.
+    </div>
+
+    <h2>Editing a Reader</h2>
+    <p>Click the <strong>✎ Edit</strong> button on any reader row to re-open the modal pre-filled with that reader's current settings. The modal title changes to show the reader name. All fields can be modified, and the existing antenna configuration is loaded automatically.</p>
+
+    <h2>Deleting a Reader</h2>
+    <p>Click the <strong>🗑 Delete</strong> button on any reader row. You will be prompted to confirm before the reader is permanently removed. This action calls the iDash API's delete endpoint and <strong>cannot be undone</strong>.</p>
+
+    <h2>Discovering Unregistered Readers</h2>
+    <p>The <strong>Unregistered / Discovered Readers</strong> panel (below the main table) lets you scan the network for readers that are broadcasting but not yet registered in iDash. Click <strong>↻ Scan</strong> to query the API for unregistered CSL and Zebra readers.</p>
+    <p>When unregistered readers are found, each row displays the reader's name, IP, model, and physical ID along with a <strong>✓ Register</strong> button that pre-fills the Add Reader modal with those values.</p>
+
+    <div class="callout callout-ok">
+        <strong>Tip:</strong> Use the Scan feature after deploying new reader hardware. It saves time by auto-populating the registration form with discovered reader details.
+    </div>
+
+    <h2>Supported Reader Models</h2>
+    <table>
+        <tr><th>Model</th><th>Notes</th></tr>
+        <tr><td><strong>CSL (Convergent Systems Limited)</strong></td><td>Default selection. Most commonly deployed across VA sites. Supports MQTT control topics.</td></tr>
+        <tr><td><strong>Zebra</strong></td><td>Zebra FX series fixed readers. Also included in unregistered reader discovery scans.</td></tr>
+        <tr><td><strong>Impinj</strong></td><td>Impinj Speedway and xArray readers.</td></tr>
+        <tr><td><strong>Other</strong></td><td>Any reader model not listed above.</td></tr>
+    </table>
+
+    <h2>How It Works (Technical)</h2>
+    <h3>Architecture</h3>
+    <p>The page communicates with the iDash REST API using OAuth2 client credentials. All reader CRUD operations go through the API — the page itself does not write directly to the database. Location and company data for the modal dropdowns are fetched directly from SQL Server via dedicated API endpoints.</p>
+
+    <h3>API Endpoints Used</h3>
+    <table>
+        <tr><th>Action</th><th>Method</th><th>Endpoint</th></tr>
+        <tr><td>List readers</td><td><code>GET</code></td><td><code>/api/readers/</code></td></tr>
+        <tr><td>Create reader</td><td><code>POST</code></td><td><code>/api/readers/</code></td></tr>
+        <tr><td>Update reader</td><td><code>PUT</code></td><td><code>/api/readers/</code></td></tr>
+        <tr><td>Delete reader</td><td><code>DELETE</code></td><td><code>/api/readers/?ids={id}&amp;madeBy=iDash</code></td></tr>
+        <tr><td>Get antennas</td><td><code>GET</code></td><td><code>/api/antennas/Reader/{readerId}</code></td></tr>
+        <tr><td>Save antennas</td><td><code>POST</code></td><td><code>/api/antennas/Reader/{readerId}</code></td></tr>
+        <tr><td>Discover unregistered</td><td><code>GET</code></td><td><code>/api/readers/Unregistered?readerModel={model}</code></td></tr>
+    </table>
+
+    <h3>Internal API Endpoints (iDash page-level)</h3>
+    <p>The ASPX page itself exposes lightweight JSON endpoints for the modal dropdowns, routed via <code>?api=</code> query string:</p>
+    <table>
+        <tr><th>Action</th><th>Endpoint</th><th>Source</th></tr>
+        <tr><td>Load locations (filtered by site)</td><td><code>?api=locations&amp;siteid={id}</code></td><td><code>dbo.location</code></td></tr>
+        <tr><td>Load companies (all sites)</td><td><code>?api=companies</code></td><td><code>dbo.company</code></td></tr>
+    </table>
+
+    <h3>Authentication</h3>
+    <p>The code-behind obtains an OAuth2 bearer token using the <code>client_credentials</code> grant type. Tokens are cached in memory and automatically refreshed 60 seconds before expiry. The following <code>web.config</code> app settings are required:</p>
+    <table>
+        <tr><th>Setting</th><th>Purpose</th></tr>
+        <tr><td><code>iDash_ApiBase</code></td><td>Base URL of the iDash API (e.g., <code>https://aw-server/iDash</code>)</td></tr>
+        <tr><td><code>iDash_TokenUrl</code></td><td>OAuth2 token endpoint URL</td></tr>
+        <tr><td><code>iDash_ClientId</code></td><td>OAuth2 client ID</td></tr>
+        <tr><td><code>iDash_ClientSecret</code></td><td>OAuth2 client secret</td></tr>
+    </table>
+
+    <h2>Site Filtering &amp; Permissions</h2>
+    <p>The <strong>Site</strong> dropdown is populated from the <code>dbo.company</code> table and filtered based on the logged-in user's role and site access permissions:</p>
+    <ul>
+        <li><strong>Admin users</strong> see all sites plus an "All Sites" option.</li>
+        <li><strong>Non-admin users</strong> see only the sites listed in their <code>SiteAccess</code> profile. If they have access to more than one site, the "All Sites" option also appears.</li>
+    </ul>
+
+    <h2>Troubleshooting</h2>
+
+    <h3>All readers show as Offline</h3>
+    <p>Check that the iDash API is reachable and that the OAuth2 credentials in <code>web.config</code> are correct. If the API returns data but <code>lastSeen</code> timestamps are stale, verify that the reader middleware (MQTT broker or polling service) is running and updating reader heartbeats.</p>
+
+    <h3>"iDash API not configured" error</h3>
+    <p>The <code>iDash_ApiBase</code> or <code>iDash_TokenUrl</code> app settings are missing or blank in <code>web.config</code>. Add or correct them and recycle the app pool.</p>
+
+    <h3>No locations in the dropdown</h3>
+    <p>Locations are loaded directly from <code>dbo.location</code> filtered by the selected company ID. If the dropdown is empty, confirm that locations exist in the database for that site. You may need to run a data import first.</p>
+
+    <h3>Antennas not saving on new reader</h3>
+    <p>Antenna configurations require an existing reader ID. When adding a <em>new</em> reader, save the reader first to create the record, then edit it to configure antennas.</p>
+
+    <h3>Delete fails</h3>
+    <p>The API delete call includes <code>madeBy=iDash</code> as an audit parameter. If the API returns an error, check that the OAuth2 client has delete permissions on the readers endpoint.</p>
+
+    <h2>Recent Changes</h2>
+    <table>
+        <tr><th>Date</th><th>Change</th></tr>
+        <tr>
+            <td><strong>2026-07-24</strong></td>
+            <td>
+                <strong>Bug fix — Site dropdown empty in Add/Edit modal.</strong>
+                The modal's Site dropdown was copying options from the header dropdown, which could be empty due to session-based permission filtering.
+                Added a dedicated <code>api=companies</code> endpoint that queries <code>dbo.company</code> directly. The modal now always shows all available sites.
+            </td>
+        </tr>
+        <tr>
+            <td><strong>2026-07-24</strong></td>
+            <td>
+                <strong>Bug fix — Location dropdown not filtered by site.</strong>
+                Locations were loaded using the header site filter instead of the modal's own Site dropdown, so all locations appeared regardless of which site was selected.
+                Fixed: locations now filter by the modal's <code>fSite</code> value. Sites load first, then locations load for the selected site. Changing the site in the modal automatically reloads locations.
+            </td>
+        </tr>
+        <tr>
+            <td><strong>2026-07-24</strong></td>
+            <td>
+                <strong>Initial documentation page created.</strong>
+            </td>
+        </tr>
+    </table>
+
+    <div class="callout callout-ok">
+        <strong>Related pages:</strong>
+        <a href="../va_fixed_reader.aspx" style="color:inherit;text-decoration:underline;">Fixed Reader Live View</a> &mdash;
+        <a href="va_ennx_live_scan.html" style="color:inherit;text-decoration:underline;">ENNX Live Scan Docs</a> &mdash;
+        <a href="va_eil_live_scan.html" style="color:inherit;text-decoration:underline;">EIL Live Scan Docs</a>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>iDash Docs &mdash; Guide: ADHOC Scanning &amp; Inventory</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <style>
+        .step-card { background: color-mix(in srgb, var(--text, #e2e8f0), transparent 97%); border: 1px solid var(--line, #2a3441); border-radius: 14px; padding: 28px; margin-bottom: 32px; }
+        .step-num { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: #10b981; color: #fff; font-weight: 800; font-size: 16px; margin-right: 12px; flex-shrink: 0; }
+        .step-title { font-size: 20px; font-weight: 700; display: flex; align-items: center; margin-bottom: 12px; }
+        .step-desc { color: var(--muted-docs, #8b95a5); font-size: 14px; line-height: 1.7; margin-bottom: 16px; }
+        .tip-box { background: color-mix(in srgb, #10b981, transparent 88%); border: 1px solid rgba(16,185,129,0.3); border-left: 4px solid #10b981; padding: 14px 18px; border-radius: 8px; font-size: 13px; margin: 16px 0; color: #10b981; }
+        .warn-box { background: color-mix(in srgb, #f59e0b, transparent 88%); border: 1px solid rgba(245,158,11,0.3); border-left: 4px solid #f59e0b; padding: 14px 18px; border-radius: 8px; font-size: 13px; margin: 16px 0; color: #f59e0b; }
+        .info-box { background: color-mix(in srgb, #3b82f6, transparent 88%); border: 1px solid rgba(59,130,246,0.3); border-left: 4px solid #3b82f6; padding: 14px 18px; border-radius: 8px; font-size: 13px; margin: 16px 0; color: #3b82f6; }
+        .tab-badges { display:flex; gap:6px; flex-wrap:wrap; margin: 12px 0; }
+        .tab-badge { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <a href="index.aspx" class="back-link">&larr; Documentation Hub</a>
+
+    <div class="doc-container">
+        <h1>&#128225; Guide: ADHOC Scanning &amp; Inventory</h1>
+        <p class="doc-subtitle">How to perform ad-hoc asset scans using the handheld RFID reader, review scan results, and sync data back to iDash.</p>
+
+        <div class="callout callout-info">
+            <strong>What is ADHOC Scanning?</strong> Ad-hoc scanning lets you perform quick inventory audits of any location without a pre-defined work order. Walk into a room, scan all tags, and iDash automatically updates asset locations and flags misplaced items.
+        </div>
+
+        <p class="step-desc"><strong>Source:</strong> <em>VISN 5 Use and Configuration Guide for iDash 4.0.8.7</em>, Section I (pages 4&ndash;6)</p>
+
+        <!-- STEP 1 -->
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">1</span> Open ADHOC Mode</div>
+            <div class="step-desc">
+                On the handheld scanner (Zebra TC53 with RFID sled), open the <strong>iDash</strong> app from the home screen. From the main menu, tap <strong>"Adhoc"</strong> to enter ad-hoc scanning mode.
+            </div>
+            <div class="tip-box">
+                <strong>&#128161; Tip:</strong> ADHOC mode is different from "Inventory" mode. ADHOC is for quick spot-checks; Inventory mode is for comprehensive, work-order-based sweeps.
+            </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">2</span> Select a Location</div>
+            <div class="step-desc">
+                Select the <strong>location</strong> where you want to perform the scan. You can:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li><strong>Search</strong> &mdash; Tap the lookup field and type a room number, building name, or location code</li>
+                <li><strong>Scan a Location Tag</strong> &mdash; If the room has an RFID location tag on the wall, scan it to auto-select the location</li>
+                <li><strong>Browse</strong> &mdash; Scroll through the location list to find the correct room</li>
+            </ul>
+            <div class="step-desc">Verify that the correct location is shown on the screen before proceeding.</div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">3</span> Start Scanning</div>
+            <div class="step-desc">
+                Tap the <strong>"Start"</strong> button to begin scanning. Hold the <strong>trigger</strong> on the gun/sled reader and slowly sweep the room. As RFID tags are read:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li>The reader <strong>beeps</strong> for each tag detected</li>
+                <li>A running list of scanned assets populates on screen showing <strong>Tag ID</strong>, <strong>Asset ID</strong>, and <strong>Status</strong></li>
+                <li>The scan count increments in real time</li>
+            </ul>
+            <div class="info-box">
+                <strong>&#128225; Scanner Tips:</strong> Point the antenna at equipment shelves, cabinets, and walls. RFID can read through most materials. Sweep slowly and cover all areas of the room for best results.
+            </div>
+        </div>
+
+        <!-- STEP 4 -->
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">4</span> Stop Scanning &amp; Review Results</div>
+            <div class="step-desc">
+                When you've finished scanning the room, tap <strong>"Stop"</strong>. The results screen shows four tabs:
+            </div>
+            <div class="tab-badges">
+                <span class="tab-badge" style="background:rgba(16,185,129,.15); color:#10b981; border:1px solid #10b981;">&#9989; Scanned</span>
+                <span class="tab-badge" style="background:rgba(59,130,246,.15); color:#3b82f6; border:1px solid #3b82f6;">&#128203; Expected</span>
+                <span class="tab-badge" style="background:rgba(245,158,11,.15); color:#f59e0b; border:1px solid #f59e0b;">&#9888; Misplaced</span>
+                <span class="tab-badge" style="background:rgba(139,92,246,.15); color:#8B5CF6; border:1px solid #8B5CF6;">&#10024; New</span>
+            </div>
+            <table class="doc-table">
+                <thead><tr><th style="width:20%">Tab</th><th>What It Shows</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Scanned</strong></td><td>All assets detected in the current location during this scan session</td></tr>
+                    <tr><td><strong>Expected</strong></td><td>Assets registered to this location in the database but <em>not yet scanned</em> &mdash; these may still be in the room (check behind furniture/cabinets)</td></tr>
+                    <tr><td><strong>Misplaced</strong></td><td>Assets scanned here but <em>registered to a different location</em> in the database. These items have moved.</td></tr>
+                    <tr><td><strong>New</strong></td><td>Tags detected that <em>don't exist in the database</em> at all &mdash; possibly unregistered equipment</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <img src="images/visn5/word/media/image5.png" class="step-img" alt="Step 4 – Stop Scanning & Review Results" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
+
+        <!-- STEP 5 -->
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">5</span> Sync to iDash</div>
+            <div class="step-desc">
+                Tap <strong>"Sync"</strong> to upload your scan data to the iDash database. This will:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li><strong>Update locations</strong> &mdash; Misplaced assets are moved to their new scanned location</li>
+                <li><strong>Record scan history</strong> &mdash; A timestamp is saved for each scanned asset (used for inventory age reporting)</li>
+                <li><strong>Generate session data</strong> &mdash; The scan session appears in iDash Reports for auditing</li>
+            </ul>
+            <div class="step-desc">
+                A progress bar will display during sync. When complete, you'll see: <strong>"Sync completed successfully. X assets updated."</strong>
+            </div>
+            <div class="warn-box">
+                <strong>&#9888; WiFi Required:</strong> The scanner must be connected to WiFi to sync. If you're offline, see the <a href="va_guide_batch_scanning.html">Batch Mode Scanning Guide</a> for how to scan offline and sync later.
+            </div>
+        </div>
+        <img src="images/visn5/word/media/image6.png" class="step-img" alt="Step 5 – Sync to iDash" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
+
+        <!-- STEP 6 -->
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">6</span> Verify in iDash</div>
+            <div class="step-desc">
+                After syncing, you can verify the updated asset locations in the iDash web portal:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li><strong>Asset Master</strong> &mdash; Search for specific assets and check their "Last Inventoried" date</li>
+                <li><strong>Session Reports</strong> &mdash; View the scan session with counts of scanned, misplaced, and new assets</li>
+                <li><strong>ENNX Reports</strong> &mdash; Generate Equipment Not in Expected location reports</li>
+            </ul>
+        </div>
+        <img src="images/visn5/word/media/image7.png" class="step-img" alt="Step 6 – Verify in iDash" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
+
+        <!-- TROUBLESHOOTING -->
+        <h2><span class="section-num">&#128295;</span> Troubleshooting</h2>
+        <table class="doc-table">
+            <thead><tr><th style="width:35%">Issue</th><th>Solution</th></tr></thead>
+            <tbody>
+                <tr><td>Scanner not reading any tags</td><td>Check that the RFID sled is powered on and paired. Try adjusting antenna power (see <a href="va_guide_locate_and_reader.html#power">Adjusting Reader Power</a>)</td></tr>
+                <tr><td>Location tag not recognized</td><td>The location tag may not be registered in iDash. See <a href="va_guide_locate_and_reader.html#missing-tag">Missing Location Tag</a></td></tr>
+                <tr><td>Sync fails with error</td><td>Verify WiFi connection. Move closer to the access point. If persistent, switch to <a href="va_guide_batch_scanning.html">Batch Mode</a></td></tr>
+                <tr><td>All assets show as "Misplaced"</td><td>You may have selected the wrong location. Verify the location name matches the room you're in.</td></tr>
+                <tr><td>Expected tab shows assets I scanned</td><td>Some assets may have weak tags. Try rescanning from closer range with higher antenna power.</td></tr>
+            </tbody>
+        </table>
+
+        <h2><span class="section-num">&#128279;</span> Related Guides</h2>
+        <ul>
+            <li><a href="va_guide_batch_scanning.html">Batch Mode Scanning (Offline)</a></li>
+            <li><a href="va_guide_locate_and_reader.html">Locate Feature &amp; Reader Settings</a></li>
+            <li><a href="va_guide_scanner_setup.html">Zebra TC53 Scanner Setup</a></li>
+            <li><a href="va_guide_offline_printing.html">Offline Printing Station</a></li>
+        </ul>
+    </div>
+</body>
+</html>
+<!-- Extra image for reference -->
+<img src="images/visn5/word/media/image8.png" class="step-img" alt="Additional ADHOC reference image" style="max-width:100%; margin-top:12px; border-radius:8px;"/>

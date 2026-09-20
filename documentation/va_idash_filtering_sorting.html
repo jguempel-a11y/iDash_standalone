@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Column Sorting &amp; Filtering &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <div class="container">
+        <h1>iDash &mdash; Column Sorting, Filtering &amp; Export</h1>
+        <div style="margin-bottom:30px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span class="badge badge-db">Applies to All Reporting Pages</span>
+            <span style="font-size:12px; background:color-mix(in srgb,#10b981 15%,transparent); color:#10b981; border:1px solid #10b981; padding:2px 10px; border-radius:10px;">Added 08/22/2026</span>
+        </div>
+
+        <h2>Overview</h2>
+        <p>As of August 2026, column sorting, per-column filtering, and Excel export are <strong>standardized across all three main iDash reporting pages</strong>. The behavior is identical on each page &mdash; once you learn it on one page, it works the same everywhere.</p>
+
+        <div style="background:color-mix(in srgb,#2ea8ff,transparent 92%); border-left:6px solid #2ea8ff; padding:14px 18px; border-radius:0 10px 10px 0; margin:16px 0;">
+            <strong style="color:#2ea8ff;">&#128203; Pages using this pattern:</strong>
+            <table style="margin-top:10px; width:100%; font-size:0.9rem; border-collapse:collapse;">
+                <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;"><strong><code>va_asset_master.aspx</code></strong></td><td style="padding:8px 12px;">Asset Master &mdash; server-side paginated grid with full DataTables column sort and inline filter row.</td></tr>
+                <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;"><strong><code>va_location_list.aspx</code></strong></td><td style="padding:8px 12px;">Location List &mdash; location summary grid (native JS) and asset detail grids (lightweight <code>initDetailFilter</code>).</td></tr>
+                <tr><td style="padding:8px 12px;"><strong><code>va_asset_stats.aspx</code></strong></td><td style="padding:8px 12px;">Asset Statistics &mdash; the &ldquo;Assets by Location &mdash; Top 50&rdquo; table and the location asset drill-down panel.</td></tr>
+            </table>
+        </div>
+
+        <h2>&#9650; Column Sorting</h2>
+        <p>Every sortable column header contains a <strong>sort indicator</strong> (<code>&#9650;&#9660;</code> by default). Clicking a column header sorts the table by that column.</p>
+        <table style="width:100%; border-collapse:collapse; margin:16px 0;">
+            <tr style="border-bottom:2px solid var(--line);"><th style="text-align:left;padding:10px;color:var(--muted-docs);">Behaviour</th><th style="text-align:left;padding:10px;color:var(--muted-docs);">Detail</th></tr>
+            <tr style="border-bottom:1px solid var(--line);"><td style="padding:10px;"><strong>First click</strong></td><td style="padding:10px;"><strong>Numeric / date columns</strong> &rarr; Descending first (largest / newest at top)<br/><strong>Text columns</strong> (e.g. Location, Asset Name) &rarr; Ascending first (A&ndash;Z)</td></tr>
+            <tr style="border-bottom:1px solid var(--line);"><td style="padding:10px;"><strong>Second click (same column)</strong></td><td style="padding:10px;">Reverses the sort direction.</td></tr>
+            <tr style="border-bottom:1px solid var(--line);"><td style="padding:10px;"><strong>Visual indicator</strong></td><td style="padding:10px;">Active sort column highlights in <strong>accent color</strong>. Indicator changes from <code>&#9650;&#9660;</code> (inactive) to a solid <code>&#9650;</code> (ascending) or <code>&#9660;</code> (descending).</td></tr>
+            <tr style="border-bottom:1px solid var(--line);"><td style="padding:10px;"><strong>Interaction with filters</strong></td><td style="padding:10px;">Sort always applies to the current filtered result set &mdash; not the full dataset.</td></tr>
+            <tr><td style="padding:10px;"><strong>Persistence</strong></td><td style="padding:10px;">Sort state is maintained across paging but does <em>not</em> persist across page reloads (intentional).</td></tr>
+        </table>
+
+        <h2>&#128269; Per-Column Filtering</h2>
+        <p>Each table has a <strong>second header row</strong> containing a compact text input under each column. Type anything in any box to instantly narrow the rows shown.</p>
+        <div style="background:color-mix(in srgb,#10b981,transparent 92%); border-left:6px solid #10b981; padding:14px 18px; border-radius:0 10px 10px 0; margin:16px 0;">
+            <strong style="color:#10b981;">&#128204; How the filter inputs work:</strong>
+            <ul style="margin:10px 0 0; line-height:2;">
+                <li><strong>AND logic</strong> &mdash; a row must match every non-empty filter box to be visible.</li>
+                <li><strong>Substring match</strong> &mdash; typing <code>123</code> in the CMR column shows rows whose CMR <em>contains</em> &ldquo;123&rdquo;.</li>
+                <li><strong>Case-insensitive</strong> &mdash; <code>SPGD</code> and <code>spgd</code> find the same rows.</li>
+                <li><strong>Instant</strong> &mdash; filtering triggers on every keypress; no Enter required.</li>
+                <li><strong>Resets to page 1</strong> &mdash; when filters change, the pager returns to the first page.</li>
+                <li><strong>Composes with sort</strong> &mdash; the active sort order is re-applied to the filtered result set automatically.</li>
+                <li><strong>Clear a filter</strong> &mdash; delete the text; all rows reappear immediately.</li>
+            </ul>
+        </div>
+        <h3>Filter Row HTML Pattern</h3>
+        <pre style="background:var(--code-bg,#1e1e2e);color:var(--code-fg,#cdd6f4);padding:16px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.6;">&lt;thead&gt;
+  &lt;tr&gt;  &lt;!-- Row 1: clickable sort headers --&gt;
+    &lt;th onclick="sort(0)"&gt;Location &lt;span class="sh-si"&gt;&#9650;&#9660;&lt;/span&gt;&lt;/th&gt;
+    &lt;th onclick="sort(1)"&gt;Total    &lt;span class="sh-si"&gt;&#9650;&#9660;&lt;/span&gt;&lt;/th&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;  &lt;!-- Row 2: col-search filter inputs --&gt;
+    &lt;th&gt;&lt;input class="col-search" type="text" placeholder="..." data-col="0" /&gt;&lt;/th&gt;
+    &lt;th&gt;&lt;input class="col-search" type="text" placeholder="..." data-col="1" /&gt;&lt;/th&gt;
+  &lt;/tr&gt;
+&lt;/thead&gt;</pre>
+
+        <h2>&#128190; Export Excel &amp; Data Extraction</h2>
+        <p>Every reporting page includes an <strong>&ldquo;&#128190; Export Excel&rdquo;</strong> button in the page header. While summary pages stream standard CSV files, <strong>Asset Master</strong> delivers native OpenXML <code>.xlsx</code> spreadsheets powered by <strong>ClosedXML</strong> (MIT License) with full column sync and dual-mode selection capability.</p>
+        <div style="background:color-mix(in srgb,#f59e0b,transparent 92%); border-left:6px solid #f59e0b; padding:14px 18px; border-radius:0 10px 10px 0; margin:16px 0;">
+            <strong style="color:#f59e0b;">&#128204; Context-aware export on va_location_list.aspx:</strong>
+            <table style="margin-top:10px; width:100%; font-size:0.9rem; border-collapse:collapse;">
+                <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;"><strong>Location clicked</strong></td><td style="padding:8px 12px;">Exports only assets for that location. File: <code>Assets_{LocationName}.csv</code>.</td></tr>
+                <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;"><strong>Age-bucket filter active</strong></td><td style="padding:8px 12px;">Exports the filtered age-bucket list. File: <code>Assets_Age_Filter.csv</code>.</td></tr>
+                <tr><td style="padding:8px 12px;"><strong>No panel open</strong></td><td style="padding:8px 12px;">Exports the location summary grid. File: <code>Location_Summary.csv</code>.</td></tr>
+            </table>
+            <p style="margin:10px 0 0;font-size:0.85rem;color:var(--muted-docs);">Data comes from the server-side Session cache &mdash; no second database query is issued.</p>
+        </div>
+        <table style="width:100%; border-collapse:collapse; margin:16px 0;">
+            <tr style="border-bottom:2px solid var(--line);"><th style="text-align:left;padding:10px;color:var(--muted-docs);">Page</th><th style="text-align:left;padding:10px;color:var(--muted-docs);">What is exported</th><th style="text-align:left;padding:10px;color:var(--muted-docs);">Mechanism &amp; Format</th></tr>
+            <tr style="border-bottom:1px solid var(--line);"><td style="padding:10px;"><code>va_asset_master</code><br/><small style="color:var(--muted-docs);">Checked Rows &gt; 0</small></td><td style="padding:10px;"><strong>Selected assets only.</strong> Header button shows <code>💾 Export Excel (N selected)</code> and bottom floating bar shows <code>Export Selected Excel (N)</code>. File: <code>AssetMaster_Selected_Export.xlsx</code>.</td><td style="padding:10px;">Hidden POST form (<code>action=export_selected</code>, <code>ids=&lt;csv&gt;</code>) &rarr; ClosedXML (MIT) <code>.xlsx</code></td></tr>
+            <tr style="border-bottom:1px solid var(--line);"><td style="padding:10px;"><code>va_asset_master</code><br/><small style="color:var(--muted-docs);">Checked Rows = 0</small></td><td style="padding:10px;"><strong>Full filtered dataset</strong> matching current filters, visible columns, and drag-and-drop order. File: <code>AssetMaster_Export.xlsx</code>.</td><td style="padding:10px;"><code>exportData('excel')</code> &rarr; ClosedXML (MIT) <code>.xlsx</code></td></tr>
+            <tr style="border-bottom:1px solid var(--line);"><td style="padding:10px;"><code>va_location_list</code></td><td style="padding:10px;">Context-aware (see above). Always the currently viewed data.</td><td style="padding:10px;"><code>Export_Click</code> reads Session cache; no re-query. CSV stream.</td></tr>
+            <tr><td style="padding:10px;"><code>va_asset_stats</code></td><td style="padding:10px;">Full asset stats grid for the selected site.</td><td style="padding:10px;"><code>BtnExportExcel_Click</code>; server writes CSV to response.</td></tr>
+        </table>
+
+        <h2>&#127981; Site Selection Persistence</h2>
+        <p>All three pages share a common site selection memory using <code>localStorage</code> key <code>iDash_selectedSite</code>. Changing the Site dropdown on any page saves the value; navigating to any other page restores it automatically. Works for both admin and regular users and survives page refreshes.</p>
+
+        <h2>&#128295; Technical Reference</h2>
+        <h3>CSS Classes</h3>
+        <table style="width:100%; border-collapse:collapse; margin:16px 0;">
+            <tr style="border-bottom:2px solid var(--line);"><th style="text-align:left;padding:10px;color:var(--muted-docs);">Class</th><th style="text-align:left;padding:10px;color:var(--muted-docs);">Purpose</th></tr>
+            <tr style="border-bottom:1px solid var(--line);"><td style="padding:10px;"><code>.col-search</code></td><td style="padding:10px;">Filter input in the second <code>&lt;thead&gt;</code> row. Full-width, themed, pill-shaped.</td></tr>
+            <tr style="border-bottom:1px solid var(--line);"><td style="padding:10px;"><code>.sh-si</code></td><td style="padding:10px;">Sort indicator <code>&lt;span&gt;</code> inside header <code>&lt;th&gt;</code>. Faint when inactive, accent color when active.</td></tr>
+            <tr style="border-bottom:1px solid var(--line);"><td style="padding:10px;"><code>.sort-asc</code></td><td style="padding:10px;">Applied to the active <code>&lt;th&gt;</code> when sorted ascending.</td></tr>
+            <tr><td style="padding:10px;"><code>.sort-desc</code></td><td style="padding:10px;">Applied to the active <code>&lt;th&gt;</code> when sorted descending.</td></tr>
+        </table>
+        <h3>JavaScript Functions by Page</h3>
+        <table style="width:100%; border-collapse:collapse; margin:16px 0;">
+            <tr style="border-bottom:2px solid var(--line);"><th style="text-align:left;padding:10px;color:var(--muted-docs);">Page / Grid</th><th style="text-align:left;padding:10px;color:var(--muted-docs);">Sort</th><th style="text-align:left;padding:10px;color:var(--muted-docs);">Filter</th><th style="text-align:left;padding:10px;color:var(--muted-docs);">Composer</th></tr>
+            <tr style="border-bottom:1px solid var(--line);"><td style="padding:10px;"><code>va_asset_master</code></td><td style="padding:10px;">DataTables (server-side)</td><td style="padding:10px;">DataTables (server-side)</td><td style="padding:10px;"><code>SearchAssets</code> WebMethod</td></tr>
+            <tr style="border-bottom:1px solid var(--line);"><td style="padding:10px;"><code>va_location_list</code> summary</td><td style="padding:10px;"><code>locApplySort()</code></td><td style="padding:10px;">inline <code>keyup</code> on filter row</td><td style="padding:10px;"><code>locRender()</code></td></tr>
+            <tr style="border-bottom:1px solid var(--line);"><td style="padding:10px;"><code>va_location_list</code> detail grids</td><td style="padding:10px;"><code>initDetailFilter()</code> click</td><td style="padding:10px;"><code>initDetailFilter()</code> keyup</td><td style="padding:10px;">DOM show/hide</td></tr>
+            <tr><td style="padding:10px;"><code>va_asset_stats</code> location table</td><td style="padding:10px;"><code>sortLocTable()</code></td><td style="padding:10px;"><code>filterLocTable()</code></td><td style="padding:10px;"><code>_applyLocFiltersAndSort()</code></td></tr>
+        </table>
+        <div style="background:color-mix(in srgb,#ef4444,transparent 92%); border-left:6px solid #ef4444; padding:14px 18px; border-radius:0 10px 10px 0; margin:16px 0;">
+            <strong style="color:#ef4444;">&#9888; DataTables is NOT used on Location List or Asset Stats.</strong><br/>
+            Only Asset Master uses DataTables (server-side). Location List and Asset Stats use lightweight native JS
+            (<code>initSummaryFilter</code>, <code>initDetailFilter</code>, <code>_applyLocFiltersAndSort</code>)
+            to avoid conflicts with ASP.NET WebForms <code>__doPostBack</code> events and minimize library footprint.
+        </div>
+        <h3>Performance Notes</h3>
+        <ul style="line-height:2;">
+            <li><strong>Location List:</strong> <code>EnableViewState="false"</code> on all GridViews; data cached in <code>Session["GridXyzDT"]</code> and rebound on postback &mdash; eliminates 50&ndash;150KB ViewState per request.</li>
+            <li><strong>Location List SQL:</strong> All queries run under <code>READ UNCOMMITTED</code> to avoid blocking RFID write locks.</li>
+            <li><strong>Asset Master:</strong> Server-side <code>OFFSET...FETCH NEXT</code> pagination &mdash; only the current page crosses the wire.</li>
+            <li><strong>Asset Stats location table:</strong> Data embedded as a JSON literal (<code>LOC_STATS_DATA</code>); all client-side filtering is zero-latency after load.</li>
+        </ul>
+
+        <div style="margin-top:50px; padding-top:20px; border-top:1px solid var(--line);">
+            <a href="index.aspx" style="font-weight:600;">&larr; Back to Main Documentation</a>
+        </div>
+    </div>
+    <footer style="margin-top:40px;padding:20px;border-top:1px solid var(--line);font-family:'Segoe UI',Tahoma,sans-serif;font-size:12px;color:var(--muted-docs);display:flex;justify-content:space-between;align-items:center;background:var(--bg);max-width:1400px;margin-left:auto;margin-right:auto;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
+        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
+        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <span>&copy; 2026 ID Integration Inc.</span>
+            <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height:14px;opacity:0.9;">
+        </div>
+    </footer>
+</body>
+</html>

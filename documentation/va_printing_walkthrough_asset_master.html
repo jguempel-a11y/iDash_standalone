@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>iDash Docs &mdash; Printing Guide: Asset Master</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <style>
+        .step-card {
+            background: color-mix(in srgb, var(--text, #e2e8f0), transparent 97%);
+            border: 1px solid var(--line, #2a3441);
+            border-radius: 14px;
+            padding: 28px;
+            margin-bottom: 32px;
+        }
+        .step-num {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px; border-radius: 50%;
+            background: var(--accent-docs, #2ea8ff); color: #fff;
+            font-weight: 800; font-size: 16px; margin-right: 12px;
+            flex-shrink: 0;
+        }
+        .step-num.green { background: #10b981; }
+        .step-num.blue { background: #3b82f6; }
+        .step-title {
+            font-size: 20px; font-weight: 700; display: flex; align-items: center;
+            margin-bottom: 12px;
+        }
+        .step-desc { color: var(--muted-docs, #8b95a5); font-size: 14px; line-height: 1.7; margin-bottom: 16px; }
+        .step-img {
+            width: 100%; border-radius: 10px;
+            border: 1px solid var(--line, #2a3441);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            transition: transform 0.2s;
+        }
+        .step-img:hover { transform: scale(1.01); }
+        .step-caption {
+            font-size: 12px; color: var(--muted-docs, #8b95a5);
+            text-align: center; margin-top: 8px; font-style: italic;
+        }
+        .tip-box {
+            background: color-mix(in srgb, #10b981, transparent 88%);
+            border: 1px solid rgba(16,185,129,0.3);
+            border-left: 4px solid #10b981;
+            padding: 14px 18px; border-radius: 8px;
+            font-size: 13px; margin: 16px 0; color: #10b981;
+        }
+        .warn-box {
+            background: color-mix(in srgb, #f59e0b, transparent 88%);
+            border: 1px solid rgba(245,158,11,0.3);
+            border-left: 4px solid #f59e0b;
+            padding: 14px 18px; border-radius: 8px;
+            font-size: 13px; margin: 16px 0; color: #f59e0b;
+        }
+        .toc { margin: 24px 0; padding: 20px 24px; border-radius: 12px; background: color-mix(in srgb, var(--accent-docs, #2ea8ff), transparent 92%); border: 1px solid color-mix(in srgb, var(--accent-docs, #2ea8ff), transparent 70%); }
+        .toc-title { font-weight: 700; font-size: 15px; margin-bottom: 10px; color: var(--accent-docs, #2ea8ff); }
+        .toc ol, .toc ul { margin: 0; padding-left: 20px; }
+        .toc li { margin: 4px 0; font-size: 14px; }
+        .toc a { color: var(--text, #e2e8f0); text-decoration: none; }
+        .toc a:hover { color: var(--accent-docs, #2ea8ff); text-decoration: underline; }
+        .method-header {
+            font-size: 22px; font-weight: 800; margin: 40px 0 8px 0; padding: 14px 20px;
+            border-radius: 12px; display: flex; align-items: center; gap: 12px;
+        }
+        .method-header.green { background: color-mix(in srgb, #10b981, transparent 88%); border: 1px solid rgba(16,185,129,0.3); color: #10b981; }
+        .method-header.blue { background: color-mix(in srgb, #3b82f6, transparent 88%); border: 1px solid rgba(59,130,246,0.3); color: #3b82f6; }
+        .method-desc { color: var(--muted-docs, #8b95a5); font-size: 14px; margin: 8px 0 24px 0; padding-left: 4px; }
+    </style>
+</head>
+<body>
+    <a href="index.aspx" class="back-link">&larr; Documentation Hub</a>
+
+    <div class="doc-container">
+        <h1>&#128424; Printing Guide: Asset Master</h1>
+        <p class="doc-subtitle">Step-by-step walkthrough for printing RFID labels from Asset Master. Covers <strong>both</strong> print methods: sequential range printing and selected-row server printing.</p>
+
+        <div class="callout callout-info">
+            <strong>Two ways to print:</strong> Asset Master provides two distinct print methods for different use cases. This guide covers both in detail.
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="toc">
+            <div class="toc-title">&#128203; This Guide Covers</div>
+            <ul style="list-style:none; padding-left:0;">
+                <li style="margin-bottom:8px;"><strong>Common Steps</strong></li>
+            </ul>
+            <ol>
+                <li><a href="#step1">Sign In to iDash</a></li>
+                <li><a href="#step2">Navigate to Reports &rarr; Asset Master</a></li>
+                <li><a href="#step3">Search &amp; Filter Assets</a></li>
+            </ol>
+            <ul style="list-style:none; padding-left:0; margin-top:12px;">
+                <li style="margin-bottom:4px;"><strong style="color:#10b981;">&#9632; Method A:</strong> Server Print (Selected Rows)</li>
+                <li style="margin-bottom:8px; padding-left:16px; font-size:13px; color:var(--muted-docs);">Select checkboxes &rarr; Choose template at bottom &rarr; Server Print</li>
+                <li style="margin-bottom:4px;"><strong style="color:#3b82f6;">&#9632; Method B:</strong> Print Dialog (Sequential Ranges)</li>
+                <li style="padding-left:16px; font-size:13px; color:var(--muted-docs);">Click Print button at top &rarr; Enter asset number ranges &rarr; Load Preview</li>
+            </ul>
+        </div>
+
+        <!-- ═══════ COMMON STEPS ═══════ -->
+        <h2 style="margin-top:40px;">Common Steps (Both Methods)</h2>
+
+        <!-- STEP 1 -->
+        <div class="step-card" id="step1">
+            <div class="step-title"><span class="step-num">1</span> Sign In to iDash</div>
+            <div class="step-desc">
+                Open your web browser and navigate to the iDash portal URL (e.g. <code>http://your-server/iDash/</code>).
+                Enter your <strong>iDash username</strong> and <strong>password</strong>, then click <strong>Sign In</strong>.
+            </div>
+            <img src="images/light_step01_login.png?v=2" alt="iDash Login Page" class="step-img" />
+            <div class="step-caption">The iDash login screen &mdash; enter your credentials and click Sign In</div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="step-card" id="step2">
+            <div class="step-title"><span class="step-num">2</span> Navigate to Asset Master</div>
+            <div class="step-desc">
+                From the Hub dashboard, find the <strong>Asset Master &mdash; Unified Portal</strong> tile in your <strong>Favorites</strong> or under the <strong>&#128202; Reports</strong> category tab. Click the tile to open the application.
+            </div>
+            <img src="images/am_step01_reports_tab.png?v=2" alt="Favorites Tab" class="step-img" />
+            <div class="step-caption">The Favorites category showing the Asset Master tile</div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="step-card" id="step3">
+            <div class="step-title"><span class="step-num">3</span> Search &amp; Filter Assets</div>
+            <div class="step-desc">
+                The Asset Master page loads with all assets for your selected site. Use the toolbar filters to narrow down which assets you need:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li><strong>Site</strong> &mdash; Select which VA station's assets to view</li>
+                <li><strong>Search</strong> &mdash; Type an asset name, CMR, serial number, or location</li>
+                <li><strong>Status</strong> &mdash; Filter by IN USE, INACTIVE, OUT OF SERVICE, etc.</li>
+                <li><strong>CMR / Location</strong> &mdash; Filter by specific CMR number or building location</li>
+                <li><strong>Inv. Age</strong> &mdash; Filter by inventory recency</li>
+            </ul>
+            <img src="images/am_step02_asset_master.png?v=2" alt="Asset Master Page" class="step-img" />
+            <div class="step-caption">Asset Master showing 79,405 assets with KPI summary cards, column toggles, and the filterable data grid</div>
+            <div class="tip-box">
+                <strong>&#128161; Tip:</strong> The KPI cards at the top give a quick overview: total assets, locations, CMR coverage %, inventory age. Click column headers to sort.
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             METHOD A: SERVER PRINT (SELECTED ROWS)
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="method-header green" id="methodA">&#9632; Method A: Server Print (Selected Rows)</div>
+        <div class="method-desc">
+            <strong>Use this when:</strong> You want to print labels for specific assets you've picked from the grid.
+            Select rows using checkboxes, choose a template at the bottom of the page, and click Server Print.
+        </div>
+
+        <!-- A1 -->
+        <div class="step-card">
+            <div class="step-title"><span class="step-num green">A1</span> Select Rows to Print</div>
+            <div class="step-desc">
+                Check the boxes next to the assets you want to print labels for:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li>Click individual row checkboxes to select specific assets</li>
+                <li>Click the header checkbox to select all visible rows on the page</li>
+                <li>Use filters first, then select all to target a specific group</li>
+            </ul>
+            <img src="images/am_step03_rows_selected.png?v=2" alt="Assets Selected" class="step-img" />
+            <div class="step-caption">Four assets selected &mdash; checkboxes highlighted blue</div>
+        </div>
+
+        <!-- A2 -->
+        <div class="step-card">
+            <div class="step-title"><span class="step-num green">A2</span> Scroll Down to Print Selected Bar</div>
+            <div class="step-desc">
+                Scroll to the <strong>bottom of the page</strong>. Once you have rows selected, a
+                <strong>&#128424; PRINT SELECTED</strong> toolbar appears at the bottom with:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li><strong>Template dropdown</strong> &mdash; Select the label template (or leave on <em>Auto-Map Template</em> to use the default for each asset's tag type)</li>
+                <li><strong>Route dropdown</strong> &mdash; Select the printer route (or leave on <em>Default Route</em>)</li>
+                <li><strong>Server Print (N)</strong> &mdash; Sends the selected rows to BarTender via MQTT for printing. The number in parentheses shows how many rows are selected.</li>
+            </ul>
+            <img src="images/am_method2_bottom_section.png" alt="Print Selected Bar" class="step-img" />
+            <div class="step-caption">The PRINT SELECTED bar at the bottom showing template/route dropdowns and Server Print (3) button</div>
+        </div>
+
+        <!-- A3 -->
+        <div class="step-card">
+            <div class="step-title"><span class="step-num green">A3</span> Choose a Template &amp; Click Server Print</div>
+            <div class="step-desc">
+                Select your label template from the <strong>Template</strong> dropdown. Options include your configured BarTender templates (e.g. <code>AW_Metal_Large</code>, <code>AW_Std_Small</code>).
+                Then click <strong>Server Print (N)</strong> to queue the label jobs via MQTT.
+            </div>
+            <img src="images/am_method2_ready_to_print.png" alt="Ready to Print" class="step-img" />
+            <div class="step-caption">Template selected and Server Print button ready &mdash; click to queue 3 labels</div>
+            <div class="tip-box">
+                <strong>&#128161; Tip:</strong> <em>Auto-Map Template</em> automatically picks the right template based on each asset's tag type. Use a specific template only if you want to override the default mapping.
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             METHOD B: PRINT DIALOG (SEQUENTIAL RANGES)
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="method-header blue" id="methodB">&#9632; Method B: Print Dialog (Sequential Asset Number Ranges)</div>
+        <div class="method-desc">
+            <strong>Use this when:</strong> You want to print labels for a sequential range of assets by number
+            (e.g. <em>"print labels for assets 1 through 50"</em>). You don't need to select individual rows.
+        </div>
+
+        <!-- B1 -->
+        <div class="step-card">
+            <div class="step-title"><span class="step-num blue">B1</span> Click the Print Button in the Header</div>
+            <div class="step-desc">
+                At the <strong>top of the page</strong>, click the green <strong>&#128424; Print</strong> button in the header toolbar
+                (next to CSV, Excel, Stats, etc.). This opens the <strong>Print Assets</strong> dialog.
+            </div>
+            <img src="images/am_overview_toolbar.png" alt="Top Toolbar" class="step-img" />
+            <div class="step-caption">The Asset Master header bar &mdash; the green Print button is in the top-right</div>
+        </div>
+
+        <!-- B2 -->
+        <div class="step-card">
+            <div class="step-title"><span class="step-num blue">B2</span> Enter Asset Number Ranges</div>
+            <div class="step-desc">
+                The Print Assets dialog appears with three fields:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li><strong>Site Prefix</strong> &mdash; Pre-filled with your station code (e.g. <code>613 EE</code>). This is the prefix used when generating asset names.</li>
+                <li><strong>Asset Numbers</strong> &mdash; Enter sequential asset numbers or ranges. Examples:
+                    <ul>
+                        <li><code>1, 3-25, 42</code> &mdash; prints assets #1, #3 through #25, and #42</li>
+                        <li><code>100-200</code> &mdash; prints all assets from #100 to #200</li>
+                        <li><code>5</code> &mdash; prints only asset #5</li>
+                    </ul>
+                </li>
+                <li><strong>Print Template</strong> &mdash; Select the BarTender label template to use</li>
+            </ul>
+            <img src="images/am_method1_print_dialog.png" alt="Print Assets Dialog" class="step-img" />
+            <div class="step-caption">The Print Assets dialog &mdash; enter asset number ranges and select a template</div>
+        </div>
+
+        <!-- B3 -->
+        <div class="step-card">
+            <div class="step-title"><span class="step-num blue">B3</span> Load Preview &amp; Print</div>
+            <div class="step-desc">
+                After entering your asset numbers and selecting a template:
+            </div>
+            <ol style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li>Click <strong>Load Preview</strong> to see a list of the assets that will be printed</li>
+                <li>Verify the preview matches your expectations</li>
+                <li>Click the print/submit button to queue the label jobs via MQTT</li>
+            </ol>
+            <div class="warn-box">
+                <strong>&#9888; Note:</strong> This method uses the <strong>Site Prefix</strong> combined with the asset numbers to look up assets. For example, if your prefix is <code>613 EE</code> and you enter <code>1-5</code>, it will look for assets named <code>613 EE1</code> through <code>613 EE5</code>.
+            </div>
+        </div>
+
+        <!-- ═══════ COMPARISON TABLE ═══════ -->
+        <h2 style="margin-top:40px;"><span class="section-num">&#128260;</span> Method A vs. Method B Comparison</h2>
+
+        <table class="doc-table">
+            <thead>
+                <tr>
+                    <th style="width:30%">Feature</th>
+                    <th style="color:#10b981;">&#9632; Method A: Server Print</th>
+                    <th style="color:#3b82f6;">&#9632; Method B: Print Dialog</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Best for</strong></td>
+                    <td>Printing specific assets you've found via search/filter</td>
+                    <td>Printing a sequential range of assets by number</td>
+                </tr>
+                <tr>
+                    <td><strong>How you pick assets</strong></td>
+                    <td>Row checkboxes in the grid</td>
+                    <td>Enter asset number ranges (e.g. <code>1-50</code>)</td>
+                </tr>
+                <tr>
+                    <td><strong>Where it is</strong></td>
+                    <td>Bottom of the page (PRINT SELECTED bar)</td>
+                    <td>Top header bar (green Print button)</td>
+                </tr>
+                <tr>
+                    <td><strong>Template selection</strong></td>
+                    <td>Dropdown in the bottom bar (supports Auto-Map)</td>
+                    <td>Dropdown in the pop-up dialog</td>
+                </tr>
+                <tr>
+                    <td><strong>Printer routing</strong></td>
+                    <td>Route dropdown (supports Default Route)</td>
+                    <td>Uses default route only</td>
+                </tr>
+                <tr>
+                    <td><strong>Preview</strong></td>
+                    <td>You see the selected rows in the grid</td>
+                    <td>Load Preview button shows matching assets</td>
+                </tr>
+                <tr>
+                    <td><strong>Requires scrolling?</strong></td>
+                    <td>Yes &mdash; scroll to bottom after selecting rows</td>
+                    <td>No &mdash; dialog opens over the page</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- ═══════ TROUBLESHOOTING ═══════ -->
+        <h2 id="troubleshooting"><span class="section-num">&#128295;</span> Troubleshooting</h2>
+
+        <table class="doc-table">
+            <thead>
+                <tr>
+                    <th style="width:35%">Issue</th>
+                    <th>Solution</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Can't see the Asset Master tile</td>
+                    <td>Ask your admin to add <code>rpt_asset_master</code> to your tile access</td>
+                </tr>
+                <tr>
+                    <td>PRINT SELECTED bar not showing</td>
+                    <td>Select at least one row using the checkboxes, then scroll to the bottom of the page</td>
+                </tr>
+                <tr>
+                    <td>No templates in the dropdown</td>
+                    <td>Templates are configured in <a href="va_print_mapping.html">Template Mapping Config</a></td>
+                </tr>
+                <tr>
+                    <td>"Print Client not connected"</td>
+                    <td>Start the MQTT print spooler. See <a href="va_mqtt_config.html">MQTT Configuration</a></td>
+                </tr>
+                <tr>
+                    <td>Print dialog shows wrong site prefix</td>
+                    <td>Change the Site dropdown at the top of Asset Master first, then reopen Print</td>
+                </tr>
+                <tr>
+                    <td>Load Preview shows no assets</td>
+                    <td>The asset numbers you entered don't match any assets with that site prefix. Verify the numbering.</td>
+                </tr>
+                <tr>
+                    <td>Too many assets in the grid</td>
+                    <td>Use Search, Status, Location, or CMR filters to narrow results before selecting rows</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- ═══════ RELATED ═══════ -->
+        <h2><span class="section-num">&#128279;</span> Related Documentation</h2>
+        <ul>
+            <li><a href="va_printing_walkthrough.html">Printing Guide: Excel Equipment Import (with Screenshots)</a></li>
+            <li><a href="va_print_admin.html">Print Administration (Master Guide)</a></li>
+            <li><a href="va_print_mapping.html">Template Mapping Configuration</a></li>
+            <li><a href="va_asset_master.html">Asset Master (Technical Reference)</a></li>
+            <li><a href="va_mqtt_config.html">MQTT Configuration &amp; Print Server</a></li>
+        </ul>
+
+    </div>
+</body>
+</html>

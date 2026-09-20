@@ -1,0 +1,358 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA NETWORK GUIDELINES &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<div class="wrap">
+    <a href="index.aspx">&larr; Back to Documentation Hub</a><br/><br/>
+
+    <div class="card">
+        <h1>&#127760; iDash &mdash; OIT Network &amp; Server Implementation Guide</h1>
+        <p style="font-size:16px;color:var(--text);">
+            Comprehensive requirements specification for VA OIT teams responsible for provisioning servers, configuring network ACLs, firewall rules, WiFi onboarding, database creation, and software installation for a full iDash RFID asset tracking deployment.
+        </p>
+        <div class="alert-blue">
+            <strong>&#128196; Enterprise Risk Assessment (ERA) Reference</strong><br/>
+            All requirements in this document align with the approved ERA. The full ERA document is available for download:<br/>
+            <a href="SPS_OT_RITM9079692_iDash Mod 1.2_POAM Req_Approved.pdf" style="font-size:15px;">
+                &#128196; SPS_OT_RITM9079692 &mdash; InfinID Technologies iDash Mod 1.2 (Approved)</a><br/>
+            <span style="font-size:12px;color:var(--muted-docs);">All port numbers, directions, and protocols listed below are taken directly from this ERA.</span>
+        </div>
+        <div class="alert-green">
+            <strong>&#9989; Document Purpose</strong><br/>
+            This document is intended to be provided to VA OIT Network, Server, and Database teams as a single authoritative checklist for standing up an iDash environment. Each section maps to a specific OIT discipline.
+        </div>
+    </div>
+
+    <!-- SECTION 1: SERVER -->
+    <div class="card">
+        <h2>1. Server Provisioning</h2>
+        <p>A single Windows Server is required to host all iDash application components. The server must be built using the <strong>standard VA server image</strong>.</p>
+        <table>
+            <tr><th>Requirement</th><th>Specification</th></tr>
+            <tr><td><strong>Operating System</strong></td><td>Windows Server (VA standard image) &mdash; latest approved version</td></tr>
+            <tr><td><strong>Server Role</strong></td><td>Application Server (IIS + Print Services)</td></tr>
+            <tr><td><strong>Local Admin Access</strong></td><td><span class="badge badge-req">REQUIRED</span> for installation and configuration of all software components</td></tr>
+            <tr><td><strong>Static IP</strong></td><td><span class="badge badge-req">REQUIRED</span> &mdash; server must have a static IP on the designated VLAN</td></tr>
+            <tr><td><strong>DNS Entry</strong></td><td>Hostname registered in VA DNS for certificate binding</td></tr>
+            <tr><td><strong>SSL Certificate</strong></td><td>VA-issued SSL certificate bound to IIS on port 443</td></tr>
+        </table>
+        <h3>Software to be Installed on Server</h3>
+        <table>
+            <tr><th>Software</th><th>Purpose</th><th>Install Order</th></tr>
+            <tr><td><strong>IIS (Internet Information Services)</strong></td><td>Hosts iDash web application, iDash management dashboard, label printing web services, and all supporting web tools</td><td>1st</td></tr>
+            <tr><td><strong>ASP.NET Runtime</strong></td><td>Required by IIS for iDash and iDash web applications</td><td>2nd</td></tr>
+            <tr><td><strong>iDash</strong> <em>(InfinID Technologies)</em></td><td>Core RFID asset tracking platform &mdash; must be installed <strong>after</strong> SQL database is created and accessible</td><td>3rd</td></tr>
+            <tr><td><strong>Seagull Scientific BarTender</strong></td><td>Enterprise label design and print engine; processes all label print jobs dispatched from handhelds and dashboard</td><td>4th</td></tr>
+            <tr><td><strong>iDash Management Dashboard</strong></td><td>Web-based reporting, scanning, inventory, and administration portal deployed under IIS</td><td>5th</td></tr>
+            <tr><td><strong>Erlang/OTP</strong> <em>(open-source)</em></td><td>Runtime required by RabbitMQ. Install before RabbitMQ. <a href="va_rabbitmq_setup.html">Setup Guide</a></td><td>6th</td></tr>
+            <tr><td><strong>RabbitMQ</strong> <em>(open-source, VA TRM-approved)</em></td><td>MQTT message broker for fixed RFID reader tag observation routing. Replaces the iDash embedded broker for tag data. <a href="va_rabbitmq_setup.html">Setup Guide</a></td><td>7th</td></tr>
+        </table>
+        <div class="alert-amber">
+            <strong>&#9888; Installation Order is Critical</strong><br/>
+            iDash will fail to install if the SQL Server database (<code>idash</code>) does not already exist and the <code>idashadmin</code> login cannot connect. Complete Section 2 (Database) before beginning Section 1 software installation.
+        </div>
+    </div>
+    <!-- SECTION 2: DATABASE -->
+    <div class="card">
+        <h2>2. SQL Server Database</h2>
+        <p>The database must be hosted on an <strong>existing VA-managed SQL Server instance</strong> using the standard VA SQL image. A designated VA DBA must be engaged to provision the database and login.</p>
+        <div class="alert-red">
+            <strong>&#128683; Constraint</strong><br/>
+            ID Integration / InfinID Technologies are <strong>prohibited from creating or hosting SQL Server instances</strong>. All database work must be performed by VA OIT Database Administration.
+        </div>
+        <table>
+            <tr><th>Item</th><th>Value</th><th>Notes</th></tr>
+            <tr><td><strong>Database Name</strong></td><td><code>idash</code></td><td>Created empty; iDash installer builds schema on first connection</td></tr>
+            <tr><td><strong>SQL Login</strong></td><td><code>idashadmin</code></td><td>SQL Server Authentication (not Windows auth)</td></tr>
+            <tr><td><strong>Password</strong></td><td>Set to VA OIT standard</td><td>Must comply with VA password policy</td></tr>
+            <tr><td><strong>Server Roles</strong></td><td><code>sysadmin</code>, <code>bulkadmin</code></td><td><code>sysadmin</code> required for Database Restore page (orphan fix + post-restore normalization); <code>bulkadmin</code> required for BCP/bulk import</td></tr>
+            <tr><td><strong>Database Role</strong></td><td><code>db_owner</code> (dbo)</td><td>Required for schema creation, table management, and data operations</td></tr>
+        </table>
+        <h3>SQL Provisioning Script (for VA DBA)</h3>
+        <pre style="background:var(--bg);border:1px solid var(--line);padding:15px;border-radius:8px;color:#a78bfa;font-size:13px;overflow-x:auto;">-- Run as SA or sysadmin on the target SQL Server instance
+CREATE DATABASE [idash];
+GO
+
+CREATE LOGIN [idashadmin] WITH PASSWORD = N'&lt;VA_OIT_STANDARD_PASSWORD&gt;',
+    DEFAULT_DATABASE = [idash], CHECK_POLICY = ON;
+GO
+
+USE [idash];
+CREATE USER [idashadmin] FOR LOGIN [idashadmin];
+ALTER ROLE [db_owner] ADD MEMBER [idashadmin];
+GO
+
+-- Server-level roles
+-- sysadmin: required for Database Restore (fixes orphaned user after cross-server .bak restore)
+-- bulkadmin: required for BCP/bulk data import
+ALTER SERVER ROLE [sysadmin] ADD MEMBER [idashadmin];
+ALTER SERVER ROLE [bulkadmin] ADD MEMBER [idashadmin];
+GO</pre>
+    </div>
+
+    <!-- SECTION 3: FIREWALL & ACL -->
+    <div class="card">
+        <h2>3. Network ACL &amp; Firewall Rules</h2>
+        <p>All ports listed below are documented in the approved ERA. OIT Network must configure ACLs on switches and firewall rules to permit this traffic. <strong>Direction is specified from the perspective of the iDash server.</strong></p>
+        <div class="alert-blue">
+            <strong>&#128196; ERA Reference</strong><br/>
+            Port requirements are defined in: <a href="SPS_OT_RITM9079692_iDash Mod 1.2_POAM Req_Approved.pdf">ERA Document &mdash; RITM9079692</a>. Verify all entries against the current ERA version before submitting firewall change requests.
+        </div>
+        <table>
+            <tr><th>Port</th><th>Protocol</th><th>Direction</th><th>Source</th><th>Destination</th><th>Purpose</th><th>Required</th></tr>
+            <tr><td><strong>443</strong></td><td>TCP</td><td>Inbound</td><td>Mobile scanners, workstations</td><td>iDash Server</td><td>HTTPS &mdash; iDash web app, iDash dashboard, print services</td><td><span class="badge badge-req">YES</span></td></tr>
+            <tr><td><strong>80</strong></td><td>TCP</td><td>Inbound</td><td>Mobile scanners, workstations</td><td>iDash Server</td><td>HTTP (redirects to 443)</td><td><span class="badge badge-req">YES</span></td></tr>
+            <tr><td><strong>1433</strong></td><td>TCP</td><td>Outbound</td><td>iDash Server</td><td>VA SQL Server</td><td>SQL Server database connectivity &mdash; all application data (assets, users, locations, tag history, print jobs)</td><td><span class="badge badge-req">YES</span></td></tr>
+            <tr><td><strong>9100</strong></td><td>TCP</td><td>Outbound</td><td>iDash Server</td><td>Label Printers (static IPs)</td><td>Raw print data &mdash; BarTender label output via IP network port to Zebra ZD620/ZD621 printers</td><td><span class="badge badge-req">YES</span></td></tr>
+            <tr><td><strong>8883</strong></td><td>TCP</td><td>Inbound</td><td>iDash Server (loopback)</td><td>iDash Server (loopback)</td><td>MQTT/TLS &mdash; iDash embedded MQTTnet broker for label print job routing between web app and Print Server. Loopback traffic only.</td><td>Auto (loopback)</td></tr>
+            <tr style="background:color-mix(in srgb, #10b981 6%, transparent);"><td><strong>1883</strong></td><td>TCP</td><td>Inbound</td><td>FX9600 Fixed Reader IP(s)</td><td>iDash Server</td><td>MQTT/TCP &mdash; Zebra FX9600 fixed readers publish tag observations to <strong>RabbitMQ</strong> broker. iDash AntennaLocationService subscribes and processes tags for location tracking. <a href="va_rabbitmq_setup.html">Setup Guide</a></td><td><span class="badge badge-req">YES</span></td></tr>
+            <tr><td><strong>15672</strong></td><td>TCP</td><td>Loopback</td><td>localhost</td><td>localhost</td><td>HTTP &mdash; RabbitMQ Management API. Used by iDash Site Config panel for broker monitoring (connections, messages, queues). Loopback only &mdash; no external access needed.</td><td>Auto (loopback)</td></tr>
+            <tr><td><strong>5672</strong></td><td>TCP</td><td>Loopback</td><td>localhost</td><td>localhost</td><td>AMQP &mdash; RabbitMQ internal protocol used by plugins. Loopback only.</td><td>Auto (loopback)</td></tr>
+            <tr><td><strong>25672</strong></td><td>TCP</td><td>Loopback</td><td>localhost</td><td>localhost</td><td>Erlang distribution &mdash; RabbitMQ inter-node clustering. Single-node deployment: loopback only.</td><td>Auto (loopback)</td></tr>
+            <tr><td><strong>5985/5986</strong></td><td>TCP</td><td>Inbound/Outbound</td><td>Admin workstations</td><td>iDash Server</td><td>WinRM / PowerShell remoting &mdash; remote server administration</td><td>Optional</td></tr>
+            <tr><td><strong>53</strong></td><td>UDP/TCP</td><td>Outbound</td><td>iDash Server</td><td>VA DNS</td><td>DNS resolution &mdash; standard name resolution for all network services</td><td><span class="badge badge-req">YES</span></td></tr>
+            <tr><td><strong>25/587</strong></td><td>TCP</td><td>Outbound</td><td>iDash Server</td><td>VA SMTP relay</td><td>Email &mdash; automated report delivery and alert notifications from iDash Daily Report Automation</td><td>Optional</td></tr>
+        </table>
+        <div class="alert-green">
+            <strong>&#9989; Key point for ACL requests:</strong> For fixed reader deployments, only <strong>port 1883 inbound</strong> from the reader subnet requires a new firewall rule. All RabbitMQ management ports (5672, 15672, 25672) are localhost-only and do not need external network access. Port 8883 is loopback-only for print routing. This minimizes the security footprint.
+        </div>
+        <div class="alert-amber">
+            <strong>&#9888; Verify Against Current ERA</strong><br/>
+            The ports listed above are representative. <strong>Always cross-reference the approved ERA document</strong> for the definitive port list, as amendments may add or modify entries. All ports, protocols, and directions noted on the ERA must be opened and accounted for in both ACL and firewall configurations.
+        </div>
+    </div>
+    <!-- SECTION 4: WIFI & MOBILE -->
+    <div class="card">
+        <h2>4. Mobile Scanner WiFi Onboarding</h2>
+        <p>All Zebra TC53 handheld computers and RFD40 RFID sleds connect to the iDash server over WiFi. They must be onboarded to the <strong>mobile1md</strong> VA network.</p>
+        <div class="grid2">
+            <div style="background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:18px;">
+                <h3 style="color:var(--accent-docs);margin-top:0;">WiFi Network</h3>
+                <table>
+                    <tr><td><strong>SSID</strong></td><td><code>mobile1md</code></td></tr>
+                    <tr><td><strong>IP Assignment</strong></td><td><span class="badge badge-tcp">DHCP</span></td></tr>
+                    <tr><td><strong>Authentication</strong></td><td>Per VA wireless policy (802.1X / certificate)</td></tr>
+                </table>
+            </div>
+            <div style="background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:18px;">
+                <h3 style="color:var(--accent-docs);margin-top:0;">MAC Registration</h3>
+                <p style="margin-top:0;">Every mobile scanner must have its <strong>WiFi MAC address</strong> collected and submitted to OIT for network access approval before deployment.</p>
+                <ul>
+                    <li>Gather MAC from: <strong>Settings &rarr; About &rarr; WiFi MAC Address</strong> on each TC53</li>
+                    <li>Submit all MACs to OIT via standard hardware approval ticket</li>
+                    <li>Devices will not connect until MAC is registered</li>
+                </ul>
+            </div>
+        </div>
+        <h3>Device Inventory Template</h3>
+        <p>Complete this table for each scanner before submitting to OIT:</p>
+        <table>
+            <tr><th>Device #</th><th>Model</th><th>Serial Number</th><th>WiFi MAC Address</th><th>Assigned User/Team</th><th>Building</th></tr>
+            <tr><td>1</td><td>TC53 + RFD40</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+            <tr><td>2</td><td>TC53 + RFD40</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+            <tr><td>3</td><td>TC53 + RFD40</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+        </table>
+    </div>
+
+    <!-- SECTION 5: PRINTERS -->
+    <div class="card">
+        <h2>5. Label Printer Network Configuration</h2>
+        <p>All label printers must be assigned <strong>static IP addresses</strong> and connected to the network via <strong>hardwired Ethernet (IP network port)</strong>. Printers must be reachable from the iDash server on <strong>port 9100 (RAW print)</strong>.</p>
+        <table>
+            <tr><th>Requirement</th><th>Specification</th></tr>
+            <tr><td><strong>IP Assignment</strong></td><td><span class="badge badge-req">STATIC IP</span> &mdash; assigned by OIT, no DHCP</td></tr>
+            <tr><td><strong>Connection</strong></td><td>Hardwired Ethernet to wall jack at designated operator workspace</td></tr>
+            <tr><td><strong>Print Protocol</strong></td><td>RAW/TCP port 9100 (standard IP network port)</td></tr>
+            <tr><td><strong>VLAN</strong></td><td>Must be routable from the iDash server VLAN</td></tr>
+            <tr><td><strong>Print Software</strong></td><td>Seagull Scientific BarTender on the server dispatches all print jobs</td></tr>
+        </table>
+        <div class="alert-green">
+            <strong>&#9989; Site Planning Required</strong><br/>
+            Physical locations for each printer must be selected in advance. Each location requires:
+            <ul style="margin-bottom:0;">
+                <li>A live Ethernet wall jack patched to the correct VLAN</li>
+                <li>Power outlet within cable reach</li>
+                <li>Accessible workspace for operators to retrieve labels</li>
+            </ul>
+        </div>
+        <h3>Printer Inventory Template</h3>
+        <table>
+            <tr><th>Printer #</th><th>Model</th><th>Serial</th><th>Static IP</th><th>Building</th><th>Room / Location</th><th>Wall Jack ID</th></tr>
+            <tr><td>1</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+            <tr><td>2</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+        </table>
+    </div>
+
+    <!-- SECTION 6: IIS -->
+    <div class="card">
+        <h2>6. IIS Configuration</h2>
+        <p>IIS hosts the following web applications under a single site with SSL binding:</p>
+        <table>
+            <tr><th>Application</th><th>IIS Path</th><th>Function</th></tr>
+            <tr><td><strong>iDash Web Client</strong></td><td><code>/iDash.WebClient</code></td><td>Core asset tracking web interface used by mobile scanners and workstations</td></tr>
+            <tr><td><strong>iDash</strong></td><td><code>/iDash</code></td><td>Management dashboard &mdash; reporting, inventory, scanning tools, admin, documentation</td></tr>
+            <tr><td><strong>BarTender Web Print</strong></td><td><code>/BarTender</code></td><td>Print service API for dispatching label print jobs to networked printers</td></tr>
+        </table>
+        <h3>IIS Requirements</h3>
+        <ul>
+            <li><strong>SSL Certificate:</strong> VA-issued cert bound to port 443 with hostname matching DNS entry</li>
+            <li><strong>ASP.NET 4.x:</strong> Must be enabled under IIS role features</li>
+            <li><strong>Application Pool:</strong> .NET v4.0, Integrated pipeline mode</li>
+            <li><strong>Authentication:</strong> Anonymous + Forms (iDash manages its own auth layer)</li>
+        </ul>
+    </div>
+
+    <!-- SECTION 7: OAUTH API CREDENTIALS -->
+    <div class="card">
+        <h2>7. iDash API OAuth2 Client Credentials</h2>
+        <p>
+            iDash communicates with the iDash REST API using the
+            <strong>OAuth 2.0 client_credentials grant</strong>. Before iDash can be configured, the
+            OAuth client ID and secret must be known. These values are stored in the iDash database
+            and must be copied into iDash's <code>web.config</code> (or entered via
+            <code>va_site_config.aspx</code>) as part of Step 3b of the iDash deployment.
+        </p>
+        <div class="alert-red">
+            <strong>&#128683; Critical &mdash; Frequently Missed Step</strong><br/>
+            If the OAuth credentials entered in iDash do not match the values stored in the iDash
+            database, <strong>all API-driven iDash features will silently fail</strong>: print jobs will
+            not route, the RFID Asset Locator will not resolve assets, and the Fixed Reader Configuration
+            page will not load readers. There is no error message visible to users &mdash; only the
+            developer console or application log will show a 401 Unauthorized.
+        </div>
+
+        <h3>Step 1 &mdash; Read the Existing Credentials from the iDash database</h3>
+        <p>Run this on the iDash SQL Server as <code>idashadmin</code> or SA:</p>
+        <pre style="background:var(--bg);border:1px solid var(--line);padding:15px;border-radius:8px;color:#a78bfa;font-size:13px;overflow-x:auto;">USE [idash];
+SELECT webclientid, webclientsecret FROM dbo.applicationsetting;</pre>
+        <p>The result will show the <code>webclientid</code> and <code>webclientsecret</code> values.
+        Record these &mdash; they are what you will enter into iDash's <code>web.config</code>.</p>
+
+        <h3>Step 2 &mdash; Default Values (if the table has never been customized)</h3>
+        <table>
+            <tr><th>Field</th><th>iDash DB Column</th><th>Default Value</th><th>iDash web.config Key</th></tr>
+            <tr>
+                <td><strong>Client ID</strong></td>
+                <td><code>webclientid</code></td>
+                <td><code>idash.web</code></td>
+                <td><code>iDash_ClientId</code></td>
+            </tr>
+            <tr>
+                <td><strong>Client Secret</strong></td>
+                <td><code>webclientsecret</code></td>
+                <td><code>901564A5-E7FE-42CB-B10D-61EF6A8F3654</code></td>
+                <td><code>iDash_ClientSecret</code></td>
+            </tr>
+        </table>
+        <div class="alert-amber">
+            <strong>&#9888; Do not assume defaults are active.</strong>
+            The iDash installer or a previous configuration may have changed these values.
+            Always query the database directly. Never guess or copy from another VISN &mdash; each
+            deployment may have unique credentials.
+        </div>
+
+        <h3>Step 3 &mdash; Optionally Change the Credentials (Recommended for Production)</h3>
+        <p>If you want to set a custom client ID and secret (recommended for VA production environments):</p>
+        <pre style="background:var(--bg);border:1px solid var(--line);padding:15px;border-radius:8px;color:#a78bfa;font-size:13px;overflow-x:auto;">USE [idash];
+UPDATE dbo.applicationsetting
+SET webclientid     = 'visn5_idash',
+    webclientsecret = '&lt;GENERATE_A_SECURE_GUID_HERE&gt;';
+GO</pre>
+        <p>After updating the database row, also update the iDash API's <code>appsettings.json</code>
+        (located in the iDash WebAPI application folder) to match:
+        </p>
+        <pre style="background:var(--bg);border:1px solid var(--line);padding:15px;border-radius:8px;color:#a78bfa;font-size:13px;overflow-x:auto;">"ConfigSettings": {
+  "WebClientId": "visn5_idash",
+  "WebClientSecret": "&lt;SAME_GUID_AS_ABOVE&gt;",
+  "AuthenticationServer": "http://localhost"
+}</pre>
+        <div class="alert-blue">
+            <strong>&#128279; Credential Flow Reference</strong><br/>
+            For the full OAuth token flow diagram and troubleshooting steps, see the
+            <a href="va_printing_guide.html">Print Server Setup Guide &mdash; API Credentials section</a>.
+        </div>
+
+        <h3>Step 4 &mdash; Enter Credentials into iDash</h3>
+        <p>Navigate to <code>http://localhost/iDash/va_site_config.aspx</code> after first boot.
+        Under the <strong>API / OAuth2 Settings</strong> section, enter:</p>
+        <table>
+            <tr><th>Field</th><th>Value to enter</th></tr>
+            <tr><td><strong>API Base URL</strong></td><td><code>http://localhost/api</code></td></tr>
+            <tr><td><strong>OAuth Token URL</strong></td><td><code>http://localhost/connect/token</code></td></tr>
+            <tr><td><strong>Client ID</strong></td><td>Value from <code>webclientid</code> in Step 1</td></tr>
+            <tr><td><strong>Client Secret</strong></td><td>Value from <code>webclientsecret</code> in Step 1</td></tr>
+        </table>
+    </div>
+
+    <!-- SECTION 8: CHECKLIST -->
+    <div class="card">
+        <h2>8. OIT Pre-Deployment Checklist</h2>
+        <p>Complete all items before scheduling the on-site installation with ID Integration:</p>
+        <table>
+            <tr><th style="width:40px;">&#9744;</th><th>Task</th><th>OIT Team</th><th>Details</th></tr>
+            <tr><td>&#9744;</td><td><strong>Provision server</strong></td><td>Server Team</td><td>Standard VA image, static IP, local admin access provided</td></tr>
+            <tr><td>&#9744;</td><td><strong>Install IIS + ASP.NET</strong></td><td>Server Team</td><td>Enable IIS role with ASP.NET 4.x features</td></tr>
+            <tr><td>&#9744;</td><td><strong>Bind SSL certificate</strong></td><td>Server / PKI Team</td><td>VA-issued cert on port 443</td></tr>
+            <tr><td>&#9744;</td><td><strong>Create SQL database</strong></td><td>DBA Team</td><td>Database: <code>idash</code>, Login: <code>idashadmin</code> with dbo + sysadmin + bulkadmin</td></tr>
+            <tr><td>&#9744;</td><td><strong>Install iDash</strong></td><td>IDI / Vendor</td><td>Must install before querying API credentials in next step</td></tr>
+            <tr><td>&#9744;</td><td><strong>Read OAuth credentials from DB</strong></td><td>DBA / IDI</td><td>Run <code>SELECT webclientid, webclientsecret FROM dbo.applicationsetting</code> and record values. See Section 7.</td></tr>
+            <tr><td>&#9744;</td><td><strong>Open firewall ports</strong></td><td>Network / Firewall Team</td><td>All ports per ERA (see Section 3)</td></tr>
+            <tr><td>&#9744;</td><td><strong>Configure ACLs</strong></td><td>Network Team</td><td>Server VLAN &harr; printer VLAN, mobile1md VLAN routing</td></tr>
+            <tr><td>&#9744;</td><td><strong>Assign printer static IPs</strong></td><td>Network Team</td><td>Reserve IPs, patch wall jacks to correct VLAN</td></tr>
+            <tr><td>&#9744;</td><td><strong>Register scanner MACs</strong></td><td>Network / WiFi Team</td><td>All TC53 WiFi MACs registered on mobile1md</td></tr>
+            <tr><td>&#9744;</td><td><strong>Verify SQL connectivity</strong></td><td>DBA / Server Team</td><td>From server, confirm <code>sqlcmd -S &lt;SQLHost&gt; -U idashadmin -P &lt;pw&gt; -d idash</code> connects</td></tr>
+            <tr><td>&#9744;</td><td><strong>Verify printer reachability</strong></td><td>Network Team</td><td>From server, confirm <code>Test-NetConnection &lt;PrinterIP&gt; -Port 9100</code> succeeds</td></tr>
+            <tr><td>&#9744;</td><td><strong>Deploy and configure iDash</strong></td><td>IDI</td><td>Enter OAuth credentials (Section 7) into <code>va_site_config.aspx</code>; verify API-driven pages load</td></tr>
+            <tr><td>&#9744;</td><td><strong>Install Erlang/OTP + RabbitMQ</strong></td><td>IDI</td><td>Required for fixed reader tag routing. See <a href="va_rabbitmq_setup.html">RabbitMQ Setup Guide</a>. Open port 1883 inbound from reader subnet.</td></tr>
+            <tr><td>&#9744;</td><td><strong>Open port 1883 inbound</strong></td><td>Network / Firewall Team</td><td>TCP from FX9600 reader subnet to iDash server. Required for fixed reader MQTT tag observations.</td></tr>
+            <tr><td>&#9744;</td><td><strong>Provide credentials to IDI</strong></td><td>Project Lead</td><td>Server hostname/IP, SQL host, idashadmin password, local admin credentials</td></tr>
+        </table>
+    </div>
+
+    <!-- SECTION 8: CONTACTS -->
+    <div class="card">
+        <h2>8. Responsible Parties</h2>
+        <div class="grid2">
+            <div style="background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:18px;">
+                <h3 style="color:var(--accent-3);margin-top:0;">Vendor &mdash; Installation &amp; Software</h3>
+                <p style="margin-top:0;"><strong>ID Integration Inc.</strong><br/>iDash by InfinID Technologies<br/>Responsible for: software installation, configuration, training, and ongoing support.</p>
+            </div>
+            <div style="background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:18px;">
+                <h3 style="color:var(--accent-3);margin-top:0;">VA OIT &mdash; Infrastructure</h3>
+                <p style="margin-top:0;">Responsible for: server provisioning, SQL database creation, network ACL/firewall rules, WiFi onboarding, SSL certificates, and all infrastructure prerequisites listed in Section 7.</p>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align:center;margin-top:30px;">
+        <a href="SPS_OT_RITM9079692_iDash Mod 1.2_POAM Req_Approved.pdf" style="display:inline-block;background:var(--accent-docs);color:var(--bg);padding:12px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;">&#128196; Download Approved ERA Document (PDF)</a>
+    </div>
+
+    <div style="margin-top:40px;padding-top:20px;border-top:1px solid var(--line);">
+        <a href="index.aspx" style="font-weight:600;">&larr; Back to Documentation Hub</a>
+    </div>
+</div>
+
+<footer style="margin-top:40px;padding:20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted-docs);display:flex;justify-content:space-between;align-items:center;max-width:1100px;margin-left:auto;margin-right:auto;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
+        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
+        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+        <span>&copy; 2026 ID Integration Inc.</span>
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height:14px;opacity:0.9;">
+    </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Data File Import — iDash Documentation</title>
+    <link rel="stylesheet" href="../theme.css" />
+    <script src="../theme-init.js"></script>
+    <style>
+        :root { --doc-accent: #10b981; }
+        body { margin:0; background:var(--bg); color:var(--text); font-family:'Segoe UI',Tahoma,Arial,sans-serif; line-height:1.7; }
+        .doc-page { max-width:900px; margin:0 auto; padding:40px 32px 80px; }
+        .doc-nav { display:flex; gap:16px; margin-bottom:24px; font-size:13px; }
+        .doc-nav a { color:var(--accent); text-decoration:none; }
+        .doc-nav a:hover { text-decoration:underline; }
+        h1 { font-size:32px; font-weight:800; margin:0 0 8px; color:var(--doc-accent); }
+        .doc-sub { font-size:14px; color:var(--muted); margin-bottom:32px; }
+        h2 { font-size:22px; font-weight:700; margin:36px 0 12px; padding-bottom:6px; border-bottom:2px solid var(--line); }
+        h3 { font-size:17px; font-weight:700; margin:24px 0 8px; color:var(--doc-accent); }
+        p, li { font-size:15px; }
+        ul, ol { padding-left:24px; }
+        li { margin-bottom:6px; }
+        code { background:color-mix(in srgb, var(--accent), transparent 90%); padding:2px 6px; border-radius:4px; font-size:13px; font-family:Consolas,monospace; }
+        pre { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:16px; overflow-x:auto; font-size:13px; line-height:1.5; }
+        pre code { background:none; padding:0; }
+        table { width:100%; border-collapse:collapse; margin:16px 0; font-size:14px; }
+        th { background:var(--doc-accent); color:#fff; padding:10px 14px; text-align:left; font-weight:600; }
+        td { padding:10px 14px; border-bottom:1px solid var(--line); }
+        tr:hover td { background:color-mix(in srgb, var(--doc-accent), transparent 94%); }
+        .callout { padding:14px 18px; border-radius:8px; margin:16px 0; font-size:14px; }
+        .callout-info { background:color-mix(in srgb, #2ea8ff, transparent 90%); border-left:4px solid #2ea8ff; color:#2ea8ff; }
+        .callout-warn { background:color-mix(in srgb, #f59e0b, transparent 90%); border-left:4px solid #f59e0b; color:#f59e0b; }
+        .callout-ok { background:color-mix(in srgb, #10b981, transparent 90%); border-left:4px solid #10b981; color:#10b981; }
+    </style>
+</head>
+<body>
+<div class="doc-page">
+    <div class="doc-nav">
+        <a href="../va_data_import.aspx">&larr; Open Tool</a>
+        <a href="../index.aspx">&larr; Back to Hub</a>
+        <a href="index.aspx">&larr; Documentation Hub</a>
+    </div>
+
+    <h1>&#128229; Data File Import</h1>
+    <div class="doc-sub">Upload tab-delimited VA data files and import directly into iDash — no SSMS, no file shares, no copy-paste.</div>
+
+    <h2>Overview</h2>
+    <p>The Data File Import tool replaces the manual process of running SQL scripts in SSMS to import asset data from VA data extracts. It handles everything automatically:</p>
+    <ol>
+        <li>Parses the tab-delimited file</li>
+        <li>Streams rows to SQL Server using high-speed bulk copy</li>
+        <li>Maps raw data to the iDash schema (EPC tags, SP locations, company IDs)</li>
+        <li>Inserts new locations and assets</li>
+        <li>Normalizes legacy data (SP prefixes, status values, location links)</li>
+    </ol>
+
+    <h2>Import Modes</h2>
+    <p>The tool supports two modes to handle different data scenarios:</p>
+
+    <table>
+        <tr><th>Mode</th><th>When to Use</th><th>What It Does</th></tr>
+        <tr>
+            <td><strong>Force Site Number</strong></td>
+            <td>Single-site files (e.g., Prescott 649 data extract)</td>
+            <td>All rows get the station number you enter. Fills in blank STATION NUMBER values.</td>
+        </tr>
+        <tr>
+            <td><strong>Auto-detect from File</strong></td>
+            <td>Multi-site files with different stations per row</td>
+            <td>Uses the STATION NUMBER column from each row as-is. Rows with blank stations get a fallback company ID of 0.</td>
+        </tr>
+    </table>
+
+    <div class="callout callout-info">
+        <strong>When in doubt, use Force Site.</strong> Most VA data extracts are single-site and some rows may have blank station numbers. Force Site ensures every row gets the correct station assignment.
+    </div>
+
+    <h2>Expected File Format</h2>
+    <p>The file must be <strong>tab-delimited</strong> with a header row. Expected columns (in order):</p>
+    <table>
+        <tr><th>#</th><th>Column Name</th><th>Maps To</th></tr>
+        <tr><td>1</td><td>ENTRY NUMBER</td><td>Asset name (base)</td></tr>
+        <tr><td>2</td><td>MANUFACTURER</td><td>text1</td></tr>
+        <tr><td>3</td><td>MFGR. EQUIPMENT NAME</td><td>description</td></tr>
+        <tr><td>4</td><td>MODEL</td><td>text2</td></tr>
+        <tr><td>5</td><td>SERIAL #</td><td>text3</td></tr>
+        <tr><td>6</td><td>EQUIPMENT CATEGORY</td><td>text4</td></tr>
+        <tr><td>7</td><td>USE STATUS</td><td>listvalue1 (blanks default to IN USE)</td></tr>
+        <tr><td>8</td><td>SERVICE POINTER</td><td>text5</td></tr>
+        <tr><td>9</td><td>LOCATION</td><td>text6 (SP prefix added)</td></tr>
+        <tr><td>10</td><td>PHYSICAL INVENTORY DATE</td><td>lastinventoried / date1 / date2</td></tr>
+        <tr><td>11</td><td>PREVIOUS LOCATION</td><td>text11 (SP prefix added)</td></tr>
+        <tr><td>12</td><td>STATION NUMBER</td><td>text7 (used for company mapping + name prefix)</td></tr>
+        <tr><td>13</td><td>CATEGORY STOCK NUMBER</td><td>assettype</td></tr>
+        <tr><td>14</td><td>CMR</td><td>text8</td></tr>
+        <tr><td>15</td><td>PURCHASE ORDER #</td><td>text9</td></tr>
+        <tr><td>16</td><td>SUB STATION (optional)</td><td>Loaded to staging only</td></tr>
+    </table>
+
+    <h2>How It Works</h2>
+    <h3>Step 1: File Parsing</h3>
+    <p>The uploaded file is read on the web server and parsed into a structured format. You can preview the first 20 rows before committing.</p>
+
+    <h3>Step 2: Bulk Streaming</h3>
+    <p>All rows are streamed to the SQL Server staging table (<code>dbo.AssetFileRaw</code>) using <code>SqlBulkCopy</code> in batches of 2,000. This is the same mechanism that SSMS uses internally — fast and reliable.</p>
+
+    <h3>Step 3: Data Transformation</h3>
+    <p>The merge logic performs the following transformations (matching <code>va_dbupdate.sql</code>):</p>
+    <ul>
+        <li><strong>Name computation:</strong> <code>[StationNumber] EE[EntryNumber]</code> (with duplicate-prefix guard)</li>
+        <li><strong>EPC/rfidtag generation:</strong> Computed from the cleaned name with F-padding</li>
+        <li><strong>Company mapping:</strong> Matches first 3 digits of station number to company name prefix</li>
+        <li><strong>Location normalization:</strong> All locations get <code>SP</code> prefix; blanks become <code>SPZZUNKNOWN</code></li>
+        <li><strong>Date normalization:</strong> Converts inventory dates to <code>datetimeoffset</code> format</li>
+        <li><strong>Use Status:</strong> Blank statuses default to <code>IN USE</code></li>
+        <li><strong>Description cleanup:</strong> Strips quotes and special whitespace characters</li>
+    </ul>
+
+    <h3>Step 4: Insert &amp; Link</h3>
+    <ul>
+        <li>New locations are inserted (deduplicated against existing)</li>
+        <li>New assets are inserted (deduplicated by name+company and rfidtag)</li>
+        <li>All unlinked assets get their <code>locationid</code> linked</li>
+        <li>Legacy data across the entire database gets SP prefix and company ID corrections</li>
+    </ul>
+
+    <h2>PowerShell CLI Alternative</h2>
+    <p>For command-line imports (e.g., from remote machines without browser access), use the PowerShell script:</p>
+    <pre><code># Force Site mode (single-site file)
+.\Import-PrescottData.ps1 -SqlServer "VA-SQL-HOST" -ForceSite "649"
+
+# Auto-detect mode (multi-site file)
+.\Import-PrescottData.ps1 -SqlServer "VA-SQL-HOST"
+
+# Dry run (staging only, no merge)
+.\Import-PrescottData.ps1 -SqlServer "VA-SQL-HOST" -ForceSite "649" -DryRun</code></pre>
+    <p>Download: <a href="../downloads/Scripts/Import-PrescottData.ps1">Import-PrescottData.ps1</a></p>
+
+    <h2>Troubleshooting</h2>
+    <h3>File too large</h3>
+    <p>The upload limit is set to 50MB. If your file exceeds this, use the PowerShell CLI script instead (no size limit).</p>
+
+    <h3>Assets not inserted (all skipped)</h3>
+    <p>This means assets with the same name+company already exist in the database. The import is <strong>additive</strong> — it never overwrites existing data. Run a SELECT query to verify.</p>
+
+    <h3>Wrong company mapping</h3>
+    <p>The import matches the first 3 digits of the station number against the first 3 characters of company names. If a company record doesn't exist, one is auto-created as <code>[StationNumber] Unknown</code>. Rename it after import to the correct site name.</p>
+
+    <h3>Location names look wrong</h3>
+    <p>All locations are prefixed with <code>SP</code> (Service Pointer). If the raw data already has <code>SP</code>, the tool strips it first then re-adds it to prevent double-prefixing (<code>SPSP...</code>).</p>
+
+    <div class="callout callout-ok">
+        <strong>Best practice:</strong> Always use "Preview First 20 Rows" before importing to verify the file was parsed correctly and columns are in the expected order.
+    </div>
+</div>
+</body>
+</html>

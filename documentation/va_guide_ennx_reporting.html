@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>iDash Docs &mdash; Guide: ENNX Report Generator</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <style>
+        .step-card { background: color-mix(in srgb, var(--text, #e2e8f0), transparent 97%); border: 1px solid var(--line, #2a3441); border-radius: 14px; padding: 28px; margin-bottom: 32px; }
+        .step-num { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: #ec4899; color: #fff; font-weight: 800; font-size: 16px; margin-right: 12px; flex-shrink: 0; }
+        .step-title { font-size: 20px; font-weight: 700; display: flex; align-items: center; margin-bottom: 12px; }
+        .step-desc { color: var(--muted-docs, #8b95a5); font-size: 14px; line-height: 1.7; margin-bottom: 16px; }
+        .tip-box { background: color-mix(in srgb, #10b981, transparent 88%); border: 1px solid rgba(16,185,129,0.3); border-left: 4px solid #10b981; padding: 14px 18px; border-radius: 8px; font-size: 13px; margin: 16px 0; color: #10b981; }
+        .warn-box { background: color-mix(in srgb, #f59e0b, transparent 88%); border: 1px solid rgba(245,158,11,0.3); border-left: 4px solid #f59e0b; padding: 14px 18px; border-radius: 8px; font-size: 13px; margin: 16px 0; color: #f59e0b; }
+        .info-box { background: color-mix(in srgb, #3b82f6, transparent 88%); border: 1px solid rgba(59,130,246,0.3); border-left: 4px solid #3b82f6; padding: 14px 18px; border-radius: 8px; font-size: 13px; margin: 16px 0; color: #3b82f6; }
+        .section-divider { border: none; border-top: 2px solid var(--line, #2a3441); margin: 40px 0; }
+        .phase-header { font-size: 18px; font-weight: 800; margin: 32px 0 12px 0; padding: 10px 16px; border-radius: 10px; display: flex; align-items: center; gap: 10px; }
+        .phase-header.access { background: color-mix(in srgb, #ec4899, transparent 88%); border: 1px solid rgba(236,72,153,0.3); color: #ec4899; }
+        .phase-header.filter { background: color-mix(in srgb, #3b82f6, transparent 88%); border: 1px solid rgba(59,130,246,0.3); color: #3b82f6; }
+        .phase-header.export { background: color-mix(in srgb, #8B5CF6, transparent 88%); border: 1px solid rgba(139,92,246,0.3); color: #8B5CF6; }
+        .phase-header.history { background: color-mix(in srgb, #f59e0b, transparent 88%); border: 1px solid rgba(245,158,11,0.3); color: #f59e0b; }
+        .phase-header.email { background: color-mix(in srgb, #10b981, transparent 88%); border: 1px solid rgba(16,185,129,0.3); color: #10b981; }
+        .ss { display: block; width: 100%; max-width: 960px; border-radius: 10px; border: 1px solid var(--line, #2a3441); box-shadow: 0 4px 20px rgba(0,0,0,0.15); margin: 16px 0; }
+        .ss-caption { font-size: 0.78rem; color: var(--muted-docs, #8b95a5); margin: -8px 0 16px 0; font-style: italic; }
+        .btn-ref { display: inline-block; background: var(--chip, #1e2a38); border: 1px solid var(--line, #2a3441); border-radius: 6px; padding: 3px 10px; font-size: 12px; font-weight: 700; color: var(--text); margin: 2px 2px; white-space: nowrap; }
+        .btn-ref.blue { background: color-mix(in srgb, #2563eb, transparent 80%); border-color: #2563eb; color: #2563eb; }
+        .btn-ref.orange { background: color-mix(in srgb, #f59e0b, transparent 80%); border-color: #f59e0b; color: #f59e0b; }
+        .btn-ref.red { background: color-mix(in srgb, #ef4444, transparent 80%); border-color: #ef4444; color: #ef4444; }
+    </style>
+</head>
+<body>
+    <a href="index.aspx" class="back-link">&larr; Documentation Hub</a>
+    <div class="doc-container">
+        <h1>&#128202; Guide: ENNX Report Generator</h1>
+        <p class="doc-subtitle">How to build and export ENNX files using the iDash ENNX Export tool, and how to use ENNX Report History to review, preview, and bulk-email past sessions.</p>
+
+        <div class="callout callout-info">
+            <strong>What is ENNX?</strong> ENNX stands for &ldquo;Equipment Not in Expected (N) Location.&rdquo; It is a standardized VA file format listing scanned asset inventory grouped by room location. ENNX files are submitted to AEMS/MERS for compliance tracking.
+        </div>
+
+        <div class="phase-header access">&#128202; Part 1: ENNX Export &mdash; va_ennx.aspx</div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">1</span> Open ENNX Export</div>
+            <div class="step-desc">Navigate to <strong>/iDash/va_ennx.aspx</strong> or click <strong>New Export</strong> from the History page header. The page subtitle reads <em>&ldquo;Build and export VA asset inventory files.&rdquo;</em></div>
+            <img class="ss" src="img/ennx/ennx_filters.png" alt="ENNX Export page with all filter controls visible" />
+            <p class="ss-caption">The ENNX Export page &mdash; set your filters here before clicking Build ENNX.</p>
+        </div>
+
+        <hr class="section-divider" />
+        <div class="phase-header filter">&#128270; Part 2: Set Filters &amp; Build</div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num" style="background:#3b82f6;">2</span> Configure Filters</div>
+            <div class="step-desc">Use the controls across the top of the page to scope the report:</div>
+            <table class="doc-table">
+                <thead><tr><th style="width:28%">Filter</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Header line 2</strong></td><td>Optional second header in the ENNX text output. Defaults to &ldquo;ID&rdquo;.</td></tr>
+                    <tr><td><strong>From Date</strong></td><td>The date assets were inventoried (scanned). <strong>Must match the actual scan date</strong>, not when records were modified.</td></tr>
+                    <tr><td><strong>To Date (Optional)</strong></td><td>End of date range. Leave blank to report on a single day.</td></tr>
+                    <tr><td><strong>Time Period</strong></td><td>Filter by time of day within the selected date(s). Default: <em>All day</em>.</td></tr>
+                    <tr><td><strong>Site</strong></td><td>Filter by a specific VA site (e.g., 613 Martinsburg). Leave as <em>-- ALL SITES --</em> for all sites.</td></tr>
+                    <tr><td><strong>User</strong></td><td>Filter by the technician who performed the scan.</td></tr>
+                    <tr><td><strong>Tagged Items Only</strong></td><td>When checked, only includes assets with an RFID tag associated.</td></tr>
+                    <tr><td><strong>Include OIT &amp; No-Data in Excel</strong></td><td>Includes OIT-owned and unscanned assets in the Excel export. Checked by default.</td></tr>
+                    <tr><td><strong>CMR/EIL</strong></td><td>Filter results to a specific CMR or EIL equipment list.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num" style="background:#3b82f6;">3</span> Build &amp; Export</div>
+            <div class="step-desc">Once filters are set, use the action buttons:</div>
+            <table class="doc-table">
+                <thead><tr><th style="width:36%">Button</th><th>What It Does</th></tr></thead>
+                <tbody>
+                    <tr><td><span class="btn-ref blue">Build ENNX</span></td><td>Generates the ENNX report and populates the <strong>ENNX Text Preview</strong>. Always run this first.</td></tr>
+                    <tr><td><span class="btn-ref">Download ENNX Text</span></td><td>Downloads the generated report as a <code>.txt</code> ENNX file to your computer.</td></tr>
+                    <tr><td><span class="btn-ref">Export All to Excel (.xls)</span></td><td>Exports the full asset list with ENNX data as an Excel file.</td></tr>
+                    <tr><td><span class="btn-ref">Email ENNX + Excel</span></td><td>Sends both the ENNX text file and Excel export to configured site recipients.</td></tr>
+                    <tr><td><span class="btn-ref">Total &bull; Total Assets &bull; Total Locations</span></td><td>Summary counters populated after Build ENNX &mdash; quick record count sanity check.</td></tr>
+                    <tr><td><span class="btn-ref orange">Show OIT Assets</span></td><td>Displays OIT-owned assets below the preview for review before exporting.</td></tr>
+                    <tr><td><span class="btn-ref red">Show No Data Assets</span></td><td>Displays assets with no scan data for the selected period &mdash; useful for spotting missed equipment.</td></tr>
+                </tbody>
+            </table>
+            <img class="ss" src="img/ennx/ennx_view_data.png" alt="ENNX page showing ENNX Text Preview populated with site 613 data and Data Details table below" />
+            <p class="ss-caption">After clicking <strong>Build ENNX</strong> with site 613 data &mdash; the ENNX Text Preview populates and the Data Details table appears below for row-level review.</p>
+            <div class="warn-box">
+                <strong>&#9888; &ldquo;No data found&rdquo;?</strong> The From Date must exactly match when assets were scanned &mdash; not when records were modified or imported. Use <strong>ENNX History</strong> to identify dates with actual scan sessions.
+            </div>
+            <img class="ss" src="img/ennx/ennx_email_success.png" alt="ENNX Export confirmation after Email ENNX + Excel was clicked" />
+            <p class="ss-caption">After clicking <strong>Email ENNX + Excel</strong> &mdash; a confirmation banner appears when the email is sent successfully.</p>
+            <div class="tip-box">
+                <strong>&#128161; Data Details table</strong> at the bottom of the page shows individual asset rows with sortable, filterable columns. Click a column header to sort; type in the boxes below headers to filter rows instantly.
+            </div>
+        </div>
+
+        <hr class="section-divider" />
+        <div class="phase-header history">&#128196; Part 3: ENNX Report History &mdash; ennxhistory.aspx</div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num" style="background:#f59e0b;">4</span> Open ENNX History</div>
+            <div class="step-desc">Navigate to <strong>/iDash/ennxhistory.aspx</strong> or click <strong>Past Sessions</strong> in the ENNX Export header. This page lists every stored ENNX export session with columns for <strong>Site</strong>, <strong>User</strong>, <strong>Date</strong>, <strong>Assets</strong>, and a <span class="btn-ref">Preview</span> button per row.</div>
+            <img class="ss" src="img/ennx/ennx_history_list.png" alt="ENNX Report History page showing list of site 613 Martinsburg sessions with Preview buttons" />
+            <p class="ss-caption">ENNX Report History for site 613 Martinsburg &mdash; each row is one scanning session. Filter by Site, User, or date range. Click <strong>Preview</strong> to expand a session.</p>
+            <table class="doc-table" style="margin-top:12px;">
+                <thead><tr><th style="width:28%">Filter / Control</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Site</strong></td><td>Filter the list to a specific VA site number.</td></tr>
+                    <tr><td><strong>Filter by User</strong></td><td>Show only sessions scanned by a specific technician.</td></tr>
+                    <tr><td><strong>From / To</strong></td><td>Date range filter for the session list.</td></tr>
+                    <tr><td><strong>Hide rows with no user</strong></td><td>Filters out automated/system rows with no user. Checked by default.</td></tr>
+                    <tr><td><strong>View All Tagged Assets</strong></td><td>Opens a cross-session view of all tagged assets in the currently displayed results.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num" style="background:#f59e0b;">5</span> Preview a Session</div>
+            <div class="step-desc">Click <span class="btn-ref">Preview</span> on any row to expand a detailed asset grid and ENNX text for that session. The preview loads inline &mdash; scroll down to see it.</div>
+            <img class="ss" src="img/ennx/ennx_history_preview.png" alt="ENNX History preview showing detailed asset data table with 613 Martinsburg records including EE numbers, descriptions, locations, RFID tags and status" />
+            <p class="ss-caption">Preview of a 613 Martinsburg session &mdash; shows EE#, description, EIL, user, expected vs. found locations, RFID tag, status, and scan type.</p>
+            <div class="info-box">
+                <strong>&#128225; Reading the preview:</strong> The <strong>Expected Location</strong> vs <strong>Found Location</strong> columns identify ENNX discrepancies at a glance. <strong>Status</strong> values include <em>IN USE</em> and <em>TURNED IN</em>. <strong>Offline Scan</strong> in the type column indicates the session was captured via Batch Mode scanning.
+            </div>
+            <div class="step-desc">Below the asset grid, the <strong>ENNX Asset Text Preview</strong> box shows the raw ENNX text that will be submitted &mdash; location codes (SP-xxx) followed by EE numbers, ending with <code>***END***</code>.</div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num" style="background:#f59e0b;">6</span> History Action Buttons</div>
+            <div class="step-desc">Five action buttons at the bottom of the History page operate on the currently previewed session or all displayed sessions:</div>
+            <img class="ss" src="img/ennx/ennx_history_buttons.png" alt="Bottom of ENNX History showing Download ENNX, Email ENNX, Export ENNX to CSV, Email Previewed Session, and Batch Email Everything buttons above ENNX text preview" />
+            <p class="ss-caption">All five action buttons at the bottom of ENNX History &mdash; the previewed session's ENNX text is shown above them.</p>
+            <table class="doc-table" style="margin-top:12px;">
+                <thead><tr><th style="width:42%">Button</th><th>What It Does</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><span class="btn-ref blue">Download ENNX</span></td>
+                        <td>Downloads the <strong>currently previewed session</strong> as a standard ENNX <code>.txt</code> file. Requires a preview to be open first.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="btn-ref blue">Email ENNX</span></td>
+                        <td>Emails the <strong>previewed session&rsquo;s</strong> ENNX <code>.txt</code> file to configured site recipients. Requires a preview to be open.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="btn-ref blue">Export ENNX to CSV</span></td>
+                        <td>Exports the <strong>previewed session&rsquo;s</strong> asset data as a <code>.csv</code> file &mdash; useful for analysis in Excel without ENNX text formatting.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="btn-ref blue">Email Previewed Session</span></td>
+                        <td>Sends a detailed email of the <strong>previewed session</strong> including both the asset data table and ENNX text to configured recipients.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="btn-ref blue">Batch Email Everything (All Displayed Users/Sessions)</span></td>
+                        <td>Sends one ENNX email per session for <strong>every session currently visible</strong> in the history list (respecting your Site/User/Date filters). Use this to bulk-deliver all sessions for a date in one click.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="warn-box">
+                <strong>&#9888; Batch Email Everything</strong> sends one email per visible session. If 20 sessions are displayed, 20 emails go out. Always apply your <strong>Site</strong> and <strong>Date</strong> filters before using this button.
+            </div>
+        </div>
+
+        <h2><span class="section-num">&#128295;</span> Troubleshooting</h2>
+        <table class="doc-table">
+            <thead><tr><th style="width:38%">Issue</th><th>Solution</th></tr></thead>
+            <tbody>
+                <tr><td>&ldquo;No data found&rdquo; after Build ENNX</td><td>The From Date must match the exact scan date. Open ENNX History to find dates with actual sessions, then use that date on the Export page.</td></tr>
+                <tr><td>ENNX Text Preview is blank after Build</td><td>Verify there is scan data for the selected date, site, and user combination.</td></tr>
+                <tr><td>History list shows no rows</td><td>Uncheck <strong>Hide rows with no user</strong> to reveal system-generated rows. Also widen the date range.</td></tr>
+                <tr><td>Preview shows nothing after clicking Preview</td><td>Scroll down &mdash; the preview loads below the session list, not in a popup.</td></tr>
+                <tr><td>Download / Email buttons do nothing</td><td>Click <strong>Preview</strong> on a session row first. These buttons require an active preview.</td></tr>
+                <tr><td>Batch Email sent too many emails</td><td>Apply Site and Date filters to limit displayed sessions before using Batch Email.</td></tr>
+            </tbody>
+        </table>
+
+        <h2><span class="section-num">&#128279;</span> Related Guides</h2>
+        <ul>
+            <li><a href="va_batch_scan.html">Batch Mode Scanning Guide</a> &mdash; creates the &ldquo;Offline Scan&rdquo; sessions that appear in ENNX History</li>
+            <li><a href="va_guide_locate.html">How to Use the Locate Feature</a> &mdash; find misplaced assets after reviewing ENNX discrepancies</li>
+        </ul>
+    </div>
+</body>
+</html>

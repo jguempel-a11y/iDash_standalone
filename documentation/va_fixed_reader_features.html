@@ -1,0 +1,213 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Fixed Reader Intelligence & Analytics — iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin: 20px 0; }
+        .feature-card { background: var(--bg); border: 1px solid var(--line-docs); border-radius: 10px; padding: 20px; transition: border-color .2s, transform .15s; }
+        .feature-card:hover { border-color: var(--accent-docs); transform: translateY(-2px); }
+        .feature-icon { font-size: 28px; margin-bottom: 10px; }
+        .feature-card h3 { margin: 0 0 8px 0; font-size: 15px; color: var(--heading); }
+        .feature-card p { margin: 0; font-size: 13px; color: var(--muted-docs); line-height: 1.5; }
+        .step-list { counter-reset: step; list-style: none; padding: 0; }
+        .step-list li { counter-increment: step; position: relative; padding: 12px 12px 12px 48px; margin-bottom: 8px; background: var(--bg); border: 1px solid var(--line-docs); border-radius: 8px; font-size: 13px; color: var(--muted-docs); line-height: 1.5; }
+        .step-list li::before { content: counter(step); position: absolute; left: 12px; top: 12px; width: 26px; height: 26px; border-radius: 50%; background: var(--accent-docs); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+        .kpi-demo { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+        .kpi-demo-card { text-align: center; padding: 16px; background: var(--bg); border: 1px solid var(--line-docs); border-radius: 10px; }
+        .kpi-demo-card .val { font-size: 28px; font-weight: 700; }
+        .kpi-demo-card .lbl { font-size: 11px; color: var(--muted-docs); margin-top: 4px; }
+        @media (max-width: 600px) { .kpi-demo { grid-template-columns: 1fr 1fr; } .feature-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<div class="wrap">
+
+    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
+
+    <div class="card" style="border-top:4px solid #10B981;">
+        <h1>&#128225; Fixed Reader Intelligence &amp; Analytics</h1>
+        <div style="margin-bottom:20px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <div style="margin-right:15px; color:var(--muted-docs); font-size:14px;">Capabilities:</div>
+            <span class='badge badge-db'>Database Connected</span>
+            <span class='badge' style="background:color-mix(in srgb, #10B981 15%, transparent); color:#10B981; border:1px solid #10B981;">Real-Time SSE</span>
+            <span class='badge' style="background:color-mix(in srgb, #8B5CF6 15%, transparent); color:#8B5CF6; border:1px solid #8B5CF6;">MQTT Readers</span>
+            <span class='badge' style="background:color-mix(in srgb, #f59e0b 15%, transparent); color:#f59e0b; border:1px solid #f59e0b;">Cross-Site</span>
+            <span class='badge' style="background:color-mix(in srgb, #ef4444 15%, transparent); color:#ef4444; border:1px solid #ef4444;">Compliance</span>
+        </div>
+        <p style="color:var(--muted-docs); font-size:14px; margin-bottom:8px;">
+            Comprehensive guide to iDash's fixed reader intelligence platform. This system goes far beyond basic tag reading &mdash;
+            it delivers real-time asset detection, automated compliance reporting, cross-site visitor tracking, and actionable
+            analytics that transform fixed reader data into operational intelligence.
+        </p>
+        <div style="margin-top:12px; font-size:13px; color:var(--muted-docs);">
+            Related pages:
+            <a href="va_mqtt_config.html">MQTT Configuration</a> &bull;
+            <a href="va_asset_master.html">Asset Master</a> &bull;
+            <a href="va_site_maps.html">Site Maps</a> &bull;
+            <a href="va_field_sync.html">Field Sync</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Feature Overview</h2>
+        <p style="color:var(--muted-docs); font-size:14px; margin-bottom:16px;">The iDash fixed reader platform provides six core intelligence capabilities:</p>
+        <div class="feature-grid">
+            <div class="feature-card"><div class="feature-icon">&#128225;</div><h3>Real-Time Live Feed</h3><p>Server-Sent Events stream tag reads to the browser in real-time. See every asset as it passes a reader antenna, with reader/antenna selection, auto-scroll, and sound alerts.</p></div>
+            <div class="feature-card"><div class="feature-icon">&#127919;</div><h3>Asset Watch List</h3><p>Enter asset numbers to watch. The system highlights them instantly when detected, shows the location and time, and notifies you with a visual and audio alert.</p></div>
+            <div class="feature-card"><div class="feature-icon">&#128229;</div><h3>Watch List Export</h3><p>Export found assets to CSV for field teams. Includes asset name, EPC, detection time, and antenna location. One click to create a "go find these" sheet.</p></div>
+            <div class="feature-card"><div class="feature-icon">&#128203;</div><h3>Open in Asset Master</h3><p>Deep-link from found watch list assets directly to Asset Master. The grid auto-filters to show only detected assets for full record review.</p></div>
+            <div class="feature-card"><div class="feature-icon">&#128270;</div><h3>Missing Asset Report</h3><p>Identify assets NOT observed by any reader within 30, 60, 90, 180, or 365 days. See coverage percentage and export the list for manual inventory.</p></div>
+            <div class="feature-card"><div class="feature-icon">&#127760;</div><h3>Cross-Site Detection</h3><p>When assets from other sites pass through your readers, they appear in the live feed as visitors without being reassigned. Track inter-site movement in real-time.</p></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>&#128225; Live Feed &amp; Tag Detection</h2>
+        <p style="color:var(--muted-docs); font-size:14px; margin-bottom:12px;">The Live Feed page (<code>va_fixed_reader_live.aspx</code>) connects to the tag event stream via Server-Sent Events (SSE) and displays tag reads as they happen. No polling &mdash; data pushes to the browser immediately.</p>
+        <h3 style="color:var(--accent-docs);">How It Works</h3>
+        <ol class="step-list">
+            <li>A fixed reader (e.g., Zebra FX9600) reads RFID tags via its antennas</li>
+            <li>The CrossSiteTagObserver service processes the read and publishes it via MQTT</li>
+            <li>The iDash SSE endpoint receives the MQTT message and streams it to connected browsers</li>
+            <li>The live feed page renders the read instantly with status indicators (Seen, Moved, New, Watched, Cross-Site)</li>
+        </ol>
+        <h3 style="color:var(--accent-docs);">Feed Controls</h3>
+        <table class="tbl"><thead><tr><th>Control</th><th>Description</th></tr></thead><tbody>
+            <tr><td><strong>Watch All</strong></td><td>Toggle to receive reads from all configured readers and antennas</td></tr>
+            <tr><td><strong>Reader Checkboxes</strong></td><td>Filter to specific readers. Each reader shows its antennas and last-read timestamps</td></tr>
+            <tr><td><strong>Pause / Resume</strong></td><td>Pause the feed to examine reads without new rows being added</td></tr>
+            <tr><td><strong>Sound</strong></td><td>Audio tone on each tag read. Higher pitch for watched assets</td></tr>
+            <tr><td><strong>Auto-scroll</strong></td><td>Automatically scroll to newest reads</td></tr>
+            <tr><td><strong>Clear</strong></td><td>Clear the feed and reset session counters</td></tr>
+        </tbody></table>
+        <h3 style="color:var(--accent-docs);">Status Indicators</h3>
+        <table class="tbl"><thead><tr><th>Status</th><th>Color</th><th>Meaning</th></tr></thead><tbody>
+            <tr><td><strong>Seen</strong></td><td>Gray</td><td>Known asset observed at the same location (no change)</td></tr>
+            <tr><td><strong>Moved</strong></td><td>Blue</td><td>Asset moved to a different location</td></tr>
+            <tr><td><strong>New</strong></td><td>Green</td><td>Tag not recognized in the asset database (unknown EPC)</td></tr>
+            <tr><td><strong>Watched</strong></td><td>Amber</td><td>Asset matches an entry in the Watch List</td></tr>
+            <tr><td><strong>Visitor</strong></td><td>Orange</td><td>Asset belongs to a different site (cross-site visitor)</td></tr>
+        </tbody></table>
+    </div>
+
+    <div class="card">
+        <h2>&#127919; Asset Watch List &amp; Export</h2>
+        <p style="color:var(--muted-docs); font-size:14px; margin-bottom:12px;">The Watch List is a powerful tool for finding specific assets. Enter asset numbers and the system monitors every tag read, highlighting matches instantly.</p>
+        <h3 style="color:var(--accent-docs);">Setting Up a Watch List</h3>
+        <ol class="step-list">
+            <li>Navigate to the <strong>Fixed Reader Live Feed</strong> page</li>
+            <li>In the sidebar, find the <strong>Asset Watch List</strong> section</li>
+            <li>Enter asset names or partial numbers (e.g., <code>613 EE11855</code>, <code>400-12345</code>)</li>
+            <li>Click <strong>Watch</strong> to activate. The list persists across page refreshes via localStorage</li>
+            <li>As assets are detected, they are marked as Found with the time and location</li>
+        </ol>
+        <h3 style="color:var(--accent-docs);">Exporting Found Assets</h3>
+        <table class="tbl"><thead><tr><th>Action</th><th>Description</th></tr></thead><tbody>
+            <tr><td><strong>Export Found to CSV</strong></td><td>Downloads a CSV file with: Asset Name, EPC, Status (Found/Not Found), Time Detected, Location/Antenna. Give this to a warehouse team to physically locate the assets.</td></tr>
+            <tr><td><strong>Open in Asset Master</strong></td><td>Opens Asset Master in a new tab with the found assets pre-filtered in the grid. Review full asset records (CMR, description, location, status) for all detected assets. A green banner shows the filter is active.</td></tr>
+        </tbody></table>
+        <div class="callout callout-tip"><strong>Tip:</strong> The Watch List supports partial matching. Entering <code>EE1185</code> will match <code>613 EE11855</code>, <code>613 EE11856</code>, etc.</div>
+    </div>
+
+    <div class="card">
+        <h2>&#128270; Missing Asset Report</h2>
+        <p style="color:var(--muted-docs); font-size:14px; margin-bottom:12px;">The Missing Asset Report flips the script &mdash; instead of showing what you <em>did</em> see, it shows what you <strong>haven't</strong> seen. This is the key to compliance and physical inventory verification.</p>
+        <h3 style="color:var(--accent-docs);">Coverage KPIs</h3>
+        <div class="kpi-demo">
+            <div class="kpi-demo-card"><div class="val" style="color:var(--accent-docs);">3,200</div><div class="lbl">Total Assets</div></div>
+            <div class="kpi-demo-card"><div class="val" style="color:#10B981;">2,800</div><div class="lbl">Observed (Covered)</div></div>
+            <div class="kpi-demo-card"><div class="val" style="color:#ef4444;">400</div><div class="lbl">Missing (Not Seen)</div></div>
+            <div class="kpi-demo-card"><div class="val" style="color:#8B5CF6;">87.5%</div><div class="lbl">Reader Coverage</div></div>
+        </div>
+        <h3 style="color:var(--accent-docs);">Using the Report</h3>
+        <ol class="step-list">
+            <li>Navigate to the <strong>Fixed Reader Dashboard</strong> (<code>va_fixed_reader.aspx</code>)</li>
+            <li>Scroll to the <strong>Missing Asset Report</strong> section and click the header to expand</li>
+            <li>Select a time window: 30, 60, 90, 180, or 365 days</li>
+            <li>The report loads showing all assets NOT observed by a fixed reader within that window</li>
+            <li>Use the inline column filters to narrow results (e.g., filter by location or CMR)</li>
+            <li>Click <strong>Export CSV</strong> to download the list for manual inventory verification</li>
+        </ol>
+        <div class="callout callout-info"><strong>Why this matters:</strong> VA facilities are required to conduct periodic physical inventory of all assets. The Missing Asset Report tells you which assets <em>still need manual verification</em> after the fixed readers have automatically confirmed the rest. This dramatically reduces the scope of physical inventory.</div>
+        <h3 style="color:var(--accent-docs);">Color-Coded Days Since Last Observation</h3>
+        <table class="tbl"><thead><tr><th>Color</th><th>Threshold</th><th>Meaning</th></tr></thead><tbody>
+            <tr><td style="color:var(--muted-docs); font-weight:600;">&lt; 90 days</td><td>Gray</td><td>Recently lapsed &mdash; may just need re-read</td></tr>
+            <tr><td style="color:#f59e0b; font-weight:600;">90&ndash;180 days</td><td>Amber</td><td>Attention needed &mdash; should be verified</td></tr>
+            <tr><td style="color:#ef4444; font-weight:600;">&gt; 180 days / Never</td><td>Red</td><td>High priority &mdash; asset may be missing, out of range, or never tagged</td></tr>
+        </tbody></table>
+    </div>
+
+    <div class="card">
+        <h2>&#127760; Cross-Site Visitor Detection</h2>
+        <p style="color:var(--muted-docs); font-size:14px; margin-bottom:12px;">When a fixed reader at one site detects an asset that belongs to a <em>different</em> site, the system handles it as a <strong>cross-site observation</strong> &mdash; the asset is <em>not</em> moved or reassigned.</p>
+        <table class="tbl"><thead><tr><th>Scenario</th><th>What Happens</th></tr></thead><tbody>
+            <tr><td><strong>Same-site asset read</strong></td><td>Normal processing: update observation data, create location history, update location assignment if reader has UpdateLocation enabled.</td></tr>
+            <tr><td><strong>Cross-site asset read</strong></td><td>Only <code>lastobservedtime</code> is stamped. No location history, no location assignment, no lastobservedlocation change. The asset stays in its home site.</td></tr>
+        </tbody></table>
+        <div class="callout callout-warn"><strong>Important:</strong> Cross-site assets appear in the live feed labeled with their home site name so operators know the asset is a visitor, not a local asset.</div>
+    </div>
+
+    <div class="card">
+        <h2>&#129504; Reader Intelligence Dashboard</h2>
+        <p style="color:var(--muted-docs); font-size:14px; margin-bottom:12px;">The Fixed Reader Dashboard (<code>va_fixed_reader.aspx</code>) provides a comprehensive view of all reader intelligence:</p>
+        <table class="tbl"><thead><tr><th>Section</th><th>Description</th></tr></thead><tbody>
+            <tr><td><strong>Tag Statistics</strong></td><td>KPI cards showing reads today, this week, this month, this quarter, total reads, and total assets. Coverage by reader type breakdown.</td></tr>
+            <tr><td><strong>Reader Intelligence</strong></td><td>Automated analysis showing location mismatches, dwell-time candidates, and reassignment actions.</td></tr>
+            <tr><td><strong>Location History</strong></td><td>Movement report showing all location changes detected by readers. Exportable to CSV.</td></tr>
+            <tr><td><strong>Missing Asset Report</strong></td><td>Assets not observed within a configurable time window, with coverage statistics.</td></tr>
+            <tr><td><strong>Event Log</strong></td><td>Raw tag read events from fixed readers, with inline filtering.</td></tr>
+            <tr><td><strong>Reader Inventory</strong></td><td>All configured readers with status, IP, model, location, and last-seen timestamp.</td></tr>
+        </tbody></table>
+    </div>
+
+    <div class="card">
+        <h2>&#128200; Reader Coverage Analytics</h2>
+        <p style="color:var(--muted-docs); font-size:14px; margin-bottom:12px;">Understanding your reader coverage helps justify reader placement decisions and identify gaps.</p>
+        <table class="tbl"><thead><tr><th>Metric</th><th>Description</th><th>Goal</th></tr></thead><tbody>
+            <tr><td><strong>Both (Fixed + Mobile)</strong></td><td>Assets verified by both fixed readers AND handheld scans</td><td>Highest confidence</td></tr>
+            <tr><td><strong>Fixed Only</strong></td><td>Assets verified only by fixed readers (never hand-scanned)</td><td>Automated verification</td></tr>
+            <tr><td><strong>Mobile Only</strong></td><td>Assets verified only by handheld scans (not in reader range)</td><td>Manual coverage</td></tr>
+            <tr><td><strong>Not Read</strong></td><td>Assets never verified by either method</td><td style="color:#ef4444;">Minimize this</td></tr>
+        </tbody></table>
+        <div class="callout callout-tip"><strong>Best Practice:</strong> Use the "Not Read" count to identify areas where readers should be added or where antenna positioning should be adjusted. A coverage percentage above 85% indicates strong reader placement.</div>
+    </div>
+
+    <div class="card">
+        <h2>&#128736; Technical Architecture</h2>
+        <h3 style="color:var(--accent-docs);">Data Flow</h3>
+        <div style="background:var(--bg); border:1px solid var(--line-docs); border-radius:10px; padding:20px; margin:16px 0; overflow-x:auto;">
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center;">
+                <div style="padding:10px 16px; border-radius:8px; font-weight:600; font-size:12px; text-align:center; background:color-mix(in srgb, #06B6D4 15%, transparent); color:#06B6D4; border:1px solid #06B6D4;">Zebra FX9600 Reader</div>
+                <div style="font-size:20px; color:var(--muted-docs);">&#8594;</div>
+                <div style="padding:10px 16px; border-radius:8px; font-weight:600; font-size:12px; text-align:center; background:color-mix(in srgb, #8B5CF6 15%, transparent); color:#8B5CF6; border:1px solid #8B5CF6;">MQTT Broker</div>
+                <div style="font-size:20px; color:var(--muted-docs);">&#8594;</div>
+                <div style="padding:10px 16px; border-radius:8px; font-weight:600; font-size:12px; text-align:center; background:color-mix(in srgb, #10B981 15%, transparent); color:#10B981; border:1px solid #10B981;">CrossSiteTagObserver</div>
+                <div style="font-size:20px; color:var(--muted-docs);">&#8594;</div>
+                <div style="padding:10px 16px; border-radius:8px; font-weight:600; font-size:12px; text-align:center; background:color-mix(in srgb, #f59e0b 15%, transparent); color:#f59e0b; border:1px solid #f59e0b;">iDash DB</div>
+                <div style="font-size:20px; color:var(--muted-docs);">&#8594;</div>
+                <div style="padding:10px 16px; border-radius:8px; font-weight:600; font-size:12px; text-align:center; background:color-mix(in srgb, var(--accent-docs) 15%, transparent); color:var(--accent-docs); border:1px solid var(--accent-docs);">iDash UI (SSE)</div>
+            </div>
+        </div>
+        <h3 style="color:var(--accent-docs);">Key Components</h3>
+        <table class="tbl"><thead><tr><th>Component</th><th>File</th><th>Role</th></tr></thead><tbody>
+            <tr><td><strong>CrossSiteTagObserver</strong></td><td><code>services/CrossSiteTagObserver/</code></td><td>.NET 6 hosted service processing MQTT tag events. Handles same-site vs. cross-site logic.</td></tr>
+            <tr><td><strong>AntennaLocationService</strong></td><td><code>App_Code/AntennaLocationService.cs</code></td><td>Antenna-aware location resolution. Maps physical antenna ports to logical locations.</td></tr>
+            <tr><td><strong>Live Feed Page</strong></td><td><code>va_fixed_reader_live.aspx</code></td><td>SSE-powered real-time UI. Watch list, export, and Asset Master integration.</td></tr>
+            <tr><td><strong>Dashboard Page</strong></td><td><code>va_fixed_reader.aspx</code></td><td>Analytics dashboard with intelligence, history, missing assets, and reader inventory.</td></tr>
+            <tr><td><strong>Dashboard API</strong></td><td><code>va_fixed_reader.aspx.cs</code></td><td>Server-side API: tag stats, intelligence, history, missing assets, ENNX export.</td></tr>
+        </tbody></table>
+    </div>
+
+    <div class="footer">iDash &bull; iDash Fixed Reader Intelligence &bull; ID Integration &bull; Documentation v3.2</div>
+
+</div>
+</body>
+</html>

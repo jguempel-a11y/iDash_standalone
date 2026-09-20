@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA AUTODBUPDATE &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<div class="wrap">
+    <a href="index.aspx" class="back-link">&#8592; Back to Documentation Hub</a>
+    <br/><br/>
+
+    <div class="card">
+        <h1>&#128221; System Logs &amp; DB Automation</h1>
+        <div style="margin-bottom: 20px; display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <span class="badge badge-full">Database Connected</span>
+            <span class="badge badge-user">File System Access</span>
+            <span class="badge badge-admin">Scheduler Ready</span>
+        </div>
+        <div class="info-box">
+            <strong>&#128270; What This Page Does:</strong> This is iDash's central hub for monitoring automation activity and managing scheduled database updates.
+            It replaces the old separate "System Logs" tile by combining the DB update log viewer, the Field Server Sync log, and a gateway to the full IIS &amp; App Log Analyzer.
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Module Purpose</h2>
+        <p>The <strong>System Logs &amp; DB Automation</strong> page (<code>va_autodbupdate.aspx</code>) serves two main jobs:</p>
+        <div class="step">
+            <div class="step-num sn-blue">1</div>
+            <div>
+                <strong>System Log Viewer (Tab 1):</strong> View logs from the <em>Auto DB Update</em> processor, the <em>Field Server Sync</em> nightly sync, and the full IIS web server &amp; .NET app logs.
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num sn-blue">2</div>
+            <div>
+                <strong>DB Automation (Tab 2):</strong> Monitors a watch folder for incoming data files, runs a configurable SQL script against them, and archives processed files.
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Who Should Use This Page?</h2>
+        <p>This page is <strong>administrator-only</strong>. It is reached through the <strong>Admin &amp; Database Tools</strong> section on the iDash hub.</p>
+        <table>
+            <tr><th>Role</th><th>Access?</th><th>Why</th></tr>
+            <tr><td>Standard User</td><td><span class="badge badge-admin">No Access</span></td><td>Protected behind admin login</td></tr>
+            <tr><td>Site Administrator</td><td><span class="badge badge-full">Full Access</span></td><td>Monitors automation health</td></tr>
+            <tr><td>Scheduled Task</td><td><span class="badge badge-user">Silent API</span></td><td>Task Scheduler calls <code>?auto=1</code></td></tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Tab 1 &mdash; System Log Viewer</h2>
+        <h3>&#128451; Database Update Log (<code>va_autodbupdate.log</code>)</h3>
+        <p>Written every time the Auto DB Update processor runs (manually or automatically).</p>
+        <ul>
+            <li>Timestamp of the run and SQL script path used</li>
+            <li>Which files were found and total rows affected</li>
+            <li>Final disposition and any errors that occurred</li>
+        </ul>
+
+        <h3>&#128257; Field Server Sync Log (<code>va_field_sync.log</code>)</h3>
+        <p>Records each run of the nightly <strong>Field Server Sync</strong> process.</p>
+    </div>
+
+    <div class="card">
+        <h2>Tab 2 &mdash; DB Automation</h2>
+        <div class="info-box">
+            <strong>&#9654; Normal Processing Flow:</strong> Incoming data files dropped in the watch folder are detected, processed via SQL, and then moved to an archive folder.
+        </div>
+        
+        <h3>Settings You Can Configure</h3>
+        <table>
+            <tr><th>Setting</th><th>Default Value</th><th>Description</th></tr>
+            <tr><td>Watch Folder</td><td><code>C:\VA_RFID\va_dbupdate\autoload</code></td><td>Folder scanned for incoming data files.</td></tr>
+            <tr><td>SQL Script Path</td><td><code>...\va_dbupdate.sql</code></td><td>The SQL script executed on each update run.</td></tr>
+        </table>
+
+        <div class="alert alert-warn">
+            <strong>&#9888; Important:</strong> Use the <code>{{DATAFILE}}</code> token in your SQL script &mdash; it is automatically replaced at runtime with the full detected filename.
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Scheduled Automation</h2>
+        <p>The page supports silent, unattended processing via a URL parameter for Windows Task Scheduler:</p>
+        <pre>powershell.exe -Command "Invoke-WebRequest -Uri '.../va_autodbupdate.aspx?auto=1'"</pre>
+    </div>
+
+    <div style="text-align:center; color:var(--muted-docs); font-size:12px; margin-top:40px; padding-bottom:40px;">
+        ID Integration Inc. &mdash; iDash Documentation &copy; 2026
+    </div>
+</div>
+</body>
+</html>

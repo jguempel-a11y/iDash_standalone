@@ -1,0 +1,580 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA CMR STATS &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<div class="wrap">
+
+    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
+    <br/><br/>
+
+    <!-- &&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;- -->
+    <div class="card">
+        <h1>&#128203; CMR Progress Report (<code>va_cmr_stats.aspx</code>)</h1>
+        <p style="font-size:16px;">
+            The CMR Progress Report is the primary accountability and turnover tracking tool for the VA's
+            <strong>Consolidated Memorandum Receipt (CMR)</strong> system. It answers in real time the questions
+            every supply tech, service chief, and administrator needs during a leadership transition:
+            <em>how many assets are in my CMR, how many have been found today, who scanned them, and where are they?</em>
+        </p>
+        <div class="alert-green">
+            <strong>&#9989; This page is data-driven directly from the iDash database.</strong><br/>
+            Every number, percentage, name, and location you see on this page is pulled live from
+            <code>dbo.v_asset</code> at the moment you load or refresh it. There is no cache, no staging table,
+            and no intermediate report file. What you see is exactly what is in the database right now.
+        </div>
+    </div>
+
+    <!-- &&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;- -->
+    <div class="card">
+        <h2>1. What Is a CMR?</h2>
+        <p>
+            A <strong>CMR (Consolidated Memorandum Receipt)</strong> is a formal VA accountability document that assigns
+            a group of government equipment to a specific service chief, department head, or responsible custodian.
+            The holder is legally accountable for every asset listed. In iDash, the CMR number is stored in
+            the <code>text8</code> field on each asset record &mdash; all assets with the same <code>text8</code> value
+            belong to the same CMR group.
+        </p>
+        <div class="alert-blue">
+            <strong>&#9432; Why Turnover Is a High-Stakes Event</strong><br/>
+            When a CMR holder changes roles, retires, or transfers, <strong>every asset on the CMR must be
+            physically located and verified</strong> before the outgoing person is cleared. Supply technicians
+            have a limited window &mdash; often tied to the size of the CMR &mdash; to complete this scan. Without a real-time
+            progress view they are working blind: no idea how many are left, who scanned what, or where they last saw it.
+            This page eliminates that blindness.
+        </div>
+    </div>
+
+    <!-- &&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;- -->
+    <div class="card">
+        <h2>2. Filters and Controls</h2>
+
+        <h3>Site Dropdown</h3>
+        <p>
+            Filters all results to a single <code>companyid</code> (facility/station). Select <strong>All Sites</strong>
+            to see the combined CMR picture across the entire enterprise. The site list is populated from
+            <code>dbo.company</code>.
+        </p>
+
+        <h3>Scan Window Tabs</h3>
+        <p>
+            Controls what counts as a <em>Found</em> asset. An asset is "found" if its <code>lastinventoried</code>
+            date falls within the window. The total asset count never changes &mdash; only the Found/Remaining split shifts.
+        </p>
+        <table>
+            <thead><tr><th>Window</th><th>What It Checks</th><th>Best Used For</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Today</strong></td><td>Scanned from midnight today onward</td><td>Real-time "how many did I find today" during active scanning</td></tr>
+                <tr><td><strong>Last 7 Days</strong></td><td>Scanned within the past 7 calendar days</td><td>Weekly progress during an active turnover window</td></tr>
+                <tr><td><strong>Last 30 Days</strong></td><td>Scanned within the past 30 calendar days <em>(default)</em></td><td>Monthly accountability review</td></tr>
+                <tr><td><strong>All Time</strong></td><td>Any non-null <code>lastinventoried</code> on record</td><td>Identifying assets that have <strong>never</strong> been found</td></tr>
+            </tbody>
+        </table>
+        <div class="alert-yellow">
+            <strong>&#9888; Technical Note &mdash; Date Comparison</strong><br/>
+            Because iDash stores <code>lastinventoried</code> as <code>datetimeoffset</code> (which includes a
+            UTC offset that can vary by device), the filter uses <code>CONVERT(date, lastinventoried) &ge; @ScanFrom</code>
+            with an explicit <code>SqlDbType.Date</code> parameter. This matches only the calendar date portion
+            and correctly handles mixed timezones (e.g., records stored as <code>+00:00</code> UTC and
+            <code>&minus;07:00</code> Mountain) without double-counting or missing records.
+        </div>
+
+        <h3>CMR Search &mdash; Single or Multiple</h3>
+        <p>
+            The search box filters which CMR groups are shown in the table and included in the KPI totals.
+            It supports two modes:
+        </p>
+        <table>
+            <thead><tr><th>Input</th><th>Behavior</th><th>SQL Generated</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>Single value</strong><br/><em>e.g. 040</em></td>
+                    <td>Partial match &mdash; returns any CMR whose <code>text8</code> <em>contains</em> the value. Useful for prefix or substring searches.</td>
+                    <td><code>a.text8 LIKE '%040%'</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Comma-separated list</strong><br/><em>e.g. 040, 041, 056</em></td>
+                    <td>Exact match on each value &mdash; returns only those specific CMRs. Values are trimmed, deduplicated, and compared case-insensitively. Ideal for comparing a specific set of CMRs during a joint turnover.</td>
+                    <td><code>LTRIM(RTRIM(a.text8)) IN (@CmrVal0, @CmrVal1, @CmrVal2)</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Empty</strong></td>
+                    <td>No CMR filter &mdash; all CMRs are shown.</td>
+                    <td><code>1=1</code> (no restriction)</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="example-box">
+            Search: &nbsp; <strong>040, 041, 056</strong><br/>
+            Result: Shows only CMR groups 040, 041, and 056. KPI totals reflect only those three CMRs.
+        </div>
+        <div class="alert-green">
+            <strong>&#9989; All parameters are fully parameterized.</strong><br/>
+            User input is never concatenated directly into SQL. The comma-split list generates individual
+            named parameters (<code>@CmrVal0</code>, <code>@CmrVal1</code>, etc.) which SQL Server binds safely.
+            This completely prevents SQL injection regardless of input.
+        </div>
+    </div>
+
+    <!-- &&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;- -->
+    <div class="card">
+        <h2>3. KPI Summary Cards</h2>
+        <p>Six animated cards at the top of the page give an instant site-wide (or filtered) snapshot. All values respond to the selected scan window and site/CMR filters.</p>
+        <table>
+            <thead><tr><th>Card</th><th>Database Source</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Total CMRs</strong></td><td><code>COUNT(DISTINCT text8)</code></td><td>Number of distinct CMR groups matching the current filter.</td></tr>
+                <tr><td><strong>Total Assets</strong></td><td><code>COUNT(*)</code></td><td>Total assets assigned to a CMR (non-null, non-blank <code>text8</code>).</td></tr>
+                <tr><td><strong>Found (Window)</strong></td><td><code>SUM(CASE WHEN CONVERT(date,lastinventoried) &ge; @ScanFrom THEN 1 ELSE 0 END)</code></td><td>Assets inventoried within the scan window. Percentage shown below the number.</td></tr>
+                <tr><td><strong>Still Remaining</strong></td><td>Total &minus; Found</td><td>Assets not yet inventoried in the selected window.</td></tr>
+                <tr><td><strong>Never Scanned</strong></td><td><code>SUM(CASE WHEN lastinventoried IS NULL THEN 1 ELSE 0 END)</code></td><td>Assets with no scan record whatsoever &mdash; they have never been inventoried in iDash.</td></tr>
+                <tr><td><strong>Overall Progress</strong></td><td>Found &divide; Total &times; 100</td><td>Percentage of all CMR assets found within the window. Animates on load.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- &&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;- -->
+    <div class="card">
+        <h2>4. CMR-by-CMR Summary Table</h2>
+        <p>The core of the report. Each row is one CMR group. Columns are sortable; the built-in filter searches all columns simultaneously.</p>
+
+        <table>
+            <thead><tr><th>Column</th><th>Database Source</th><th>What It Tells You</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>CMR</strong></td>
+                    <td><code>a.text8</code> (GROUP BY key)</td>
+                    <td>The CMR identifier exactly as stored. This is the same number on the physical CMR document signed by the service chief.</td>
+                </tr>
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td><code>COUNT(*)</code></td>
+                    <td>Total assets in this CMR group in the database. This number does not change with scan window &mdash; it is always the full accountability count.</td>
+                </tr>
+                <tr>
+                    <td><strong>Found (Window)</strong></td>
+                    <td><code>SUM(CASE WHEN CONVERT(date, lastinventoried) &ge; @ScanFrom THEN 1 ELSE 0 END)</code></td>
+                    <td>How many assets in this CMR were physically located (scanned) within the selected scan window. Changes each time you switch windows.</td>
+                </tr>
+                <tr>
+                    <td><strong>Remaining</strong></td>
+                    <td>Total &minus; Found</td>
+                    <td>Assets still unaccounted for within the window. Highlighted in yellow when &gt; 0 to draw attention.</td>
+                </tr>
+                <tr>
+                    <td><strong>Progress Bar / %</strong></td>
+                    <td>Calculated: Found &divide; Total</td>
+                    <td>Color-coded visual: <span style="color:#10b981">&#9646;</span> Green = 100% &nbsp; <span style="color:#2ea8ff">&#9646;</span> Blue = &ge;50% &nbsp; <span style="color:#f59e0b">&#9646;</span> Yellow = partial &nbsp; <span style="color:#ef4444">&#9646;</span> Red = 0%. The % column is numeric and sortable (padded internally for correct sort order).</td>
+                </tr>
+                <tr>
+                    <td><strong>Last Scan</strong></td>
+                    <td><code>MAX(lastinventoried)</code></td>
+                    <td>The most recent scan timestamp across all assets in this CMR. Shows the absolute latest time any asset in the group was touched. Always all-time regardless of scan window.</td>
+                </tr>
+                <tr>
+                    <td><strong>Scanners</strong></td>
+                    <td><code>STUFF(SELECT DISTINCT lastmodifiedby ... FOR XML PATH(''), 1, 2, '')</code></td>
+                    <td>
+                        A comma-separated list of <em>all distinct usernames</em> who inventoried assets in this CMR
+                        <strong>within the selected scan window</strong>. For example: <code>jj, mt</code> means
+                        two users both contributed scans. Blank if no one scanned this CMR in the window.
+                        <br/><br/>
+                        <strong>Important:</strong> This field reads <code>lastmodifiedby</code>, which is updated
+                        by the iDash scan processing service. It reflects the user account that processed
+                        the scan transaction &mdash; typically the person who held the scanner or ran the ENNX batch under their login.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Last Location Found</strong></td>
+                    <td><code>TOP 1 locationname ORDER BY lastinventoried DESC</code> (within window)</td>
+                    <td>The room or location (from <code>locationname</code>) where the most recently scanned asset in this CMR was found during the scan window. Useful for knowing where to start looking for the remaining assets &mdash; they're likely in the same area.</td>
+                </tr>
+                <tr>
+                    <td><strong>Status</strong></td>
+                    <td>Derived</td>
+                    <td>
+                        <span class="badge badge-green">&#10003; Complete</span> Found = Total &nbsp;
+                        <span class="badge badge-blue">In Progress</span> Found &gt; 0 but &lt; Total &nbsp;
+                        <span class="badge badge-red">Not Started</span> Found = 0
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Default Sort Order</h3>
+        <p>
+            The table defaults to <strong>most complete CMRs first</strong> so supply techs immediately see
+            what is done and can focus on the remaining ones. Sort by any column header. The DataTables
+            search box at the top right filters all columns simultaneously client-side (no server round-trip).
+        </p>
+    </div>
+
+    <!-- &&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;- -->
+    <div class="card">
+        <h2>5. Turnover Workflow &mdash; Step by Step</h2>
+        <ul>
+            <li><strong>Step 1 &mdash; Baseline:</strong> Before scanning begins, select the correct site, choose <strong>All Time</strong>, search for the CMR(s) being transferred (comma-separated if multiple), and click <strong>Export CMR Summary</strong>. This is the full accountability list.</li>
+            <li><strong>Step 2 &mdash; Switch to Today:</strong> As scanning begins on the day of turnover, switch to <strong>Today</strong>. The Found count and progress bars update instantly on each page refresh after new scans are submitted.</li>
+            <li><strong>Step 3 &mdash; Monitor in real time:</strong> The <em>Scanners</em> column shows who is actively working. The <em>Last Location</em> column shows where they were last. Refresh after each ENNX batch submission to see the latest counts.</li>
+            <li><strong>Step 4 &mdash; Identify gaps:</strong> CMRs showing <span class="badge badge-red">Not Started</span> or very low % need immediate attention. Cross-reference with the ENNX Report filtered to the same CMR and date for detailed scan logs.</li>
+            <li><strong>Step 5 &mdash; Multi-CMR view:</strong> If a service chief holds multiple CMRs, type all the CMR numbers comma-separated in the search box. The KPI cards will summarize the combined accountability across all of them.</li>
+            <li><strong>Step 6 &mdash; Export and email:</strong> Use <strong>Export CMR Summary</strong> for the per-CMR rollup, or <strong>Export Asset Detail</strong> for a row-per-asset list with a Yes/No Scanned column. The <strong>Email Report</strong> button attaches the summary CSV and sends it to configured recipients.</li>
+            <li><strong>Step 7 &mdash; Final sign-off:</strong> When all CMRs show <span class="badge badge-green">&#10003; Complete</span>, export one final copy as the formal record before the new holder signs.</li>
+        </ul>
+        <div class="alert-blue">
+            <strong>&#9432; "How many did I find today?"</strong><br/>
+            Set the window to <strong>Today</strong>. The Found column for each CMR shows exactly how many
+            were scanned since midnight. The <em>Scanners</em> column shows exactly who contributed.
+            The KPI card shows the combined site-wide percentage.
+        </div>
+    </div>
+
+    <!-- &&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;- -->
+    <div class="card">
+        <h2>6. Export Options</h2>
+        <table>
+            <thead><tr><th>Button</th><th>File</th><th>Contents</th><th>Best For</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>Export CMR Summary</strong></td>
+                    <td><code>CMR_Summary_[Window]_[Date].csv</code></td>
+                    <td>One row per CMR: Total, Found, Remaining, % Complete, Last Scan Date, Scanners, Last Location</td>
+                    <td>Management briefings, formal sign-off documentation</td>
+                </tr>
+                <tr>
+                    <td><strong>Export Asset Detail</strong></td>
+                    <td><code>CMR_AssetDetail_[Date].csv</code></td>
+                    <td>One row per individual asset: CMR, Asset #, Description, Serial #, Category, Use Status, Location, <strong>Scanned Yes/No</strong>, Last Inventoried Date, Last Modified By</td>
+                    <td>Item-level audit; locating specific missing assets; formal attachment to paperwork</td>
+                </tr>
+                <tr>
+                    <td><strong>Email Report</strong></td>
+                    <td>CMR Summary CSV attached</td>
+                    <td>Sends the summary CSV to recipients configured in the iDash email settings. Subject line includes window, site, and any active CMR filter.</td>
+                    <td>Distributing progress updates to administrators remotely</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="alert-blue">
+            <strong>&#9432; Excel Tip</strong><br/>
+            Open the CMR Summary CSV in Excel. Select the <code>% Complete</code> column and apply conditional
+            formatting (green = 100, yellow = partial, red = 0). This instantly highlights which CMRs are done
+            and which need work &mdash; useful for printing and attaching to formal turnover paperwork.
+        </div>
+    </div>
+
+    <!-- &&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;- -->
+    <div class="card">
+        <h2>7. Technical Reference</h2>
+
+        <h3>Key Database Fields (dbo.v_asset)</h3>
+        <table>
+            <thead><tr><th>Field</th><th>Type</th><th>Role in This Report</th></tr></thead>
+            <tbody>
+                <tr><td><code>text8</code></td><td>varchar</td><td>CMR number &mdash; the grouping key for every query on this page. All assets sharing a value here belong to the same CMR.</td></tr>
+                <tr><td><code>lastinventoried</code></td><td>datetimeoffset</td><td>The timestamp of the most recent physical scan. This field determines Found vs. Remaining for every window calculation. Note: stored as datetimeoffset, which includes a UTC offset that can vary by device timezone.</td></tr>
+                <tr><td><code>lastmodifiedby</code></td><td>varchar</td><td>Username of the account that last processed a scan transaction against this record. Used for the Scanners column. This is the iDash login identity, not necessarily the person's display name.</td></tr>
+                <tr><td><code>locationname</code></td><td>varchar</td><td>Room or location recorded at the time of the most recent scan. Used for Last Location Found.</td></tr>
+                <tr><td><code>companyid</code></td><td>int</td><td>Facility/station identifier. Used by the Site dropdown filter.</td></tr>
+                <tr><td><code>name</code></td><td>varchar</td><td>Asset number (tag number). Shown in the Asset Detail export.</td></tr>
+                <tr><td><code>description</code></td><td>varchar</td><td>Asset description. Shown in the Asset Detail export.</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Core SQL Pattern (Scan Window + Multi-Scanners)</h3>
+        <pre>-- @ScanFrom is passed as SqlDbType.Date to avoid datetimeoffset timezone issues
+-- CONVERT(date, lastinventoried) strips the time/offset component safely
+
+SELECT
+    a.text8                                                     AS CMR,
+    COUNT(*)                                                    AS TotalAssets,
+    SUM(CASE WHEN CONVERT(date, a.lastinventoried) >= @ScanFrom
+             THEN 1 ELSE 0 END)                                 AS ScannedCount,
+    MAX(a.lastinventoried)                                      AS LastScanDate,
+
+    -- All distinct users who scanned assets in this CMR in the window
+    STUFF((SELECT DISTINCT ', ' + LOWER(LTRIM(RTRIM(v2.lastmodifiedby)))
+           FROM dbo.v_asset v2
+           WHERE v2.text8 = a.text8
+             AND NULLIF(RTRIM(v2.lastmodifiedby), '') IS NOT NULL
+             AND CONVERT(date, v2.lastinventoried) >= @ScanFrom
+           FOR XML PATH('')), 1, 2, '')                         AS Scanners,
+
+    -- Most recent scan location within the window
+    (SELECT TOP 1 v2.locationname
+     FROM dbo.v_asset v2
+     WHERE v2.text8 = a.text8
+       AND CONVERT(date, v2.lastinventoried) >= @ScanFrom
+     ORDER BY v2.lastinventoried DESC)                          AS LastLocation
+
+FROM dbo.v_asset a
+WHERE NULLIF(RTRIM(a.text8), '') IS NOT NULL
+  AND (@CId = 0 OR a.companyid = @CId)
+  AND ( /* GetCmrFilter result injected here */
+        a.text8 LIKE '%' + @CmrSearch + '%'         -- single value
+        -- OR --
+        LTRIM(RTRIM(a.text8)) IN (@CmrVal0, ...)    -- comma list
+      )
+GROUP BY a.text8
+ORDER BY ScannedCount * 1.0 / COUNT(*) DESC, ...</pre>
+
+        <h3>CMR Filter Logic (C# GetCmrFilter method)</h3>
+        <p>
+            The search box content is parsed server-side before the SQL command is built.
+            If the text contains a comma, it is split into individual values &mdash; each gets its own
+            named parameter (<code>@CmrVal0</code>, <code>@CmrVal1</code>, ...) and the WHERE clause
+            uses <code>IN (...)</code> for exact matching. If no comma is present, a single
+            <code>LIKE '%value%'</code> clause is used for partial matching. If the box is empty,
+            the filter is <code>1=1</code> (no restriction). In all cases, user input is bound as a
+            SQL parameter &mdash; never concatenated into the query string directly.
+        </p>
+
+        <h3>Why CONVERT(date, ...) Instead of &ge; DateTime</h3>
+        <p>
+            iDash devices may store <code>lastinventoried</code> with different UTC offset values
+            depending on the device timezone. Comparing <code>lastinventoried &ge; @ScanFrom</code> with
+            a plain <code>DateTime</code> parameter causes SQL Server to implicitly convert DateTime as
+            UTC (<code>+00:00</code>), which can make scans stored with a negative offset appear to fall
+            on the wrong calendar day. Using <code>CONVERT(date, lastinventoried)</code> extracts only
+            the calendar date from the stored value (preserving its local offset context) and comparing
+            that against a <code>SqlDbType.Date</code> parameter eliminates all timezone ambiguity.
+            This matches the pattern proven by the ENNX report which correctly counts scans regardless
+            of device timezone.
+        </p>
+    </div>
+
+    <div style="text-align:center; color:var(--muted-docs); font-size:12px; margin-top:40px;">
+        VA Asset Intelligence Hub Documentation &copy; 2026<br/>
+        iDash CMR Accountability Module
+    </div>
+</div>
+</body>
+</html>
+
+    <style>
+        
+        body { background: var(--bg); color: var(--text); font-family: Segoe UI, sans-serif; margin: 0; padding: 40px; }
+        .wrap { max-width: 1000px; margin: auto; }
+        .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 25px; margin-bottom: 25px; }
+        a { color: var(--accent-docs); text-decoration: none; font-weight: 600; }
+        a:hover { text-decoration: underline; }
+        h1, h2, h3 { margin-top: 0; color: var(--accent-docs); }
+        h2 { border-bottom: 1px solid var(--line); padding-bottom: 10px; margin-bottom: 20px; }
+        h3 { color: var(--accent2-docs); font-size: 15px; margin-bottom: 8px; }
+        code { background: var(--line); padding: 3px 7px; border-radius: 4px; color: var(--accent2-docs); font-size: 13px; }
+        pre  { background: var(--bg); border: 1px solid var(--line); padding: 15px; border-radius: 8px; color: #a78bfa; overflow-x: auto; font-size: 13px; }
+        ul   { color: var(--muted-docs); line-height: 1.8; margin-top: 8px; }
+        li strong { color: var(--text); }
+        p    { color: var(--muted-docs); line-height: 1.7; margin-top: 6px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
+        th { background: rgba(255,255,255,0.04); color: var(--muted-docs); font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--line); }
+        td { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.03); color: var(--text); }
+        tbody tr:hover td { background: rgba(255,255,255,0.02); }
+
+        .alert-blue  { background: rgba(46, 168, 255, 0.08); border-left: 4px solid var(--accent-docs);    padding: 14px 18px; border-radius: 6px; margin: 16px 0; }
+        .alert-green { background: rgba(16, 185, 129, 0.08); border-left: 4px solid var(--accent2-docs);  padding: 14px 18px; border-radius: 6px; margin: 16px 0; }
+        .alert-red   { background: rgba(239, 68, 68, 0.08);  border-left: 4px solid #ef4444;          padding: 14px 18px; border-radius: 6px; margin: 16px 0; }
+        .alert-purple{ background: rgba(168, 85, 247, 0.08); border-left: 4px solid var(--purple);    padding: 14px 18px; border-radius: 6px; margin: 16px 0; }
+
+        .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .badge-green  { background: rgba(16,185,129,0.18); color: #10b981; border: 1px solid rgba(16,185,129,0.4); }
+        .badge-blue   { background: rgba(46,168,255,0.18); color: #2ea8ff; border: 1px solid rgba(46,168,255,0.4); }
+        .badge-red    { background: rgba(239,68,68,0.18);  color: #ef4444; border: 1px solid rgba(239,68,68,0.4);  }
+    </style>
+</head>
+<body>
+<div class="wrap">
+
+    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
+    <br/><br/>
+
+    <div class="card">
+        <h1>&#128203; CMR Progress Report (<code>va_cmr_stats.aspx</code>)</h1>
+        <p style="font-size:16px;">
+            The CMR Progress Report is an accountability and turnover tracking tool designed around the VA's CMR (Consolidated Memorandum Receipt) system.
+            It answers the core questions a service chief, supply tech, or administrator needs during a leadership transition: <em>how many assets are in my CMR, how many have been found, who scanned them, and where are they?</em>
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>1. What Is a CMR?</h2>
+        <p>
+            A <strong>CMR (Consolidated Memorandum Receipt)</strong> is a formal accountability document used by the VA to assign groups of equipment to a specific service chief, department head, or responsible custodian.
+            When an individual takes accountability for a CMR, they are legally responsible for every asset listed on it.
+        </p>
+        <div class="alert-blue">
+            <strong>&#9432; Why Turnover Is a Critical Event</strong><br/>
+            When a CMR holder leaves a position, retires, or transfers, <strong>every asset on their CMR must be physically inventoried</strong> before the outgoing person is cleared and the new person assumes responsibility.
+            Supply technicians have a limited time window &mdash; often tied directly to the number of assets &mdash; to complete this inventory. Without a real-time progress view, they are working blind.
+        </div>
+        <p>
+            In iDash, the CMR number is stored in the <code>text8</code> field on each asset record. All assets sharing the same CMR number belong to the same accountability group.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>2. Page Overview</h2>
+        <p>The report is organized into three visual tiers:</p>
+        <ul>
+            <li><strong>Scan Window Tabs</strong> &mdash; Controls the time frame for "found" counts. Switch between Today, 7 Days, 30 Days, or All Time without reloading the entire page.</li>
+            <li><strong>KPI Cards</strong> &mdash; Six animated summary metrics giving instant site-wide visibility.</li>
+            <li><strong>CMR-by-CMR Table</strong> &mdash; The core of the report: one row per CMR with progress bars, found/remaining counts, and scanner information.</li>
+        </ul>
+
+        <h3>Scan Window</h3>
+        <p>
+            The scan window controls what counts as a "Found" asset. An asset is considered found if its <code>lastinventoried</code> date falls within the selected window.
+            The same asset total is always shown &mdash; only the Found/Remaining split changes.
+        </p>
+        <table>
+            <thead><tr><th>Window</th><th>Meaning</th><th>Best Used For</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Today</strong></td><td>Scanned since midnight today</td><td>Real-time "how many did I find today" tracking</td></tr>
+                <tr><td><strong>Last 7 Days</strong></td><td>Scanned within the past week</td><td>Weekly progress check, active turnover window</td></tr>
+                <tr><td><strong>Last 30 Days</strong></td><td>Scanned within the past month (default)</td><td>General monthly accountability review</td></tr>
+                <tr><td><strong>All Time</strong></td><td>Any scan date on record</td><td>Identifying assets that have literally never been found</td></tr>
+            </tbody>
+        </table>
+
+        <h3>KPI Cards</h3>
+        <table>
+            <thead><tr><th>Card</th><th>What It Shows</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Total CMRs</strong></td><td>Number of distinct CMR groups present in the database for the selected site</td></tr>
+                <tr><td><strong>Total Assets</strong></td><td>Total number of assets that have a CMR number assigned</td></tr>
+                <tr><td><strong>Found (Window)</strong></td><td>Count of assets inventoried within the scan window; percentage shown below</td></tr>
+                <tr><td><strong>Still Remaining</strong></td><td>Assets not yet inventoried within the window</td></tr>
+                <tr><td><strong>Never Scanned</strong></td><td>Assets with a NULL <code>lastinventoried</code> &mdash; never inventoried at all</td></tr>
+                <tr><td><strong>Overall Progress</strong></td><td>Percentage of all CMR assets found within the scan window</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>3. CMR Summary Table</h2>
+        <p>
+            The core of the report. Each row represents one CMR group, showing exactly where that group stands in the inventory process.
+        </p>
+        <table>
+            <thead><tr><th>Column</th><th>Source</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><strong>CMR</strong></td><td><code>text8</code></td><td>The CMR identifier (e.g., <code>649-A004</code>). This is the same number on the physical CMR document.</td></tr>
+                <tr><td><strong>Total</strong></td><td>COUNT(*)</td><td>Total assets belonging to this CMR in the database.</td></tr>
+                <tr><td><strong>Found (Window)</strong></td><td><code>lastinventoried &ge; ScanFrom</code></td><td>How many assets in this CMR were scanned within the selected time window.</td></tr>
+                <tr><td><strong>Remaining</strong></td><td>Total &minus; Found</td><td>Assets not yet inventoried in the window. Highlighted in yellow if &gt; 0.</td></tr>
+                <tr><td><strong>Progress Bar</strong></td><td>Found &divide; Total</td><td>Visual color-coded bar. Green = 100%, Blue = &gt;50%, Yellow = partial, Red = 0%.</td></tr>
+                <tr><td><strong>%</strong></td><td>Calculated</td><td>Percentage complete, sortable.</td></tr>
+                <tr><td><strong>Last Scan</strong></td><td><code>MAX(lastinventoried)</code></td><td>The most recent inventory scan recorded for any asset in this CMR.</td></tr>
+                <tr><td><strong>Last Scanner</strong></td><td><code>lastmodifiedby</code></td><td>Username of the person who most recently inventoried an asset in this CMR within the window.</td></tr>
+                <tr><td><strong>Last Location Found</strong></td><td><code>locationname</code></td><td>Room/location where the most recently scanned asset in this CMR was found.</td></tr>
+                <tr><td><strong>Status</strong></td><td>Derived</td><td><span class="badge badge-green">&#10003; Complete</span> = 100% &nbsp; <span class="badge badge-blue">In Progress</span> = partial &nbsp; <span class="badge badge-red">Not Started</span> = 0%</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Default Sort Order</h3>
+        <p>
+            The table defaults to showing <strong>most complete CMRs first</strong>, so supply techs can quickly confirm which groups are done and focus attention on the remaining ones.
+            Any column heading is clickable to re-sort. The built-in search box filters across all visible columns simultaneously.
+        </p>
+
+        <div class="alert-green">
+            <strong>&#9989; No Page Reload Required for Filtering</strong><br/>
+            The DataTables search box filters the visible table client-side instantly. Use it to type a CMR number, a scanner name, or a building/location to narrow down the list without a server round-trip.
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>4. Turnover Workflow &mdash; Step by Step</h2>
+        <p>This is the recommended workflow when a CMR holder is changing:</p>
+        <ul>
+            <li><strong>Step 1 &mdash; Baseline snapshot:</strong> Before the outgoing person leaves, open <code>va_cmr_stats.aspx</code>, select the correct site, choose <strong>All Time</strong>, and export the CMR Summary. This is the full list of what must be accounted for.</li>
+            <li><strong>Step 2 &mdash; Switch to Today / 7 Days:</strong> As scanning begins, switch the window to <strong>Today</strong> or <strong>Last 7 Days</strong> to see real-time progress. The Found count and progress bars update each time the page is refreshed after new scans are submitted.</li>
+            <li><strong>Step 3 &mdash; Monitor daily:</strong> Supply techs refresh the page as they scan. The <em>Last Scanner</em> and <em>Last Location Found</em> columns show who is working which area and where they last left off.</li>
+            <li><strong>Step 4 &mdash; Identify gaps:</strong> CMRs showing <span class="badge badge-red">Not Started</span> or low % after several days need attention. The <em>Last Location Found</em> gives a physical starting point. Cross-reference with ENNX report for additional scan history.</li>
+            <li><strong>Step 5 &mdash; Export and email:</strong> Click <strong>Export CMR Summary</strong> for the per-CMR progress file, or <strong>Email Report</strong> to dispatch it directly. The receiving parties get the CMR number, total, found, remaining, and % for each group in a spreadsheet-ready format.</li>
+            <li><strong>Step 6 &mdash; Final sign-off:</strong> When all CMRs show <span class="badge badge-green">&#10003; Complete</span>, the accountability transfer can proceed. Export one final copy as a signed-off record.</li>
+        </ul>
+        <div class="alert-blue">
+            <strong>&#9432; "How Many Did I Find Today?"</strong><br/>
+            Set the window to <strong>Today</strong>. The Found column on each CMR row shows exactly how many assets in that group were scanned since midnight.
+            The Overall Progress KPI card shows the site-wide total found today as a percentage of all CMR assets.
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>5. Export Options</h2>
+        <table>
+            <thead><tr><th>Button</th><th>File Name</th><th>Contents</th><th>Best For</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>Export CMR Summary</strong></td>
+                    <td><code>CMR_Summary_[Window]_[Date].csv</code></td>
+                    <td>One row per CMR &mdash; Total, Found, Remaining, % Complete, Last Scan, Last Scanner, Last Location</td>
+                    <td>Management briefings, formal sign-off</td>
+                </tr>
+                <tr>
+                    <td><strong>Export Asset Detail</strong></td>
+                    <td><code>CMR_AssetDetail_[Date].csv</code></td>
+                    <td>One row per individual asset &mdash; CMR, Asset Name, Description, Serial #, Category, Use Status, Location, Scanned (Yes/No), Last Inventoried, Last Modified By</td>
+                    <td>Item-level audit, locating specific missing assets</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="alert-blue">
+            <strong>&#9432; Excel Tip</strong><br/>
+            The <code>% Complete</code> column is numeric. In Excel, select it and apply conditional formatting (green = 100, yellow = partial, red = 0) to instantly visualize which CMRs still need work &mdash; useful for printing and attaching to formal paperwork.
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>6. Technical Reference</h2>
+        <h3>Key Database Fields</h3>
+        <table>
+            <thead><tr><th>Field</th><th>Role</th></tr></thead>
+            <tbody>
+                <tr><td><code>text8</code></td><td>CMR number &mdash; the grouping key for all queries</td></tr>
+                <tr><td><code>lastinventoried</code></td><td>Scan timestamp; determines Found vs. Remaining within the window</td></tr>
+                <tr><td><code>lastmodifiedby</code></td><td>Username of the last scanner (Last Scanner column)</td></tr>
+                <tr><td><code>locationname</code></td><td>Location at time of last scan (Last Location Found column)</td></tr>
+                <tr><td><code>companyid</code></td><td>Facility/site filter</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Core SQL Pattern</h3>
+        <pre>SELECT
+    a.text8 AS CMR,
+    COUNT(*) AS TotalAssets,
+    SUM(CASE WHEN a.lastinventoried >= @ScanFrom THEN 1 ELSE 0 END) AS ScannedCount,
+    MAX(a.lastinventoried) AS LastScanDate,
+    (SELECT TOP 1 v2.lastmodifiedby FROM dbo.v_asset v2
+     WHERE v2.text8 = a.text8 AND v2.lastinventoried >= @ScanFrom
+     ORDER BY v2.lastinventoried DESC) AS LastScanner,
+    (SELECT TOP 1 v2.locationname FROM dbo.v_asset v2
+     WHERE v2.text8 = a.text8 AND v2.lastinventoried >= @ScanFrom
+     ORDER BY v2.lastinventoried DESC) AS LastLocation
+FROM dbo.v_asset a
+WHERE NULLIF(RTRIM(a.text8), '') IS NOT NULL
+GROUP BY a.text8
+ORDER BY ScannedCount * 1.0 / COUNT(*) DESC, ...</pre>
+        <p>
+            The <code>@ScanFrom</code> parameter is set to midnight today, 7 days ago, 30 days ago, or <code>1900-01-01</code> (All Time) based on the selected scan window tab.
+            Correlated subqueries efficiently pull the most recent scanner and location per CMR without a separate join table.
+        </p>
+    </div>
+
+    <div style="text-align:center; color:var(--muted-docs); font-size:12px; margin-top:40px;">
+        VA Asset Intelligence Hub Documentation &copy; 2026<br/>
+        Authored by the iDash project lead.
+    </div>
+</div>
+</body>
+</html>

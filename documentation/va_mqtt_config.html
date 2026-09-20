@@ -1,0 +1,338 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>MQTT Configuration &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<div class="wrap">
+
+    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         HEADER
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" style="border-top:4px solid #8B5CF6;">
+        <h1>&#128225; MQTT Configuration &mdash; Print Server Setup</h1>
+        <div style="margin-bottom:20px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <div style="margin-right:15px; color:var(--muted-docs); font-size:14px;">Integrations:</div>
+            <span class='badge badge-db'>Database Connected</span>
+            <span class='badge' style="background:color-mix(in srgb, #8B5CF6 15%, transparent); color:#8B5CF6; border:1px solid #8B5CF6;">MQTT Broker</span>
+            <span class='badge' style="background:color-mix(in srgb, #10b981 15%, transparent); color:#10b981; border:1px solid #10b981;">Print Server</span>
+            <span class='badge' style="background:color-mix(in srgb, #f59e0b 15%, transparent); color:#f59e0b; border:1px solid #f59e0b;">BarTender</span>
+        </div>
+        <p style="color:var(--muted-docs); font-size:14px; margin-bottom:8px;">
+            Manages the iDash MQTT broker settings and print client credentials. Enables MQTT-based printing
+            from all iDash and iDash scanning pages across multiple VA sites without needing to log into the iDash admin panel.
+        </p>
+        <div style="margin-top:12px; font-size:13px; color:var(--muted-docs);">
+            Related pages:
+            <a href="va_mqtt_architecture.html">MQTT Architecture</a> &bull;
+            <a href="va_rabbitmq_setup.html">RabbitMQ Setup Guide</a> &bull;
+            <a href="va_bartender_print_architecture.html">Print Architecture</a> &bull;
+            <a href="va_print_admin.html">Print Administration</a>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TABLE OF CONTENTS
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>&#128218; Table of Contents</h2>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px 32px; font-size:14px;">
+            <div>1. <a href="#key-concepts">Key Concepts</a></div>
+            <div>5. <a href="#multi-site">Multi-Site Printing</a></div>
+            <div>2. <a href="#architecture">Architecture Overview</a></div>
+            <div>6. <a href="#install">Print Server Installation</a></div>
+            <div>3. <a href="#broker-settings">MQTT Broker Settings</a></div>
+            <div>7. <a href="#troubleshooting">Troubleshooting</a></div>
+            <div>4. <a href="#print-flow">Print Flow</a></div>
+            <div>8. <a href="#file-locations">File Locations</a></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SECTION 1: KEY CONCEPTS
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" id="key-concepts">
+        <h2>&#9889; Key Concepts</h2>
+
+        <div class="alert-blue">
+            <strong>&#9889; MQTTnet Embedded Broker (Print Only):</strong> iDash has a <strong>built-in MQTTnet embedded broker</strong>
+            running inside the IIS worker process (w3wp) on port <strong>8883</strong>. This broker handles <strong>label printing only</strong>.
+            You do <strong>NOT</strong> need to install a separate broker for printing.
+        </div>
+
+        <div class="alert-green">
+            <strong>&#128007; Fixed Reader Tag Data (RabbitMQ):</strong> Tag observation routing from FX9600 readers uses a separate
+            <strong>RabbitMQ 4.3.5</strong> broker on port 1883 (TCP). This was deployed to address a routing defect in the
+            iDash embedded broker. See <a href="va_rabbitmq_setup.html">RabbitMQ Setup Guide</a> for details.
+        </div>
+
+        <div class="alert-amber">
+            <strong>&#9888;&#65039; Important:</strong> The <code>mqttclient</code> table is <strong>NOT</strong> used for printing.
+            Those are for subscribing to data feeds. Printing uses the <code>printclient</code> table exclusively.
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SECTION 2: ARCHITECTURE OVERVIEW
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" id="architecture">
+        <h2>&#127959;&#65039; Architecture Overview</h2>
+        <h3>Two Separate Broker Systems</h3>
+        <table>
+            <thead><tr><th>Broker</th><th>Port</th><th>Purpose</th><th>Used By</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>MQTTnet (Embedded)</strong></td>
+                    <td><code>8883</code></td>
+                    <td>Label printing &amp; data feed subscriptions</td>
+                    <td>iDash Print Server, iDash dashboards</td>
+                </tr>
+                <tr>
+                    <td><strong>RabbitMQ 4.3.5</strong></td>
+                    <td><code>1883</code></td>
+                    <td>Fixed reader tag observation routing</td>
+                    <td>FX9600 readers → AntennaLocationService</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Database Tables</h3>
+        <table>
+            <thead><tr><th>Table</th><th>Purpose</th><th>Used By</th></tr></thead>
+            <tbody>
+                <tr><td><code>mqttclient</code></td><td>Subscribe to data feeds (alarms, events, tag movements)</td><td>Monitoring tools, dashboards</td></tr>
+                <tr><td><code>printclient</code></td><td>Authenticate print services</td><td>iDash Print Server</td></tr>
+                <tr><td><code>printclientcompany</code></td><td>Map a print client &rarr; company/site(s)</td><td>Determines which sites a print server handles</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SECTION 3: MQTT BROKER SETTINGS
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" id="broker-settings">
+        <h2>&#128296; MQTT Broker Settings</h2>
+
+        <h3>Database Settings (<code>applicationsetting</code> table)</h3>
+        <table>
+            <thead><tr><th>Field</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td><code>mqttenabled</code></td><td>Master toggle for MQTT</td><td><code>true</code></td></tr>
+                <tr><td><code>mqttlocation</code></td><td>Where the broker runs</td><td><code>Web Server</code></td></tr>
+                <tr><td><code>mqttusername</code></td><td>Gateway username for the embedded broker</td><td><code>mqttgateway</code></td></tr>
+                <tr><td><code>mqttpassword</code></td><td>Gateway password</td><td><code>7fL845t!Cz</code></td></tr>
+            </tbody>
+        </table>
+
+        <h3>Global Subscriptions (<code>applicationsetting</code> table)</h3>
+        <p>These must be enabled for the broker to publish messages on each topic:</p>
+        <table>
+            <thead><tr><th>Field</th><th>Subscription</th></tr></thead>
+            <tbody>
+                <tr><td><code>enableglobalalarmmessages</code></td><td>Alarm Subscriptions</td></tr>
+                <tr><td><code>enableglobaleventmessages</code></td><td>Event Subscriptions</td></tr>
+                <tr><td><code>enableglobalgatewaymessages</code></td><td>Gateway Message Subscriptions</td></tr>
+                <tr><td><code>enableglobalsensorreadingmessages</code></td><td>Sensor Reading Subscriptions</td></tr>
+                <tr><td><code>enableglobaltagmovementmessages</code></td><td>V-Tag Movement Subscriptions</td></tr>
+                <tr><td><code>enableglobaltagobservationmessages</code></td><td>Tag Observation Subscriptions</td></tr>
+            </tbody>
+        </table>
+
+        <h3>App Settings (<code>appsettings.json</code>)</h3>
+        <p>Both the <strong>WebClient</strong> (<code>C:\inetpub\wwwroot\iDash\appsettings.json</code>) and the <strong>Print Server</strong> (<code>C:\Program Files (x86)\InfinID Technologies\iDash Print Server\appsettings.json</code>) share these settings:</p>
+        <table>
+            <thead><tr><th>Key</th><th>Description</th><th>Value</th></tr></thead>
+            <tbody>
+                <tr><td><code>MqttServer</code></td><td>Broker hostname</td><td><code>localhost</code></td></tr>
+                <tr><td><code>MqttServerPort</code></td><td>Broker port</td><td><code>8883</code></td></tr>
+                <tr><td><code>PrintClientUsername</code></td><td>Print client credentials</td><td><code>MasterPrint</code></td></tr>
+                <tr><td><code>PrintClientPassword</code></td><td>Print client password</td><td><code>V5MqttPrint2026!</code></td></tr>
+                <tr><td><code>UseForPrinting</code></td><td>Enable print processing</td><td><code>true</code></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SECTION 4: PRINT FLOW
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" id="print-flow">
+        <h2>&#128424; Print Flow</h2>
+        <p>End-to-end path of a label print job through the MQTT system:</p>
+        <ol style="line-height:2;">
+            <li>User triggers print from iDash (Asset Master, Excel Import, Scanning, etc.)</li>
+            <li>iDash web application publishes a print job to the <strong>embedded MQTT broker</strong> (port 8883)</li>
+            <li>The <strong>iDash Print Server</strong> service subscribes to print topics and receives the job</li>
+            <li>Print Server authenticates using its <code>printclient</code> credentials</li>
+            <li>Print Server sends the label to <strong>BarTender</strong> which renders and sends to the physical printer</li>
+        </ol>
+
+        <div class="alert-green">
+            <strong>&#9989; All On-Premise:</strong> The entire print flow runs locally. No cloud services, no internet dependency.
+            The embedded broker, Print Server, and BarTender all run on the same machine (LINGCOD).
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SECTION 5: MULTI-SITE PRINTING
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" id="multi-site">
+        <h2>&#127760; Multi-Site Printing</h2>
+
+        <h3>The Problem</h3>
+        <p>The iDash installer only lets you enter <strong>one</strong> print client username per installation &mdash;
+        meaning one Print Server install = one site. For a centralized server managing all VA sites, this is limiting.</p>
+
+        <h3>The Solution: Master Print Client</h3>
+        <p>A <strong>MasterPrint</strong> client was created in the <code>printclient</code> table and mapped to
+        <strong>all 6 sites</strong> via the <code>printclientcompany</code> table. This allows a single Print Server
+        instance to handle jobs from every site.</p>
+
+        <table>
+            <thead><tr><th>Username</th><th>Sites Mapped</th><th>Machine</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><code>MasterPrint</code></td>
+                    <td>512 Baltimore, 517 Beckley, 540 Clarksburg, 581 Huntington, 613 Martinsburg, 688 Washington DC</td>
+                    <td>LINGCOD</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SECTION 6: PRINT SERVER INSTALLATION
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" id="install">
+        <h2>&#128187; Print Server Installation</h2>
+
+        <h3>Prerequisites</h3>
+        <ul>
+            <li>iDash Web Server running (provides embedded MQTT broker on port 8883)</li>
+            <li>BarTender installed and licensed (Print Engine or higher)</li>
+            <li>BarTender templates in the expected path</li>
+            <li>MQTT enabled in <code>applicationsetting</code> with all subscriptions checked</li>
+        </ul>
+
+        <h3>Installation Steps</h3>
+        <ol style="line-height:2;">
+            <li><strong>Run the installer</strong> &mdash; use the iDash installer, select only Print Server component</li>
+            <li><strong>Configure credentials</strong> &mdash; enter <code>MasterPrint</code> / <code>V5MqttPrint2026!</code> as the print client</li>
+            <li><strong>Register the service</strong> &mdash; run the setup script in an elevated PowerShell:
+                <pre class="code-block">&amp; 'C:\inetpub\wwwroot\iDash\Assets\install_print_server.ps1'</pre>
+            </li>
+            <li><strong>Verify</strong> &mdash; check Windows Services for "iDash Print Server" (should be Running)</li>
+            <li><strong>Check logs</strong> &mdash; <code>C:\Logs\PrintServer_log*.txt</code></li>
+        </ol>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SECTION 7: MQTT CLIENT MANAGEMENT
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" id="client-management">
+        <h2>&#128225; MQTT Client Management (Data Subscriptions)</h2>
+        <p>The MQTT Client Management section on the iDash page handles <code>mqttclient</code> records.
+        These are for subscribing to <strong>data feeds</strong>, not printing. Each site gets its own MQTT client
+        with configurable access permissions:</p>
+        <ul>
+            <li><strong>Alarms</strong> &mdash; receive alarm notifications</li>
+            <li><strong>Events</strong> &mdash; receive event messages</li>
+            <li><strong>Gateway</strong> &mdash; receive gateway status messages</li>
+            <li><strong>Tag Moves</strong> &mdash; receive tag movement notifications</li>
+            <li><strong>Tag Observations</strong> &mdash; receive raw tag read data</li>
+            <li><strong>Sensors</strong> &mdash; receive sensor reading data</li>
+        </ul>
+
+        <div class="alert-blue">
+            <strong>&#128161; Tip:</strong> The <strong>"Create Client for Each Site"</strong> button auto-generates
+            one MQTT client per company with all permissions enabled and a random password.
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SECTION 8: TROUBLESHOOTING
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" id="troubleshooting">
+        <h2>&#128269; Troubleshooting</h2>
+        <table>
+            <thead><tr><th>Issue</th><th>Cause</th><th>Fix</th></tr></thead>
+            <tbody>
+                <tr><td>Print jobs stay queued</td><td>Print Server not running</td><td>Check Windows Services, start iDash Print Server</td></tr>
+                <tr><td>Print Server won't connect</td><td>Wrong credentials or MQTT not enabled</td><td>Verify <code>printclient</code> username/password match <code>appsettings.json</code></td></tr>
+                <tr><td>Port 8883 not listening</td><td>iDash Web not running</td><td>Restart IIS Default App Pool</td></tr>
+                <tr><td>License key error on login</td><td>MAC address mismatch</td><td>Use iDash MQTT Config page instead (bypasses iDash login)</td></tr>
+                <tr><td>"Mosquitto: Not Found"</td><td>Normal &mdash; iDash uses embedded MQTTnet, not Mosquitto</td><td>No action needed</td></tr>
+                <tr><td>Can't save iDash admin settings</td><td>License key bound to different server</td><td>Use iDash MQTT Config page to manage settings directly in DB</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SECTION 9: FILE LOCATIONS
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" id="file-locations">
+        <h2>&#128194; File Locations</h2>
+        <table>
+            <thead><tr><th>File</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td><code>C:\inetpub\wwwroot\iDash\appsettings.json</code></td><td>WebClient MQTT + print config</td></tr>
+                <tr><td><code>C:\Program Files (x86)\InfinID Technologies\iDash Print Server\appsettings.json</code></td><td>Print Server MQTT + print config</td></tr>
+                <tr><td><code>C:\inetpub\wwwroot\iDash\va_mqtt_config.aspx</code></td><td>iDash MQTT management page</td></tr>
+                <tr><td><code>C:\inetpub\wwwroot\iDash\Assets\install_print_server.ps1</code></td><td>Print Server service install script</td></tr>
+                <tr><td><code>C:\Logs\PrintServer_log*.txt</code></td><td>Print Server runtime logs</td></tr>
+                <tr><td><code>C:\Logs\WebClient_log*.txt</code></td><td>iDash Web (MQTT broker) logs</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         REVISION HISTORY
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>&#128221; Revision History</h2>
+        <table>
+            <thead><tr><th>Date</th><th>Version</th><th>Change</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>2026-08-31</td>
+                    <td>2.0</td>
+                    <td><strong>Documentation Overhaul.</strong> Migrated to card-based layout with docs_theme.css, added TOC, related pages nav, standardized alert boxes, added proper footer and revision history. Content unchanged.</td>
+                </tr>
+                <tr>
+                    <td>2026-08-28</td>
+                    <td>1.0</td>
+                    <td>Initial documentation. MQTT Configuration print server setup, multi-site printing, client management, and troubleshooting.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-top:40px;padding-top:20px;border-top:1px solid var(--line);">
+        <a href="index.aspx" style="font-weight:600;">&larr; Back to Documentation Hub</a>
+        &nbsp;&bull;&nbsp;
+        <a href="../va_mqtt_config.aspx">Open MQTT Config Page &rarr;</a>
+    </div>
+</div>
+
+<footer style="margin-top:40px;padding:20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted-docs);display:flex;justify-content:space-between;align-items:center;max-width:1100px;margin-left:auto;margin-right:auto;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
+        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
+        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+        <span>&copy; 2026 ID Integration Inc.</span>
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height:14px;opacity:0.9;">
+    </div>
+</footer>
+</body>
+</html>

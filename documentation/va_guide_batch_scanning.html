@@ -1,0 +1,168 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>iDash Docs &mdash; Guide: Batch Mode Scanning &amp; Sync</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <style>
+        .step-card { background: color-mix(in srgb, var(--text, #e2e8f0), transparent 97%); border: 1px solid var(--line, #2a3441); border-radius: 14px; padding: 28px; margin-bottom: 32px; }
+        .step-num { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: #3b82f6; color: #fff; font-weight: 800; font-size: 16px; margin-right: 12px; flex-shrink: 0; }
+        .step-title { font-size: 20px; font-weight: 700; display: flex; align-items: center; margin-bottom: 12px; }
+        .step-desc { color: var(--muted-docs, #8b95a5); font-size: 14px; line-height: 1.7; margin-bottom: 16px; }
+        .tip-box { background: color-mix(in srgb, #10b981, transparent 88%); border: 1px solid rgba(16,185,129,0.3); border-left: 4px solid #10b981; padding: 14px 18px; border-radius: 8px; font-size: 13px; margin: 16px 0; color: #10b981; }
+        .warn-box { background: color-mix(in srgb, #f59e0b, transparent 88%); border: 1px solid rgba(245,158,11,0.3); border-left: 4px solid #f59e0b; padding: 14px 18px; border-radius: 8px; font-size: 13px; margin: 16px 0; color: #f59e0b; }
+        .danger-box { background: color-mix(in srgb, #ef4444, transparent 88%); border: 1px solid rgba(239,68,68,0.3); border-left: 4px solid #ef4444; padding: 14px 18px; border-radius: 8px; font-size: 13px; margin: 16px 0; color: #ef4444; }
+        .info-box { background: color-mix(in srgb, #3b82f6, transparent 88%); border: 1px solid rgba(59,130,246,0.3); border-left: 4px solid #3b82f6; padding: 14px 18px; border-radius: 8px; font-size: 13px; margin: 16px 0; color: #3b82f6; }
+        .phase-header { font-size: 18px; font-weight: 800; margin: 32px 0 12px 0; padding: 10px 16px; border-radius: 10px; display: flex; align-items: center; gap: 10px; }
+        .phase-header.setup { background: color-mix(in srgb, #8B5CF6, transparent 88%); border: 1px solid rgba(139,92,246,0.3); color: #8B5CF6; }
+        .phase-header.scan { background: color-mix(in srgb, #3b82f6, transparent 88%); border: 1px solid rgba(59,130,246,0.3); color: #3b82f6; }
+        .phase-header.sync { background: color-mix(in srgb, #10b981, transparent 88%); border: 1px solid rgba(16,185,129,0.3); color: #10b981; }
+    </style>
+</head>
+<body>
+    <a href="index.aspx" class="back-link">&larr; Documentation Hub</a>
+
+    <div class="doc-container">
+        <h1>&#128225; Guide: Batch Mode Scanning &amp; Sync</h1>
+        <p class="doc-subtitle">How to use Batch Mode for offline RFID scanning when WiFi is unavailable, and how to sync stored scan data back to iDash when connected.</p>
+
+        <div class="callout callout-info">
+            <strong>When to use Batch Mode:</strong> Use batch scanning when you're in a location without reliable WiFi. Scans are stored locally on the device and uploaded when you return to a connected area.
+        </div>
+
+        <p class="step-desc"><strong>Source:</strong> <em>VISN 5 Use and Configuration Guide for iDash 4.0.8.7</em>, Section V (pages 26&ndash;31)</p>
+
+        <!-- ════════ PHASE 1: SETUP ════════ -->
+        <div class="phase-header setup">&#9881; Phase 1: Enable Batch Mode</div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">1</span> Open iDash Settings</div>
+            <div class="step-desc">
+                On the Zebra handheld scanner, open the <strong>iDash</strong> app. From the main menu, tap <strong>Settings</strong> (gear icon) in the top-right corner.
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">2</span> Enable Batch Mode</div>
+            <div class="step-desc">
+                In Settings, find the <strong>"Batch Mode"</strong> toggle and switch it <strong>ON</strong>.
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li>When Batch Mode is <strong>ON</strong>, the app stores all scans locally on the device instead of sending them to the server in real time</li>
+                <li>A <strong>batch icon</strong> appears in the status bar to indicate you're in offline mode</li>
+                <li>You can scan multiple rooms/locations before syncing</li>
+            </ul>
+            <div class="warn-box">
+                <strong>&#9888; Remember:</strong> Batch Mode must be explicitly enabled before going offline. If you forget and lose WiFi mid-scan in normal mode, data may not sync properly.
+            </div>
+        </div>
+
+        <!-- ════════ PHASE 2: SCANNING ════════ -->
+        <div class="phase-header scan">&#128225; Phase 2: Scan Locations</div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">3</span> Select a Location &amp; Scan</div>
+            <div class="step-desc">
+                Just like regular ADHOC scanning, select a location and tap <strong>Start</strong>. Hold the trigger to scan RFID tags. The scanner works identically to online mode &mdash; you'll hear beeps and see tag counts.
+            </div>
+            <div class="step-desc">The key difference: data is stored <strong>locally on the device</strong> instead of being sent to the server.</div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">4</span> Scan Multiple Rooms</div>
+            <div class="step-desc">
+                After finishing one room, tap <strong>Stop</strong>, then navigate to the next location. You can:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li>Scan <strong>multiple locations</strong> in sequence without syncing</li>
+                <li>The device stores all scan sessions separately, tagged with their location</li>
+                <li>You can review stored scans by tapping <strong>"Batch Queue"</strong> or <strong>"Pending Syncs"</strong> on the main menu</li>
+            </ul>
+            <div class="tip-box">
+                <strong>&#128161; Tip:</strong> The device can store thousands of tag reads before running low on storage. You can comfortably scan an entire floor or building wing before syncing.
+            </div>
+        </div>
+
+        <!-- ════════ PHASE 3: SYNC ════════ -->
+        <div class="phase-header sync">&#128259; Phase 3: Sync Stored Data</div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">5</span> Return to WiFi Coverage</div>
+            <div class="step-desc">
+                When you're back in a WiFi-connected area (or near an access point), verify the device has connected:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li>Check the WiFi icon in the status bar &mdash; it should show a connected signal</li>
+                <li>If it doesn't auto-connect, go to <strong>Settings &rarr; WiFi</strong> and select your network</li>
+            </ul>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">6</span> Sync Batch Data</div>
+            <div class="step-desc">
+                Open the iDash app and tap <strong>"Sync"</strong> or <strong>"Upload Batch"</strong>. The app will:
+            </div>
+            <ol style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li>Connect to the iDash server</li>
+                <li>Upload all stored scan sessions one at a time</li>
+                <li>Show a progress bar for each session</li>
+                <li>Display a <strong>"Sync Complete"</strong> message with the total count of uploaded records</li>
+            </ol>
+            <div class="info-box">
+                <strong>&#128225; What happens during sync:</strong> Each stored session is processed exactly like a real-time scan &mdash; asset locations are updated, misplaced items are flagged, and scan history timestamps are recorded.
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">7</span> Verify &amp; Clear Batch Queue</div>
+            <div class="step-desc">
+                After a successful sync:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li>The <strong>Batch Queue</strong> should be empty (all sessions uploaded)</li>
+                <li>Verify in <strong>iDash &rarr; Session Reports</strong> that your scan sessions appear with correct timestamps</li>
+                <li>If any sessions failed to upload, they'll remain in the queue &mdash; tap <strong>"Retry"</strong> to re-attempt</li>
+            </ul>
+            <div class="danger-box">
+                <strong>&#9888; Critical:</strong> Do NOT uninstall or reset the iDash app before syncing. Unsent batch data is stored on the device only and will be <strong>permanently lost</strong> if the app is cleared.
+            </div>
+        </div>
+
+        <!-- ════════ TROUBLESHOOTING ════════ -->
+        <h2><span class="section-num">&#128295;</span> Troubleshooting</h2>
+        <table class="doc-table">
+            <thead><tr><th style="width:35%">Issue</th><th>Solution</th></tr></thead>
+            <tbody>
+                <tr><td>Sync fails with "Server unreachable"</td><td>Confirm WiFi is connected and iDash server is reachable. Try pinging the server IP from device settings.</td></tr>
+                <tr><td>Batch icon doesn't appear</td><td>Batch Mode may not be enabled. Go to Settings and verify the toggle is ON.</td></tr>
+                <tr><td>Some sessions fail to upload</td><td>The server may reject sessions with invalid locations. Check the error message and verify the location exists in iDash.</td></tr>
+                <tr><td>Battery dies before sync</td><td>Batch data persists across restarts. Charge the device, reopen iDash, and sync again.</td></tr>
+                <tr><td>"Duplicate session" warning</td><td>This session was already uploaded. Safe to dismiss &mdash; iDash prevents duplicate processing.</td></tr>
+                <tr><td>Slow sync with many sessions</td><td>Normal. Each session is processed server-side. Large batches (50+ rooms) may take several minutes.</td></tr>
+            </tbody>
+        </table>
+
+        <h2><span class="section-num">&#128260;</span> Batch vs. ADHOC Comparison</h2>
+        <table class="doc-table">
+            <thead><tr><th style="width:30%">Feature</th><th>ADHOC (Online)</th><th>Batch (Offline)</th></tr></thead>
+            <tbody>
+                <tr><td><strong>WiFi required?</strong></td><td>Yes &mdash; syncs in real time</td><td>No &mdash; stores locally</td></tr>
+                <tr><td><strong>Multi-room</strong></td><td>Sync after each room</td><td>Scan all rooms, sync once later</td></tr>
+                <tr><td><strong>Data risk</strong></td><td>Low &mdash; sent immediately</td><td>Medium &mdash; stored on device until sync</td></tr>
+                <tr><td><strong>Speed</strong></td><td>Slightly slower (network round-trips)</td><td>Faster scanning (no network waits)</td></tr>
+                <tr><td><strong>Best for</strong></td><td>Single-room quick checks</td><td>Full floor/building sweeps</td></tr>
+            </tbody>
+        </table>
+
+        <h2><span class="section-num">&#128279;</span> Related Guides</h2>
+        <ul>
+            <li><a href="va_guide_adhoc_scanning.html">ADHOC Scanning &amp; Inventory</a></li>
+            <li><a href="va_guide_locate_and_reader.html">Locate Feature &amp; Reader Settings</a></li>
+            <li><a href="va_guide_scanner_setup.html">Zebra TC53 Scanner Setup</a></li>
+            <li><a href="va_guide_offline_printing.html">Offline Printing Station</a></li>
+        </ul>
+    </div>
+</body>
+</html>

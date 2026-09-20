@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>CrossSiteTagObserver</RootNamespace>
+    <AssemblyName>CrossSiteTagObserver</AssemblyName>
+    <Description>Detects RFID tags from other VA sites at fixed reader locations by subscribing to MQTT tag data and performing cross-company asset matching.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- MQTT client (same library as AssetWorx Print Server) -->
+    <PackageReference Include="MQTTnet" Version="4.*" />
+
+    <!-- JSON parsing -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.*" />
+
+    <!-- SQL Server -->
+    <PackageReference Include="System.Data.SqlClient" Version="4.*" />
+
+    <!-- Windows Service hosting -->
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.*" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="6.*" />
+
+    <!-- Logging -->
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="5.*" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="3.*" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.*" />
+    <PackageReference Include="Serilog.Sinks.File" Version="5.*" />
+  </ItemGroup>
+
+</Project>

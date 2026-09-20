@@ -1,0 +1,424 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>SCANNER & SYSTEM USER MANAGEMENT &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<div class="wrap">
+    <a href="index.aspx">&larr; Back to Documentation Hub</a><br/><br/>
+
+    <!-- OVERVIEW -->
+    <div class="card">
+        <h1>&#128100; Scanner & System User Management (sysuser)</h1>
+        <div class="kv"><span class="k">File</span><code>va_aw_user_management.aspx</code> / <code>va_aw_user_management.aspx.cs</code></div>
+        <div class="kv"><span class="k">Target Table</span><code>dbo.sysuser</code> in the iDash SQL Server database</div>
+        <div class="kv"><span class="k">Access</span>iDash Administrator role only (same gate as iDash User Management)</div>
+        <div class="kv"><span class="k">Date Added</span>July 10, 2026</div>
+        <p>This page provides a self-contained interface inside iDash for creating, editing, and deleting <strong>scanner & system user accounts</strong> &mdash; the <code>sysuser</code> records that control who can log in to the iDash web application at <code>http://localhost</code>.</p>
+        <p><strong>This is the easiest tool for managing RFID scanner login credentials and permissions.</strong> Use it to add, remove, or edit the username, password, user type, and site assignment for any handheld RFID scanner operator &mdash; without needing to open the iDash web UI.</p>
+
+        <div class="alert alert-info">
+            <strong>This is separate from iDash User Management.</strong> iDash users (stored in <code>App_Data/idash_users.json</code>) control portal access to iDash itself. scanner users (stored in <code>dbo.sysuser</code>) control who can log in to the main iDash application, the mobile handheld client, and the API.
+        </div>
+
+        <div class="alert" style="background:color-mix(in srgb, #ef4444, transparent 85%); border-color:#ef4444; color:#ef4444;">
+            <strong>&#9888; Do NOT sign in to this page as <code>superadmin</code> or <code>admin</code>.</strong> Those are scanner user accounts created for internal UI functions &mdash; they are not SQL Server credentials and will not work here. Sign in with <strong><code>idashadmin</code></strong>, which is the standard SQL Server account used for database management operations.
+        </div>
+
+        <div class="toc">
+            <a href="#quickstart">Quick Start &amp; Common Use Cases</a>
+            <a href="#why">Why This Was Built</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#connection">Database Connection</a>
+            <a href="#schema">Sysuser Table Schema</a>
+            <a href="#password">Password Hashing</a>
+            <a href="#crud">Creating, Editing &amp; Deleting Users</a>
+            <a href="#security">Security &amp; Access Control</a>
+            <a href="#files">Files Changed</a>
+            <a href="#changelog">Changelog</a>
+        </div>
+    </div>
+
+    <!-- QUICK START -->
+    <div class="card" id="quickstart">
+        <h2>Quick Start &amp; Common Use Cases</h2>
+
+        <h3>&#128273; Login Credentials</h3>
+        <table>
+            <tr><th>Field</th><th>Value</th><th>Notes</th></tr>
+            <tr><td><strong>SQL Server</strong></td><td><code>.\sqlexpress</code></td><td>Pre-populated from web.config</td></tr>
+            <tr><td><strong>Database</strong></td><td><code>iDash</code></td><td>Pre-populated from web.config</td></tr>
+            <tr><td><strong>SQL Username</strong></td><td><code>idashadmin</code></td><td>Pre-populated from web.config</td></tr>
+            <tr><td><strong>SQL Password</strong></td><td><code>idashadmin</code></td><td>Standard DB management password &mdash; enter manually</td></tr>
+        </table>
+
+        <div class="alert" style="background:color-mix(in srgb, #ef4444, transparent 85%); border-color:#ef4444; color:#ef4444;">
+            <strong>&#9888; Do NOT use <code>superadmin</code> / <code>admin</code> here.</strong> Those are <em>scanner user accounts</em> (stored in the <code>sysuser</code> table itself). They are the accounts people use to log in to the iDash web UI and handheld scanners. They are <strong>not</strong> SQL Server database credentials and will fail to connect. Always use <strong><code>idashadmin</code></strong> for database management.
+        </div>
+
+        <h3>&#128225; Default iDash application Passwords</h3>
+        <p>The following are the factory-default passwords for the built-in scanner accounts. These should be changed after initial setup.</p>
+        <table>
+            <tr><th>scanner username</th><th>Default Password</th><th>Purpose</th></tr>
+            <tr><td><code>admin</code></td><td><code>demo</code></td><td>Default administrator account for the iDash web UI</td></tr>
+            <tr><td><code>superadmin</code></td><td><code>demo</code></td><td>Super administrator with cross-site access (no company restriction)</td></tr>
+        </table>
+        <p style="color:var(--muted-docs); font-size:13px;">These passwords are for logging in to iDash at <code>http://localhost</code> and on the RFID handheld scanners &mdash; <strong>not</strong> for connecting to this iDash management page.</p>
+
+        <h3>&#128241; Primary Use Case: RFID Scanner User Management</h3>
+        <p>The most common use of this page is <strong>managing login credentials for RFID handheld scanners</strong>. Each scanner operator needs a <code>sysuser</code> account with:</p>
+        <ul>
+            <li><strong>Username &amp; Password</strong> &mdash; what the operator types on the scanner login screen</li>
+            <li><strong>User Type</strong> &mdash; <code>"Create, Edit, Delete"</code> for field techs who tag and scan, or <code>"View Only"</code> for observers</li>
+            <li><strong>Company (Site)</strong> &mdash; which VA medical center the operator is assigned to</li>
+            <li><strong>Restrict Edit on Mobile</strong> toggle &mdash; prevents the operator from modifying asset records on the handheld</li>
+            <li><strong>Inventory Limited User</strong> toggle &mdash; restricts the operator to limited inventory functions</li>
+        </ul>
+        <p>Instead of navigating to <code>http://localhost</code>, logging in as admin, and using the iDash UI, you can do all of this directly from iDash in seconds.</p>
+    </div>
+
+    <!-- WHY THIS WAS BUILT -->
+    <div class="card" id="why">
+        <h2>Why This Was Built</h2>
+        <h3>The Problem</h3>
+        <p>Creating an scanner user account previously required:</p>
+        <ol>
+            <li>Navigating to <code>http://localhost</code> (the iDash web application)</li>
+            <li>Logging in with an existing admin account</li>
+            <li>Using the built-in scanner user management interface</li>
+        </ol>
+        <p>This was problematic for several reasons:</p>
+        <ul>
+            <li><strong>Network dependency:</strong> The iDash web application runs on a .NET Core pipeline that requires the full iDash application stack to be running &mdash; including license checks, Redis/local cache, MQTT workers, and various background services. If any of these are down or misconfigured, the UI is inaccessible.</li>
+            <li><strong>No standalone access:</strong> You cannot create the first admin user without an already-working admin user. If the default <code>admin/admin</code> account is locked or its password has been changed, there&rsquo;s no UI-based recovery path short of direct SQL manipulation.</li>
+            <li><strong>Operational friction:</strong> During site deployments, field installations, and break-fix scenarios, having to start the full iDash application just to add or modify a user account is unnecessary overhead. The iDash portal is already running and authenticated.</li>
+        </ul>
+
+        <h3>The Solution</h3>
+        <p>The new <strong>Scanner & System User Management</strong> page in iDash provides direct SQL access to the <code>dbo.sysuser</code> table. It bypasses the iDash .NET Core application entirely and writes directly to the database using the same parameterized SQL patterns used throughout iDash. This means:</p>
+        <ul>
+            <li>Users can be created even when the iDash web application is offline</li>
+            <li>Password hashing is performed using a <strong>binary-compatible implementation</strong> of the ASP.NET Core Identity PasswordHasher V3 algorithm (see <a href="#password">Password Hashing</a> section)</li>
+            <li>All 17 columns of the <code>sysuser</code> table are exposed as form fields, including the toggle options that control mobile restrictions and inventory limitations</li>
+        </ul>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="card" id="how-it-works">
+        <h2>How It Works</h2>
+        <p>The page operates in a <strong>two-phase workflow</strong>:</p>
+
+        <h3>Phase 1: Connect</h3>
+        <ol>
+            <li>Administrator enters SQL Server credentials (server, database, username, password)</li>
+            <li>Fields are <strong>pre-populated from <code>web.config</code></strong> using the existing <code>iDash</code> connection string, so in most cases only the password needs to be entered</li>
+            <li>On connect, the page validates the connection and confirms the <code>dbo.sysuser</code> table exists</li>
+            <li>The connection string is stored in the ASP.NET session (memory-only, never persisted to disk)</li>
+        </ol>
+
+        <h3>Phase 2: Manage</h3>
+        <ol>
+            <li>Once connected, all existing <code>sysuser</code> records are displayed in a data grid</li>
+            <li>The grid joins <code>sysuser</code> with <code>dbo.company</code> to display the human-readable site name alongside each user&rsquo;s <code>companyid</code></li>
+            <li>The <strong>Add User</strong> modal and <strong>Edit User</strong> modal expose every writable column</li>
+            <li>All SQL operations use parameterized queries (<code>@param</code> style) &mdash; no string concatenation</li>
+        </ol>
+
+        <div class="alert alert-info">
+            <strong>Session-scoped connection.</strong> The database connection credentials are held in the ASP.NET session only. They are not written to any file. Closing the browser or session timeout clears them. The "Disconnect" button explicitly removes the stored connection.
+        </div>
+    </div>
+
+    <!-- DATABASE CONNECTION -->
+    <div class="card" id="connection">
+        <h2>Database Connection</h2>
+        <p>The connection form accepts four fields:</p>
+        <table>
+            <tr><th>Field</th><th>Description</th><th>Pre-populated From</th></tr>
+            <tr><td><strong>SQL Server</strong></td><td>SQL Server instance name</td><td><code>web.config</code> &rarr; <code>Data Source</code></td></tr>
+            <tr><td><strong>Database</strong></td><td>Database name (e.g., <code>iDash</code>)</td><td><code>web.config</code> &rarr; <code>Database</code></td></tr>
+            <tr><td><strong>SQL Username</strong></td><td>SQL auth username</td><td><code>web.config</code> &rarr; <code>User ID</code></td></tr>
+            <tr><td><strong>SQL Password</strong></td><td>SQL auth password</td><td><em>Never pre-populated</em> (security)</td></tr>
+        </table>
+
+        <p>The connection string is built as:</p>
+        <pre>Data Source={server};Database={db};User ID={user};Password={pass};Encrypt=False;TrustServerCertificate=True;Connect Timeout=15</pre>
+
+        <p>On connect, the page runs a validation query:</p>
+        <pre>SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'sysuser'</pre>
+        <p>If the table doesn&rsquo;t exist, the connection is rejected with a clear error message.</p>
+
+        <h3>Why user-supplied credentials instead of just using web.config?</h3>
+        <p>This is intentional. The page is designed to work against <strong>any iDash database</strong>, not just the one in <code>web.config</code>. During multi-site deployments, a technician may need to manage users on a different SQL instance. The pre-population from <code>web.config</code> is a convenience for the default case.</p>
+    </div>
+
+    <!-- SYSUSER TABLE SCHEMA -->
+    <div class="card" id="schema">
+        <h2>Sysuser Table Schema</h2>
+        <p>The <code>dbo.sysuser</code> table has 17 columns. The page exposes 13 of them as editable fields (the remaining 4 are system-managed).</p>
+
+        <table>
+            <tr><th>Column</th><th>Type</th><th>Nullable</th><th>Exposed</th><th>Description</th></tr>
+            <tr><td><code>id</code></td><td><code>int</code></td><td>NO (identity)</td><td>Read-only</td><td>Auto-increment primary key</td></tr>
+            <tr><td><code>username</code></td><td><code>nvarchar(50)</code></td><td>NO</td><td>&#10003; Add only</td><td>Login username (unique, no spaces)</td></tr>
+            <tr><td><code>password</code></td><td><code>nvarchar(max)</code></td><td>YES</td><td>&#10003;</td><td>ASP.NET Core Identity V3 password hash (base64)</td></tr>
+            <tr><td><code>firstname</code></td><td><code>nvarchar(50)</code></td><td>YES</td><td>&#10003;</td><td>User&rsquo;s first name</td></tr>
+            <tr><td><code>lastname</code></td><td><code>nvarchar(50)</code></td><td>YES</td><td>&#10003;</td><td>User&rsquo;s last name</td></tr>
+            <tr><td><code>email</code></td><td><code>nvarchar(50)</code></td><td>YES</td><td>&#10003;</td><td>Email address (used for verification codes)</td></tr>
+            <tr><td><code>phone</code></td><td><code>nvarchar(50)</code></td><td>YES</td><td>&#10003;</td><td>Phone number</td></tr>
+            <tr><td><code>cardid</code></td><td><code>nvarchar(50)</code></td><td>YES</td><td>&#10003;</td><td>Badge / smart card identifier</td></tr>
+            <tr><td><code>rfidtag</code></td><td><code>nvarchar(50)</code></td><td>YES</td><td>&#10003;</td><td>RFID tag hex value</td></tr>
+            <tr><td><code>companyid</code></td><td><code>int</code></td><td>YES</td><td>&#10003;</td><td>FK &rarr; <code>dbo.company.id</code>. Determines which site the user belongs to. NULL = super admin (all sites)</td></tr>
+            <tr><td><code>usertype</code></td><td><code>varchar(500)</code></td><td>YES</td><td>&#10003;</td><td><code>"Create, Edit, Delete"</code> or <code>"View Only"</code></td></tr>
+            <tr><td><code>hideadminpopups</code></td><td><code>bit</code></td><td>NO</td><td>&#10003;</td><td>Suppresses admin notification popups in the AW UI</td></tr>
+            <tr><td><code>inventorylimiteduser</code></td><td><code>bit</code></td><td>YES</td><td>&#10003;</td><td>Restricts the user to limited inventory functions</td></tr>
+            <tr><td><code>restricteditmobile</code></td><td><code>bit</code></td><td>YES</td><td>&#10003;</td><td>Prevents the user from editing assets on the mobile client</td></tr>
+            <tr style="color:var(--muted-docs);"><td><code>verificationcode</code></td><td><code>varchar(50)</code></td><td>YES</td><td>&mdash;</td><td>System-generated MFA code (managed by iDash)</td></tr>
+            <tr style="color:var(--muted-docs);"><td><code>verificationcodecreated</code></td><td><code>datetimeoffset</code></td><td>YES</td><td>&mdash;</td><td>Timestamp of last verification code</td></tr>
+            <tr style="color:var(--muted-docs);"><td><code>verificationattempts</code></td><td><code>int</code></td><td>YES</td><td>&mdash;</td><td>Number of failed MFA attempts</td></tr>
+        </table>
+
+        <h3>Company (Site) Mapping</h3>
+        <p>The <code>companyid</code> dropdown is populated dynamically from <code>dbo.company</code>:</p>
+        <pre>SELECT id, name FROM dbo.company WHERE name IS NOT NULL ORDER BY name</pre>
+        <p>Setting <code>companyid</code> to NULL (the &ldquo;None &mdash; Super Admin&rdquo; option) creates a user with cross-site access, similar to the built-in <code>superadmin</code> account.</p>
+
+        <h3>UserType Values</h3>
+        <p>iDash uses two string-based permission levels stored in the <code>usertype</code> column:</p>
+        <table>
+            <tr><th>Value</th><th>Permissions</th></tr>
+            <tr><td><code>Create, Edit, Delete</code></td><td>Full CRUD access to assets, locations, and records within the user&rsquo;s assigned company</td></tr>
+            <tr><td><code>View Only</code></td><td>Read-only access &mdash; can view data but cannot create, modify, or delete records</td></tr>
+        </table>
+    </div>
+
+    <!-- PASSWORD HASHING -->
+    <div class="card" id="password">
+        <h2>Password Hashing &mdash; ASP.NET Core Identity V3 Compatibility</h2>
+
+        <div class="alert" style="background:color-mix(in srgb, #f59e0b, transparent 85%); border-color:#f59e0b; color:#f59e0b;">
+            <strong>Critical implementation detail.</strong> iDash runs on ASP.NET Core and uses <code>Microsoft.AspNetCore.Identity.PasswordHasher&lt;T&gt;</code> to hash passwords. iDash runs on classic ASP.NET Framework 4.8. Rather than reference .NET Core DLLs from .NET Framework code (fragile cross-framework reference), we implemented a <strong>binary-compatible password hasher from scratch</strong>.
+        </div>
+
+        <h3>The Binary Format</h3>
+        <p>ASP.NET Core Identity V3 passwords are stored as base64-encoded byte arrays with this structure:</p>
+        <table>
+            <tr><th>Offset</th><th>Length</th><th>Value</th><th>Description</th></tr>
+            <tr><td>0</td><td>1 byte</td><td><code>0x01</code></td><td>Format marker (V3)</td></tr>
+            <tr><td>1</td><td>4 bytes</td><td><code>0x00000001</code></td><td>PRF algorithm (HMACSHA256 = 1)</td></tr>
+            <tr><td>5</td><td>4 bytes</td><td><code>0x00002710</code></td><td>Iteration count (10,000)</td></tr>
+            <tr><td>9</td><td>4 bytes</td><td><code>0x00000010</code></td><td>Salt length (16 bytes)</td></tr>
+            <tr><td>13</td><td>16 bytes</td><td><em>(random)</em></td><td>Cryptographic salt</td></tr>
+            <tr><td>29</td><td>32 bytes</td><td><em>(derived)</em></td><td>PBKDF2-derived subkey</td></tr>
+        </table>
+        <p>Total: <strong>61 bytes</strong> &rarr; base64-encoded = <strong>84 characters</strong>, always starting with <code>AQAAAA</code>.</p>
+
+        <h3>Our Implementation</h3>
+        <pre>
+// Using .NET Framework 4.8's Rfc2898DeriveBytes with SHA256
+private static string HashPasswordV3(string password)
+{
+    const int SaltSize   = 16;   // 128-bit
+    const int SubkeySize = 32;   // 256-bit
+    const int Iterations = 10000;
+
+    byte[] salt = new byte[SaltSize];
+    using (var rng = RandomNumberGenerator.Create()) { rng.GetBytes(salt); }
+
+    byte[] subkey;
+    using (var kdf = new Rfc2898DeriveBytes(password, salt, Iterations,
+                                             HashAlgorithmName.SHA256))
+    {
+        subkey = kdf.GetBytes(SubkeySize);
+    }
+
+    // Build output: marker(1) + prf(4) + iter(4) + saltLen(4) + salt + subkey
+    byte[] output = new byte[1 + 4 + 4 + 4 + SaltSize + SubkeySize];
+    output[0] = 0x01;  // V3 format marker
+
+    WriteNetworkByteOrder(output, 1, 1);           // PRF = HMACSHA256
+    WriteNetworkByteOrder(output, 5, Iterations);  // 10000
+    WriteNetworkByteOrder(output, 9, SaltSize);    // 16
+
+    System.Buffer.BlockCopy(salt,   0, output, 13, SaltSize);
+    System.Buffer.BlockCopy(subkey, 0, output, 13 + SaltSize, SubkeySize);
+
+    return Convert.ToBase64String(output);
+}</pre>
+
+        <h3>Why this matches what iDash expects</h3>
+        <p>The ASP.NET Core source code for <code>PasswordHasher&lt;T&gt;.HashPassword()</code> uses the same algorithm:</p>
+        <ul>
+            <li>Same format marker byte (<code>0x01</code> for V3)</li>
+            <li>Same PRF (HMACSHA256, enum value 1)</li>
+            <li>Same default iteration count (10,000 for .NET Core 2.x/3.x; 100,000 for .NET 6+)</li>
+            <li>Same salt size (128-bit) and subkey size (256-bit)</li>
+            <li>Same big-endian (network byte order) encoding for the header integers</li>
+        </ul>
+        <p>When iDash calls <code>PasswordHasher.VerifyHashedPassword()</code>, it reads the format header from the stored hash to determine the PRF, iteration count, and salt length, then re-derives the subkey and compares. Because our header values match, the verification succeeds.</p>
+
+        <div class="alert alert-info">
+            <strong>Note on iteration count:</strong> The existing iDash passwords on this server use 10,000 iterations (the .NET Core 2.x default). Our implementation matches this. If iDash is ever upgraded to a version using 100,000 iterations (the .NET 6+ default), the existing passwords created by iDash will still verify correctly because the iteration count is embedded in each password hash. New passwords created by iDash would just use the higher count.
+        </div>
+    </div>
+
+    <!-- CRUD OPERATIONS -->
+    <div class="card" id="crud">
+        <h2>Creating, Editing &amp; Deleting Users</h2>
+
+        <h3>Create User</h3>
+        <ol>
+            <li>Click <strong>&ldquo;+ Add scanner user&rdquo;</strong> button</li>
+            <li>Fill in the form fields. Only <strong>Username</strong> is strictly required. Password is optional (can be set later via iDash or via Edit).</li>
+            <li>Select a <strong>User Type</strong> (&ldquo;Create, Edit, Delete&rdquo; for full access, &ldquo;View Only&rdquo; for read-only)</li>
+            <li>Select a <strong>Company (Site)</strong> from the dropdown, or &ldquo;None&rdquo; for a super admin account</li>
+            <li>Toggle any options: Hide Admin Popups, Inventory Limited User, Restrict Edit on Mobile</li>
+            <li>Click <strong>&ldquo;Create User&rdquo;</strong></li>
+        </ol>
+
+        <p>The SQL executed is:</p>
+        <pre>
+INSERT INTO dbo.sysuser
+    (username, password, firstname, lastname, email, phone, cardid, rfidtag,
+     usertype, companyid, hideadminpopups, inventorylimiteduser, restricteditmobile)
+VALUES
+    (@username, @password, @firstname, @lastname, @email, @phone, @cardid, @rfidtag,
+     @usertype, @companyid, @hidePopups, @invLimited, @restrictMobile)</pre>
+        <p>Uniqueness is enforced before insert:</p>
+        <pre>SELECT COUNT(*) FROM dbo.sysuser WHERE username = @u</pre>
+
+        <h3>Edit User</h3>
+        <ul>
+            <li>Click the <strong>Edit</strong> button on any row in the grid</li>
+            <li>The modal pre-populates all current values</li>
+            <li>Password field is blank &mdash; leaving it blank preserves the existing password. Entering a new password overwrites it with a freshly hashed value.</li>
+            <li><strong>Username cannot be changed</strong> after creation (it&rsquo;s the login identity)</li>
+        </ul>
+        <p>The update uses a conditional SQL statement &mdash; if a new password is provided, the <code>password</code> column is included in the UPDATE. If not, it&rsquo;s excluded entirely to avoid overwriting the existing hash with NULL.</p>
+
+        <h3>Delete User</h3>
+        <ul>
+            <li>Click the <strong>Delete</strong> button on any row</li>
+            <li>A JavaScript <code>confirm()</code> dialog prompts for confirmation</li>
+            <li>The delete executes: <code>DELETE FROM dbo.sysuser WHERE id = @id</code></li>
+        </ul>
+
+        <div class="alert" style="background:color-mix(in srgb, #ef4444, transparent 85%); border-color:#ef4444; color:#ef4444;">
+            <strong>Warning:</strong> Deleting a user from the <code>sysuser</code> table is permanent. There is no soft-delete or recycle bin. The user will immediately lose the ability to log in to iDash.
+        </div>
+    </div>
+
+    <!-- SECURITY -->
+    <div class="card" id="security">
+        <h2>Security &amp; Access Control</h2>
+
+        <h3>Access Gate</h3>
+        <p>The page uses the same access gate as <code>va_user_management.aspx</code>:</p>
+        <pre>
+bool isAdmin = Session[SESSION_AUTH] != null &amp;&amp;
+               (bool)Session[SESSION_AUTH] &amp;&amp;
+               (((string)Session[SESSION_ROLE] == UserManager.ROLE_ADMIN) || hasTileAccess);</pre>
+        <p>Only iDash administrators or users with the <code>admin_users</code> tile permission can access the page. Non-authorized users see an &ldquo;Access Restricted&rdquo; screen.</p>
+
+        <h3>SQL Injection Prevention</h3>
+        <p>All database operations use <strong>parameterized queries</strong> exclusively. User input is never concatenated into SQL strings.</p>
+        <pre>
+cmd.Parameters.AddWithValue("@username", username);
+cmd.Parameters.AddWithValue("@password", (object)hashedPw ?? DBNull.Value);
+// ... all fields use parameters</pre>
+
+        <h3>Credential Storage</h3>
+        <table>
+            <tr><th>What</th><th>Where</th><th>Lifetime</th></tr>
+            <tr><td>SQL connection string</td><td>ASP.NET session (<code>Session["AwUserMgmt_ConnStr"]</code>)</td><td>Browser session only; cleared on disconnect or session timeout</td></tr>
+            <tr><td>SQL password</td><td>Embedded in session connection string</td><td>Same as above &mdash; never written to disk</td></tr>
+            <tr><td>User passwords</td><td>Hashed with PBKDF2-SHA256 before INSERT/UPDATE</td><td>Only the hash is stored; plaintext never persisted</td></tr>
+        </table>
+
+        <h3>Network Boundary</h3>
+        <p>This page makes a <strong>direct SQL connection</strong> from the IIS worker process to SQL Server. No HTTP API calls are made to the iDash .NET Core application. The connection uses the same network path as all other iDash pages that query the iDash database (e.g., ENNX, Site Inventory, Asset Stats).</p>
+    </div>
+
+    <!-- FILES CHANGED -->
+    <div class="card" id="files">
+        <h2>Files Changed</h2>
+
+        <table>
+            <tr><th>File</th><th>Action</th><th>Description</th></tr>
+            <tr>
+                <td><code>va_aw_user_management.aspx</code></td>
+                <td><span style="color:#10b981; font-weight:700;">NEW</span></td>
+                <td>ASPX page with connection form, user data grid, add/edit modals, toggle switches for boolean options, and all client-side JavaScript</td>
+            </tr>
+            <tr>
+                <td><code>va_aw_user_management.aspx.cs</code></td>
+                <td><span style="color:#10b981; font-weight:700;">NEW</span></td>
+                <td>Code-behind with: SQL connection management, CRUD operations against <code>dbo.sysuser</code>, ASP.NET Core Identity V3 compatible password hasher, company dropdown loader, and iDash admin session gate</td>
+            </tr>
+            <tr>
+                <td><code>documentation/va_aw_user_management.html</code></td>
+                <td><span style="color:#10b981; font-weight:700;">NEW</span></td>
+                <td>This documentation page</td>
+            </tr>
+            <tr>
+                <td><code>documentation/index.aspx</code></td>
+                <td><span style="color:#2ea8ff; font-weight:700;">MODIFIED</span></td>
+                <td>Added tile link to this documentation page in the Security &amp; Access Control section</td>
+            </tr>
+        </table>
+
+        <div class="alert alert-info">
+            <strong>No existing files were modified</strong> (other than the documentation index). The two new page files are entirely additive &mdash; they don&rsquo;t change any existing functionality, configuration, or database schema.
+        </div>
+    </div>
+
+    <!-- CHANGELOG -->
+    <div class="card" id="changelog">
+        <h2>&#128203; Changelog</h2>
+
+        <div class="changelog-entry" style="border-left:4px solid #10b981; padding-left:16px; margin-bottom:24px;">
+            <div style="font-size:12px; color:var(--muted-docs); margin-bottom:4px;">2026-07-10 &mdash; <span style="color:#10b981; font-weight:700;">NEW FEATURE</span></div>
+            <h3 style="margin-top:0;">Scanner & System User Management Page</h3>
+            <p><strong>What:</strong> New iDash page (<code>va_aw_user_management.aspx</code>) that allows iDash administrators to create, edit, and delete iDash <code>sysuser</code> records directly via SQL &mdash; without needing to access the iDash web application.</p>
+            <p><strong>Why:</strong> Eliminates the requirement to have the full iDash application stack running just to manage user accounts. Enables user creation during initial deployments, break-fix scenarios, and when the iDash web application is unavailable.</p>
+            <p><strong>How:</strong></p>
+            <ul>
+                <li>Administrator enters SQL Server credentials (pre-populated from <code>web.config</code>)</li>
+                <li>Page connects directly to the iDash database and performs CRUD operations on <code>dbo.sysuser</code></li>
+                <li>Password hashing uses a purpose-built <strong>ASP.NET Core Identity V3 compatible hasher</strong> (PBKDF2-SHA256, 10K iterations, 128-bit salt, 256-bit subkey) that produces the exact binary format iDash expects</li>
+                <li>All 13 user-facing columns are exposed: username, password, firstname, lastname, email, phone, cardid, rfidtag, usertype, companyid, hideadminpopups, inventorylimiteduser, restricteditmobile</li>
+                <li>Company dropdown populated from <code>dbo.company</code> table for site assignment</li>
+            </ul>
+            <p><strong>Security:</strong></p>
+            <ul>
+                <li>Same iDash admin session gate as existing User Management page</li>
+                <li>All SQL queries use parameterized statements &mdash; no string concatenation</li>
+                <li>Database credentials stored in session memory only &mdash; never written to disk</li>
+                <li>Passwords are hashed before storage &mdash; plaintext never persisted</li>
+            </ul>
+            <p><strong>Files added:</strong></p>
+            <ul>
+                <li><code>va_aw_user_management.aspx</code> &mdash; page + modals + JS</li>
+                <li><code>va_aw_user_management.aspx.cs</code> &mdash; code-behind (576 lines)</li>
+                <li><code>documentation/va_aw_user_management.html</code> &mdash; this document</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="text-align:center; color:var(--muted-docs); font-size:12px; margin-top:40px;">
+        Scanner & System User Management (sysuser) &mdash; Documentation &copy; 2026<br/>
+        Created: July 10, 2026 &bull; ID Integration Inc.
+    </div>
+
+</div>
+</body>
+</html>

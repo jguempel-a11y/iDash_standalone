@@ -1,0 +1,804 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Fixed Reader Deployment Guide &mdash; VA Asset Intelligence Hub</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <style>
+        .step-card { background: color-mix(in srgb, var(--text,#e2e8f0), transparent 97%); border: 1px solid var(--line,#2a3441); border-radius: 14px; padding: 28px; margin-bottom: 28px; }
+        .step-title { font-size: 19px; font-weight: 700; display: flex; align-items: center; margin-bottom: 10px; }
+        .step-num { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: var(--accent,#3b82f6); color: #fff; font-weight: 800; font-size: 15px; margin-right: 12px; flex-shrink: 0; }
+        .step-desc { color: var(--muted-docs,#8b95a5); font-size: 14px; line-height: 1.75; margin-bottom: 12px; }
+        .tip-box  { background: color-mix(in srgb,#10b981,transparent 88%); border: 1px solid rgba(16,185,129,.3); border-left: 4px solid #10b981; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #10b981; }
+        .warn-box { background: color-mix(in srgb,#f59e0b,transparent 88%); border: 1px solid rgba(245,158,11,.3); border-left: 4px solid #f59e0b; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #f59e0b; }
+        .info-box { background: color-mix(in srgb,#3b82f6,transparent 88%); border: 1px solid rgba(59,130,246,.3); border-left: 4px solid #3b82f6; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #3b82f6; }
+        .danger-box { background: color-mix(in srgb,#ef4444,transparent 88%); border: 1px solid rgba(239,68,68,.3); border-left: 4px solid #ef4444; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #ef4444; }
+        .bug-box { background: color-mix(in srgb,#ef4444,transparent 92%); border: 2px solid rgba(239,68,68,.5); border-left: 6px solid #ef4444; padding: 18px 22px; border-radius: 10px; font-size: 13px; margin: 20px 0; color: #ef4444; }
+        .section-divider { border: none; border-top: 2px solid var(--line,#2a3441); margin: 36px 0; }
+        .phase-header { font-size: 17px; font-weight: 800; margin: 28px 0 10px; padding: 10px 16px; border-radius: 10px; display: flex; align-items: center; gap: 10px; }
+        .ph-blue  { background: color-mix(in srgb,#3b82f6,transparent 88%); border: 1px solid rgba(59,130,246,.3); color: #3b82f6; }
+        .ph-green { background: color-mix(in srgb,#10b981,transparent 88%); border: 1px solid rgba(16,185,129,.3); color: #10b981; }
+        .ph-amber { background: color-mix(in srgb,#f59e0b,transparent 88%); border: 1px solid rgba(245,158,11,.3); color: #f59e0b; }
+        .ph-red   { background: color-mix(in srgb,#ef4444,transparent 88%); border: 1px solid rgba(239,68,68,.3); color: #ef4444; }
+        .ph-purple { background: color-mix(in srgb,#8b5cf6,transparent 88%); border: 1px solid rgba(139,92,246,.3); color: #8b5cf6; }
+        code.nav { background: color-mix(in srgb,#3b82f6,transparent 85%); color: #3b82f6; padding: 2px 9px; border-radius: 6px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+        code.val { background: color-mix(in srgb,#10b981,transparent 85%); color: #10b981; padding: 2px 9px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+        code.cfg { background: color-mix(in srgb,#f59e0b,transparent 85%); color: #f59e0b; padding: 2px 9px; border-radius: 6px; font-size: 12px; font-weight: 700; font-family: 'Cascadia Code','Fira Code',monospace; }
+        .arch-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+        .arch-table th { background: color-mix(in srgb,#3b82f6,transparent 85%); color: #3b82f6; padding: 10px 14px; text-align: left; font-weight: 700; border: 1px solid var(--line,#2a3441); }
+        .arch-table td { padding: 10px 14px; border: 1px solid var(--line,#2a3441); color: var(--muted-docs,#8b95a5); }
+        .arch-table tr:nth-child(even) td { background: color-mix(in srgb, var(--text,#e2e8f0), transparent 97%); }
+        .arch-diagram { background: #0d1117; border: 1px solid var(--line,#2a3441); border-radius: 10px; padding: 20px; margin: 16px 0; font-family: 'Cascadia Code','Fira Code',monospace; font-size: 12px; color: #8b95a5; white-space: pre; overflow-x: auto; line-height: 1.6; }
+        .arch-diagram .hl-green { color: #10b981; font-weight: 700; }
+        .arch-diagram .hl-blue { color: #3b82f6; font-weight: 700; }
+        .arch-diagram .hl-amber { color: #f59e0b; font-weight: 700; }
+        .arch-diagram .hl-red { color: #ef4444; font-weight: 700; }
+        .log-block { background: #0d1117; border: 1px solid var(--line,#2a3441); border-radius: 8px; padding: 14px 18px; margin: 12px 0; font-family: 'Cascadia Code','Fira Code',monospace; font-size: 11.5px; color: #8b95a5; overflow-x: auto; white-space: pre; line-height: 1.7; }
+        .log-block .log-ok { color: #10b981; }
+        .log-block .log-err { color: #ef4444; }
+        .log-block .log-info { color: #3b82f6; }
+        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+        @media (max-width: 700px) { .settings-grid { grid-template-columns: 1fr; } }
+        .settings-block { background: color-mix(in srgb, var(--text,#e2e8f0), transparent 94%); border: 1px solid var(--line,#2a3441); border-radius: 10px; padding: 16px 20px; }
+        .settings-block h4 { margin: 0 0 10px; font-size: 14px; font-weight: 800; color: var(--accent,#3b82f6); }
+        .settings-block ul { margin: 0; padding-left: 18px; }
+        .settings-block li { font-size: 13px; color: var(--muted-docs,#8b95a5); line-height: 1.8; }
+        .settings-block li strong { color: var(--text,#e2e8f0); }
+        .status-ok { color: #10b981; font-weight: 700; }
+        .status-err { color: #ef4444; font-weight: 700; }
+        .status-warn { color: #f59e0b; font-weight: 700; }
+    </style>
+</head>
+<body>
+<a href="index.aspx" class="back-link">&larr; Documentation Hub</a>
+<div class="doc-container">
+    <h1>&#128225; Fixed Reader Deployment Guide</h1>
+    <p class="doc-subtitle">Complete configuration guide for <strong>Zebra FX9600</strong> fixed RFID readers with <strong>iDash</strong> and <strong>iDash</strong>, including IoT Connector setup, MQTT architecture, HTTP-POST data path, and scaling to 40+ readers with 300+ antennas.</p>
+
+    <div class="danger-box" style="border-color:#10b981; background:color-mix(in srgb, #10b981 8%, var(--card-docs));">
+        <strong>&#9989; Resolved &mdash; RabbitMQ Deployed (Aug 31, 2026).</strong> The iDash.Web.exe embedded MQTT broker (MQTTnet) has a message routing defect &mdash; it accepts PUBLISH messages but does <strong>not route them to subscribers</strong>. This has been resolved by deploying <strong>RabbitMQ 4.3.5</strong> as a standalone MQTT broker on port 1883. See <a href="va_rabbitmq_setup.html" style="color:#10b981;text-decoration:underline;">RabbitMQ Setup Guide</a> for full details. The original bug report is preserved in <a href="#bug-report" style="color:#10b981;text-decoration:underline;">Section 6</a> for reference.
+    </div>
+
+    <div class="step-card" style="padding:20px 28px;">
+        <div class="step-title" style="margin-bottom:4px;">&#128196; Contents</div>
+        <ul style="margin:8px 0 0; padding-left:20px; columns:2; font-size:14px; color:var(--muted-docs); line-height:2.1;">
+            <li><a href="#architecture">Architecture Overview</a></li>
+            <li><a href="#fx9600-setup">FX9600 IoT Connector Setup</a></li>
+            <li><a href="#idash-config">iDash Configuration</a></li>
+            <li><a href="#http-workaround">HTTP-POST Data Path (Current)</a></li>
+            <li><a href="#mqtt-path">MQTT Data Path (Production)</a></li>
+            <li><a href="#bug-report">Bug Report: Broker Routing</a></li>
+            <li><a href="#rabbitmq-resolution" style="color:#10b981;">&#9989; Resolution: RabbitMQ</a></li>
+            <li><a href="#scaling">Scaling to 40+ Readers</a></li>
+            <li><a href="#troubleshooting">Troubleshooting Reference</a></li>
+            <li><a href="#endpoints-ref">FX9600 Endpoint Reference</a></li>
+            <li><a href="#diagnostic-urls">Diagnostic URLs</a></li>
+        </ul>
+    </div>
+
+    <!-- ================================================================ -->
+    <hr class="section-divider" id="architecture" />
+    <div class="phase-header ph-blue">&#127959; Section 1: Architecture Overview</div>
+
+    <div class="step-card">
+        <div class="step-title">How Data Flows from Reader to Live View</div>
+        <div class="step-desc">Each FX9600 reader scans RFID tags continuously and sends the data to iDash for processing. There are two supported data paths:</div>
+
+        <div class="arch-diagram"><span class="hl-blue">FX9600 Reader</span> (Zebra IoT Connector)
+    │
+    ├── <span class="hl-green">HTTP-POST Path (Working)</span> ──► <span class="hl-green">va_rfid_ingest.ashx</span> ──┐
+    │   Direct HTTP POST to iDash                        │
+    │   No broker needed                                 │
+    │                                                    ▼
+    └── <span class="hl-red">MQTT Path (Broken)</span> ──► iDash.Web.exe ──► <span class="hl-red">NOT ROUTING</span>
+        PUBLISH to broker                     ╳
+        port 8883/TLS                  AntennaLocationService
+                                       (subscribes but receives nothing)
+                                                    │
+                                                    ▼
+                                        <span class="hl-blue">AntennaLocationService</span>
+                                           ├── Parse JSON payload
+                                           ├── Extract EPC + antenna port
+                                           ├── Lookup reader in dbo.reader
+                                           ├── Map antenna → location (dbo.antenna)
+                                           ├── Update dbo.assetlocation
+                                           ├── Write dbo.locationhistory
+                                           ├── Detect cross-site observations
+                                           └── Push to live feed ring buffer
+                                                    │
+                                                    ▼
+                                        <span class="hl-green">va_fixed_reader_live.aspx</span>
+                                           Polls every 2s, shows real-time tags</div>
+
+        <table class="arch-table">
+            <thead><tr><th>Component</th><th>Role</th><th>Location</th></tr></thead>
+            <tbody>
+                <tr><td><strong>FX9600</strong></td><td>RFID reader hardware with Zebra IoT Connector firmware</td><td>On-premise, 192.168.x.x</td></tr>
+                <tr><td><strong>iDash.Web.exe</strong></td><td>Embedded MQTTnet MQTT broker (port 8883, TLS)</td><td>IIS server (w3wp.exe)</td></tr>
+                <tr><td><strong>AntennaLocationService</strong></td><td>Background thread: MQTT subscriber + HTTP ingest processor</td><td>iDash App_Code (IIS)</td></tr>
+                <tr><td><strong>va_rfid_ingest.ashx</strong></td><td>HTTP POST endpoint for FX9600 direct posting</td><td>iDash web root</td></tr>
+                <tr><td><strong>va_fixed_reader_live.aspx</strong></td><td>Real-time tag read dashboard</td><td>iDash web root</td></tr>
+                <tr><td><strong>dbo.reader</strong></td><td>Reader registration (physicalid, companyid)</td><td>iDash SQL database</td></tr>
+                <tr><td><strong>dbo.antenna</strong></td><td>Antenna-to-location mapping (readerid, port → locationid)</td><td>iDash SQL database</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ================================================================ -->
+    <hr class="section-divider" id="fx9600-setup" />
+    <div class="phase-header ph-green">&#9881; Section 2: FX9600 IoT Connector Setup</div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">1</span> Access the Reader Web UI</div>
+        <div class="step-desc">Open a browser and navigate to <code class="nav">https://&lt;reader-ip&gt;</code>. Default credentials: <code class="val">admin</code> / <code class="val">Admin4you!</code> (change after first login).</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">2</span> Configure the HTTP-POST Endpoint</div>
+        <div class="step-desc">Navigate to <code class="nav">Communication → Zebra IoT Connector → Configuration</code>. Click <strong>Add EndPoint</strong> (or edit existing).</div>
+        <div class="settings-grid">
+            <div class="settings-block">
+                <h4>Endpoint Settings</h4>
+                <ul>
+                    <li><strong>Endpoint Name:</strong> <code class="val">iDash_HTTP</code></li>
+                    <li><strong>Endpoint Type:</strong> <code class="val">HTTP-POST</code></li>
+                    <li><strong>URL:</strong> <code class="cfg">http://&lt;idash-server-ip&gt;/iDash/va_rfid_ingest.ashx</code></li>
+                    <li><strong>Authentication:</strong> None (endpoint is unauthenticated)</li>
+                </ul>
+            </div>
+            <div class="settings-block">
+                <h4>Interface Mapping</h4>
+                <ul>
+                    <li><strong>Tag Data Interface1:</strong> <code class="val">iDash_HTTP</code></li>
+                    <li><strong>Tag Data Interface2:</strong> None</li>
+                    <li><strong>Management Interface:</strong> None (or MQTT_Broker)</li>
+                    <li><strong>Control Interface:</strong> None (or MQTT_Broker)</li>
+                    <li><strong>Mgmt Events Interface1:</strong> None (or MQTT_Broker)</li>
+                </ul>
+            </div>
+        </div>
+        <div class="tip-box"><strong>Key:</strong> Tag Data Interface1 must be set to <code class="val">iDash_HTTP</code>. This is the only interface needed for tag reads to flow to iDash.</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">3</span> Set Operating Mode to Inventory</div>
+        <div class="step-desc">Navigate to <code class="nav">Communication → Zebra IoT Connector → Operating Mode</code>.</div>
+        <div class="settings-grid">
+            <div class="settings-block">
+                <h4>Mode Settings</h4>
+                <ul>
+                    <li><strong>Mode:</strong> <code class="val">Inventory</code> (continuous scanning)</li>
+                    <li><strong>Reporting Interval:</strong> <code class="val">5</code></li>
+                    <li><strong>Units:</strong> <code class="val">SECONDS</code></li>
+                    <li><strong>Environment:</strong> <code class="val">HIGH INTERFERENCE</code></li>
+                </ul>
+            </div>
+            <div class="settings-block">
+                <h4>Tag Metadata (check these)</h4>
+                <ul>
+                    <li>&#9745; <strong>RSSI</strong></li>
+                    <li>&#9745; <strong>SEEN_COUNT</strong></li>
+                    <li>&#9745; <strong>ANTENNA</strong> (required &mdash; maps port to location)</li>
+                    <li>&#9745; <strong>HOSTNAME</strong> (required &mdash; identifies the reader)</li>
+                </ul>
+            </div>
+        </div>
+        <div class="warn-box"><strong>Important:</strong> ANTENNA and HOSTNAME must be checked. Without ANTENNA, iDash cannot map tags to locations. Without HOSTNAME, iDash cannot identify which reader sent the data.</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">4</span> Configure Antenna Ports</div>
+        <div class="step-desc">On the same Operating Mode page, under <strong>Antenna Configuration</strong>:</div>
+        <ul style="padding-left:20px; font-size:13px; color:var(--muted-docs); line-height:1.9;">
+            <li>Enable only the ports that have antennas physically connected</li>
+            <li>Set <strong>Transmit Power</strong> to <code class="val">27 dBm</code> (default, adjust based on read range needs)</li>
+            <li>FX9600 has 4 ports; FX7500 has 4 ports; each port maps to one <code class="cfg">dbo.antenna</code> row in the database</li>
+        </ul>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">5</span> Start Cloud Operations</div>
+        <div class="step-desc">Navigate to <code class="nav">Communication → Zebra IoT Connector → Connection</code>.</div>
+        <ul style="padding-left:20px; font-size:13px; color:var(--muted-docs); line-height:1.9;">
+            <li>Verify all mapped interfaces show <span class="status-ok">connected</span></li>
+            <li>Click the <strong>Start</strong> button under <strong>Cloud Operations</strong></li>
+            <li>The reader will begin scanning tags and posting data to iDash</li>
+        </ul>
+        <div class="danger-box"><strong>Cloud Operations must be Started.</strong> Setting Inventory mode alone does NOT start the radio. You must click Start on the Connection page. After a reboot, Cloud Operations must be re-started.</div>
+    </div>
+
+    <!-- ================================================================ -->
+    <hr class="section-divider" id="idash-config" />
+    <div class="phase-header ph-blue">&#128295; Section 3: iDash Configuration</div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">1</span> Register the Reader in the Database</div>
+        <div class="step-desc">Each reader needs a row in <code class="cfg">dbo.reader</code> and its antennas need rows in <code class="cfg">dbo.antenna</code>. Use the Fixed Reader management page at <code class="nav">va_fixed_reader.aspx</code>.</div>
+        <div class="settings-grid">
+            <div class="settings-block">
+                <h4>dbo.reader</h4>
+                <ul>
+                    <li><strong>physicalid:</strong> Must match reader hostname (e.g., <code class="val">FX9600_F78C85</code>)</li>
+                    <li><strong>name:</strong> Display name (can be same as physicalid)</li>
+                    <li><strong>companyid:</strong> Site/company this reader belongs to</li>
+                </ul>
+            </div>
+            <div class="settings-block">
+                <h4>dbo.antenna</h4>
+                <ul>
+                    <li><strong>readerid:</strong> FK to dbo.reader.id</li>
+                    <li><strong>number:</strong> Antenna port (1, 2, 3, or 4)</li>
+                    <li><strong>locationid:</strong> FK to dbo.location &mdash; where this antenna "sees" tags</li>
+                    <li><strong>companyid:</strong> Same as reader&rsquo;s companyid</li>
+                </ul>
+            </div>
+        </div>
+        <div class="info-box"><strong>How it works:</strong> When a tag is read on antenna port 2 of reader FX9600_F78C85, iDash looks up the antenna row with <code class="cfg">readerid=21, number=2</code>, gets <code class="cfg">locationid=32841</code>, and updates the asset&rsquo;s location to that location.</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">2</span> Web.config Settings</div>
+        <div class="step-desc">The following <code class="cfg">appSettings</code> keys in <code class="nav">Web.config</code> control the AntennaLocationService:</div>
+        <table class="arch-table">
+            <thead><tr><th>Key</th><th>Value</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code class="cfg">AntennaService_Enabled</code></td><td><code class="val">true</code></td><td>Enable/disable the background listener</td></tr>
+                <tr><td><code class="cfg">AntennaService_MqttServer</code></td><td><code class="val">127.0.0.1</code></td><td>MQTT broker address (localhost = iDash broker)</td></tr>
+                <tr><td><code class="cfg">AntennaService_MqttPort</code></td><td><code class="val">8883</code></td><td>MQTT broker port (TLS)</td></tr>
+                <tr><td><code class="cfg">AntennaService_TopicFilter</code></td><td><code class="val">reader/#</code></td><td>MQTT subscription topic (wildcard)</td></tr>
+                <tr><td><code class="cfg">AntennaService_DebounceSeconds</code></td><td><code class="val">5</code></td><td>Ignore duplicate tag+location within this window</td></tr>
+                <tr><td><code class="cfg">AntennaService_CacheMinutes</code></td><td><code class="val">5</code></td><td>Refresh reader/antenna caches every N minutes</td></tr>
+                <tr><td><code class="cfg">AntennaService_MqttUsername</code></td><td><code class="val">crosssite</code></td><td>MQTT broker credentials</td></tr>
+                <tr><td><code class="cfg">AntennaService_MqttPassword</code></td><td><code class="val">crosssite2026</code></td><td>MQTT broker credentials</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ================================================================ -->
+    <hr class="section-divider" id="http-workaround" />
+    <div class="phase-header ph-green">&#9989; Section 4: HTTP-POST Data Path (Current Workaround)</div>
+
+    <div class="step-card">
+        <div class="step-title">How HTTP-POST Works</div>
+        <div class="step-desc">Each FX9600 reader POSTs a JSON array of tag reads directly to iDash every <em>Reporting Interval</em> seconds. No MQTT broker is involved.</div>
+
+        <div class="arch-diagram"><span class="hl-green">FX9600</span> ──HTTP POST──► <span class="hl-green">http://server/iDash/va_rfid_ingest.ashx</span>
+    │                              │
+    │  JSON payload:               │  RfidIngestHandler:
+    │  [{                          │    1. Read request body
+    │    "data": {                 │    2. Call ProcessHttpPayload()
+    │      "idHex": "E280...",     │    3. Parse tag array
+    │      "antennaPort": 1,       │    4. Lookup reader by hostname
+    │      "hostName": "FX9600_"   │    5. Map antenna → location
+    │    }                         │    6. Update database
+    │  }, ...]                     │    7. Push to live feed
+    │                              │
+    Response: {"ok": true}         └── <span class="hl-green">Done. No broker needed.</span></div>
+
+        <div class="tip-box"><strong>Advantages:</strong> Simple, reliable, no broker dependency, easy to debug (just check HTTP response codes). Works perfectly for the current single-reader test setup.</div>
+        <div class="warn-box"><strong>Limitation:</strong> At 40+ readers, each reader creates separate HTTP connections every few seconds. MQTT is more efficient at scale (single persistent connection per reader, one subscriber for all data).</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title">Verified Working &mdash; August 31, 2026</div>
+        <div class="step-desc">The HTTP-POST path was tested and confirmed operational on 2026-08-31:</div>
+        <div class="log-block"><span class="log-ok">10:36:58 [INFO] HTTP array: tag 613EE10048FF ant 2 → SP1-219</span>
+<span class="log-ok">10:37:00 [INFO] HTTP array: tag E28011700000021586011325 ant 1 → SP1-117</span>
+<span class="log-ok">10:37:00 [INFO] HTTP array: tag 649EE10305FF ant 1 → SP1-117</span>
+<span class="log-ok">10:37:01 [INFO] HTTP array: tag 512EE1736FFF ant 1 → SP1-117</span>
+<span class="log-info">10:37:00 [INFO] Cross-site observation: 512 Baltimore owns '512 EE10542' detected at SP1-219 (antenna 2)</span></div>
+        <ul style="padding-left:20px; font-size:13px; color:var(--muted-docs); line-height:1.9;">
+            <li>Reader: <code class="val">FX9600_F78C85</code> (physicalid in dbo.reader)</li>
+            <li>Antenna 1 → SP1-117 (locationid 40912)</li>
+            <li>Antenna 2 → SP1-219 (locationid 32841)</li>
+            <li>Cross-site tag detection working (512 Baltimore tags)</li>
+            <li>Database updates confirmed (dbo.assetlocation, dbo.locationhistory)</li>
+            <li>Live view page streaming in real-time</li>
+        </ul>
+    </div>
+
+    <!-- ================================================================ -->
+    <hr class="section-divider" id="mqtt-path" />
+    <div class="phase-header ph-amber">&#128268; Section 5: MQTT Data Path (Production Target)</div>
+
+    <div class="step-card">
+        <div class="step-title">How MQTT Should Work (Once Broker Bug Is Fixed)</div>
+        <div class="step-desc">For production with 40+ readers, MQTT is the correct architecture:</div>
+
+        <div class="arch-diagram"><span class="hl-blue">40 x FX9600 Readers</span>
+    │ Each connects once to broker (persistent TCP/TLS)
+    │ Each PUBLISHES to: <span class="hl-amber">reader/tagobservation</span>
+    │
+    ▼
+<span class="hl-blue">iDash.Web.exe</span> (MQTTnet Broker, port 8883/TLS)
+    │ Routes all PUBLISH messages to matching subscribers
+    │
+    ▼
+<span class="hl-green">AntennaLocationService</span> (single subscriber)
+    SUBSCRIBES to: <span class="hl-amber">reader/#</span>
+    Receives ALL tag data from ALL 40 readers
+    Processes centrally, one background thread</div>
+
+        <div class="settings-grid">
+            <div class="settings-block">
+                <h4>FX9600 MQTT Endpoint</h4>
+                <ul>
+                    <li><strong>Endpoint Name:</strong> <code class="val">MQTT_Broker</code></li>
+                    <li><strong>Broker Address:</strong> <code class="cfg">&lt;idash-server-ip&gt;</code></li>
+                    <li><strong>Port:</strong> <code class="val">8883</code></li>
+                    <li><strong>TLS:</strong> Enabled</li>
+                    <li><strong>Username:</strong> <code class="val">crosssite</code></li>
+                    <li><strong>Password:</strong> <code class="val">crosssite2026</code></li>
+                    <li><strong>Tag Data Topic:</strong> <code class="cfg">reader/tagobservation</code></li>
+                </ul>
+            </div>
+            <div class="settings-block">
+                <h4>Why MQTT at Scale</h4>
+                <ul>
+                    <li>40 readers = 40 persistent connections (vs 40 &times; HTTP requests/sec)</li>
+                    <li>One subscriber receives all data</li>
+                    <li>Lower latency (push vs poll)</li>
+                    <li>Built-in keep-alive and reconnection</li>
+                    <li>Standard IoT protocol</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="danger-box"><strong>Currently blocked by iDash broker bug.</strong> See Section 6 below.</div>
+    </div>
+
+    <!-- ================================================================ -->
+    <hr class="section-divider" id="bug-report" />
+    <div class="phase-header ph-red">&#128027; Section 6: Bug Report &mdash; iDash MQTT Broker Does Not Route Messages</div>
+
+    <div class="bug-box">
+        <strong>BUG SUMMARY:</strong> The embedded MQTT broker in iDash.Web.exe (MQTTnet.dll) accepts client connections, authenticates them, and accepts SUBSCRIBE and PUBLISH operations &mdash; but does NOT route PUBLISH messages to subscribers. This is a defect in the iDash platform, not in iDash or the FX9600 reader.
+    </div>
+
+    <div class="step-card">
+        <div class="step-title">Evidence</div>
+
+        <div class="step-desc"><strong>1. FX9600 is connected and publishing (confirmed via TCP):</strong></div>
+        <div class="log-block">LocalAddress:Port    RemoteAddress:Port    State
+192.168.4.48:8883    192.168.4.47:50842    <span class="log-ok">Established</span>  ← FX9600 connected</div>
+
+        <div class="step-desc"><strong>2. iDash subscriber is connected and subscribed (confirmed via AntennaService log):</strong></div>
+        <div class="log-block"><span class="log-ok">09:59:01 [INFO] MQTT connected to 127.0.0.1:8883</span>
+<span class="log-ok">09:59:01 [INFO] Subscribed to reader/# -- ready for tag reads (1 readers, 2 antennas)</span></div>
+
+        <div class="step-desc"><strong>3. FX9600 Connection page shows all interfaces connected:</strong></div>
+        <table class="arch-table">
+            <thead><tr><th>Interface</th><th>Status</th><th>Error</th></tr></thead>
+            <tbody>
+                <tr><td>Tag Data Events Interface1</td><td class="status-ok">connected</td><td>(none)</td></tr>
+                <tr><td>Management Events Interface1</td><td class="status-ok">connected</td><td>(none)</td></tr>
+                <tr><td>Management Interface</td><td class="status-ok">connected</td><td class="status-err">subscription failed (255)</td></tr>
+                <tr><td>Control Interface</td><td class="status-ok">connected</td><td class="status-err">subscription failed (255)</td></tr>
+            </tbody>
+        </table>
+
+        <div class="step-desc"><strong>4. iDash received ZERO messages despite FX9600 Cloud Operations started and tags waved:</strong></div>
+        <div class="log-block"><span class="log-err">messagesReceived: 0</span>  (after 30+ minutes of monitoring)
+<span class="log-err">rawMessages: 0</span>       (spy buffer captured nothing)</div>
+
+        <div class="step-desc"><strong>5. HTTP-POST works immediately with same data:</strong></div>
+        <div class="log-block"><span class="log-ok">Switching Tag Data Interface1 from MQTT_Broker to iDash_HTTP
+→ Tags immediately flowing, dozens per second</span></div>
+
+        <div class="step-desc"><strong>6. Error 255 = MQTT SUBACK &ldquo;Not Authorized&rdquo;</strong></div>
+        <div class="step-desc">The broker rejects SUBSCRIBE requests for <code class="cfg">gateway/cmd/#</code> topics (Management and Control interfaces). This suggests the broker has an ACL that is too restrictive. The same ACL may be silently dropping PUBLISH routing even though it doesn&rsquo;t return an error to the publisher.</div>
+
+        <div class="step-desc" style="margin-top:18px;"><strong>Conclusion:</strong> The MQTT broker in iDash.Web.exe has a message routing defect. It accepts connections and subscriptions but does not forward PUBLISH messages between connected clients. The <code class="cfg">crosssite</code> user credentials authenticate successfully on both sides. The topic (<code class="cfg">reader/tagobservation</code>) matches the subscription (<code class="cfg">reader/#</code>). The broker simply does not route.</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title">Broker Details</div>
+        <table class="arch-table">
+            <thead><tr><th>Property</th><th>Value</th></tr></thead>
+            <tbody>
+                <tr><td>Broker Executable</td><td><code class="cfg">C:\inetpub\wwwroot\iDash\iDash.Web.exe</code></td></tr>
+                <tr><td>MQTT Library</td><td><code class="cfg">MQTTnet.dll</code> (303 KB, in iDash\bin\)</td></tr>
+                <tr><td>Port</td><td>8883 (TLS)</td></tr>
+                <tr><td>Process</td><td>w3wp.exe (IIS worker process)</td></tr>
+                <tr><td>Configuration</td><td><code class="cfg">C:\inetpub\wwwroot\iDash\appsettings.json</code></td></tr>
+                <tr><td>Print Client Credentials</td><td><code class="val">MasterPrint</code> / <code class="val">V5MqttPrint2026!</code></td></tr>
+                <tr><td>Reader Client Credentials</td><td><code class="val">crosssite</code> / <code class="val">crosssite2026</code></td></tr>
+                <tr><td>Log File</td><td><code class="cfg">C:\Logs\WebClient_log*.txt</code></td></tr>
+            </tbody>
+        </table>
+
+        <div class="danger-box" style="border-color:#10b981; background:color-mix(in srgb, #10b981 8%, var(--card-docs));">
+            <strong>&#9989; Resolved:</strong> RabbitMQ 4.3.5 has been deployed as a standalone MQTT broker on port 1883 (TCP).
+            The FX9600 reader now publishes tag observations directly to RabbitMQ, and iDash subscribes and processes
+            tags successfully. The iDash embedded broker on port 8883 remains in use for label printing only.
+            <br/><br/>
+            <a href="va_rabbitmq_setup.html" style="color:#10b981;text-decoration:underline;font-weight:700;">&#128007; Full RabbitMQ Installation &amp; Configuration Guide &rarr;</a>
+        </div>
+    </div>
+
+    <!-- RabbitMQ Resolution Summary -->
+    <div class="step-card" id="rabbitmq-resolution" style="border-left-color:#10b981;">
+        <div class="step-title" style="color:#10b981;">&#9989; Resolution: RabbitMQ 4.3.5 Deployed</div>
+        <div class="step-desc">
+            Rather than incur additional expense to have the vendor address a defect in their shipped product,
+            RabbitMQ &mdash; an industry-standard, VA TRM-approved, open-source message broker &mdash; was deployed
+            as the MQTT broker for fixed reader tag routing.
+        </div>
+        <table class="arch-table">
+            <thead><tr><th>Detail</th><th>Value</th></tr></thead>
+            <tbody>
+                <tr><td>Broker</td><td><code class="cfg">RabbitMQ 4.3.5</code> + Erlang/OTP 27.3.4</td></tr>
+                <tr><td>MQTT Port</td><td><code class="val">1883</code> (TCP, no TLS)</td></tr>
+                <tr><td>Reader User</td><td><code class="val">fx9600_f78c85</code></td></tr>
+                <tr><td>Subscriber User</td><td><code class="val">idash_antenna</code></td></tr>
+                <tr><td>Topic</td><td><code class="val">reader/#</code></td></tr>
+                <tr><td>Status</td><td><strong style="color:#10b981;">Verified &mdash; tags routing successfully</strong></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ================================================================ -->
+    <hr class="section-divider" id="scaling" />
+    <div class="phase-header ph-purple">&#128200; Section 7: Scaling to 40+ Readers</div>
+
+    <div class="step-card">
+        <div class="step-title">Production Deployment Checklist</div>
+        <table class="arch-table">
+            <thead><tr><th>Item</th><th>Details</th><th>Status</th></tr></thead>
+            <tbody>
+                <tr><td>Fix MQTT broker routing</td><td>iDash vendor must fix message forwarding in iDash.Web.exe</td><td class="status-err">Blocked</td></tr>
+                <tr><td>Register 40 readers in dbo.reader</td><td>Each reader needs physicalid matching its hostname</td><td class="status-warn">Pending</td></tr>
+                <tr><td>Register 300+ antennas in dbo.antenna</td><td>Each antenna needs readerid, port number, and locationid</td><td class="status-warn">Pending</td></tr>
+                <tr><td>Create locations in dbo.location</td><td>One location per monitored area (room, hallway, etc.)</td><td class="status-warn">Pending</td></tr>
+                <tr><td>Tune debounce settings</td><td>AntennaService_DebounceSeconds may need adjustment at volume</td><td class="status-warn">Pending</td></tr>
+                <tr><td>Test cross-site detection at scale</td><td>Tags from other VISNs detected at this site</td><td class="status-ok">Working</td></tr>
+                <tr><td>Verify database performance</td><td>300+ antennas &times; continuous reads = high write volume</td><td class="status-warn">Pending</td></tr>
+            </tbody>
+        </table>
+
+        <div class="settings-grid">
+            <div class="settings-block">
+                <h4>HTTP-POST at Scale (Temporary)</h4>
+                <ul>
+                    <li>40 readers &times; 1 POST every 5s = 8 HTTP requests/second</li>
+                    <li>IIS can handle this easily</li>
+                    <li>Each POST may contain 50&ndash;200 tag reads</li>
+                    <li>Total: ~2,000&ndash;8,000 tag reads/second at peak</li>
+                    <li><strong>Functional but not optimal</strong></li>
+                </ul>
+            </div>
+            <div class="settings-block">
+                <h4>MQTT at Scale (Target)</h4>
+                <ul>
+                    <li>40 persistent TCP connections (lightweight)</li>
+                    <li>Single subscriber thread processes all data</li>
+                    <li>Lower latency, fewer connection overheads</li>
+                    <li>Standard RFID/IoT architecture</li>
+                    <li><strong>Requires broker bug fix</strong></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <hr class="section-divider" id="troubleshooting" />
+    <div class="phase-header ph-amber">&#128736; Section 8: Troubleshooting Reference</div>
+
+    <div class="step-card">
+        <table class="arch-table">
+            <thead><tr><th style="width:28%">Symptom</th><th>Cause</th><th>Resolution</th></tr></thead>
+            <tbody>
+                <tr><td>Zero messages, FX9600 connected</td><td>Cloud Operations not started</td><td>FX9600 → Connection page → click <strong>Start</strong></td></tr>
+                <tr><td>Zero messages, radio not scanning</td><td>Operating Mode set to &ldquo;Single&rdquo;</td><td>Change to <strong>Inventory</strong> on Operating Mode page, reboot reader</td></tr>
+                <tr><td>&ldquo;LLRP client already connected&rdquo;</td><td>IoT Connector holds LLRP connection</td><td>Normal when IoT Connector is active. Use Services → restart IoT Connector if stuck.</td></tr>
+                <tr><td>Error 255 on Management/Control</td><td>Broker ACL rejects subscribe to <code class="cfg">gateway/cmd/#</code></td><td>Does not affect tag reads. Only matters for remote reader control.</td></tr>
+                <tr><td>Tags read but no location update</td><td>Antenna port not mapped in dbo.antenna</td><td>Add antenna row with correct readerid and port number</td></tr>
+                <tr><td>Tags read but wrong location</td><td>locationid mapped to wrong dbo.location row</td><td>Update dbo.antenna.locationid for that reader+port</td></tr>
+                <tr><td>&ldquo;Could not determine reader name&rdquo;</td><td>HOSTNAME not checked in Tag Metadata</td><td>FX9600 → Operating Mode → check HOSTNAME checkbox</td></tr>
+                <tr><td>Cross-site tag not updating location</td><td>By design &mdash; cross-site tags are logged but not moved</td><td>Normal behavior. Check log for &ldquo;Cross-site observation&rdquo; entries.</td></tr>
+                <tr><td>HTTP 500 from va_rfid_ingest.ashx</td><td>JSON parse error or database error</td><td>Check <code class="cfg">C:\Logs\iDash_AntennaService.log</code> for details</td></tr>
+                <tr><td>Reader not in dbo.reader</td><td>physicalid doesn&rsquo;t match FX9600 hostname</td><td>Add reader row with physicalid = reader hostname (case insensitive)</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ================================================================ -->
+    <hr class="section-divider" id="endpoints-ref" />
+    <div class="phase-header ph-blue">&#128218; Section 9: FX9600 IoT Connector Endpoint Reference</div>
+
+    <div class="step-card">
+        <div class="step-title">The 4 Interface Types</div>
+        <table class="arch-table">
+            <thead><tr><th>Interface</th><th>Direction</th><th>MQTT Topic</th><th>Purpose</th><th>Required?</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Tag Data Events</strong></td><td>Reader → Server (PUBLISH)</td><td><code class="cfg">reader/tagobservation</code></td><td>Tag EPC, antenna port, RSSI, timestamp</td><td class="status-ok">Yes &mdash; essential</td></tr>
+                <tr><td><strong>Management Events</strong></td><td>Reader → Server (PUBLISH)</td><td><code class="cfg">reader/managementobservation</code></td><td>Reader health, mode changes, errors</td><td class="status-warn">Optional</td></tr>
+                <tr><td><strong>Management Interface</strong></td><td>Server → Reader (SUBSCRIBE)</td><td><code class="cfg">gateway/cmd/{hostname}</code></td><td>Remote start/stop radio commands</td><td class="status-warn">Optional</td></tr>
+                <tr><td><strong>Control Interface</strong></td><td>Server → Reader (SUBSCRIBE)</td><td><code class="cfg">gateway/cmd/{hostname}</code></td><td>RFID parameter control</td><td class="status-warn">Optional</td></tr>
+            </tbody>
+        </table>
+        <div class="info-box">For basic tag reads and location tracking, only <strong>Tag Data Events Interface1</strong> is required. The other three interfaces are for advanced reader management and can be set to None.</div>
+    </div>
+
+    <!-- ================================================================ -->
+    <hr class="section-divider" id="diagnostic-urls" />
+    <div class="phase-header ph-green">&#128269; Section 10: Diagnostic URLs</div>
+
+    <div class="step-card">
+        <div class="step-title">Built-in iDash Diagnostic Endpoints</div>
+        <table class="arch-table">
+            <thead><tr><th>URL</th><th>Returns</th></tr></thead>
+            <tbody>
+                <tr><td><code class="cfg">va_fixed_reader_live.aspx?api=status</code></td><td>Service status: running, messages received, subscription topic, live sequence number</td></tr>
+                <tr><td><code class="cfg">va_fixed_reader_live.aspx?api=mqttspy</code></td><td>Last 50 raw MQTT messages: topic, payload, timestamp, parse status (for MQTT debugging)</td></tr>
+                <tr><td><code class="cfg">va_fixed_reader_live.aspx?api=live&amp;seq=0</code></td><td>All live tag events since sequence 0 (or specify last seen seq for incremental)</td></tr>
+            </tbody>
+        </table>
+        <div class="tip-box"><strong>Quick health check:</strong> If <code class="cfg">?api=status</code> shows <code class="val">messagesReceived: 0</code> but readers are connected, the data path is broken. If it shows a positive number, the pipeline is working.</div>
+    </div>
+
+    <!-- ================================================================ -->
+    <hr class="section-divider" id="mqtt-diagnostic" />
+    <div class="phase-header ph-red">&#128680; Section 11: MQTT Broker Diagnostic Report (2026-08-31)</div>
+
+    <div class="step-card">
+        <div class="step-title">Executive Summary</div>
+        <div class="step-desc">The iDash MQTT broker <strong>does not route PUBLISH messages to subscribers</strong>. This was confirmed through exhaustive testing with multiple credential sets, topic configurations, fresh reboots, and a self-publish test. The broker accepts connections, accepts subscriptions, and responds to PING keepalives, but never delivers published messages to subscribing clients.</div>
+        <div class="danger-box"><strong>This is a broker limitation, not a configuration issue.</strong> The HTTP-POST workaround (<code class="val">iDash_HTTP</code> endpoint) is fully operational and serving as the production data path.</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">1</span> Credential Test Matrix</div>
+        <div class="step-desc">All credential combinations from both <code class="cfg">appsettings.json</code> and <code class="cfg">dbo.mqttclient</code> were tested:</div>
+        <table class="arch-table">
+            <thead><tr><th>#</th><th>iDash Subscriber</th><th>FX9600 Publisher</th><th>Source</th><th>Result</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td><code class="cfg">crosssite</code></td><td><code class="cfg">crosssite</code></td><td>mqttclient row 10</td><td class="status-err">Zero</td></tr>
+                <tr><td>2</td><td><code class="cfg">MasterPrint</code></td><td><code class="cfg">crosssite</code></td><td>appsettings.json</td><td class="status-err">Zero</td></tr>
+                <tr><td>3</td><td><code class="cfg">MasterPrint</code></td><td><code class="cfg">MasterPrint</code></td><td>appsettings.json</td><td class="status-err">Zero</td></tr>
+                <tr><td>4</td><td><code class="cfg">idash_antenna</code></td><td><code class="cfg">fx9600_f78c85</code></td><td>mqttclient rows 9+11</td><td class="status-err">Zero</td></tr>
+                <tr><td>5</td><td colspan="2">Self-publish test (iDash &rarr; broker &rarr; iDash)</td><td>Same process</td><td class="status-err">Zero</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">2</span> Connection Verification (All Tests)</div>
+        <table class="arch-table">
+            <thead><tr><th>Check</th><th>Result</th></tr></thead>
+            <tbody>
+                <tr><td>FX9600 TCP ESTABLISHED to broker (port 8883)</td><td class="status-ok">&check; Confirmed</td></tr>
+                <tr><td>iDash subscriber TCP ESTABLISHED to broker</td><td class="status-ok">&check; Confirmed</td></tr>
+                <tr><td>CONNACK success (no error code)</td><td class="status-ok">&check; Confirmed</td></tr>
+                <tr><td>SUBACK received for <code class="cfg">reader/#</code></td><td class="status-ok">&check; Confirmed</td></tr>
+                <tr><td>PINGREQ/PINGRESP (alive 45+ minutes)</td><td class="status-ok">&check; Confirmed</td></tr>
+                <tr><td>FX9600 Tag Data Events: "connected" (no error)</td><td class="status-ok">&check; Confirmed</td></tr>
+                <tr><td>PUBLISH messages delivered to subscriber</td><td class="status-err">&cross; Zero in all tests</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">3</span> Database Discovery: <code class="cfg">dbo.mqttclient</code></div>
+        <div class="step-desc">The broker has a per-reader credential registry. All entries have <code class="cfg">accesstagobservations = True</code>, yet none result in message routing:</div>
+        <table class="arch-table">
+            <thead><tr><th>id</th><th>username</th><th>password</th><th>companyid</th><th>accesstagobservations</th></tr></thead>
+            <tbody>
+                <tr><td>9</td><td><code class="cfg">fx9600_f78c85</code></td><td><code class="cfg">FX9600mqtt2026!</code></td><td>7 (Martinsburg)</td><td class="status-ok">True</td></tr>
+                <tr><td>10</td><td><code class="cfg">crosssite</code></td><td><code class="cfg">crosssite2026</code></td><td>7</td><td class="status-ok">True</td></tr>
+                <tr><td>11</td><td><code class="cfg">idash_antenna</code></td><td><code class="cfg">AntennaSvc2026!</code></td><td>7</td><td class="status-ok">True</td></tr>
+            </tbody>
+        </table>
+        <div class="info-box"><strong>Production credentials:</strong> The FX9600 should use <code class="cfg">fx9600_f78c85</code> / <code class="cfg">FX9600mqtt2026!</code> and iDash should use <code class="cfg">idash_antenna</code> / <code class="cfg">AntennaSvc2026!</code>. These are now configured correctly in both systems.</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">4</span> Error 255 Resolution</div>
+        <div class="step-desc">The "subscription to topic failed with return code (255)" error on Management and Control interfaces was caused by the broker rejecting subscriptions to <code class="cfg">gateway/cmd/*</code> topics.</div>
+        <div class="tip-box"><strong>Fix:</strong> Set Management Interface and Control Interface to <code class="val">None</code> in the FX9600 Configuration page. They default to <code class="val">LOCAL-REST</code> (Reader Web Server), which is correct &mdash; reader management is done via the FX9600 web UI directly, not through the MQTT broker.</div>
+        <table class="arch-table">
+            <thead><tr><th>Interface</th><th>Recommended Setting</th><th>Reason</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Management Interface</strong></td><td><code class="val">None</code> (LOCAL-REST)</td><td>Broker rejects <code class="cfg">gateway/cmd/*</code> subscriptions</td></tr>
+                <tr><td><strong>Control Interface</strong></td><td><code class="val">None</code> (LOCAL-REST)</td><td>Broker rejects <code class="cfg">gateway/cmd/*</code> subscriptions</td></tr>
+                <tr><td><strong>Tag Data Interface1</strong></td><td><code class="val">iDash_HTTP</code> (workaround)</td><td>MQTT routing not functional; HTTP-POST works</td></tr>
+                <tr><td><strong>Management Events Interface1</strong></td><td><code class="val">MQTT_Broker</code></td><td>Publish-only; no routing needed</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">5</span> Self-Publish Test Evidence</div>
+        <div class="step-desc">A test endpoint (<code class="nav">?api=testpublish</code>) was created that publishes to the broker on the <code class="cfg">reader/test</code> topic and checks if the subscriber received it. This eliminates the FX9600 as a variable:</div>
+        <div class="log-block"><span class="log-info">Request:</span>  va_fixed_reader_live.aspx?api=testpublish
+<span class="log-info">Action:</span>   Connect to broker → PUBLISH to reader/test → wait 1s → check spy buffer
+<span class="log-err">Result:</span>   <strong>NOT ROUTED.</strong> spy still at 0
+
+<span class="log-info">Interpretation:</span>
+  • iDash published to <code>reader/test</code> from a fresh TLS connection
+  • iDash subscriber was subscribed to <code>reader/#</code> (wildcard matches)
+  • Broker accepted the PUBLISH (no error)
+  • Broker did NOT deliver the message to the subscriber
+  • Conclusion: broker does not implement message routing</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">6</span> What Works vs. What Doesn't</div>
+        <div class="settings-grid">
+            <div class="settings-block" style="border-color: rgba(16,185,129,.4);">
+                <h4 style="color: #10b981;">&check; Working</h4>
+                <ul>
+                    <li><strong>Print system:</strong> MqttPrintNotifier publishes to <code class="cfg">awrx/print/{user}</code> → print clients receive messages</li>
+                    <li><strong>HTTP-POST ingest:</strong> FX9600 → <code class="cfg">va_rfid_ingest.ashx</code> → AntennaLocationService → database</li>
+                    <li><strong>MQTT connections:</strong> Both reader and iDash connect and authenticate successfully</li>
+                    <li><strong>MQTT subscriptions:</strong> <code class="cfg">reader/#</code> subscription accepted (SUBACK)</li>
+                </ul>
+            </div>
+            <div class="settings-block" style="border-color: rgba(239,68,68,.4);">
+                <h4 style="color: #ef4444;">&cross; Not Working</h4>
+                <ul>
+                    <li><strong>MQTT routing:</strong> PUBLISH to <code class="cfg">reader/tagobservation</code> never delivered to <code class="cfg">reader/#</code> subscriber</li>
+                    <li><strong>Self-publish:</strong> Even iDash → broker → iDash routing fails</li>
+                    <li><strong>Gateway commands:</strong> <code class="cfg">gateway/cmd/*</code> subscriptions rejected (error 255)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">7</span> Vendor Action Required</div>
+        <div class="bug-box">
+            <strong>Bug Report: iDash.Web.exe MQTT Broker Does Not Route Messages</strong><br/><br/>
+            <strong>Severity:</strong> High &mdash; Blocks native MQTT fixed reader integration<br/>
+            <strong>Component:</strong> iDash.Web.exe (MQTTnet-based embedded broker)<br/>
+            <strong>Impact:</strong> FX9600 readers cannot send tag data via MQTT; requires HTTP-POST workaround<br/>
+            <strong>Scale concern:</strong> 40+ readers and 300+ antennas planned for production<br/><br/>
+            <strong>Request:</strong> Implement PUBLISH message routing for <code class="cfg">reader/*</code> topics in the MQTTnet broker, or provide documentation on the intended MQTT topic/credential configuration for fixed reader deployments.
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <hr class="section-divider" id="resolution-options" />
+    <div class="phase-header ph-purple">&#9878; Section 12: Resolution Options &amp; Recommendation</div>
+
+    <div class="step-card">
+        <div class="step-title">Decision Context</div>
+        <div class="step-desc">The iDash MQTT broker does not route messages (Section 11). Two resolution paths are available. This section provides the technical and cost analysis to support the decision.</div>
+        <div class="warn-box"><strong>Key fact:</strong> The <code class="cfg">dbo.mqttclient</code> table contains pre-configured credentials for <code class="cfg">fx9600_f78c85</code> and <code class="cfg">idash_antenna</code> with <code class="cfg">accesstagobservations = True</code>. This proves the vendor <strong>designed and sold</strong> this system with the intention that MQTT routing would work. The broker&rsquo;s failure to route is a <strong>defect in the delivered product</strong>, not a new feature request.</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">A</span> Option A: Vendor Fixes iDash Broker</div>
+        <div class="settings-grid">
+            <div class="settings-block" style="border-color: rgba(16,185,129,.4);">
+                <h4 style="color: #10b981;">Pros</h4>
+                <ul>
+                    <li>Single integrated system &mdash; no additional software</li>
+                    <li>Vendor-supported and maintained</li>
+                    <li>Uses existing infrastructure and port 8883</li>
+                    <li>Print system and reader system on same broker</li>
+                </ul>
+            </div>
+            <div class="settings-block" style="border-color: rgba(239,68,68,.4);">
+                <h4 style="color: #ef4444;">Cons</h4>
+                <ul>
+                    <li>Vendor quoting <strong>$17,000</strong> for what is a defect fix</li>
+                    <li>Timeline unknown &mdash; dependent on vendor schedule</li>
+                    <li>Embedded broker (MQTTnet) is not enterprise-grade</li>
+                    <li>No clustering, no HA, no monitoring dashboard</li>
+                    <li>Ties critical infrastructure to a single vendor&rsquo;s embedded component</li>
+                </ul>
+            </div>
+        </div>
+        <div class="danger-box">
+            <strong>Defect argument:</strong> The <code class="cfg">dbo.mqttclient</code> table schema includes <code class="cfg">accessgatewaymessages</code>, <code class="cfg">accesstagmovements</code>, <code class="cfg">accesstagobservations</code>, <code class="cfg">accessevents</code>, <code class="cfg">accessalarms</code>, and <code class="cfg">accessvtagsensors</code> columns &mdash; a sophisticated ACL system clearly designed to control message routing. The vendor created per-reader credentials (<code class="cfg">fx9600_f78c85</code>) and per-service credentials (<code class="cfg">idash_antenna</code>) specifically for this use case. The routing code was either never implemented or is broken. This is a defect, not an enhancement.
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">B</span> Option B: Deploy RabbitMQ as MQTT Broker (Recommended)</div>
+        <div class="settings-grid">
+            <div class="settings-block" style="border-color: rgba(16,185,129,.4);">
+                <h4 style="color: #10b981;">Pros</h4>
+                <ul>
+                    <li><strong>Already approved in VA</strong> &mdash; RabbitMQ runs on existing VA platforms (ATO precedent)</li>
+                    <li>Enterprise-grade: clustering, high availability, mirrored queues</li>
+                    <li>Built-in web management dashboard (port 15672)</li>
+                    <li>MQTT plugin supports full MQTT 3.1.1 and 5.0 with proper message routing</li>
+                    <li>TLS, LDAP, fine-grained ACLs &mdash; meets VA security requirements</li>
+                    <li>Prometheus + Grafana monitoring out of the box</li>
+                    <li>Open source, no licensing cost &mdash; <strong>$0 vs $17,000</strong></li>
+                    <li>Eliminates vendor dependency for critical message infrastructure</li>
+                    <li>Scales to thousands of readers and millions of messages</li>
+                    <li>Can be deployed alongside iDash broker without disruption</li>
+                </ul>
+            </div>
+            <div class="settings-block" style="border-color: rgba(245,158,11,.4);">
+                <h4 style="color: #f59e0b;">Considerations</h4>
+                <ul>
+                    <li>Additional service to install and maintain</li>
+                    <li>Requires Erlang runtime (~100 MB)</li>
+                    <li>MQTT is via plugin (not native), but fully compliant</li>
+                    <li>Runs on a different port (e.g., 8884) &mdash; FX9600 endpoint update needed</li>
+                    <li>ID Integration team manages instead of vendor</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title">RabbitMQ Architecture (Option B)</div>
+        <div class="arch-diagram"><span class="hl-green">FX9600 Reader</span> ──MQTT/TLS──→ <span class="hl-blue">RabbitMQ (port 8884)</span> ──routes──→ <span class="hl-green">iDash AntennaLocationService</span>
+     publishes to:                  │                         subscribes to:
+     <span class="hl-amber">reader/tagobservation</span>           │ <span class="hl-green">✓ Messages routed</span>        <span class="hl-amber">reader/#</span>
+                                    │
+                                    │   Runs alongside, does NOT replace:
+                                    │
+<span class="hl-green">MqttPrintNotifier</span> ──MQTT/TLS──→ <span class="hl-blue">iDash Broker (port 8883)</span> ──→ <span class="hl-green">Print Clients</span>
+     publishes to:                  │ <span class="hl-green">✓ Already working</span>
+     <span class="hl-amber">awrx/print/{user}</span>               │ <span class="hl-green">✓ Unchanged</span></div>
+        <div class="tip-box"><strong>Zero disruption:</strong> RabbitMQ runs on a separate port. The iDash broker, print system, and all existing infrastructure remain completely untouched. Only the FX9600 endpoint and iDash Web.config point to the new port.</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title">Implementation Steps (Option B)</div>
+        <table class="arch-table">
+            <thead><tr><th>#</th><th>Step</th><th>Effort</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td>Install RabbitMQ + Erlang on LingCod (or dedicated VM)</td><td>30 min</td></tr>
+                <tr><td>2</td><td>Enable MQTT plugin: <code class="cfg">rabbitmq-plugins enable rabbitmq_mqtt</code></td><td>2 min</td></tr>
+                <tr><td>3</td><td>Configure TLS certificates (reuse existing <code class="cfg">mycert.pfx</code>)</td><td>15 min</td></tr>
+                <tr><td>4</td><td>Create users: <code class="cfg">fx9600_f78c85</code>, <code class="cfg">idash_antenna</code> with topic permissions</td><td>10 min</td></tr>
+                <tr><td>5</td><td>Update FX9600 MQTT_Broker endpoint: port → 8884</td><td>2 min</td></tr>
+                <tr><td>6</td><td>Update iDash Web.config: <code class="cfg">AntennaService_MqttPort</code> → 8884</td><td>1 min</td></tr>
+                <tr><td>7</td><td>Test: verify tags flow via MQTT through RabbitMQ</td><td>10 min</td></tr>
+                <tr><td>8</td><td>Scale: repeat step 5 for each additional FX9600 reader</td><td>2 min/reader</td></tr>
+            </tbody>
+        </table>
+        <div class="info-box"><strong>Total estimated effort:</strong> ~1 hour for initial setup + 2 min per additional reader. <strong>Cost: $0</strong> (open source). Compare to vendor quote of <strong>$17,000</strong> for a defect fix with unknown timeline.</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title">Platform Comparison</div>
+        <table class="arch-table">
+            <thead><tr><th>Capability</th><th>iDash Broker (Current)</th><th>RabbitMQ</th><th>Mosquitto</th></tr></thead>
+            <tbody>
+                <tr><td>MQTT message routing</td><td class="status-err">&cross; Broken</td><td class="status-ok">&check; Full support</td><td class="status-ok">&check; Full support</td></tr>
+                <tr><td>VA ATO precedent</td><td class="status-ok">&check; In use</td><td class="status-ok">&check; In use at VA</td><td class="status-err">&cross; Would need approval</td></tr>
+                <tr><td>High availability / clustering</td><td class="status-err">&cross;</td><td class="status-ok">&check; Built-in</td><td class="status-err">&cross; Single process</td></tr>
+                <tr><td>Web management dashboard</td><td class="status-err">&cross;</td><td class="status-ok">&check; Port 15672</td><td class="status-err">&cross; CLI only</td></tr>
+                <tr><td>Enterprise monitoring</td><td class="status-err">&cross;</td><td class="status-ok">&check; Prometheus/Grafana</td><td style="color:#f59e0b;">&sim; Basic</td></tr>
+                <tr><td>TLS + authentication</td><td class="status-ok">&check;</td><td class="status-ok">&check; + LDAP</td><td class="status-ok">&check;</td></tr>
+                <tr><td>Scale (40+ readers)</td><td style="color:#f59e0b;">Unknown</td><td class="status-ok">&check; Millions of msgs</td><td class="status-ok">&check; Thousands of clients</td></tr>
+                <tr><td>Wildcard subscriptions</td><td style="color:#f59e0b;">Accepts but doesn&rsquo;t route</td><td class="status-ok">&check;</td><td class="status-ok">&check;</td></tr>
+                <tr><td>Cost</td><td class="status-err">$17,000 quoted</td><td class="status-ok">$0 (open source)</td><td class="status-ok">$0 (open source)</td></tr>
+                <tr><td>Print system support</td><td class="status-ok">&check; Built-in</td><td style="color:#f59e0b;">Separate (keep iDash for printing)</td><td style="color:#f59e0b;">Separate</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title">Recommendation</div>
+        <div class="tip-box" style="border-color: rgba(16,185,129,.5); border-width: 2px;">
+            <strong>Recommended: Option B &mdash; Deploy RabbitMQ</strong><br/><br/>
+            RabbitMQ is already approved and running in VA environments, provides enterprise-grade reliability, costs $0, and can be deployed in under an hour with zero disruption to the existing iDash infrastructure. The vendor should still be held accountable for the broker defect (the <code class="cfg">dbo.mqttclient</code> ACL schema proves the feature was designed and sold), but the program should not be blocked on a $17K vendor quote for what is a bug fix.<br/><br/>
+            <strong>Immediate action:</strong> Continue using HTTP-POST (<code class="cfg">iDash_HTTP</code>) for current testing.<br/>
+            <strong>Short-term:</strong> Deploy RabbitMQ for production MQTT infrastructure.<br/>
+            <strong>Long-term:</strong> Require vendor to fix the iDash broker as part of maintenance/warranty, at no additional cost.
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <hr class="section-divider" />
+    <div class="step-card" style="text-align:center; padding:20px;">
+        <div style="font-size:13px; color:var(--muted-docs);">
+            Document created: August 31, 2026 &mdash; VISN 5 RFID Program<br/>
+            Last updated: August 31, 2026 &mdash; Added MQTT Diagnostic Report (Section 11) and Resolution Options (Section 12)<br/>
+            Bug reference: iDash.Web.exe MQTT broker routing failure (MQTTnet.dll)
+        </div>
+    </div>
+</div>
+</body>
+</html>

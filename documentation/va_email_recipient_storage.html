@@ -1,0 +1,188 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Email Recipient Storage &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+
+<div class="wrap">
+
+    <a href="index.aspx">&larr; Back to Documentation Hub</a>
+    <br/><br/>
+
+    <div class="card">
+        <h1>&#128231; Email Recipient Storage &mdash; JSON File Migration</h1>
+        <p style="color:var(--muted-docs); font-size:16px;">
+            Technical reference documenting the architectural change that moved email recipient storage
+            from <code>web.config</code> appSettings to a standalone JSON file. This change was made on
+            <strong>June 29, 2026</strong> to fix a critical session-loss bug that forced users to re-authenticate
+            every time an email address was added or removed.
+        </p>
+
+        <div class="ok">
+            <strong>Status: DEPLOYED</strong><br/>
+            Email recipients are now stored in <code>config/email_recipients.json</code>.
+            Existing recipients from <code>web.config</code> are auto-migrated on first access &mdash; no manual steps required.
+        </div>
+
+        <h2>The Problem</h2>
+        <p>
+            When a user navigated to <strong>Report Automation Setup</strong> (<code>va_report_automation.aspx</code>)
+            and added or removed an email recipient, the system would immediately force them back to the
+            login screen, requiring re-authentication as <code>idashadmin</code> or their current user account.
+        </p>
+        <p>
+            This happened <em>every single time</em> a recipient was added or removed, making the email configuration
+            workflow effectively unusable without repeatedly signing in.
+        </p>
+
+        <h2>Root Cause: IIS Application Pool Recycle</h2>
+        <p>
+            The email recipient list was previously stored in <code>web.config</code> as a semicolon-delimited
+            string in the <code>EmailRecipients</code> appSetting key:
+        </p>
+        <pre>&lt;add key="EmailRecipients" value="JGUEMPEL@ID-INTEGRATION.COM" /&gt;</pre>
+        <p>
+            The <code>EmailHelper.SaveRecipients()</code> method in <code>App_Code/EmailHelper.cs</code> would
+            call <code>WebConfigurationManager.OpenWebConfiguration("~")</code> followed by <code>config.Save()</code>
+            to persist changes. This wrote directly to the physical <code>web.config</code> file on disk.
+        </p>
+        <p>
+            <strong>IIS monitors <code>web.config</code> for any file system changes.</strong> When the file is modified,
+            IIS automatically triggers a full application pool recycle. This destroys all in-memory session state,
+            including <code>Session["IdashUserRole"]</code> and <code>Session["IsAdminAuthenticated"]</code>.
+        </p>
+        <p>
+            After the recycle completes, the postback response arrives at the browser, but the server-side session
+            is gone. On the next page load, the session check in <code>va_report_automation.aspx.cs</code> (line 53)
+            sees a null role and redirects back to <code>index.aspx</code> (the login page):
+        </p>
+        <pre>if (Session["IdashUserRole"] == null || 
+    (Session["IdashUserRole"].ToString() != "admin" && !hasTileAccess))
+{
+    Response.Redirect("index.aspx");
+    return;
+}</pre>
+
+        <div class="warn" style="background:color-mix(in srgb, #f59e0b, transparent 90%); border:1px solid #f59e0b; color:#f59e0b; padding:14px; border-radius:8px; margin:16px 0;">
+            <strong>&#9888; Key Insight:</strong> This is not a bug in the authentication system.
+            The authentication works correctly. The problem is that <em>saving recipients to web.config</em>
+            is a destructive operation that nukes the entire application state. Any data stored in
+            <code>web.config</code> that is frequently modified by users will exhibit this same behavior.
+        </div>
+
+        <h2>The Fix: JSON File Storage</h2>
+        <p>
+            Email recipients are now stored in a standalone JSON file at:
+        </p>
+        <pre>~/config/email_recipients.json</pre>
+        <p>
+            This file is a simple JSON array of email address strings:
+        </p>
+        <pre>["JGUEMPEL@ID-INTEGRATION.COM","user2@example.com","user3@example.com"]</pre>
+        <p>
+            Writing to this file does <strong>not</strong> trigger an IIS application pool recycle.
+            Sessions remain intact, and users stay logged in.
+        </p>
+
+        <h3>Automatic Migration</h3>
+        <p>
+            On first access after deployment, the <code>GetRecipients()</code> method checks for the JSON file.
+            If it doesn't exist, it falls back to reading the legacy <code>EmailRecipients</code> key from
+            <code>web.config</code> and automatically writes those values to the new JSON file. After this
+            one-time migration, all subsequent reads and writes use the JSON file exclusively.
+        </p>
+
+        <h2>Files Changed</h2>
+        <table style="width:100%; border-collapse:collapse; margin:16px 0;">
+            <thead>
+                <tr style="border-bottom:2px solid var(--line); text-align:left;">
+                    <th style="padding:10px; color:var(--accent-docs);">File</th>
+                    <th style="padding:10px; color:var(--accent-docs);">Change</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom:1px solid var(--line);">
+                    <td style="padding:10px;"><code>App_Code/EmailHelper.cs</code></td>
+                    <td style="padding:10px;">
+                        Rewrote <code>GetRecipients()</code>, <code>AddRecipient()</code>, <code>RemoveRecipient()</code>,
+                        and <code>SaveRecipients()</code> to use <code>config/email_recipients.json</code> instead of
+                        <code>web.config</code>. Added auto-migration fallback. Simplified read-only helper methods
+                        (<code>GetFromName()</code>, <code>GetFromEmailAddress()</code>, <code>GetDefaultSubject()</code>)
+                        to use the lightweight <code>AppSettings</code> indexer instead of opening the full configuration object.
+                    </td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line);">
+                    <td style="padding:10px;"><code>va_ennx_mobile.aspx.cs</code></td>
+                    <td style="padding:10px;">
+                        Replaced the inline <code>GetEmailRecipients()</code> method (which duplicated the old
+                        web.config read logic) with a delegate to the shared <code>EmailHelper.GetRecipients()</code>
+                        method for consistency.
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:10px;"><code>config/email_recipients.json</code></td>
+                    <td style="padding:10px;">
+                        <strong>[NEW]</strong> Auto-created on first access. Stores the email recipient list as a JSON array.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>What Still Uses web.config</h2>
+        <p>
+            Only <strong>SMTP connection settings</strong> (host, port, username, password, from address) remain in
+            <code>web.config</code>. These are rarely changed and are typically only set once per site deployment
+            via the <strong>Site Configuration</strong> page (<code>va_site_config.aspx</code>). The session loss
+            on that page is acceptable because site config is a one-time setup operation, not a frequent workflow.
+        </p>
+        <p>The following keys remain in <code>web.config</code> appSettings (read-only during normal operation):</p>
+        <ul>
+            <li><code>SMTP_Host</code> &mdash; SMTP server hostname</li>
+            <li><code>SMTP_Port</code> &mdash; SMTP port (typically 587)</li>
+            <li><code>SMTP_User</code> &mdash; SMTP authentication username</li>
+            <li><code>SMTP_Password</code> &mdash; SMTP authentication password</li>
+            <li><code>SMTP_FromEmail</code> &mdash; sender email address</li>
+            <li><code>SMTP_FromName</code> &mdash; sender display name</li>
+            <li><code>Default_EmailSubject</code> &mdash; default subject line override</li>
+        </ul>
+
+        <h2>Developer Notes</h2>
+        <h3>Adding Recipients Programmatically</h3>
+        <pre>// Add a recipient (no session impact, no app pool recycle)
+EmailHelper.AddRecipient("newuser@example.com");
+
+// Remove a recipient
+EmailHelper.RemoveRecipient("olduser@example.com");
+
+// Get the full list
+List&lt;string&gt; recipients = EmailHelper.GetRecipients();</pre>
+
+        <h3>Rule of Thumb</h3>
+        <p>
+            <strong>Never write frequently-changed data to <code>web.config</code>.</strong>
+            Use JSON files in the <code>config/</code> directory for any settings that users may update
+            during normal operation. Reserve <code>web.config</code> for infrastructure settings that
+            change only during initial deployment or major reconfiguration.
+        </p>
+
+        <div class="ok" style="background:var(--chip); border-color:#2b3858; color:var(--muted-docs);">
+            <strong>Related Pages:</strong>
+            <a href="va_site_config.html" style="color:var(--accent-docs);">Site Configuration</a> &middot;
+            <a href="va_sms_alerting.html" style="color:var(--accent-docs);">iDash Alerts &amp; System Automations</a> &middot;
+            <a href="va_system_architecture.html" style="color:var(--accent-docs);">External State &amp; Dependencies</a>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,395 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA Site Inventory — iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .badge-active { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); font-weight: 700; padding: 3px 8px; border-radius: 4px; font-size: 11px; }
+        .badge-archive { background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 700; padding: 3px 8px; border-radius: 4px; font-size: 11px; }
+        .badge-code { font-family: Consolas, monospace; background: var(--bg-code, rgba(0,0,0,0.06)); padding: 2px 6px; border-radius: 3px; font-size: 12px; }
+        .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+        .st-green { background: #10b981; }
+        .st-blue { background: #0284c7; }
+        .st-orange { background: #f97316; }
+        .st-pink { background: #ec4899; }
+        .step-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--accent-docs); color: #fff; font-weight: 800; font-size: 12px; margin-right: 8px; }
+        .config-table th { background: var(--bg-card); color: var(--text-docs); border-bottom: 2px solid var(--border-docs); }
+        .config-table td { border-bottom: 1px solid var(--border-docs); font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <a href="index.aspx">&larr; Back to Documentation Hub</a> &bull; <a href="va_inventory_legacy.html" style="color:var(--muted-docs);">&rarr; View Legacy Documentation (va_inventory_legacy.aspx)</a>
+        <br/><br/>
+
+        <!-- OVERVIEW CARD -->
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
+                <div>
+                    <h1>VA Site Inventory (Real-Time Location Sweep)</h1>
+                    <p style="margin:4px 0 12px 0;"><strong>Active Production Interface:</strong> <code>va_inventory.aspx</code> / <code>va_inventory.aspx.cs</code></p>
+                </div>
+                <div>
+                    <span class="badge-active">ACTIVE PRODUCTION (v2.0)</span>
+                </div>
+            </div>
+
+            <div class="alert alert-info" style="margin-top:8px;">
+                <strong>Archival Notice:</strong> The earlier postback-driven version has been retired and archived as 
+                <strong><a href="va_inventory_legacy.html" style="color:var(--accent-docs); font-weight:bold;">va_inventory_legacy.aspx</a></strong>. 
+                This document describes the modern client-side real-time sweeping engine, designed specifically for rapid RFID sweeps (30–50 tags/sec) on <strong>Zebra TC53 / RFD40</strong> handhelds and enterprise web clients.
+            </div>
+
+            <p><strong>Database Interaction:</strong> Read / Write (via High-Performance AJAX WebMethods to iDash SQL database)</p>
+            <p><strong>Primary Workflow:</strong> Technicians walk into a room, scan the room barcode (e.g. <code>SP008-BD. 8A</code>), pull the RFID trigger to sweep the physical space, visually confirm confirmed vs misplaced equipment, and commit the reconciled inventory back to the database in one tap.</p>
+
+            <div class="toc">
+                <a href="#key-features">Key Architectural Highlights</a>
+                <a href="#screen-config">Configuring Screen &amp; Column Visibility</a>
+                <a href="#sweep-workflow">Room Sweep &amp; Reconciliation Workflow</a>
+                <a href="#color-system">4-Color Status Identification System</a>
+                <a href="#found-pinning">Found Item Pinning &amp; Ordering</a>
+                <a href="#handheld-ergonomics">Handheld Ergonomics &amp; Horizontal Swiping</a>
+                <a href="#api-reference">AJAX WebMethod API Reference</a>
+                <a href="#legacy-archive">Legacy Architecture Comparison</a>
+            </div>
+        </div>
+
+        <!-- KEY FEATURES -->
+        <div class="card" id="key-features">
+            <h2>Key Architectural Highlights</h2>
+            <table>
+                <tr><th>Capability</th><th>Description</th></tr>
+                <tr>
+                    <td><strong>Zero-Flicker O(1) Memory Engine</strong></td>
+                    <td>Room manifests are loaded into an in-memory hash index (<span class="badge-code">_assetKeyMap</span>) mapping tag EPCs, cleaned tags, serial numbers, and asset names. During continuous trigger pulls, lookups happen in microseconds with zero browser reflows or server roundtrips.</td>
+                </tr>
+                <tr>
+                    <td><strong>Centralized Column Visibility</strong></td>
+                    <td>On-screen column chooser button removed from handheld page to eliminate clutter. Column visibility across the facility is managed centrally from <strong>Site Configuration</strong> (<span class="badge-code">va_site_config.aspx#sec-scan-columns</span>).</td>
+                </tr>
+                <tr>
+                    <td><strong>Full 20-Field Text Support</strong></td>
+                    <td>Supports all 20 VA text database fields (<span class="badge-code">text1</span> through <span class="badge-code">text20</span>) including Manufacturer, Model, Category, Service Pointer, Station #, PO #, Custodian Empl_ID, and Last Inventoried.</td>
+                </tr>
+                <tr>
+                    <td><strong>Dynamic CSS Column Injection</strong></td>
+                    <td>Hidden columns consume zero horizontal space through dynamic CSS (<span class="badge-code">display: none !important;</span>). When administrators enable or disable columns in Site Config, mobile layouts adjust instantly.</td>
+                </tr>
+                <tr>
+                    <td><strong>Immediate Green Found Pinning</strong></td>
+                    <td>As soon as an expected asset is read by the RFID antenna, its row lights up green and pins to the very top of the table (<span class="badge-code">tbody.firstElementChild</span>) with an emerald highlight pulse.</td>
+                </tr>
+                <tr>
+                    <td><strong>Adaptive High-Contrast Themes</strong></td>
+                    <td>Includes an on-page <span class="badge-code">&#127763; Theme</span> toggle. In Light Mode, uses high-contrast deep forest green and dark slate text on mint backings to ensure full readability in sunlight and sterile rooms.</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- SCREEN & COLUMN CONFIGURATION VIA SYSTEM CONFIGURATION -->
+        <div class="card" id="screen-config">
+            <h2>Configuring Screen &amp; Column Visibility</h2>
+            
+            <p>
+                To maximize usable screen real estate on mobile handhelds (such as the <strong>Zebra TC53 / TC530e</strong> at 412px viewport width) 
+                and prevent accidental taps during active room sweeps, the column chooser was intentionally removed from the scanning page.
+                Column display is configured centrally via <strong>System Configuration</strong>.
+            </p>
+
+            <h3>How to Select or Deselect Columns:</h3>
+            <ol style="line-height:1.8; margin-left:20px;">
+                <li>
+                    <strong>Open System Configuration:</strong> Navigate to the iDash Hub and click 
+                    <span class="badge-code">System Configuration</span> (or navigate directly to <code>va_site_config.aspx</code>).
+                </li>
+                <li>
+                    <strong>Access Scanning Columns Section:</strong> Click <strong>&#128241; Scanning Columns</strong> in the left sidebar, 
+                    or scroll directly to the <strong>Mobile Scanning Page Column Visibility</strong> section.
+                </li>
+                <li>
+                    <strong>Toggle Column Checkboxes:</strong> In the configuration table, check or uncheck any of the 28 columns. 
+                    Essential identity columns (<em>Status</em> and <em>Asset Tag</em>) are locked as required, while all optional metadata fields can be customized.
+                </li>
+                <li>
+                    <strong>Save Configuration:</strong> Click the green <strong>Save Column Configuration</strong> button at the bottom of the section. 
+                    The server persists your layout to <code>App_Data/scan_columns_config.json</code>.
+                </li>
+                <li>
+                    <strong>Automatic Handheld Synchronization:</strong> The next time technicians load <code>va_inventory.aspx</code>, 
+                    the page calls <code>GetColumnConfig</code> and injects precise CSS column visibility rules. Hidden columns are suppressed completely without horizontal bloat.
+                </li>
+            </ol>
+
+            <h3>Complete 28-Column Field Directory</h3>
+            <table class="config-table">
+                <thead>
+                    <tr>
+                        <th style="width:40px;">#</th>
+                        <th>Column Name</th>
+                        <th>Database Field</th>
+                        <th>Guidance &amp; Recommended Use</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>0</td><td><strong>Print Checkbox</strong></td><td><code>(system)</code></td><td>Checkbox to select items for batch label printing on Zebra printers.</td></tr>
+                    <tr><td>1</td><td><strong>Status</strong></td><td><code>(system)</code></td><td><span class="badge-active">Always Required</span> — Found, Not Found, Move Here?, Unknown badges.</td></tr>
+                    <tr><td>2</td><td><strong>Asset Tag</strong></td><td><code>name / rfidtag</code></td><td><span class="badge-active">Always Required</span> — Primary barcode &amp; RFID identifier.</td></tr>
+                    <tr><td>3</td><td><strong>Description</strong></td><td><code>description</code></td><td>Equipment item name and model description.</td></tr>
+                    <tr><td>4</td><td><strong>Manufacturer</strong></td><td><code>text1</code></td><td>Equipment vendor or manufacturer name (e.g. Dell, Kodak, HP).</td></tr>
+                    <tr><td>5</td><td><strong>Model</strong></td><td><code>text2</code></td><td>Hardware equipment model identifier (e.g. P2419H, M507DNG).</td></tr>
+                    <tr><td>6</td><td><strong>Serial #</strong></td><td><code>text3</code></td><td>Manufacturer equipment serial number.</td></tr>
+                    <tr><td>7</td><td><strong>Equipment Category</strong></td><td><code>text4</code></td><td>VA equipment classification category.</td></tr>
+                    <tr><td>8</td><td><strong>Service Pointer</strong></td><td><code>text5</code></td><td>VA service pointer routing code.</td></tr>
+                    <tr><td>9</td><td><strong>SP + Location</strong></td><td><code>text6</code></td><td>Official room location string recorded in database (e.g. SP008-BD. 8A).</td></tr>
+                    <tr><td>10</td><td><strong>Station Number</strong></td><td><code>text7</code></td><td>VA facility / medical center station code.</td></tr>
+                    <tr><td>11</td><td><strong>CMR / EIL</strong></td><td><code>text8</code></td><td>CMR / Equipment Inventory Listing code (from file).</td></tr>
+                    <tr><td>12</td><td><strong>Purchase Order #</strong></td><td><code>text9</code></td><td>Procurement purchase order reference number.</td></tr>
+                    <tr><td>13</td><td><strong>Physical Inventory Date</strong></td><td><code>text10</code></td><td>Raw physical inventory date from legacy system feeds.</td></tr>
+                    <tr><td>14</td><td><strong>SP + Previous Location</strong></td><td><code>text11</code></td><td>Previous room assignment prior to recent relocation.</td></tr>
+                    <tr><td>15</td><td><strong>Entry Number</strong></td><td><code>text12</code></td><td>VistA / AEMS entry sequence index number.</td></tr>
+                    <tr><td>16</td><td><strong>Empl_ID</strong></td><td><code>text13</code></td><td>Assigned equipment custodian employee ID.</td></tr>
+                    <tr><td>17</td><td><strong>Substation</strong></td><td><code>text14</code></td><td>VA divisional substation code.</td></tr>
+                    <tr><td>18</td><td><strong>Asset Value</strong></td><td><code>text15</code></td><td>Recorded asset acquisition value ($).</td></tr>
+                    <tr><td>19</td><td><strong>Location Tagged (Found)</strong></td><td><code>text16</code></td><td>Room where the RFID tag was originally commissioned on asset.</td></tr>
+                    <tr><td>20</td><td><strong>Tagged On Date</strong></td><td><code>text17</code></td><td>Date the physical RFID tag was affixed to hardware.</td></tr>
+                    <tr><td>21</td><td><strong>Tagged</strong></td><td><code>text18</code></td><td>Physical tag attachment verification flag.</td></tr>
+                    <tr><td>22</td><td><strong>Tag Type</strong></td><td><code>text19</code></td><td>RFID tag hardware model (Alien Higgs-3, Confidex Steelwave, etc.).</td></tr>
+                    <tr><td>23</td><td><strong>Notes</strong></td><td><code>text20</code></td><td>Technician inspection notes and comments.</td></tr>
+                    <tr><td>24</td><td><strong>Last Inventoried</strong></td><td><code>lastinventoried</code></td><td>Exact SQL <code>datetimeoffset</code> timestamp of last verified scan.</td></tr>
+                    <tr><td>25</td><td><strong>Scanned Loc</strong></td><td><code>(session)</code></td><td>Current physical room location being swept.</td></tr>
+                    <tr><td>26</td><td><strong>Reads</strong></td><td><code>(session)</code></td><td>Real-time count of RFID antenna hits during current sweep.</td></tr>
+                    <tr><td>27</td><td><strong>Action (X)</strong></td><td><code>(session)</code></td><td>Red dismiss button to remove stray or misplaced scans from active session.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ROOM SWEEP WORKFLOW -->
+        <div class="card" id="sweep-workflow">
+            <h2>Room Sweep &amp; Reconciliation Workflow</h2>
+
+            <div style="margin-bottom:16px;">
+                <p><span class="step-num">1</span><strong>Scan or Enter Room Location Barcode:</strong><br/>
+                Scan the room barcode (starts with <code>SP</code>) or type the room name (e.g. <code>SP008-BD. 8A</code>) and press Enter or tap <strong>Load Room</strong>. 
+                The system fetches all assets assigned to that room in iDash.</p>
+            </div>
+
+            <div style="margin-bottom:16px;">
+                <p><span class="step-num">2</span><strong>Physically Sweep the Room:</strong><br/>
+                Hold down the RFID trigger on the Zebra handheld. Focus is automatically maintained on the scanning trigger box. 
+                Incoming tags match instantly in memory. Total reads increment live, and found assets turn bright green.</p>
+            </div>
+
+            <div style="margin-bottom:16px;">
+                <p><span class="step-num">3</span><strong>Review Reconciliation Categories:</strong><br/>
+                Use the filter tabs to review sweep status:
+                <ul style="margin-left:24px;">
+                    <li><strong>All:</strong> Complete room manifest plus any misplaced tags found.</li>
+                    <li><strong>Found:</strong> Expected room assets that were physically detected in this room.</li>
+                    <li><strong>Not Found:</strong> Assets assigned to this room that have not yet been detected.</li>
+                    <li><strong>Move Here?:</strong> Assets registered in the database to a <em>different</em> room, but detected here.</li>
+                    <li><strong>Unknown:</strong> Tags detected that are not in the database (e.g. shipping labels or non-VA items).</li>
+                </ul></p>
+            </div>
+
+            <div style="margin-bottom:16px;">
+                <p><span class="step-num">4</span><strong>Commit Inventory:</strong><br/>
+                Tap the green <strong>&#10004; Commit Scans</strong> button.
+                <ul>
+                    <li>If only expected assets were found: The system prompts for confirmation and immediately commits them.</li>
+                    <li>If out-of-place assets (<span class="badge-code">Move Here?</span>) were detected: A choice modal appears:
+                        <ul style="margin-top:6px;">
+                            <li><strong>Commit Expected Only:</strong> Updates last inventoried date on expected assets; leaves misplaced assets assigned to their original rooms.</li>
+                            <li><strong>Commit All &amp; Move Misplaced Here:</strong> Updates expected assets AND officially transfers all misplaced items to the current room in SQL.</li>
+                        </ul>
+                    </li>
+                </ul>
+                After commit, tap <strong>Next Room</strong> to clear the workspace and sweep the next location.
+            </div>
+        </div>
+
+        <!-- 4-COLOR STATUS PALETTE -->
+        <div class="card" id="color-system">
+            <h2>4-Color Operational Status System</h2>
+            <p>
+                To align with technician muscle memory and standardized VA inventory SOPs, 
+                all rows and status badges adhere to the four standard operational colors in both Light and Dark modes:
+            </p>
+
+            <table>
+                <tr>
+                    <th style="width:140px;">Status</th>
+                    <th>Color &amp; Visual Accent</th>
+                    <th>Meaning &amp; Operational Action</th>
+                </tr>
+                <tr>
+                    <td><strong>&#10004; Found</strong></td>
+                    <td>
+                        <span class="status-dot st-green"></span>
+                        <strong style="color:#10b981;">Emerald Green</strong><br/>
+                        <span class="badge-code">#10b981 / #059669</span>
+                    </td>
+                    <td>
+                        <strong>Asset Confirmed in Room:</strong> Expected asset detected in its assigned location. 
+                        Row receives green background tint, 5px emerald left border, and checkmark prefix. 
+                        <strong>Automatically pins to top of table.</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>&#8631; Move Here?</strong></td>
+                    <td>
+                        <span class="status-dot st-blue"></span>
+                        <strong style="color:#0284c7;">Ocean Blue</strong><br/>
+                        <span class="badge-code">#0284c7</span>
+                    </td>
+                    <td>
+                        <strong>Misplaced Asset Detected:</strong> Item belongs to another room in the database. 
+                        Technician can choose to officially relocate it to this room upon commit.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>&#9675; Not Found</strong></td>
+                    <td>
+                        <span class="status-dot st-orange"></span>
+                        <strong style="color:#ea580c;">Amber Orange</strong><br/>
+                        <span class="badge-code">#f97316 / #ea580c</span>
+                    </td>
+                    <td>
+                        <strong>Awaiting Scan:</strong> Asset is assigned to this room in the database but has not yet been detected by the scanner.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>? Unknown</strong></td>
+                    <td>
+                        <span class="status-dot st-pink"></span>
+                        <strong style="color:#db2777;">Fuchsia Pink</strong><br/>
+                        <span class="badge-code">#ec4899 / #db2777</span>
+                    </td>
+                    <td>
+                        <strong>Unregistered RFID Tag:</strong> Tag is not found in iDash database (e.g. cardboard shipping tag, vendor RFID label, or decommissioned item).
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- FOUND PINNING -->
+        <div class="card" id="found-pinning">
+            <h2>Found Item Pinning &amp; Ordering Rules</h2>
+            <p>
+                To provide instant visual feedback without scrolling through long manifests of hundreds of items:
+            </p>
+            <ol style="line-height:1.8; margin-left:20px;">
+                <li>
+                    <strong>Immediate Insertion at Row 1:</strong> As soon as an asset is scanned, its DOM row moves to 
+                    the very first position in the table (<code>tbody.insertBefore(row, tbody.firstElementChild)</code>) 
+                    with an emerald highlight pulse animation (<span class="badge-code">.row-just-found</span>).
+                </li>
+                <li>
+                    <strong>Found Priority Over Misplaced Items:</strong> Non-found items (such as newly scanned 
+                    <span class="badge-code">Move Here?</span> or <span class="badge-code">Unknown</span> tags) are inserted 
+                    <em>after</em> all Green Found rows, ensuring confirmed assets are never displaced or buried.
+                </li>
+                <li>
+                    <strong>Persistent Top Sorting:</strong> Column sorting (by tag, serial number, CMR, reads, etc.) 
+                    maintains Green Found items at the top of the grid regardless of sort direction.
+                </li>
+            </ol>
+        </div>
+
+        <!-- HANDHELD ERGONOMICS -->
+        <div class="card" id="handheld-ergonomics">
+            <h2>Handheld Ergonomics &amp; Horizontal Swiping</h2>
+            <ul>
+                <li><strong>Smooth Touch Swiping:</strong> On narrow handheld displays (Zebra TC53 at 412px width), the grid container (<span class="badge-code">.grid-wrap</span>) supports native horizontal touch scrolling (<span class="badge-code">touch-action: pan-x pan-y; -webkit-overflow-scrolling: touch;</span>). Technicians can smoothly slide across all enabled columns.</li>
+                <li><strong>🌓 Light / Dark Mode Toggle:</strong> An adaptive theme button in the top bar toggles between dark mode and a high-contrast daylight mode with bold text tokens for high-glare environments.</li>
+                <li><strong>Auto-Focus Scanner Input:</strong> Trigger focus is automatically retained or re-acquired after button taps, modal dismissals, and tab switches so the technician never has to tap the input field.</li>
+                <li><strong>Technician Fast Login:</strong> Supports Enter-key keyboard submission and authenticates against both iDash portal accounts and SQL scanner users (<span class="badge-code">dbo.sysuser</span>).</li>
+            </ul>
+        </div>
+
+        <!-- AJAX WEBMETHOD API REFERENCE -->
+        <div class="card" id="api-reference">
+            <h2>AJAX WebMethod API Reference</h2>
+            <p>The backend code-behind (<code>va_inventory.aspx.cs</code>) exposes stateless JSON WebMethods:</p>
+
+            <table>
+                <tr><th>WebMethod</th><th>Parameters</th><th>Returns</th><th>Description</th></tr>
+                <tr>
+                    <td><code>LoadLocationAssets</code></td>
+                    <td><code>locationName, siteId</code></td>
+                    <td>JSON array of assets with all 20 text fields</td>
+                    <td>Loads room manifest for specified location filtered by authorized facility ID.</td>
+                </tr>
+                <tr>
+                    <td><code>ProcessScan</code></td>
+                    <td><code>scanData, currentLocation, siteId</code></td>
+                    <td>JSON asset match object</td>
+                    <td>Resolves unrecognized tag against database across RFID tag, asset name, serial number, and CMR.</td>
+                </tr>
+                <tr>
+                    <td><code>CommitInventory</code></td>
+                    <td><code>locationName, scanDataJson, siteId, username</code></td>
+                    <td>JSON success/count object</td>
+                    <td>Updates <code>lastinventoried</code>, <code>lastmodifiedby</code>, and optionally updates <code>locationid</code> / <code>text6</code> for transferred assets.</td>
+                </tr>
+                <tr>
+                    <td><code>GetColumnConfig</code></td>
+                    <td>(none)</td>
+                    <td>JSON column configuration object</td>
+                    <td>Delivers centralized column visibility settings from <code>App_Data/scan_columns_config.json</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>Login</code></td>
+                    <td><code>username, password</code></td>
+                    <td>JSON session state object</td>
+                    <td>Authenticates iDash portal accounts or SQL <code>dbo.sysuser</code> accounts via PBKDF2 hash verification.</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- LEGACY ARCHIVE -->
+        <div class="card" id="legacy-archive">
+            <h2>Legacy Architecture Comparison</h2>
+            <table>
+                <tr><th>Feature</th><th>New va_inventory.aspx (Current)</th><th>Legacy va_inventory_legacy.aspx (Retired)</th></tr>
+                <tr>
+                    <td><strong>Execution Model</strong></td>
+                    <td>Client-Side AJAX + In-Memory $O(1)$ Hash Map</td>
+                    <td>ASP.NET Server PostBacks on every scan</td>
+                </tr>
+                <tr>
+                    <td><strong>Scan Throughput</strong></td>
+                    <td>30–50 tags/second continuous trigger pull</td>
+                    <td>1–2 seconds per scan (full page reload)</td>
+                </tr>
+                <tr>
+                    <td><strong>Screen Customization</strong></td>
+                    <td>Centrally configured via System Configuration</td>
+                    <td>Client-side on-page dropdown consuming screen space</td>
+                </tr>
+                <tr>
+                    <td><strong>Extended VA Fields</strong></td>
+                    <td>All 20 text attributes + Last Inventoried</td>
+                    <td>Limited to Serial Number, CMR, Tag Type, Location</td>
+                </tr>
+                <tr>
+                    <td><strong>Offline Strategy</strong></td>
+                    <td>Resilient in-memory sweep with batch commit</td>
+                    <td>localStorage queue needing postback sync handler</td>
+                </tr>
+            </table>
+            <p style="margin-top:14px;">
+                <a href="va_inventory_legacy.html" style="color:var(--accent-docs); font-weight:bold;">&rarr; Review Archived Legacy Documentation (va_inventory_legacy.html)</a>
+            </p>
+        </div>
+
+    </div>
+</body>
+</html>

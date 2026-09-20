@@ -1,0 +1,289 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA TAG STATS &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<div class="wrap">
+
+    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
+    <br/><br/>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h1>&#128200; Tag Statistics (<code>va_tag_stats.aspx</code>)</h1>
+        <p style="font-size:16px;">
+            The <strong>Tag Statistics</strong> dashboard is the executive-level tagging performance center
+            for the VA iDash platform. It provides real-time KPI cards, per-site filtering, drill-down
+            panels for specific asset populations, and exportable reports to support leadership's understanding
+            of tagging progress and asset value across all facility stations.
+        </p>
+        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 16px;">
+            <span class='badge badge-api' style="background:color-mix(in srgb, var(--accent-docs), transparent 85%); color:var(--accent-docs); border:1px solid color-mix(in srgb, var(--accent-docs), transparent 70%);">API Driven (JSON)</span>
+            <span class='badge badge-full' style="background:color-mix(in srgb, var(--accent2-docs), transparent 85%); color:var(--accent2-docs); border:1px solid color-mix(in srgb, var(--accent2-docs), transparent 70%);">Database Connected</span>
+            <span class='badge' style="background:color-mix(in srgb, var(--warn-docs), transparent 85%); color:var(--warn-docs); border:1px solid color-mix(in srgb, var(--warn-docs), transparent 70%);">Updated 2026-07-21</span>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>1. Executive Summary KPI Cards</h2>
+        <p>
+            The top of the page displays five animated KPI cards that update dynamically whenever a different
+            site is selected from the dropdown:
+        </p>
+        <table>
+            <thead>
+                <tr><th>KPI Card</th><th>Data Source</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Total Tagged</strong></td>
+                    <td><code>text18 = '1'</code></td>
+                    <td>Total assets with a physical tag applied</td>
+                </tr>
+                <tr>
+                    <td><strong>Tagged &amp; In Use</strong></td>
+                    <td><code>text18='1' AND listvalue1 LIKE '%In Use%'</code></td>
+                    <td>Active, in-service tagged assets</td>
+                </tr>
+                <tr>
+                    <td><strong>Tagged, Not In Use</strong></td>
+                    <td><code>text18='1' AND listvalue1 NOT LIKE '%In Use%'</code></td>
+                    <td>Tagged but out-of-service (disposed, turned in, etc.)</td>
+                </tr>
+                <tr>
+                    <td><strong>No CMR Assigned</strong></td>
+                    <td><code>text18='1' AND (text8 IS NULL OR text8='')</code></td>
+                    <td>Tagged assets missing EIL/CMR assignment</td>
+                </tr>
+                <tr>
+                    <td><strong>Value &mdash; Not In Use</strong></td>
+                    <td><code>text18='1' AND listvalue1 NOT LIKE '%In Use%' AND text15 IS NOT NULL</code></td>
+                    <td>Sum of <code>text15</code> (asset dollar value) for tagged, not-in-use assets. <strong>Added 2026-04-13.</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>2. Asset Value KPI &amp; Export</h2>
+        <div class="alert-amber">
+            <strong>&#9432; Added 2026-04-13</strong><br/>
+            The fifth KPI card and its companion export button were added to surface dollar-value data for
+            leadership reporting on tagged, not-in-use asset populations.
+        </div>
+        <p>
+            The fifth KPI card displays the <strong>total dollar value</strong> of all tagged, not-in-use
+            assets for the selected site. The value is sourced from the <code>text15</code> field in
+            <code>dbo.asset</code>, which was populated via a bulk import from VA-provided xlsx cost files
+            (one per site: 512, 517, 540, 581, 613, 688).
+        </p>
+
+        <h3>Scope</h3>
+        <p>Only assets matching this filter are included:</p>
+        <pre>text18 = '1'
+AND listvalue1 NOT LIKE '%In Use%'
+AND text15 IS NOT NULL
+AND ISNUMERIC(text15) = 1</pre>
+        <p>Assets with no cost data are excluded from the total.</p>
+
+        <h3>Export</h3>
+        <p>
+            Clicking the KPI card (or the <em>Asset Value Excel</em> toolbar button) downloads a
+            UTF-8 BOM CSV with the following columns:
+        </p>
+        <table>
+            <thead><tr><th>Column</th><th>Source</th></tr></thead>
+            <tbody>
+                <tr><td>Tag Number</td><td><code>asset.name</code></td></tr>
+                <tr><td>Description</td><td><code>asset.description</code></td></tr>
+                <tr><td>CMR/EIL</td><td><code>asset.text8</code></td></tr>
+                <tr><td>Location</td><td><code>asset.text6</code></td></tr>
+                <tr><td>Status</td><td><code>asset.listvalue1</code></td></tr>
+                <tr><td>Tag Type</td><td><code>asset.text19</code></td></tr>
+                <tr><td>Asset Value ($)</td><td><code>asset.text15</code></td></tr>
+            </tbody>
+        </table>
+        <p>
+            A summary footer at the bottom of the export shows the total asset count and the grand total
+            dollar value. The export is handled server-side by the <code>exportassetvalue</code> API route
+            in <code>va_tag_stats.aspx.cs</code>.
+        </p>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>3. Asset Value Data Population</h2>
+        <p>
+            Asset values were imported from VA-provided xlsx files using a PowerShell script that read each
+            file via .NET ZIP/XML streaming (no Excel COM required). The script matched on the asset
+            <code>name</code> field (column A = <code>entry_number</code>) and wrote the dollar value to
+            <code>text15</code> (column S = <code>total_asset_value</code>) for matching records only.
+            Records with literal <code>NULL</code> or non-numeric values were skipped.
+        </p>
+        <table>
+            <thead><tr><th>Site</th><th>Rows Updated</th></tr></thead>
+            <tbody>
+                <tr><td>512 Baltimore</td><td>30,541 <span style="color:var(--muted-docs);">(imported via txt file earlier)</span></td></tr>
+                <tr><td>517 Beckley</td><td>9,886</td></tr>
+                <tr><td>540 Clarksburg</td><td>9,764</td></tr>
+                <tr><td>581 Martinsburg</td><td>16,954</td></tr>
+                <tr><td>613 Wilmington</td><td>12,933</td></tr>
+                <tr><td>688 Washington DC</td><td>26,042</td></tr>
+                <tr style="background:rgba(0,0,0,0.1); font-weight:700;">
+                    <td>Grand Total</td><td>106,120+</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>4. Tabs &amp; Drill-Down Panels</h2>
+        <div class="two-col">
+            <div class="box">
+                <h3>&#128202; Executive Summary</h3>
+                <p>KPI cards + site selector. All five cards update on site change.</p>
+            </div>
+            <div class="box">
+                <h3>&#128100; Employee Activity</h3>
+                <p>Inventory activity by employee ID with today, weekly, monthly, and total counts. Filterable by employee name.</p>
+            </div>
+            <div class="box">
+                <h3>&#127991; Tag Type Analysis</h3>
+                <p>
+                    Two-panel layout. <strong>Left side</strong>: clickable tag type counts table &mdash;
+                    click any row to instantly load the asset preview on the right.
+                    <strong>Right side</strong>: asset preview (Top 100) with <strong>column toggle pills</strong> &mdash;
+                    show/hide and drag-to-reorder columns (Asset Tag, Tag Type, Location, Last Observed).
+                    Includes per-column filters and sort indicators. A blue badge shows the currently selected tag type.
+                </p>
+            </div>
+            <div class="box">
+                <h3>&#128203; Site Detail</h3>
+                <p>
+                    Tagging detail by Site / CMR / Location with <strong>column toggle pills</strong> &mdash;
+                    show/hide and drag-to-reorder columns (Site, CMR/EIL, Location, Tagged, Untagged, Total, % Tagged).
+                    Includes per-column filters, sort direction indicators, and progress bars for tagging percentage.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>5. Technical Operation</h2>
+
+        <h3>API Pattern</h3>
+        <p>
+            On load or site change, JavaScript calls
+            <code>va_tag_stats.aspx?api=execstats&amp;site=X</code>, which returns a JSON object with
+            all five KPI values. The frontend animates the values using <code>animDollar()</code> for
+            the value card and <code>animNum()</code> for integer cards.
+        </p>
+
+        <h3>Export Implementation</h3>
+        <div class="alert-blue">
+            <strong>&#128736; ThreadAbortException Fix</strong><br/>
+            The <code>exportassetvalue</code> route streams a UTF-8 BOM CSV directly to the browser using
+            <code>Response.Flush() + Response.Close()</code> (no <code>Response.End()</code>) to avoid the
+            <code>ThreadAbortException</code> issue that previously caused
+            <code>{"error":"Thread was being aborted."}</code> to appear at the end of exported files.
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>6. Source Architecture</h2>
+        <table>
+            <thead><tr><th>Component</th><th>File</th></tr></thead>
+            <tbody>
+                <tr><td>Frontend &amp; Client JS</td><td><code>va_tag_stats.aspx</code></td></tr>
+                <tr><td>Backend API &amp; Exports</td><td><code>va_tag_stats.aspx.cs</code></td></tr>
+                <tr><td>Asset value data field</td><td><code>dbo.asset.text15</code></td></tr>
+                <tr><td>Primary view</td><td><code>dbo.v_asset</code></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>7. Change Log</h2>
+        <div class="changelog">
+            <div class="changelog-date" style="font-weight:800; color:var(--accent-docs); font-size:1.1rem; margin-bottom:12px;">2026-04-13</div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <div class="arch-row">
+                    <div class="arch-num" style="width:32px; height:32px; font-size:0.9rem; border-radius:6px;">+</div>
+                    <div class="arch-body">Added <strong>Value &mdash; Not In Use</strong> KPI card showing total dollar value of tagged, not-in-use assets with cost data.</div>
+                </div>
+                <div class="arch-row">
+                    <div class="arch-num" style="width:32px; height:32px; font-size:0.9rem; border-radius:6px;">+</div>
+                    <div class="arch-body">Added <strong>Asset Value Excel</strong> export button &mdash; downloads site-filtered CSV with per-asset cost detail and grand total footer.</div>
+                </div>
+                <div class="arch-row">
+                    <div class="arch-num" style="width:32px; height:32px; font-size:0.9rem; border-radius:6px; background:var(--accent2-docs);">&#10003;</div>
+                    <div class="arch-body">Fixed <code>ThreadAbortException</code> export bug &mdash; replaced <code>Response.End()</code> with <code>Response.Flush() + Response.Close()</code> in all export methods.</div>
+                </div>
+                <div class="arch-row">
+                    <div class="arch-num" style="width:32px; height:32px; font-size:0.9rem; border-radius:6px;">+</div>
+                    <div class="arch-body">Bulk-imported asset values into <code>text15</code> for 106,120+ assets across 6 VA stations (512, 517, 540, 581, 613, 688).</div>
+                </div>
+                <div class="arch-row">
+                    <div class="arch-num" style="width:32px; height:32px; font-size:0.9rem; border-radius:6px;">+</div>
+                    <div class="arch-body">5-column KPI grid layout added to accommodate the new value card.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2026-07-21 changelog -->
+    <div class="card">
+        <h2>7b. Change Log &mdash; July 2026</h2>
+        <div class="changelog">
+            <div class="changelog-date" style="font-weight:800; color:var(--accent-docs); font-size:1.1rem; margin-bottom:12px;">2026-07-21</div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <div class="arch-row">
+                    <div class="arch-num" style="width:32px; height:32px; font-size:0.9rem; border-radius:6px;">+</div>
+                    <div class="arch-body"><strong>Tag Type Analysis</strong> &mdash; Click any tag type row on the left to instantly populate the asset preview on the right (replaces manual &ldquo;Preview Assets&rdquo; button). First tag type auto-selected on load.</div>
+                </div>
+                <div class="arch-row">
+                    <div class="arch-num" style="width:32px; height:32px; font-size:0.9rem; border-radius:6px;">+</div>
+                    <div class="arch-body"><strong>Column Pills (Tag Type Preview)</strong> &mdash; Drag-and-drop pill buttons to show/hide and reorder columns on the asset preview table. Per-column filters and sort direction indicators.</div>
+                </div>
+                <div class="arch-row">
+                    <div class="arch-num" style="width:32px; height:32px; font-size:0.9rem; border-radius:6px;">+</div>
+                    <div class="arch-body"><strong>Column Pills (Site Detail)</strong> &mdash; Same pill-based column management added to the Site Detail tab with all 7 columns toggleable and reorderable.</div>
+                </div>
+                <div class="arch-row">
+                    <div class="arch-num" style="width:32px; height:32px; font-size:0.9rem; border-radius:6px; background:var(--accent2-docs);">&#10003;</div>
+                    <div class="arch-body"><strong>Site Access Security</strong> &mdash; Company dropdown now enforced by user&rsquo;s site access permissions. Restricted users only see data for their assigned sites.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<footer style="margin-top: 40px; padding: 20px; border-top:1px solid var(--line); font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 12px; color:var(--muted-docs); display: flex; justify-content: space-between; align-items: center; background:var(--bg); max-width: 1000px; margin-left: auto; margin-right: auto;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
+        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
+        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <span>&copy; 2026 ID Integration Inc.</span>
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 14px; opacity: 0.9;">
+    </div>
+</footer>
+</body>
+</html>

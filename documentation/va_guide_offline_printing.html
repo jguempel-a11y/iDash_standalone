@@ -1,0 +1,165 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>iDash Docs &mdash; Guide: Offline Printing Station</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <style>
+        .step-card { background: color-mix(in srgb, var(--text, #e2e8f0), transparent 97%); border: 1px solid var(--line, #2a3441); border-radius: 14px; padding: 28px; margin-bottom: 32px; }
+        .step-num { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: #f59e0b; color: #fff; font-weight: 800; font-size: 16px; margin-right: 12px; flex-shrink: 0; }
+        .step-title { font-size: 20px; font-weight: 700; display: flex; align-items: center; margin-bottom: 12px; }
+        .step-desc { color: var(--muted-docs, #8b95a5); font-size: 14px; line-height: 1.7; margin-bottom: 16px; }
+        .tip-box { background: color-mix(in srgb, #10b981, transparent 88%); border: 1px solid rgba(16,185,129,0.3); border-left: 4px solid #10b981; padding: 14px 18px; border-radius: 8px; font-size: 13px; margin: 16px 0; color: #10b981; }
+        .warn-box { background: color-mix(in srgb, #f59e0b, transparent 88%); border: 1px solid rgba(245,158,11,0.3); border-left: 4px solid #f59e0b; padding: 14px 18px; border-radius: 8px; font-size: 13px; margin: 16px 0; color: #f59e0b; }
+        .info-box { background: color-mix(in srgb, #3b82f6, transparent 88%); border: 1px solid rgba(59,130,246,0.3); border-left: 4px solid #3b82f6; padding: 14px 18px; border-radius: 8px; font-size: 13px; margin: 16px 0; color: #3b82f6; }
+        .category-card { border: 1px solid var(--line, #2a3441); border-radius: 10px; padding: 14px 18px; margin: 8px 0; }
+    </style>
+</head>
+<body>
+    <a href="index.aspx" class="back-link">&larr; Documentation Hub</a>
+
+    <div class="doc-container">
+        <h1>&#128424; Guide: Offline Printing Station</h1>
+        <p class="doc-subtitle">How to use the standalone RFID printing station to print asset labels from BarTender &mdash; including Daily Scans Tagging, Emailed Labels, and Supply Chain categories.</p>
+
+        <div class="callout callout-info">
+            <strong>What is the Offline Printing Station?</strong> A dedicated workstation with BarTender and an RFID printer for printing asset labels. It operates independently from iDash and can be used when the main print server is not available.
+        </div>
+
+        <p class="step-desc"><strong>Source:</strong> <em>VISN 5 Use and Configuration Guide for iDash 4.0.8.7</em>, Section II (pages 7&ndash;13)</p>
+
+        <!-- STEP 1 -->
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">1</span> Open the BarTender Desktop</div>
+            <div class="step-desc">
+                On the printing station computer, open the desktop. You should see three shortcuts:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li><strong>iDash</strong> &mdash; Opens the iDash web application</li>
+                <li><strong>RFID Printing</strong> &mdash; Opens the BarTender print interface</li>
+                <li><strong>iDash ENNX Reporting</strong> &mdash; Opens the ENNX report generator</li>
+            </ul>
+            <div class="step-desc">Click <strong>"RFID Printing"</strong> to open the BarTender print interface.</div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">2</span> Navigate to Print Templates</div>
+            <div class="step-desc">
+                BarTender opens in a browser window showing the <strong>Templates</strong> folder. You'll see the following print categories as folder icons:
+            </div>
+            <div class="category-card">
+                <strong style="color:#10b981;">&#128193; Daily Scans Tagging</strong>
+                <div style="color: var(--muted-docs); font-size: 13px; margin-top: 4px;">For scanning equipment during inventory or for EIL locating. Used during daily rounds.</div>
+            </div>
+            <div class="category-card">
+                <strong style="color:#3b82f6;">&#128193; Emailed Labels</strong>
+                <div style="color: var(--muted-docs); font-size: 13px; margin-top: 4px;">Items created by users and emailed to the print station to be printed. Labels arrive as print-ready jobs.</div>
+            </div>
+            <div class="category-card">
+                <strong style="color:#8B5CF6;">&#128193; Supply Chain</strong>
+                <div style="color: var(--muted-docs); font-size: 13px; margin-top: 4px;">Reprint labels for supply chain assets. Used for reprinting damaged or missing labels.</div>
+            </div>
+            <div class="step-desc" style="margin-top: 16px;">Click on the category folder that matches your print job.</div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">3</span> Select a Label Template</div>
+            <div class="step-desc">
+                Inside the category folder, you'll see the available label templates. Common options include:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li><strong>Large_Excel</strong> &mdash; Large RFID label for high-visibility tagging</li>
+                <li><strong>Small_Excel</strong> &mdash; Standard small RFID label</li>
+                <li><strong>Std_Small_Excel</strong> &mdash; Standard format small label</li>
+                <li><strong>Q350_Excel</strong> &mdash; Q350-specific label format</li>
+            </ul>
+            <div class="step-desc">Click on the desired template to open it.</div>
+            <div class="info-box">
+                <strong>&#128225; Template naming:</strong> Templates ending in <code>_Excel</code> are designed to read data from an Excel spreadsheet. The spreadsheet should already be configured with the asset data.
+            </div>
+        </div>
+
+        <!-- STEP 4 -->
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">4</span> Verify the Data Source</div>
+            <div class="step-desc">
+                The template opens with the asset data pre-loaded from the connected Excel file. Verify:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li>The <strong>asset name</strong> is correct</li>
+                <li>The <strong>tag type</strong> matches the physical label loaded in the printer</li>
+                <li>The <strong>record count</strong> matches the number of labels you want to print</li>
+            </ul>
+            <div class="warn-box">
+                <strong>&#9888; Check the printer first!</strong> Before printing, verify that:
+                <ul style="margin: 8px 0 0 0;">
+                    <li>The RFID printer is powered on and online (green light)</li>
+                    <li>The correct label media is loaded (matching the template size)</li>
+                    <li>There is enough label stock for the full print job</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- STEP 5 -->
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">5</span> Print Labels</div>
+            <div class="step-desc">
+                Click the <strong>"Print"</strong> button (or press <strong>Ctrl+P</strong>). In the print dialog:
+            </div>
+            <ol style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li>Verify the correct <strong>printer</strong> is selected (it should be the RFID label printer)</li>
+                <li>Set the <strong>quantity</strong> (usually 1 copy per label)</li>
+                <li>If printing a range, set <strong>From</strong> and <strong>To</strong> record numbers</li>
+                <li>Click <strong>"Print"</strong> to start</li>
+            </ol>
+            <div class="step-desc">
+                The printer will feed labels and encode each RFID chip during printing. You'll hear the printer motor and see labels advancing.
+            </div>
+        </div>
+
+        <!-- STEP 6 -->
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">6</span> Verify Printed Labels</div>
+            <div class="step-desc">
+                After printing, verify each label:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li><strong>Visual check</strong> &mdash; Text and barcodes are printed clearly, no smearing or misalignment</li>
+                <li><strong>RFID check</strong> &mdash; Hold a handheld scanner near the label to verify the RFID chip was encoded correctly</li>
+                <li><strong>Peel &amp; apply</strong> &mdash; Remove the label from the backing and apply to the asset in the designated location</li>
+            </ul>
+            <div class="tip-box">
+                <strong>&#128161; Tip:</strong> If a label fails to encode (the printer voids it with a line through it), the RFID chip may be defective. The printer will automatically retry with the next label in the roll.
+            </div>
+        </div>
+
+        <!-- ═══════ TROUBLESHOOTING ═══════ -->
+        <h2><span class="section-num">&#128295;</span> Troubleshooting</h2>
+        <table class="doc-table">
+            <thead><tr><th style="width:35%">Issue</th><th>Solution</th></tr></thead>
+            <tbody>
+                <tr><td>BarTender won't open</td><td>Check that the BarTender license is active. Open BarTender directly from Start menu to see license status.</td></tr>
+                <tr><td>No categories/folders showing</td><td>The template folder path may have changed. Check BarTender settings for the correct template directory.</td></tr>
+                <tr><td>Excel data not loading</td><td>The Excel file may have been moved or renamed. Verify the data source connection in the template.</td></tr>
+                <tr><td>Printer not responding</td><td>Check USB/network connection. Power cycle the printer. Verify it appears in Windows Devices and Printers.</td></tr>
+                <tr><td>Labels printing blank (no RFID)</td><td>The label media may not have RFID inlays. Check that you loaded RFID-enabled label stock, not standard labels.</td></tr>
+                <tr><td>Every label gets voided</td><td>The RFID encoding is failing. Check antenna alignment, media type setting, and try a fresh roll of labels.</td></tr>
+                <tr><td>Wrong data on labels</td><td>Verify the Excel spreadsheet has the correct data. Check that the template is pointing to the right columns.</td></tr>
+            </tbody>
+        </table>
+
+        <h2><span class="section-num">&#128279;</span> Related Guides</h2>
+        <ul>
+            <li><a href="va_printing_walkthrough.html">Printing Guide: Excel Import (via iDash)</a></li>
+            <li><a href="va_printing_walkthrough_asset_master.html">Printing Guide: Asset Master (via iDash)</a></li>
+            <li><a href="va_guide_printer_setup.html">RFID Printer Setup &amp; Troubleshooting</a></li>
+            <li><a href="va_guide_adhoc_scanning.html">ADHOC Scanning &amp; Inventory</a></li>
+            <li><a href="va_guide_batch_scanning.html">Batch Mode Scanning (Offline)</a></li>
+        </ul>
+    </div>
+</body>
+</html>

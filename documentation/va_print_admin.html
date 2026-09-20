@@ -1,0 +1,918 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>PRINT ADMINISTRATION &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <div style="display:flex; gap:8px; padding:12px 32px; background:var(--card); border-bottom:1px solid var(--line); flex-wrap:wrap; font-size:13px;">
+        <a href="../index.aspx" style="color:var(--accent); text-decoration:none; font-weight:600;">&#8962; Hub</a>
+        <span style="color:var(--muted);">&bull;</span>
+        <a href="../va_print_admin.aspx" style="color:var(--accent); text-decoration:none; font-weight:600;">&#128424; Print Admin</a>
+        <span style="color:var(--muted);">&bull;</span>
+        <a href="../va_print_mapping.aspx" style="color:var(--accent); text-decoration:none; font-weight:600;">&#9881; Template Mapping</a>
+        <span style="color:var(--muted);">&bull;</span>
+        <a href="index.aspx" style="color:var(--accent); text-decoration:none; font-weight:600;">&#128196; All Docs</a>
+    </div>
+    <div class="container">
+        <h1>&#128424; Print Administration</h1>
+        <div style="margin-bottom:30px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span class='badge badge-db'>Database Connected</span>
+            <span class='badge' style="background:color-mix(in srgb, #8B5CF6 15%, transparent); color:#8B5CF6; border:1px solid #8B5CF6;">MQTT</span>
+            <span class='badge' style="background:color-mix(in srgb, #10b981 15%, transparent); color:#10b981; border:1px solid #10b981;">New 08/26</span>
+        </div>
+
+        <!--  -->
+        <!-- TABLE OF CONTENTS                           -->
+        <!--  -->
+        <div style="background:var(--chip); border:1px solid var(--line); border-radius:12px; padding:18px; margin-bottom:30px;">
+            <strong>Contents</strong>
+            <ol style="margin:8px 0 0 0; padding-left:18px; font-size:14px;">
+                <li><a href="#overview" style="color:var(--accent);">Architecture Overview</a></li>
+                <li><a href="#flow" style="color:var(--accent);">How Printing Works</a></li>
+                <li><a href="#new-site" style="color:var(--accent);">Setting Up a New Site for Printing</a></li>
+                <li><a href="#templates" style="color:var(--accent);">Managing Templates</a></li>
+                <li><a href="#printers" style="color:var(--accent);">Managing Print Clients</a></li>
+                <li><a href="#mqtt" style="color:var(--accent);">MQTT Configuration</a></li>
+                <li><a href="#bartender" style="color:var(--accent);">BarTender Template Files</a></li>
+                <li><a href="#multi-site" style="color:var(--accent);">Multi-Site Printing</a></li>
+                <li><a href="#legacy" style="color:var(--accent);">Legacy PowerShell Print Server</a></li>
+                <li><a href="#routing" style="color:var(--accent);">Printer Routing Configuration</a></li>
+                <li><a href="#deployment" style="color:var(--accent);">Deploying to a New Server</a></li>
+                <li><a href="#new-machine" style="color:var(--accent);">New Machine Setup Checklist</a> <span style="background:color-mix(in srgb, #f59e0b 15%, transparent); color:#f59e0b; border:1px solid #f59e0b; padding:1px 6px; border-radius:10px; font-size:10px; font-weight:700;">New</span></li>
+                <li><a href="#comparison" style="color:var(--accent);">Print Method Comparison</a></li>
+                <li><a href="#troubleshooting" style="color:var(--accent);">Troubleshooting</a></li>
+                <li><a href="#wizard" style="color:var(--accent);">Setup Wizard</a> <span style="background:color-mix(in srgb, #3b82f6 15%, transparent); color:#3b82f6; border:1px solid #3b82f6; padding:1px 6px; border-radius:10px; font-size:10px; font-weight:700;">New</span></li>
+            </ol>
+        </div>
+
+        <!--  -->
+        <!-- 1. ARCHITECTURE OVERVIEW                    -->
+        <!--  -->
+        <h2 id="overview">1. Architecture Overview</h2>
+        <p>Printing in iDash/iDash uses a message-based architecture where print commands flow through the iDash core API:</p>
+        
+        <div style="background:#0d1117; color:#c9d1d9; font-family:monospace; font-size:12px; padding:16px; border-radius:10px; line-height:1.8; margin:16px 0; overflow-x:auto;">
+<pre style="margin:0;">
+                    
+   iDash UI    iDash API       MQTT    Print Server  BarTender 
+  (Browser)         /api/printjob/          Broker          Service           Printer  
+                        print              (port                                       
+  Asset Master                               8883)         Subscribes         .btw     
+  TagTeam Scan       Creates DB row                        to MQTT            template 
+                     Builds payload                        topic                       
+                     Publishes MQTT                                                    
+                    
+                              
+                     
+                       OAuth Token    
+                       (per-site)     
+                       cmpid = X      
+                     
+</pre>
+        </div>
+
+        <h3>Key Components</h3>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Component</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">What It Does</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Location</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px; font-weight:700;">iDash API</td>
+                <td style="padding:10px;">Receives print requests, builds the label data payload, publishes to MQTT</td>
+                <td style="padding:10px;"><code>http://localhost/api/printjob/print</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px; font-weight:700;">MQTT Broker</td>
+                <td style="padding:10px;">Message bus that routes print commands to Print Server(s)</td>
+                <td style="padding:10px;">Built into iDash API (port 8883 TLS)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px; font-weight:700;">Print Server</td>
+                <td style="padding:10px;">Windows service that subscribes to MQTT, invokes BarTender SDK</td>
+                <td style="padding:10px;"><code>iDash.PrintServer.exe</code></td>
+            </tr>
+            <tr>
+                <td style="padding:10px; font-weight:700;">BarTender</td>
+                <td style="padding:10px;">Label design software that renders <code>.btw</code> templates and sends to physical printers</td>
+                <td style="padding:10px;"><code>C:\idash_prints\*.btw</code></td>
+            </tr>
+        </table>
+
+        <!--  -->
+        <!-- 2. HOW PRINTING WORKS                       -->
+        <!--  -->
+        <h2 id="flow" style="margin-top:40px; padding-top:20px; border-top:2px solid var(--line);">2. How Printing Works</h2>
+        
+        <ol style="font-size:14px; line-height:1.8;">
+            <li>User selects assets and clicks <strong>Print</strong> in iDash (Asset Master or TagTeam Scan)</li>
+            <li>iDash calls <code>IdashApiHelper.SubmitPrintJob()</code> which:
+                <ul>
+                    <li>Resolves the <strong>companyId</strong> from the selected template</li>
+                    <li>Gets an OAuth token from the correct <code>idash_XXX</code> client app</li>
+                    <li>POSTs to <code>/api/printjob/print</code> with the asset record ID and template ID</li>
+                </ul>
+            </li>
+            <li>The iDash API:
+                <ul>
+                    <li>Creates a <code>printjob</code> row in the database</li>
+                    <li>Looks up the asset data, template configuration, and label field mappings</li>
+                    <li>Builds a full JSON payload with all label data</li>
+                    <li>Publishes the payload to MQTT topic <code>awrx/print/{PrintClientUsername}</code></li>
+                </ul>
+            </li>
+            <li>The Print Server (subscribed to the MQTT topic):
+                <ul>
+                    <li>Receives the JSON payload</li>
+                    <li>Opens the <code>.btw</code> BarTender template</li>
+                    <li>Maps the asset data to template fields</li>
+                    <li>Sends to the physical printer</li>
+                    <li>Updates the <code>printjob</code> row: <code>completed = 1</code>, <code>message = 'Print Successful'</code></li>
+                </ul>
+            </li>
+        </ol>
+
+        <!--  -->
+        <!-- 3. SETTING UP A NEW SITE                    -->
+        <!--  -->
+        <h2 id="new-site" style="margin-top:40px; padding-top:20px; border-top:2px solid #10b981;">3. Setting Up a New Site for Printing</h2>
+        
+        <div style="background:color-mix(in srgb, #10b981, transparent 90%); border:1px solid #10b981; border-radius:8px; padding:12px 16px; margin:16px 0; font-size:13px;">
+            <strong>&#128161; Easiest Method:</strong> Open <a href="../va_print_admin.aspx" style="color:#10b981;">Print Administration</a>, go to the <strong>Site Overview</strong> tab, and click <strong>Quick Setup</strong> for any site marked "Incomplete". This auto-creates all three required items.
+        </div>
+
+        <h3>What "Quick Setup" Creates</h3>
+        <p>For each site, three database records are needed:</p>
+
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Item</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Table</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Purpose</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Example</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px; font-weight:700;">1. Template</td>
+                <td style="padding:10px;"><code>template</code></td>
+                <td style="padding:10px;">Links the <code>.btw</code> file to this site and a printer</td>
+                <td style="padding:10px;"><code>AW_Std_Small</code>, company 6 (Baltimore), MasterPrint</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px; font-weight:700;">2. Site-Printer Mapping</td>
+                <td style="padding:10px;"><code>printclientcompany</code></td>
+                <td style="padding:10px;">Authorizes this printer to handle jobs for this site</td>
+                <td style="padding:10px;">MasterPrint  company 6</td>
+            </tr>
+            <tr>
+                <td style="padding:10px; font-weight:700;">3. API Client App</td>
+                <td style="padding:10px;"><code>clientapp</code></td>
+                <td style="padding:10px;">OAuth credentials that produce a token with the correct <code>cmpid</code></td>
+                <td style="padding:10px;"><code>idash_512</code>  company 6</td>
+            </tr>
+        </table>
+
+        <h3>Manual Setup (SQL)</h3>
+        <p>If you prefer to set up manually or need custom configuration:</p>
+        <pre style="padding:14px; border-radius:10px; background:var(--chip); border:1px solid var(--line); font-size:12px; color:var(--text); overflow-x:auto;">
+-- Replace @cid with the company ID (e.g. 6 for Baltimore)
+-- Replace @pcid with the print client ID (e.g. 10 for MasterPrint)
+
+-- 1. Create template
+INSERT INTO template (name, templatetype, filename, printmethod, companyid, printclientid)
+VALUES ('AW_Std_Small', 'Asset', 'C:\idash_prints\AW_Std_Small.btw', 'Bartender', @cid, @pcid);
+
+-- 2. Map printer to site
+INSERT INTO printclientcompany (printclientid, companyid) VALUES (@pcid, @cid);
+
+-- 3. Create API client app
+INSERT INTO clientapp (clientid, granttype, secret, companyid)
+VALUES ('idash_512', 'Client Credentials', 'YOUR_SECRET_HERE', @cid);
+        </pre>
+
+        <!--  -->
+        <!-- 4. MANAGING TEMPLATES                       -->
+        <!--  -->
+        <h2 id="templates" style="margin-top:40px; padding-top:20px; border-top:2px solid var(--line);">4. Managing Templates</h2>
+        <p>Templates live in the <code>template</code> table and tie together:</p>
+        <ul>
+            <li><strong>Name</strong> &mdash; shown in the print dialog dropdown (e.g. <code>AW_Std_Small</code>)</li>
+            <li><strong>Site</strong> &mdash; which company/site this template is for</li>
+            <li><strong>BarTender File</strong> &mdash; the <code>.btw</code> file path on the server</li>
+            <li><strong>Print Client</strong> &mdash; which printer/Print Server handles this template</li>
+            <li><strong>Type</strong> &mdash; <code>Asset</code>, <code>Location</code>, or <code>Employee</code></li>
+        </ul>
+
+        <div style="background:color-mix(in srgb, #f59e0b, transparent 90%); border:1px solid #f59e0b; border-radius:8px; padding:12px 16px; margin:16px 0; font-size:13px;">
+            <strong>&#9888; Important:</strong> Each site needs its own template row, even if they all use the same <code>.btw</code> file. The OAuth token's <code>cmpid</code> claim determines which site's templates are visible. Without a matching template, the API returns a 500 error.
+        </div>
+
+        <!--  -->
+        <!-- 5. MANAGING PRINT CLIENTS                   -->
+        <!--  -->
+        <h2 id="printers" style="margin-top:40px; padding-top:20px; border-top:2px solid var(--line);">5. Managing Print Clients</h2>
+        <p>A Print Client is an MQTT-connected service that receives print commands. Each has:</p>
+        <ul>
+            <li><strong>Username</strong> &mdash; MQTT credentials (e.g. <code>MasterPrint</code>)</li>
+            <li><strong>Password</strong> &mdash; MQTT password (must match <code>appsettings.json</code>)</li>
+            <li><strong>Machine Name</strong> &mdash; hostname where the Print Server runs</li>
+            <li><strong>Assigned Sites</strong> &mdash; which companies this printer serves</li>
+        </ul>
+
+        <p>Currently there is typically <strong>one</strong> Print Client (<code>MasterPrint</code>) serving all sites. As you deploy to separate VA facilities with their own printers, each facility would get its own Print Client with its own MQTT credentials.</p>
+
+        <!--  -->
+        <!-- 6. MQTT CONFIGURATION                       -->
+        <!--  -->
+        <h2 id="mqtt" style="margin-top:40px; padding-top:20px; border-top:2px solid #8B5CF6;">6. MQTT Configuration</h2>
+        <p>MQTT is the message protocol that connects the iDash API to the Print Server. Configuration is in two places:</p>
+
+        <h3>iDash API Side (<code>appsettings.json</code>)</h3>
+        <pre style="padding:14px; border-radius:10px; background:var(--chip); border:1px solid var(--line); font-size:12px; overflow-x:auto;">
+C:\inetpub\wwwroot\iDash\appsettings.json
+
+{
+    "MqttServer": "localhost",
+    "MqttServerPort": 8883,
+    "PrintClientUsername": "MasterPrint",
+    "PrintClientPassword": "V5MqttPrint2026!"
+}
+        </pre>
+
+        <h3>Print Server Side</h3>
+        <p>The Print Server service reads its MQTT credentials from the <code>printclient</code> table. The <code>username</code> and <code>password</code> columns must match what's configured in <code>appsettings.json</code>.</p>
+
+        <h3>MQTT Topics</h3>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Topic</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Direction</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Payload</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><code>awrx/print/MasterPrint</code></td>
+                <td style="padding:10px;">API  Print Server</td>
+                <td style="padding:10px;">Full JSON with asset data, template config, label fields</td>
+            </tr>
+            <tr>
+                <td style="padding:10px;"><code>awrx/print/status</code></td>
+                <td style="padding:10px;">Print Server  API</td>
+                <td style="padding:10px;">Print completion status, error messages</td>
+            </tr>
+        </table>
+
+        <!--  -->
+        <!-- 7. BARTENDER TEMPLATE FILES                 -->
+        <!--  -->
+        <h2 id="bartender" style="margin-top:40px; padding-top:20px; border-top:2px solid var(--line);">7. BarTender Template Files</h2>
+        
+        <h3>File Location</h3>
+        <p>All <code>.btw</code> files are stored in: <code>C:\idash_prints\</code></p>
+
+        <h3>Requirements</h3>
+        <ul>
+            <li>The <code>.btw</code> file must exist on the server where the Print Server runs</li>
+            <li>The file path in the <code>template</code> table must exactly match the actual file path</li>
+            <li>BarTender must be installed and licensed on the Print Server machine</li>
+            <li>The Windows printer referenced in the <code>.btw</code> file must be configured</li>
+        </ul>
+
+        <h3>Printer Routing</h3>
+        <p>The <code>.btw</code> file contains the Windows printer name. If you need to redirect to a different printer, configure <code>printer_routing.json</code>:</p>
+        <pre style="padding:14px; border-radius:10px; background:var(--chip); border:1px solid var(--line); font-size:12px; overflow-x:auto;">
+C:\idash_prints\printer_routing.json
+
+{
+    "AW_Std_Small.btw": "ZDesigner ZD621-203dpi ZPL",
+    "AW_Large_Label.btw": "Zebra 4x6 Thermal"
+}
+        </pre>
+
+        <!--  -->
+        <!-- 8. MULTI-SITE PRINTING                      -->
+        <!--  -->
+        <h2 id="multi-site" style="margin-top:40px; padding-top:20px; border-top:2px solid #10b981;">8. Multi-Site Printing</h2>
+        
+        <h3>How It Works</h3>
+        <p>Each VA site (company) has its own:</p>
+        <ul>
+            <li><strong>Template</strong> in the <code>template</code> table pointing to the <code>.btw</code> file</li>
+            <li><strong>Client App</strong> (<code>idash_XXX</code>) in the <code>clientapp</code> table</li>
+            <li><strong>Print-Client-Company mapping</strong> linking the printer to the site</li>
+        </ul>
+
+        <p>When a user logs into iDash, they only see templates for their site. The <code>IdashApiHelper</code> automatically:</p>
+        <ol>
+            <li>Resolves the <strong>companyId</strong> from the selected template's <code>companyid</code> column</li>
+            <li>Picks the correct <code>idash_XXX</code> client credentials from the <code>clientapp</code> table</li>
+            <li>Gets an OAuth token with the correct <code>cmpid</code> claim</li>
+            <li>Posts to the API, which uses <code>cmpid</code> to find the right template and printer</li>
+        </ol>
+
+        <h3>Current Site Configuration</h3>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="padding:10px; color:var(--muted-docs);">Company ID</th>
+                <th style="padding:10px; color:var(--muted-docs);">Site</th>
+                <th style="padding:10px; color:var(--muted-docs);">Client App</th>
+                <th style="padding:10px; color:var(--muted-docs);">Template</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">3</td><td style="padding:10px;">540 Clarksburg</td>
+                <td style="padding:10px;"><code>idash_540</code></td><td style="padding:10px;">AW_Std_Small (13)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">4</td><td style="padding:10px;">517 Beckley</td>
+                <td style="padding:10px;"><code>idash_517</code></td><td style="padding:10px;">AW_Std_Small (14)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">5</td><td style="padding:10px;">581 Huntington</td>
+                <td style="padding:10px;"><code>idash_581</code></td><td style="padding:10px;">AW_Std_Small (15)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">6</td><td style="padding:10px;">512 Baltimore</td>
+                <td style="padding:10px;"><code>idash_512</code></td><td style="padding:10px;">AW_Std_Small (16)</td>
+            </tr>
+            <tr>
+                <td style="padding:10px;">7</td><td style="padding:10px;">613 Martinsburg</td>
+                <td style="padding:10px;"><code>idash_613</code></td><td style="padding:10px;">AW_Std_Small (12)</td>
+            </tr>
+        </table>
+
+        <!--  -->
+        <!-- 9. LEGACY POWERSHELL PRINT SERVER           -->
+        <!--  -->
+        <h2 id="legacy" style="margin-top:40px; padding-top:20px; border-top:2px solid #f59e0b;">9. Legacy PowerShell Print Server</h2>
+        
+        <div style="background:color-mix(in srgb, #f59e0b, transparent 90%); border:1px solid #f59e0b; border-radius:8px; padding:12px 16px; margin:16px 0; font-size:13px;">
+            <strong>&#9888; Note:</strong> The PowerShell print spooler is the <strong>legacy/fallback</strong> method. The standard path is now through the iDash core API + MQTT. Use the PowerShell script only for scenarios where the API is unavailable or for one-off batch prints.
+        </div>
+
+        <h3>Scripts</h3>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Script</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Purpose</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><code>printing\Run_Bypass_Spooler.ps1</code></td>
+                <td style="padding:10px;">Polls the <code>printjob</code> table and sends jobs to BarTender. Runs as a background service.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><code>downloads\Software\idash_prints\Run_Bypass_Print_Once.ps1</code></td>
+                <td style="padding:10px;">One-shot: processes all pending jobs then exits.</td>
+            </tr>
+            <tr>
+                <td style="padding:10px;"><code>Assets\install_print_server.ps1</code></td>
+                <td style="padding:10px;">Installs the spooler as a Windows scheduled task.</td>
+            </tr>
+        </table>
+
+        <h3>When to Use the Legacy Script</h3>
+        <ul>
+            <li>The iDash API or MQTT broker is down and you need emergency printing</li>
+            <li>Batch printing from a machine without API access</li>
+            <li>Testing BarTender templates without full API setup</li>
+            <li>Sites that haven't migrated to the MQTT-based architecture yet</li>
+        </ul>
+
+        <h3>Legacy Script Requirements</h3>
+        <ol>
+            <li><strong>BarTender installed</strong> on the machine running the script</li>
+            <li><strong>Database connection string</strong> configured in the script</li>
+            <li><strong>Template files</strong> (<code>.btw</code>) accessible at the configured path</li>
+            <li><strong>Windows printer</strong> installed and configured</li>
+            <li>No MQTT or API credentials needed &mdash; it reads directly from the DB</li>
+        </ol>
+
+        <!--  -->
+        <!-- 10. PRINTER ROUTING CONFIG                  -->
+        <!--  -->
+        <h2 id="routing" style="margin-top:40px; padding-top:20px; border-top:2px solid var(--line);">10. Printer Routing Configuration</h2>
+        <p><code>printer_routing.json</code> maps the <strong>.btw filename</strong> (key) to the <strong>exact Windows printer name</strong> (value). If a key is not found, BarTender falls back to the printer configured inside the .btw file itself.</p>
+
+        <h3>Format</h3>
+        <pre style="padding:14px; border-radius:10px; background:var(--chip); border:1px solid var(--line); font-size:12px; overflow-x:auto;">
+C:\idash_prints\printer_routing.json
+
+{
+    "AW_IQ350.btw":       "Metal_Small",
+    "AW_Metal_Large.btw": "Metal_Large",
+    "AW_Std_Small.btw":   "ZDesigner ZD621-203dpi ZPL"
+}
+        </pre>
+
+        <div style="background:color-mix(in srgb, #10b981, transparent 90%); border:1px solid #10b981; border-radius:8px; padding:12px 16px; margin:16px 0; font-size:13px;">
+            <strong>&#9989; No Restart Required:</strong> <code>printer_routing.json</code> is read fresh on every print job. Save the file and it takes effect immediately.
+        </div>
+
+        <h3>Getting Exact Printer Names</h3>
+        <p>The value must be character-for-character identical to the Windows printer name. Run on the target server:</p>
+        <pre style="padding:14px; border-radius:10px; background:var(--chip); border:1px solid var(--line); font-size:12px;">Get-Printer | Select-Object Name | Sort-Object Name</pre>
+
+        <h3>Per-Server Routing</h3>
+        <p>Each server has its own printer names. Maintain a separate <code>printer_routing.json</code> per server &mdash; do not copy between servers without updating the printer name values.</p>
+
+        <div style="background:color-mix(in srgb, #ef4444, transparent 90%); border:1px solid #ef4444; border-radius:8px; padding:12px 16px; margin:16px 0; font-size:13px;">
+            <strong>&#9888; Multiple Copies Warning:</strong> The spooler reads <code>printer_routing.json</code> from <code>$PSScriptRoot</code> &mdash; the folder where the <em>running</em> script lives. If multiple copies exist, you may edit the wrong one. Find all copies: <code>Get-ChildItem C:\ -Filter "printer_routing.json" -Recurse -ErrorAction SilentlyContinue</code>
+        </div>
+
+        <!--  -->
+        <!-- 11. SERVER DEPLOYMENT                       -->
+        <!--  -->
+        <h2 id="deployment" style="margin-top:40px; padding-top:20px; border-top:2px solid var(--line);">11. Deploying to a New Server</h2>
+        
+        <h3>Files to Copy</h3>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">File</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Destination</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Notes</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><code>*.btw</code> templates</td>
+                <td style="padding:10px;"><code>C:\idash_prints\</code></td>
+                <td style="padding:10px;">All BarTender label layouts</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><code>printer_routing.json</code></td>
+                <td style="padding:10px;"><code>C:\idash_prints\</code></td>
+                <td style="padding:10px;">Update printer names for new server!</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><code>Run_Bypass_Spooler.ps1</code></td>
+                <td style="padding:10px;"><code>C:\idash_prints\</code></td>
+                <td style="padding:10px;">Legacy PowerShell spooler (if needed)</td>
+            </tr>
+            <tr>
+                <td style="padding:10px;"><code>Seagull.BarTender.Print.dll</code></td>
+                <td style="padding:10px;">BarTender install directory</td>
+                <td style="padding:10px;">Installed by iDash Print Server installer</td>
+            </tr>
+        </table>
+
+        <h3>What Requires a Restart</h3>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Change</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Restart?</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Action</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">Edit <code>printer_routing.json</code></td>
+                <td style="padding:10px; color:#10b981; font-weight:700;">No</td>
+                <td style="padding:10px;">Auto-detected on next job</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">Edit SQL <code>template</code> table</td>
+                <td style="padding:10px; color:#10b981; font-weight:700;">No</td>
+                <td style="padding:10px;">Queried on every poll cycle</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">Edit <code>appsettings.json</code> or <code>web.config</code></td>
+                <td style="padding:10px; color:#f59e0b; font-weight:700;">Yes</td>
+                <td style="padding:10px;">Run <code>iisreset</code></td>
+            </tr>
+            <tr>
+                <td style="padding:10px;">Edit PowerShell spooler script</td>
+                <td style="padding:10px; color:#f59e0b; font-weight:700;">Yes</td>
+                <td style="padding:10px;">Close and reopen the PowerShell window</td>
+            </tr>
+        </table>
+
+        <!--  -->
+        <!-- 12. PRINT METHOD COMPARISON                 -->
+        <!--  -->
+        <h2 id="comparison" style="margin-top:40px; padding-top:20px; border-top:2px solid #8B5CF6;">12. Print Method Comparison</h2>
+        <p>There are three ways to print from iDash/iDash:</p>
+
+        <table style="width:100%; border-collapse:collapse; margin:12px 0; font-size:13px;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="padding:10px; color:var(--muted-docs);"></th>
+                <th style="padding:10px; color:var(--muted-docs);">1. iDash Print Server (MQTT)</th>
+                <th style="padding:10px; color:var(--muted-docs);">2. PowerShell Desktop Spooler</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px; font-weight:700;">Status</td>
+                <td style="padding:10px; color:#10b981; font-weight:700;">&#10004; Primary (Recommended)</td>
+                <td style="padding:10px; color:#f59e0b; font-weight:700;">&#9888; Legacy / Fallback</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px; font-weight:700;">How it works</td>
+                <td style="padding:10px;">iDash  API  MQTT  Print Server  BarTender</td>
+                <td style="padding:10px;">Polls <code>printjob</code> DB table  BarTender SDK direct</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px; font-weight:700;">RFID Encoding</td>
+                <td style="padding:10px;">&#10004; Yes (BarTender)</td>
+                <td style="padding:10px;">&#10004; Yes (BarTender)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px; font-weight:700;">Multi-site</td>
+                <td style="padding:10px;">&#10004; Per-site OAuth tokens</td>
+                <td style="padding:10px;">&#10004; Direct SQL (all sites)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px; font-weight:700;">Session 0 safe</td>
+                <td style="padding:10px;">&#10004; Runs as Windows service</td>
+                <td style="padding:10px;">&#9888; Must run on desktop (interactive session)</td>
+            </tr>
+            <tr>
+                <td style="padding:10px; font-weight:700;">Setup needed</td>
+                <td style="padding:10px;">Template + client app + MQTT credentials</td>
+                <td style="padding:10px;">BarTender SDK + connection string + printer routing</td>
+            </tr>
+        </table>
+
+        <div style="background:color-mix(in srgb, #f59e0b, transparent 90%); border:1px solid #f59e0b; border-radius:8px; padding:12px 16px; margin:16px 0; font-size:13px;">
+            <strong>&#9888; Session 0 Note:</strong> The legacy PowerShell spooler exists because Windows background services (Session 0) cannot access interactive printer drivers. Some specialized printers (e.g., Printronix RFID encoders) throw interactive dialog prompts that freeze in Session 0. The spooler runs on the user desktop to avoid this. The MQTT-based Print Server resolves this differently  consult BarTender documentation for your printer model.
+        </div>
+
+        <!--  -->
+        <!-- 13. TROUBLESHOOTING                         -->
+        <!--  -->
+        <h2 id="troubleshooting" style="margin-top:40px; padding-top:20px; border-top:2px solid #ef4444;">13. Troubleshooting</h2>
+        
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Symptom</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Cause</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Fix</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>Print from iDash works but not from iDash</strong></td>
+                <td style="padding:10px;">Missing <code>idash_XXX</code> client app for the user's site, or template not associated with the correct companyid</td>
+                <td style="padding:10px;">Go to <a href="../va_print_admin.aspx" style="color:var(--accent);">Print Admin</a> &rarr; Site Overview &rarr; Quick Setup</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>"NullReferenceException" in API logs</strong></td>
+                <td style="padding:10px;">The OAuth token's <code>cmpid</code> doesn't match any template in the <code>template</code> table</td>
+                <td style="padding:10px;">Create a template row for the site's company ID</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>Print job created but never completes</strong></td>
+                <td style="padding:10px;">Print Server not running, or MQTT connection broken</td>
+                <td style="padding:10px;">Check Print Admin  Status tab. Restart the Print Server service.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>No templates appear in print dialog</strong></td>
+                <td style="padding:10px;">User's site has no templates, or user has no company access</td>
+                <td style="padding:10px;">Verify user's <code>companyid</code> in <code>sysuser</code>. Create template for that company.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>"BarTender document could not be opened"</strong></td>
+                <td style="padding:10px;">The <code>template.filename</code> is a bare name without extension or full path</td>
+                <td style="padding:10px;"><code>UPDATE template SET filename = 'C:\idash_prints\AW_Std_Small.btw' WHERE id = X</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>All jobs go to the same printer (wrong routing)</strong></td>
+                <td style="padding:10px;"><code>printer_routing.json</code> key doesn't match .btw filename, or editing wrong copy</td>
+                <td style="padding:10px;">Run <code>Get-ChildItem C:\ -Filter "printer_routing.json" -Recurse</code> to find all copies. Match keys to exact .btw filenames.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>Routing shows correct printer but job goes wrong</strong></td>
+                <td style="padding:10px;">Printer name in JSON doesn't exactly match Windows printer name</td>
+                <td style="padding:10px;">Run <code>Get-Printer | Select-Object Name</code> and compare character-for-character.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>Auto-map always selects same template</strong></td>
+                <td style="padding:10px;"><code>template.name</code> doesn't match the tag type string from the mobile app (case-sensitive)</td>
+                <td style="padding:10px;">Check tag type in mobile app, update <code>template.name</code> to match exactly.</td>
+            </tr>
+            <tr>
+                <td style="padding:10px;"><strong>"Asset not found" when printing</strong></td>
+                <td style="padding:10px;">Asset record ID doesn't exist for that company</td>
+                <td style="padding:10px;"><code>SELECT * FROM asset WHERE id = @recordId</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>"Topic Subscription Rejected NOT RECOGNIZED"</strong></td>
+                <td style="padding:10px;">Print client username exists in <code>mqttclient</code> table  broker treats it as generic MQTT client instead of print client</td>
+                <td style="padding:10px;"><code>DELETE FROM mqttclient WHERE username = 'MasterPrint'</code> then <code>iisreset</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>"Print Client not currently connected"</strong></td>
+                <td style="padding:10px;">MQTT credentials mismatch between config files and database, or <code>UseForPrinting</code> is <code>false</code></td>
+                <td style="padding:10px;">Use Print Admin  Config Files & Credential Sync panel. Click Auto-Fix. Restart IIS and Print Server service.</td>
+            </tr>
+            <tr>
+                <td style="padding:10px;"><strong>Password mismatch (case-sensitive)</strong></td>
+                <td style="padding:10px;">MQTT passwords are case-sensitive. <code>V5MqttPrint2026!</code>  <code>V5Mqttprint2026!</code></td>
+                <td style="padding:10px;">Use the Config Sync panel to verify all three stores match exactly.</td>
+            </tr>
+        </table>
+
+        <!--  -->
+        <!-- NEW MACHINE SETUP CHECKLIST                 -->
+        <!--  -->
+        <h2 id="new-machine" style="margin-top:40px; padding-top:20px; border-top:2px solid #f59e0b;">New Machine Setup Checklist</h2>
+        <p>Complete checklist for setting up printing on a new iDash server. Follow these steps in order.</p>
+
+        <div style="background:color-mix(in srgb, #f59e0b, transparent 90%); border:1px solid #f59e0b; border-radius:10px; padding:16px; margin:16px 0;">
+            <strong style="color:#f59e0b;"> Key Lesson Learned</strong>
+            <p style="margin:6px 0 0; font-size:13px;">The <code>printclient</code> and <code>mqttclient</code> database tables serve different purposes. Print client usernames must ONLY exist in <code>printclient</code>, never in <code>mqttclient</code>. If a print client username also exists in <code>mqttclient</code>, the MQTT broker treats it as a generic MQTT client and rejects the <code>awrx/print/</code> subscription.</p>
+        </div>
+
+        <h3>Prerequisites</h3>
+        <ol style="font-size:14px; line-height:2;">
+            <li>iDash Web Portal installed and IIS configured</li>
+            <li>BarTender installed (64-bit edition) with Integration &amp; Licensing Services running</li>
+            <li>iDash Print Server service installed (<code>C:\Program Files (x86)\InfinID Technologies\iDash Print Server\</code>)</li>
+            <li>SQL Server Express with <code>iDash</code> database</li>
+        </ol>
+
+        <div style="background:color-mix(in srgb, #f59e0b, transparent 90%); border:1px solid #f59e0b; border-radius:10px; padding:16px; margin:16px 0;">
+            <strong style="color:#f59e0b;">&#9888;&#65039; Critical Prerequisite: Install Order &amp; System Reboot</strong>
+            <p style="margin:6px 0 0; font-size:13px; line-height:1.6;">
+                The BarTender SDK DLLs (including <code>Seagull.BarTender.Print.dll</code> and <code>Seagull.Interop.dll</code>) required for printing from iDash will <strong>not</strong> be present or functional until:
+            </p>
+            <ol style="margin:6px 0 0; padding-left:20px; font-size:13px; line-height:1.6;">
+                <li><strong>BarTender is installed</strong> (64-bit edition).</li>
+                <li><strong>iDash Print Server is installed</strong> (copies the Seagull assemblies into the Print Server directory).</li>
+                <li><strong>The server is rebooted</strong> to initialize BarTender system services, register native COM objects, and update the system environment PATH. Attempting to print prior to a reboot will fail with <em>Could not load file or assembly 'Seagull.Interop.dll'</em>.</li>
+            </ol>
+        </div>
+
+        <h3>Step-by-Step Setup</h3>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px; width:40px; color:var(--muted-docs);">#</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Step</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Details</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px; font-weight:700;">1</td>
+                <td style="padding:10px;"><strong>Create Print Client</strong></td>
+                <td style="padding:10px;">Print Admin  Print Clients tab  Add Print Client. Enter name, MQTT username (e.g. <code>MasterPrint</code>), password, machine name, and assign sites. This creates a row in the <code>printclient</code> table.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px; font-weight:700;">2</td>
+                <td style="padding:10px;"><strong>Verify <code>mqttclient</code> table</strong></td>
+                <td style="padding:10px;">Ensure the print client username does NOT exist in the <code>mqttclient</code> table. If it does, delete it:<br><code>DELETE FROM mqttclient WHERE username = 'MasterPrint'</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px; font-weight:700;">3</td>
+                <td style="padding:10px;"><strong>Configure WebClient <code>appsettings.json</code></strong></td>
+                <td style="padding:10px;">At <code>c:\inetpub\wwwroot\iDash.WebClient\appsettings.json</code>:<br>
+                     Set <code>UseForPrinting</code> = <code>true</code><br>
+                     Set <code>PrintClientUsername</code> and <code>PrintClientPassword</code> to match step 1<br>
+                     Verify <code>MqttServer</code> = <code>localhost</code> and <code>MqttServerPort</code> = <code>8883</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px; font-weight:700;">4</td>
+                <td style="padding:10px;"><strong>Configure Print Server <code>appsettings.json</code></strong></td>
+                <td style="padding:10px;">At <code>C:\Program Files (x86)\InfinID Technologies\iDash Print Server\appsettings.json</code>:<br>
+                     Set <code>PrintClientUsername</code> and <code>PrintClientPassword</code> to match step 1<br>
+                     Set <code>UseForPrinting</code> = <code>true</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px; font-weight:700;">5</td>
+                <td style="padding:10px;"><strong>Create Templates</strong></td>
+                <td style="padding:10px;">Print Admin  Templates tab  Add Template. Map BarTender <code>.btw</code> files to sites and the print client.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px; font-weight:700;">6</td>
+                <td style="padding:10px;"><strong>Check Config Sync</strong></td>
+                <td style="padding:10px;">Print Admin  Site Overview tab  <strong>Config Files & Credential Sync</strong> panel. All rows should show  Match. If issues exist, click <strong>Auto-Fix Config Issues</strong>.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px; font-weight:700;">7</td>
+                <td style="padding:10px;"><strong>Restart Services</strong></td>
+                <td style="padding:10px;">Run <code>iisreset</code> to restart the MQTT broker. Restart the iDash Print Server service via Services.msc.</td>
+            </tr>
+            <tr>
+                <td style="padding:10px; font-weight:700;">8</td>
+                <td style="padding:10px;"><strong>Verify</strong></td>
+                <td style="padding:10px;">Print Admin  Status & Logs tab. Print Server should show  Running, MQTT should show  Connected, and the print client should appear with a recent "Last Seen" timestamp.</td>
+            </tr>
+        </table>
+
+        <h3>Three Credential Stores (Must All Match)</h3>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Location</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">File / Table</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Used By</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">WebClient <code>appsettings.json</code></td>
+                <td style="padding:10px;"><code>c:\inetpub\wwwroot\iDash.WebClient\appsettings.json</code></td>
+                <td style="padding:10px;">MQTT broker (validates connections) + iDash MQTT notifier (publishes jobs)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">Print Server <code>appsettings.json</code></td>
+                <td style="padding:10px;"><code>C:\Program Files (x86)\...\iDash Print Server\appsettings.json</code></td>
+                <td style="padding:10px;">Print Server service (connects as MQTT subscriber)</td>
+            </tr>
+            <tr>
+                <td style="padding:10px;">DB <code>printclient</code> table</td>
+                <td style="padding:10px;">SQL: <code>SELECT username, password FROM printclient</code></td>
+                <td style="padding:10px;">MQTT broker validates incoming connections against this table</td>
+            </tr>
+        </table>
+
+        <!--  -->
+        <!-- 14. SETUP WIZARD                             -->
+        <!--  -->
+        <h2 id="wizard" style="margin-top:40px; padding-top:20px; border-top:2px solid #3b82f6;">14. Setup Wizard</h2>
+
+        <div style="background:color-mix(in srgb, #3b82f6, transparent 90%); border:1px solid #3b82f6; border-radius:10px; padding:16px; margin:16px 0;">
+            <strong style="color:#3b82f6;">&#128640; Recommended for New Deployments</strong>
+            <p style="margin:6px 0 0; font-size:13px;">The Setup Wizard is the fastest way to configure printing on a new server. It replaces the manual steps described in sections 3, 6, 11, and 12 of this document with a single guided form that auto-configures everything.</p>
+        </div>
+
+        <h3>What Is the Setup Wizard?</h3>
+        <p>The <strong>Setup Wizard</strong> is a tab on the <a href="../va_print_admin.aspx" style="color:var(--accent);">Print Admin page</a> that consolidates all MQTT/printing configuration into a guided, 3-phase experience. Instead of manually editing <code>appsettings.json</code> files, running SQL, and restarting services separately, the wizard handles it all from one form.</p>
+
+        <p><strong>When to use it:</strong></p>
+        <ul>
+            <li>Setting up printing on a <strong>brand new server</strong></li>
+            <li>Adding a <strong>new site</strong> to an existing server</li>
+            <li>Fixing <strong>credential sync issues</strong> after a config change</li>
+            <li>Re-running setup after a <strong>database restore</strong></li>
+        </ul>
+
+        <h3>How to Access</h3>
+        <p>Navigate to <strong>Print Admin</strong>  click the <strong>&#128640; Setup Wizard</strong> tab.</p>
+
+        <!-- Phase 1 -->
+        <h3>Phase 1: Configuration Form</h3>
+        <p>The wizard auto-detects your current configuration and pre-fills all fields. Review and adjust as needed before running.</p>
+
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Field</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Auto-Detected From</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Purpose</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>MQTT Server</strong></td>
+                <td style="padding:10px;"><code>appsettings.json  ConfigSettings  MqttServer</code></td>
+                <td style="padding:10px;">Hostname of the MQTT broker (usually <code>localhost</code>)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>Port</strong></td>
+                <td style="padding:10px;"><code>appsettings.json  ConfigSettings  MqttServerPort</code></td>
+                <td style="padding:10px;">MQTT port (<code>8883</code> for TLS, <code>1883</code> for unencrypted)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>PFX Certificate Path</strong></td>
+                <td style="padding:10px;"><code>appsettings.json  ConfigSettings  AuthServerPfxPath</code></td>
+                <td style="padding:10px;">TLS certificate for MQTT encryption (read-only display)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>Display Name</strong></td>
+                <td style="padding:10px;"><code>printclient.name</code> (DB)</td>
+                <td style="padding:10px;">Friendly name shown in the UI (e.g., "Master Print Server")</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>MQTT Username</strong></td>
+                <td style="padding:10px;"><code>printclient.username</code> (DB) or <code>PrintClientUsername</code> (config)</td>
+                <td style="padding:10px;">MQTT authentication username for the print client</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>MQTT Password</strong></td>
+                <td style="padding:10px;"><code>printclient.password</code> (DB) or <code>PrintClientPassword</code> (config)</td>
+                <td style="padding:10px;">MQTT authentication password (shown in plain text for verification)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>BarTender File Path</strong></td>
+                <td style="padding:10px;">Default: <code>C:\idash_prints\AW_Std_Small.btw</code></td>
+                <td style="padding:10px;">Path to the BarTender label template file on the print server</td>
+            </tr>
+            <tr>
+                <td style="padding:10px;"><strong>Sites to Configure</strong></td>
+                <td style="padding:10px;"><code>company</code> table (DB)</td>
+                <td style="padding:10px;">Checkboxes for each site. Sites with existing templates/API keys show green badges.</td>
+            </tr>
+        </table>
+
+        <p><strong>Config Files Detected</strong>  The right column shows the existence and status of both <code>appsettings.json</code> files and the current <code>UseForPrinting</code> setting.</p>
+
+        <!-- Phase 2 -->
+        <h3>Phase 2: Execution (8 Steps)</h3>
+        <p>After clicking <strong> Run Setup</strong>, the wizard executes 8 sequential steps. Each step shows a status icon ( pass,  warning,  failure) with a detailed explanation of what changed.</p>
+
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px; color:var(--muted-docs); width:40px;">Step</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Action</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">What It Does</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">1</td>
+                <td style="padding:10px;"><strong>Read WebClient appsettings.json</strong></td>
+                <td style="padding:10px;">Reads the current config and reports what it found (server, port, username, UseForPrinting status)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">2</td>
+                <td style="padding:10px;"><strong>Set UseForPrinting = true</strong></td>
+                <td style="padding:10px;">Enables printing in the WebClient config. Reports oldnew value.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">3</td>
+                <td style="padding:10px;"><strong>Sync credentials to WebClient config</strong></td>
+                <td style="padding:10px;">Writes <code>PrintClientUsername</code>, <code>PrintClientPassword</code>, <code>MqttServer</code>, <code>MqttServerPort</code> to the WebClient <code>appsettings.json</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">4</td>
+                <td style="padding:10px;"><strong>Sync credentials to Print Server config</strong></td>
+                <td style="padding:10px;">Same as Step 3 but for the Print Server's <code>appsettings.json</code>. Shows  if file not found (Print Server not on this machine).</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">5</td>
+                <td style="padding:10px;"><strong>Upsert printclient record</strong></td>
+                <td style="padding:10px;">Creates or updates the print client record in <code>dbo.printclient</code> with the entered username/password/name</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">6</td>
+                <td style="padding:10px;"><strong>Remove mqttclient conflicts</strong></td>
+                <td style="padding:10px;">Deletes any rows in <code>dbo.mqttclient</code> matching the print client username. These cause the MQTT broker to reject print subscriptions.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">7</td>
+                <td style="padding:10px;"><strong>Create templates for sites</strong></td>
+                <td style="padding:10px;">For each selected site: inserts a template row in <code>dbo.template</code> and creates the <code>printclientcompany</code> mapping. Skips sites that already have templates.</td>
+            </tr>
+            <tr>
+                <td style="padding:10px;">8</td>
+                <td style="padding:10px;"><strong>Create clientapp API keys</strong></td>
+                <td style="padding:10px;">For each selected site: creates an <code>idash_SiteName</code> API client in <code>dbo.clientapp</code>. Skips sites that already have API keys.</td>
+            </tr>
+        </table>
+
+        <!-- Phase 3 -->
+        <h3>Phase 3: Summary &amp; Restart</h3>
+        <p>After all steps complete, the wizard shows:</p>
+        <ul>
+            <li><strong>Results table</strong>  Every step with its status, details, and file paths modified</li>
+            <li><strong>Restart IIS Now button</strong>  Triggers <code>iisreset /restart</code> from the web page. Shows a full-screen "Restarting..." overlay and auto-reloads the page after 12 seconds.</li>
+            <li><strong>Action buttons</strong>  "View Status & Logs" (switches to Status tab) and "Run Wizard Again" (returns to the form with refreshed defaults)</li>
+        </ul>
+
+        <div style="background:color-mix(in srgb, #f59e0b, transparent 90%); border:1px solid #f59e0b; border-radius:10px; padding:16px; margin:16px 0;">
+            <strong style="color:#f59e0b;"> IIS Restart Behavior</strong>
+            <p style="margin:6px 0 0; font-size:13px;">Clicking "Restart IIS Now" will terminate all active user sessions. The page auto-reloads after ~12 seconds. If the page does not reload, IIS may need to be restarted manually via <code>iisreset</code> from an elevated command prompt. Users can also choose to restart manually instead of using the button.</p>
+        </div>
+
+        <!-- Developer Reference -->
+        <h3>Developer Reference</h3>
+        <p>The wizard is implemented entirely in two files:</p>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">File</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">What It Contains</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><code>va_print_admin.aspx</code></td>
+                <td style="padding:10px;">HTML for the 3-phase wizard UI (<code>#tab-wizard</code>, <code>#wizPhase1/2/3</code>) + JavaScript functions (<code>loadWizardDefaults()</code>, <code>runWizard()</code>, <code>animateStep()</code>, <code>showWizardSummary()</code>, <code>doRestartIIS()</code>)</td>
+            </tr>
+            <tr>
+                <td style="padding:10px;"><code>va_print_admin.aspx.cs</code></td>
+                <td style="padding:10px;">Three API handlers: <code>GetWizardDefaults()</code> (auto-detect), <code>RunSetupWizard()</code> (8-step execution), <code>RestartIIS()</code> (fires <code>iisreset</code>). Helper: <code>MakeStep()</code> builds step result dictionaries.</td>
+            </tr>
+        </table>
+
+        <p><strong>API Endpoints:</strong></p>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Endpoint</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Method</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Description</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><code>?action=api&amp;cmd=getWizardDefaults</code></td>
+                <td style="padding:10px;">GET</td>
+                <td style="padding:10px;">Returns auto-detected settings from config files + DB for form pre-fill. Includes site list with <code>hasTemplate</code>/<code>hasClientApp</code> flags.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><code>?action=api&amp;cmd=runWizard</code></td>
+                <td style="padding:10px;">POST</td>
+                <td style="padding:10px;">Accepts form data as JSON body (<code>mqttServer, mqttPort, username, password, clientName, btwPath, siteIds[]</code>). Executes all 8 steps. Returns <code>{ success, steps[], summary{total,passed,warned,failed} }</code></td>
+            </tr>
+            <tr>
+                <td style="padding:10px;"><code>?action=api&amp;cmd=restartIIS</code></td>
+                <td style="padding:10px;">GET</td>
+                <td style="padding:10px;">Fires <code>iisreset /restart</code> via <code>Process.Start()</code>. Fire-and-forget; the response may not arrive since IIS shuts down.</td>
+            </tr>
+        </table>
+
+        <p><strong>Key Design Decisions:</strong></p>
+        <ul>
+            <li>The wizard <strong>does not auto-restart IIS</strong>  it always requires user confirmation via a button click</li>
+            <li>Steps that produce <strong>warnings</strong> (e.g., Print Server config not found) do not block execution  they are expected on servers without the Print Server installed locally</li>
+            <li>The wizard is <strong>idempotent</strong>  running it multiple times is safe; existing templates/API keys are skipped, credentials are updated to the new values</li>
+            <li>Database credentials in the <code>printclient</code> table are the <strong>source of truth</strong> for the auto-fill. Config files are secondary sources.</li>
+        </ul>
+
+        <div style="margin-top:30px; padding-top:20px; border-top:1px solid var(--line); font-size:12px; color:var(--muted-docs);">
+            <em>Last updated: August 2026 &bull; Print Administration v1.1 &bull; Consolidates: Print Server Setup, Printing Decision Guide, Direct MQTT Label Printing &bull; Added: Setup Wizard (Section 14)</em>
+        </div>
+    </div>
+</body>
+</html>

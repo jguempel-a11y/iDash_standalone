@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Accessing iDash &mdash; VA Asset Intelligence Hub</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <style>
+        .step-card { background: color-mix(in srgb, var(--text,#e2e8f0), transparent 97%); border: 1px solid var(--line,#2a3441); border-radius: 14px; padding: 28px; margin-bottom: 28px; }
+        .step-title { font-size: 19px; font-weight: 700; display: flex; align-items: center; margin-bottom: 10px; }
+        .step-num { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: var(--accent,#3b82f6); color: #fff; font-weight: 800; font-size: 15px; margin-right: 12px; flex-shrink: 0; }
+        .step-desc { color: var(--muted-docs,#8b95a5); font-size: 14px; line-height: 1.75; margin-bottom: 12px; }
+        .tip-box { background: color-mix(in srgb,#10b981,transparent 88%); border: 1px solid rgba(16,185,129,.3); border-left: 4px solid #10b981; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #10b981; }
+        .warn-box { background: color-mix(in srgb,#f59e0b,transparent 88%); border: 1px solid rgba(245,158,11,.3); border-left: 4px solid #f59e0b; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #f59e0b; }
+        .info-box { background: color-mix(in srgb,#3b82f6,transparent 88%); border: 1px solid rgba(59,130,246,.3); border-left: 4px solid #3b82f6; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #3b82f6; }
+        .section-divider { border: none; border-top: 2px solid var(--line,#2a3441); margin: 36px 0; }
+        .phase-header { font-size: 17px; font-weight: 800; margin: 28px 0 10px; padding: 10px 16px; border-radius: 10px; display: flex; align-items: center; gap: 10px; }
+        .ph-blue  { background: color-mix(in srgb,#3b82f6,transparent 88%); border: 1px solid rgba(59,130,246,.3); color: #3b82f6; }
+        .ph-green { background: color-mix(in srgb,#10b981,transparent 88%); border: 1px solid rgba(16,185,129,.3); color: #10b981; }
+        .ph-amber { background: color-mix(in srgb,#f59e0b,transparent 88%); border: 1px solid rgba(245,158,11,.3); color: #f59e0b; }
+        .ss { display: block; width: 100%; max-width: 920px; border-radius: 10px; border: 1px solid var(--line,#2a3441); box-shadow: 0 4px 20px rgba(0,0,0,.14); margin: 14px 0; }
+        .ss-cap { font-size: .77rem; color: var(--muted-docs,#8b95a5); margin: -6px 0 14px; font-style: italic; }
+        .callout-cred { background: color-mix(in srgb,#3b82f6,transparent 90%); border: 1px solid rgba(59,130,246,.35); border-left: 5px solid #3b82f6; border-radius: 10px; padding: 18px 22px; margin: 20px 0; }
+        .callout-cred table { width: auto; margin: 8px 0 0; border-collapse: collapse; }
+        .callout-cred td { padding: 5px 18px 5px 0; font-size: 14px; }
+        .callout-cred td:first-child { font-weight: 700; color: var(--muted-docs); width: 120px; }
+        .callout-cred code { font-size: 16px; font-weight: 800; color: #3b82f6; background: color-mix(in srgb,#3b82f6,transparent 85%); padding: 2px 10px; border-radius: 6px; }
+        .tile-ref { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; border: 1px solid; margin: 2px; }
+        .tile-blue   { background: color-mix(in srgb,#3b82f6,transparent 85%); border-color: #3b82f6; color: #3b82f6; }
+        .tile-green  { background: color-mix(in srgb,#10b981,transparent 85%); border-color: #10b981; color: #10b981; }
+        .tile-purple { background: color-mix(in srgb,#8B5CF6,transparent 85%); border-color: #8B5CF6; color: #8B5CF6; }
+        .tile-amber  { background: color-mix(in srgb,#f59e0b,transparent 85%); border-color: #f59e0b; color: #f59e0b; }
+        .tile-pink   { background: color-mix(in srgb,#ec4899,transparent 85%); border-color: #ec4899; color: #ec4899; }
+        .tile-cyan   { background: color-mix(in srgb,#06b6d4,transparent 85%); border-color: #06b6d4; color: #06b6d4; }
+    </style>
+</head>
+<body>
+<a href="index.aspx" class="back-link">&larr; Documentation Hub</a>
+<div class="doc-container">
+
+    <h1>&#128274; Accessing iDash &mdash; VA Asset Intelligence Hub</h1>
+    <p class="doc-subtitle">How to sign in to iDash, navigate the hub, and understand what each section contains.</p>
+
+    <div class="callout callout-info">
+        <strong>What is iDash?</strong> iDash is the <strong>VA Asset Intelligence Hub</strong> &mdash; a web-based portal for tracking, reporting, and managing RFID-tagged VA equipment. It provides access to asset reports, ENNX export tools, scanning dashboards, guides, and administrative tools from any network-connected computer.
+    </div>
+
+    <!-- ════ STEP 1: SIGN IN ════ -->
+    <div class="phase-header ph-blue">&#128274; Step 1: Sign In</div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">1</span> Open the iDash URL</div>
+        <div class="step-desc">
+            Open any web browser and navigate to the iDash URL provided by your site coordinator.<br />
+            The sign-in page will load showing the <strong>VA Asset Intelligence Hub</strong> sign-in card with a <strong>Username</strong> and <strong>Password</strong> field and a <strong>Sign In</strong> button.
+        </div>
+        <img class="ss" src="img/access/login_idash.png" alt="VA Asset Intelligence Hub sign-in page with 613 in Username field and password filled" />
+        <p class="ss-cap">The iDash sign-in page &mdash; enter your site number as the username and your assigned password, then click <strong>Sign In</strong>.</p>
+        <div class="callout-cred">
+            <strong>&#128273; Sign-In Credentials &mdash; Site 613 Martinsburg Example</strong>
+            <table>
+                <tr><td>Username</td><td><code>613</code> &nbsp;&mdash;&nbsp; your VA site number</td></tr>
+                <tr><td>Password</td><td><code>6131234</code> &nbsp;&mdash;&nbsp; provided by your site administrator</td></tr>
+            </table>
+        </div>
+        <div class="info-box">
+            <strong>&#9432; Your credentials</strong> are specific to your site. The username is always your <strong>site number</strong> (e.g., 512, 613, 668). Your site administrator will provide your password. If you do not know your credentials, contact your iDash site administrator.
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">2</span> Click Login</div>
+        <div class="step-desc">
+            After entering your username and password, click the <strong>Login</strong> button. You will be redirected to the <strong>VA Asset Intelligence Hub</strong> home page.
+        </div>
+        <div class="tip-box">
+            <strong>&#128161; Tip:</strong> If you see an error after clicking Login, verify that your username contains no spaces and matches your site number exactly. Passwords are case-sensitive.
+        </div>
+    </div>
+
+    <!-- ════ STEP 2: HUB HOME ════ -->
+    <hr class="section-divider" />
+    <div class="phase-header ph-green">&#127968; Step 2: The VA Asset Intelligence Hub</div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">3</span> The Hub Home Page</div>
+        <div class="step-desc">
+            After login you arrive at the <strong>VA Asset Intelligence Hub</strong>. The header confirms your login with <em>&ldquo;Signed in as 613&rdquo;</em> and shows the server connection status in the top right.
+        </div>
+        <img class="ss" src="img/access/hub_top.png" alt="VA Asset Intelligence Hub home page showing Signed in as 613, navigation tabs, welcome card, and section tiles" />
+        <p class="ss-cap">The Hub home page after signing in as site 613. Note the &ldquo;Signed in as 613&rdquo; confirmation in the top-left header.</p>
+
+        <div class="step-desc" style="margin-top:12px;">The header bar contains three important controls:</div>
+        <table class="doc-table">
+            <thead><tr><th style="width:28%">Header Control</th><th>What It Does</th></tr></thead>
+            <tbody>
+                <tr><td><strong>&#9733; Support Request</strong></td><td>Submit a support ticket or question directly from the hub.</td></tr>
+                <tr><td><strong>&#9728; Light / Dark</strong></td><td>Toggles the hub between light mode and dark mode. Your preference is saved per browser.</td></tr>
+                <tr><td><strong>Sign Out</strong></td><td>Logs you out and returns to the sign-in page. Always sign out on shared computers.</td></tr>
+            </tbody>
+        </table>
+
+        <div class="step-desc" style="margin-top:14px;">A <strong>Welcome card</strong> appears on first visit, summarising what the hub does:</div>
+        <ul style="color:var(--muted-docs);font-size:14px;line-height:2.1;">
+            <li><strong>Search Assets</strong> &mdash; find any asset or see where it was last scanned</li>
+            <li><strong>Reports</strong> &mdash; view inventory progress, tagging activity, and export data</li>
+            <li><strong>Guides &amp; Downloads</strong> &mdash; step-by-step procedures and approved software</li>
+            <li><strong>&#11088; Favorites</strong> &mdash; click the star on any tile to pin it for fast access</li>
+            <li>The <strong>&#128274; Admin Tools</strong> section requires a separate admin login &mdash; most users will not need it</li>
+        </ul>
+        <div class="tip-box">
+            Click <strong>&ldquo;Got it &mdash; don&rsquo;t show this again&rdquo;</strong> to dismiss the welcome card permanently on this browser.
+        </div>
+    </div>
+
+    <!-- ════ STEP 3: NAVIGATION ════ -->
+    <hr class="section-divider" />
+    <div class="phase-header ph-amber">&#128218; Step 3: Navigation &amp; Tiles</div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">4</span> Navigation Tabs</div>
+        <div class="step-desc">
+            Four quick-filter tabs at the top of the hub jump straight to each section:
+        </div>
+        <table class="doc-table">
+            <thead><tr><th style="width:30%">Tab</th><th>What It Shows</th></tr></thead>
+            <tbody>
+                <tr><td><strong>&#11088; Favorites</strong></td><td>Tiles you have starred for quick access. Star any tile to add it here.</td></tr>
+                <tr><td><strong>&#128218; Guides &amp; Downloads</strong></td><td>Step-by-step user guides, reference documents, approved software downloads, and file uploads.</td></tr>
+                <tr><td><strong>&#128241; Scanning &amp; Tools</strong></td><td>Live scanning dashboards, inventory tools, and print mapping utilities.</td></tr>
+                <tr><td><strong>&#128202; Reports</strong></td><td>Asset reports, ENNX export, and inventory data dashboards.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">5</span> Tile Sections &amp; What They Do</div>
+        <div class="step-desc">Scrolling down shows all available tiles grouped by section. Here is a reference for each tile:</div>
+        <img class="ss" src="img/access/hub_tiles.png" alt="Hub page scrolled to show Guides and Downloads, Reports, and Scanning and Tools sections with tile cards" />
+        <p class="ss-cap">The main tile sections &mdash; Guides &amp; Downloads, Reports, and Scanning &amp; Tools.</p>
+        <img class="ss" src="img/access/hub_lower.png" alt="Hub page lower section showing additional tiles" />
+        <p class="ss-cap">Additional tiles further down the hub.</p>
+
+        <table class="doc-table" style="margin-top:14px;">
+            <thead><tr><th style="width:15%">Section</th><th style="width:35%">Tile</th><th>What It Does</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td rowspan="1"><strong>Guides &amp; Downloads</strong></td>
+                    <td><span class="tile-blue">&#128218; iDash App Documentation</span></td>
+                    <td>Central registry and technical reference for all iDash modules, scan filters, procedures, and user guides. <em>This is where you are now.</em></td>
+                </tr>
+                <tr>
+                    <td rowspan="2"><strong>Reports</strong></td>
+                    <td><span class="tile-green">&#128203; Asset Master &mdash; Unified Portal</span></td>
+                    <td>One-stop asset reporting: search with 7+ filters, view KPI dashboard, export CSV/Excel, and open the Asset Detail Panel for location history, checkout history, and maintenance records.</td>
+                </tr>
+                <tr>
+                    <td><span class="tile-pink">&#128228; ENNX Export &amp; History</span></td>
+                    <td>Generate ENNX inventory export files for AEMS/MERS submission. Review past scan sessions by user and date. Export or email results. See the <a href="va_guide_ennx_reporting.html">ENNX Guide</a> for full details.</td>
+                </tr>
+                <tr>
+                    <td><strong>Scanning &amp; Tools</strong></td>
+                    <td><span class="tile-amber">&#128218; Excel Equipment Import &amp; Print</span></td>
+                    <td>Load an equipment.xlsx file, preview rows, select assets, and import or print labels via MQTT/BarTender integration.</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="info-box">
+            <strong>&#128274; Admin &amp; Database Tools</strong> is a restricted section visible to administrators only. It is collapsed and requires a separate admin login. Standard site users will not see or need this section.
+        </div>
+    </div>
+
+    <!-- ════ STEP 4: SIGN OUT ════ -->
+    <hr class="section-divider" />
+    <div class="phase-header ph-blue">&#128682; Step 4: Signing Out</div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">6</span> Always Sign Out on Shared Computers</div>
+        <div class="step-desc">
+            Click <strong>Sign Out</strong> in the top-right corner of the hub when you are finished. This ends your session and returns to the login screen.
+        </div>
+        <div class="warn-box">
+            <strong>&#9888; Shared computers:</strong> iDash sessions stay active in the browser until you sign out or the session expires. On a shared or public workstation, always click <strong>Sign Out</strong> before stepping away. Do not simply close the browser tab.
+        </div>
+        <div class="tip-box">
+            <strong>&#128161; Bookmark tip:</strong> Once signed in, bookmark the hub URL (<code>/iDash/documentation/index.aspx</code>) for quick future access &mdash; the hub will remember your session and skip the login screen until it expires.
+        </div>
+    </div>
+
+    <!-- ════ TROUBLESHOOTING ════ -->
+    <h2><span class="section-num">&#128295;</span> Troubleshooting Sign-In Issues</h2>
+    <table class="doc-table">
+        <thead><tr><th style="width:38%">Issue</th><th>Solution</th></tr></thead>
+        <tbody>
+            <tr><td>Login button does nothing or page reloads blank</td><td>Verify your username (site number only, no spaces) and password are correct. Try a different browser.</td></tr>
+            <tr><td>&ldquo;Invalid username or password&rdquo; error</td><td>Check for extra spaces before or after your username. Passwords are case-sensitive. Contact your site administrator if correct credentials still fail.</td></tr>
+            <tr><td>Page times out or shows a server error</td><td>Verify you are connected to the VA network or MiFi. The iDash server must be reachable from your workstation.</td></tr>
+            <tr><td>Hub shows no tiles after login</td><td>Try refreshing the page (F5). If tiles remain missing, your account may not have the correct site assignment &mdash; contact your administrator.</td></tr>
+            <tr><td>Session expired / redirected back to login</td><td>Sessions expire after a period of inactivity. Simply log in again &mdash; your work is not lost.</td></tr>
+        </tbody>
+    </table>
+
+</div>
+</body>
+</html>

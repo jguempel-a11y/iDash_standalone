@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>ENNXHISTORY &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <div class="container">
+        <h1>VA iDash ENNX History</h1>
+        <div style="margin-bottom: 30px; display: flex; align-items: center;">
+            <div style="margin-right: 15px; color:var(--muted-docs); font-size: 14px;">Integrations:</div>
+            <span class='badge badge-db'>Database Connected</span>
+            <span class='badge badge-new'>Updated 2026-04-13</span>
+        </div>
+
+        <h2>Module Purpose</h2>
+        <p>Provides administrators a historical view of all ENNX scan sessions grouped by <strong>Site &rarr; User &rarr; Date</strong>. Each row represents a unique scan session for a specific user on a specific day at a specific site. Clicking <em>Preview</em> on any row generates the full ENNX text file for that session and displays the asset grid, allowing download or email directly from history.</p>
+
+        <h2>Filter Controls</h2>
+        <table>
+            <tr><th>Control</th><th>Behavior</th></tr>
+            <tr><td><code>Site</code> dropdown</td><td>Filters the session list to a specific VA station. Only sites that have actual inventory activity (lastinventoried IS NOT NULL, lastmodifiedby IS NOT NULL) appear. Changing the site also refreshes the User dropdown.</td></tr>
+            <tr><td><code>Filter by User</code> dropdown</td><td>Narrows the session list to a single technician. Populates dynamically from the current data (respects the Hide Empty Users checkbox).</td></tr>
+            <tr><td><code>From / To</code> date range</td><td>Restricts sessions to those within the specified date window. Both fields trigger an immediate postback on change.</td></tr>
+            <tr><td><code>Hide rows with no user</code></td><td>Excludes sessions where <code>lastmodifiedby</code> is NULL or blank. Checked by default.</td></tr>
+        </table>
+
+        <h2>Session Grid &mdash; Site &rarr; User &rarr; Date Hierarchy</h2>
+        <p>As of <strong>2026-04-13</strong>, the session grid displays four columns: <strong>Site</strong>, <strong>User</strong>, <strong>Date</strong>, and <strong>Assets</strong>. Rows are sorted alphabetically by site, then by user, then newest-date-first within each user. This allows leadership to immediately identify which technicians scanned at which locations on any given day.</p>
+        <p>Clicking <strong>Preview</strong> opens the ENNX text file and asset detail grid for that exact Site + User + Date combination. The preview header reads: <code>Site &mdash; User &mdash; Date (N assets)</code>.</p>
+
+        <h2>Preview &amp; Export Actions</h2>
+        <ul>
+            <li><div style="color:#2ea8ff;font-weight:bold;">Download ENNX</div>Downloads the ENNX text file for the currently previewed session.</li>
+            <li><div style="color:#2ea8ff;font-weight:bold;">Email ENNX</div>Sends the ENNX text of the previewed session to all configured recipients.</li>
+            <li><div style="color:#2ea8ff;font-weight:bold;">Export ENNX to CSV</div>Exports the asset detail grid of the previewed session as a CSV file.</li>
+            <li><div style="color:#2ea8ff;font-weight:bold;">Batch Email Everything</div>Emails all displayed sessions in bulk to configured recipients.</li>
+        </ul>
+
+        <h2>Technical Operation</h2>
+        <p>All logic is self-contained in <code>ennxhistory.aspx</code> as inline server code (no separate code-behind). The core data source is <code>dbo.v_asset</code> joined to <code>dbo.location</code> and <code>dbo.company</code>. The <code>GetSqlData()</code> method returns all matching rows and the in-memory LINQ grouping in <code>LoadSessions()</code> builds the Site &rarr; User &rarr; Date summary. Site filtering hits the DB directly via <code>companyid = @SiteId</code> parameter.</p>
+
+        <h2>Source Architecture</h2>
+        <p>
+            Frontend &amp; Inline Server Code: <code>ennxhistory.aspx</code><br/>
+            (No separate code-behind &mdash; all C# is embedded as a <code>&lt;script runat="server"&gt;</code> block)
+        </p>
+
+        <h2>Change Log</h2>
+        <div class="changelog">
+            <div class="changelog-date">2026-04-13</div>
+            <ul style="display:block; padding-left:18px; list-style:disc;">
+                <li style="background:none; border:none; padding:4px 0; transform:none;">Added <strong>Site</strong> dropdown filter &mdash; populated from <code>dbo.company</code>, only sites with activity appear.</li>
+                <li style="background:none; border:none; padding:4px 0; transform:none;">Session grid now shows <strong>Site</strong> as the first column; sorted Site &rarr; User &rarr; Date (descending).</li>
+                <li style="background:none; border:none; padding:4px 0; transform:none;">Changing the Site dropdown refreshes the User dropdown to only show users affiliated with that site.</li>
+                <li style="background:none; border:none; padding:4px 0; transform:none;"><code>LoadPreview()</code> now filters by Site + User + Date to ensure correct session isolation across sites.</li>
+                <li style="background:none; border:none; padding:4px 0; transform:none;">Preview header updated to <code>Site &mdash; User &mdash; Date (N assets)</code> format.</li>
+                <li style="background:none; border:none; padding:4px 0; transform:none;"><code>GetSqlData()</code> now joins <code>dbo.company</code> and applies <code>companyid</code> filter at the database level.</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 50px; padding-top: 20px; border-top:1px solid var(--line);">
+            <a href="index.aspx" style="font-weight: 600;">&larr; Back to Main Documentation</a>
+        </div>
+    </div>
+    <footer style="margin-top: 40px; padding: 20px; border-top:1px solid var(--line); font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 12px; color:var(--muted-docs); display: flex; justify-content: space-between; align-items: center; background:var(--bg); max-width: 1400px; margin-left: auto; margin-right: auto;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
+        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
+        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <span>&copy; 2026 ID Integration Inc.</span>
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 14px; opacity: 0.9;">
+    </div>
+</footer>
+</body>
+</html>
+

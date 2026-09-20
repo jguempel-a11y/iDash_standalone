@@ -1,0 +1,515 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA DBUPDATE &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<div class="wrap">
+
+    <a href="index.aspx">&larr; Back to Documentation Hub</a>
+    <br/><br/>
+
+    <div class="card">
+        <h1>&#9881;&#65039; Database Update Workflows</h1>
+        <p style="font-size:16px;">
+            The iDash Database Update module enables administrators to bulk-import asset data into the iDash database
+            via dynamically executed SQL scripts.
+        </p>
+        <p>
+            This document outlines the difference between the <strong>Standard DB Update</strong> script and the <strong>Enrichment</strong> script,
+            as well as how the manual and automated processes function &mdash; and explains why these scripts require
+            <strong>zero per-site modification</strong> when deployed to any VA VISN around the country.
+        </p>
+    </div>
+
+    <!-- &&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;- -->
+    <div class="card" style="border-color: #10b981;">
+        <h2 style="color:#10b981;">&#127758; VISN-Agnostic Design &mdash; Works on Any VA Site Without Modification</h2>
+        <p>
+            A common point of confusion is whether these scripts need to be edited for each VA site. <strong>They do not.</strong>
+            The scripts were deliberately engineered to be fully site-agnostic from the ground up.
+            Every site-specific value &mdash; station number, company ID, asset prefix, EPC tag &mdash;
+            is derived <em>dynamically at runtime</em> from the data file the VA sends. No hardcoded values need to change.
+        </p>
+        <div class="alert-green">
+            <strong>&#9989; Zero-Touch Deployment</strong><br/>
+            Copy the iDash folder to any VA VISN server. Run the one-time site setup SQL below.
+            All subsequent imports, enrichments, and CMR recoveries work automatically for that site's station number.
+        </div>
+
+        <h3>How Site Identity is Determined at Runtime</h3>
+        <table>
+            <tr>
+                <th>What is needed</th>
+                <th>Where it comes from</th>
+                <th>Hardcoded?</th>
+            </tr>
+            <tr>
+                <td><strong>Station Number (e.g. 649)</strong></td>
+                <td>Read directly from the <code>[STATION NUMBER]</code> column in the VA data file</td>
+                <td><span class="badge-green">&#10003; Dynamic</span></td>
+            </tr>
+            <tr>
+                <td><strong>Asset name prefix (e.g. "649 EE10109")</strong></td>
+                <td>Constructed at import time from <code>text7</code> (station number) + <code>EE</code> + entry number</td>
+                <td><span class="badge-green">&#10003; Dynamic</span></td>
+            </tr>
+            <tr>
+                <td><strong>RFID / EPC tag</strong></td>
+                <td>Computed from the cleaned asset name using station number as prefix</td>
+                <td><span class="badge-green">&#10003; Dynamic</span></td>
+            </tr>
+            <tr>
+                <td><strong>Company ID mapping</strong></td>
+                <td>Matched by <code>SUBSTRING(company.name,1,3) = SUBSTRING(text7,1,3)</code> &mdash; first 3 digits of station number</td>
+                <td><span class="badge-green">&#10003; Dynamic</span></td>
+            </tr>
+            <tr>
+                <td><strong>Company row creation</strong></td>
+                <td>Auto-seeded from station number in file if no matching company exists yet</td>
+                <td><span class="badge-green">&#10003; Dynamic</span></td>
+            </tr>
+            <tr>
+                <td><strong>Location names (SP prefix)</strong></td>
+                <td>Normalized from the <code>[LOCATION]</code> column in the file</td>
+                <td><span class="badge-green">&#10003; Dynamic</span></td>
+            </tr>
+            <tr>
+                <td><strong>Company display name</strong></td>
+                <td>One-time setup: run a single INSERT on first install (see below)</td>
+                <td><span class="badge-yellow">One-time only</span></td>
+            </tr>
+        </table>
+
+        <h3 style="margin-top:20px;">One-Time Site Setup SQL (Run Once Per Server at Install)</h3>
+        <p>
+            The only site-specific action required is creating the company record with a human-readable name.
+            This is a <em>one-time</em> step at initial deployment. All subsequent imports are fully automatic.
+        </p>
+        <pre>-- Run this ONE TIME when first deploying to a new site.
+-- Replace station number and site name with the actual values.
+-- Example for site 649, San Diego:
+
+USE [idash];
+
+IF NOT EXISTS (SELECT 1 FROM dbo.company WHERE SUBSTRING(name,1,3) = '649')
+    INSERT INTO dbo.company (name) VALUES ('649 San Diego');
+
+-- That's it. All imports will now automatically map to this company.</pre>
+        <div class="alert-blue">
+            <strong>&#8505; If you skip this step</strong><br/>
+            The scripts will still work &mdash; they auto-create a fallback company row named <code>"NNN Unknown"</code>
+            (e.g. <code>"649 Unknown"</code>) the first time a file is imported. You can rename it later in iDash.
+            No assets will be lost or skipped.
+        </div>
+
+        <h3>What Changed to Achieve This (April 2026)</h3>
+        <p>Two targeted changes were made to eliminate the last remaining hardcoded station lists:</p>
+        <ul>
+            <li>
+                <strong><code>va_dbupdate.sql</code> &mdash; Step 5.5 (Company Pre-seed):</strong>
+                Replaced a <code>CASE</code> statement naming known sites (512 Baltimore, 613 Martinsburg, etc.)
+                with a dynamic fallback that names any unknown station <code>"NNN Unknown"</code>.
+            </li>
+            <li>
+                <strong><code>va_dbupdate.sql</code> &mdash; Step 13 (Legacy Company Fix):</strong>
+                Replaced <code>a.text7 IN ('517','581','540','512','613','688')</code> with a dynamic
+                <code>SUBSTRING</code> join against <code>dbo.company</code> that matches any station number
+                present in the database.
+            </li>
+            <li>
+                <strong><code>va_dbupdate_upsert_enrich.sql</code> &mdash; Step 15 (Company Seed):</strong>
+                Removed a hardcoded <code>INSERT INTO dbo.company VALUES ('649')</code> and replaced it with
+                a dynamic INSERT that seeds a company row for any station number in the staged data that
+                doesn't already have a matching company.
+            </li>
+        </ul>
+    </div>
+
+    <!-- &&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;- -->
+    <div class="card">
+        <h2>1. Standard vs. Enrichment Data Imports &mdash; and When to Use Each</h2>
+        <p>
+            When performing an update, you upload a Tab-Delimited text file or an Excel (.xlsx) file, along with a <code>.sql</code> script.
+            The SQL script dictates exactly how that data is parsed and merged into the system. Two primary scripts are available,
+            and <strong>they are designed to be run together, in sequence, against the same data file</strong>.
+        </p>
+
+        <!-- &mdash;&mdash;&mdash;& TWO-PASS WORKFLOW &mdash;&mdash;&mdash;& -->
+        <div style="background:rgba(46,168,255,0.06); border:1px solid #2ea8ff; border-radius:10px; padding:20px; margin: 16px 0 22px 0;">
+            <h3 style="color:#2ea8ff; font-size:16px; margin-bottom:14px;">&#128196; Standard Two-Pass Import Workflow</h3>
+            <p style="margin-top:0;">
+                Every routine data load &mdash; whether a new site's first import or a periodic update at an established VISN &mdash;
+                uses the <strong>same VA data file</strong> and runs two scripts back-to-back.
+            </p>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px;">
+
+                <div style="background:var(--bg); border:1px solid #10b981; border-radius:8px; padding:16px;">
+                    <div style="color:#10b981; font-weight:700; font-size:14px; margin-bottom:10px;">&#9312; PASS 1 &mdash; Run First</div>
+                    <div style="color:var(--text); font-weight:600; margin-bottom:6px;"><code>va_dbupdate_upsert_enrich.sql</code></div>
+                    <ol style="color:var(--muted-docs); line-height:1.9; margin:0; padding-left:18px; font-size:13px;">
+                        <li>Open <code>va_dbupdate.aspx</code></li>
+                        <li>Upload the VA data file under <em>Data File</em></li>
+                        <li>Upload <code>va_dbupdate_upsert_enrich.sql</code> under <em>SQL Script</em><br/>
+                            <span style="color:var(--muted-docs);">(download from Secure Downloads &rarr; Administrative)</span>
+                        </li>
+                        <li><span style="color:#f59e0b;font-weight:600;">Recommended:</span> click <strong>Preview Run</strong> first to confirm counts</li>
+                        <li>Click <strong>Run DB Update Script</strong></li>
+                    </ol>
+                    <div style="margin-top:10px; font-size:12px; color:#10b981;">
+                        &rarr; Inserts new assets <strong>and</strong> fills blank fields on existing assets.<br/>
+                        Location rows and company mapping resolved automatically.
+                    </div>
+                </div>
+
+                <div style="background:var(--bg); border:1px solid #2ea8ff; border-radius:8px; padding:16px;">
+                    <div style="color:#2ea8ff; font-weight:700; font-size:14px; margin-bottom:10px;">&#9313; PASS 2 &mdash; Run Second</div>
+                    <div style="color:var(--text); font-weight:600; margin-bottom:6px;"><code>va_dbupdate.sql</code></div>
+                    <ol style="color:var(--muted-docs); line-height:1.9; margin:0; padding-left:18px; font-size:13px;">
+                        <li>Keep the same data file (or re-upload if the page refreshed)</li>
+                        <li>Upload <code>va_dbupdate.sql</code> under <em>SQL Script</em><br/>
+                            <span style="color:var(--muted-docs);">(the root-level script in the iDash folder &mdash; not from the Administrative folder)</span>
+                        </li>
+                        <li>Click <strong>Run DB Update Script</strong></li>
+                    </ol>
+                    <div style="margin-top:10px; font-size:12px; color:#2ea8ff;">
+                        &rarr; INSERT-ONLY safety pass. Assets already inserted in Pass 1 are skipped.<br/>
+                        Also runs legacy normalization and seeds Use Status dropdown values.
+                    </div>
+                </div>
+            </div>
+
+            <div style="background:rgba(16,185,129,0.08); border-left:4px solid #10b981; padding:12px 16px; border-radius:6px; margin-top:14px; font-size:13px;">
+                <strong>&#9989; Expected Result:</strong>
+                Pass 1 shows a non-zero <em>Assets Inserted</em> + <em>Assets Updated</em> count.
+                Pass 2 will show <strong>zero or near-zero</strong> new inserts &mdash; this is correct. It confirms Pass 1 worked.
+                If Pass 2 shows a significant number of inserts, re-check that the enrich script ran without errors.
+            </div>
+            <div style="background:rgba(46,168,255,0.08); border-left:4px solid #2ea8ff; padding:12px 16px; border-radius:6px; margin-top:10px; font-size:13px;">
+                <strong>&#9432; Brand-New Site?</strong>
+                Before Pass 1, run the one-time company setup SQL from the VISN-Agnostic section above.
+                Otherwise the company will be auto-named <code>"NNN Unknown"</code> &mdash; the import still works,
+                you can rename it later in iDash.
+            </div>
+        </div>
+        <!-- &mdash;&mdash;&mdash;& END TWO-PASS WORKFLOW &mdash;&mdash;&mdash;& -->
+
+
+        <h3>Option A: The Standard Import (<code>va_dbupdate.sql</code>)</h3>
+        <p>
+            This is the default script executed by the automation engine and used for basic provisioning.
+        </p>
+        <div class="alert-blue">
+            <strong>Behavior: INSERT ONLY</strong><br/>
+            <ul>
+                <li>If the asset in the Excel file <strong>does not exist</strong> in iDash, it creates it.</li>
+                <li>If the asset in the Excel file <strong>already exists</strong>, it completely skips it.</li>
+                <li><strong>IMPORTANT:</strong> It will <em>never</em> update or backfill missing fields on existing assets.</li>
+            </ul>
+        </div>
+
+        <h3>Option B: The Advanced Enrichment Import (<code>va_dbupdate_upsert_enrich.sql</code>)</h3>
+        <p>
+            This script was introduced to allow administrators to fill in missing metadata (e.g. Serial Numbers, Use Status, Equipment Categories)
+            for assets that were already partially created, perhaps by handheld scanners.
+        </p>
+        <div class="alert-green">
+            <strong>Behavior: INSERT MISSING + UPDATE BLANK FIELDS</strong><br/>
+            <ul>
+                <li>If the asset <strong>does not exist</strong>, it inserts it (just like the standard script).</li>
+                <li>If the asset <strong>already exists</strong>, it checks every column. If the database record has a <code>NULL</code> or empty field, and the Excel file provides a value for that field, the database is updated.</li>
+                <li><strong>Safety:</strong> It will <em>never</em> overwrite existing data. If the database already has a value in a field, the Excel file's data for that field is ignored.</li>
+            </ul>
+        </div>
+        <p>
+            <em>The <code>va_dbupdate_upsert_enrich.sql</code> script can be downloaded from the "Secure Downloads" section of the iDash portal under the Administrative category.</em>
+        </p>
+    </div>
+
+    <!-- &&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;- -->
+    <div class="card">
+        <h2>2. Manual DB Update Process (<code>va_dbupdate.aspx</code>)</h2>
+        <p>
+            The manual tool requires an authenticated administrator. It allows you to select exactly which data file and which SQL script to use.
+        </p>
+        <ul>
+            <li><strong>Data File Conversion:</strong> If you upload a <code>.xlsx</code> file, the web worker converts it to a clean UTF-8 tab-delimited text file (without a Byte-Order-Mark) to prevent SQL Bulk Insert syntax errors.</li>
+            <li><strong>SQL Parameter Injection:</strong> The string <code>{{DATAFILE}}</code> in your uploaded SQL script is dynamically replaced by the absolute path of the converted text file living in a temporary staging directory.</li>
+            <li><strong>Execution Mode:</strong> The C# runtime parses the uploaded SQL file, splits it by the <code>GO</code> keyword, and executes each batch sequentially against the database.</li>
+            <li><strong>Safety Gate:</strong> By default, destructive terms like <code>DROP</code>, <code>TRUNCATE</code>, and <code>ALTER</code> are blocked unless the administrator explicitly checks the "Allow dangerous SQL" checkbox.</li>
+        </ul>
+    </div>
+
+    <!-- &&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;- -->
+    <div class="card">
+        <h2>3. Automated DB Update Process (<code>va_autodbupdate.aspx</code>)</h2>
+        <p>
+            The automated pipeline watches a specific network directory (default: <code>C:\VA_RFID\va_dbupdate\autoload</code>) for incoming data files.
+        </p>
+        <ul>
+            <li><strong>Standard Execution:</strong> When a generic <code>data.txt</code> or <code>data.xlsx</code> is detected, it executes <code>va_dbupdate.sql</code> against it.</li>
+            <li><strong>.BAK Processing:</strong> If a full database backup (<code>.bak</code>) is uploaded instead, the pipeline detects the extension and re-routes execution to <code>va_bak_merge.sql</code>, which handles full database restores safely over an existing system.</li>
+            <li><strong>Logging &amp; Fault Tolerance:</strong> Standard outputs and failure messages are written to <code>va_autodbupdate.log</code> in the watch folder. If an exception prevents execution, an emergency SMS is dispatched immediately via <code>AlertingService.SendAdminSms()</code>.</li>
+        </ul>
+    </div>
+
+    <!-- &&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;- -->
+    <div class="card">
+        <h2>4. Preview Run &mdash; Dry Run Before Committing</h2>
+        <p>
+            The <strong>Preview Run (Dry Run)</strong> button (yellow, on the <code>va_dbupdate.aspx</code> page) allows you to safely simulate an Enrichment run
+            and see exactly which assets will be modified before making any permanent changes to the database.
+        </p>
+        <div class="alert-green">
+            <strong>&#9989; Zero Risk &mdash; Nothing is Permanently Written</strong><br/>
+            The Preview Run wraps the entire SQL execution inside a database transaction and immediately issues a <code>ROLLBACK</code> after gathering results.
+            The database is left exactly as it was. No assets are inserted, updated, or touched in any way.
+        </div>
+        <h3>Step-by-Step: How to Run a Preview</h3>
+        <ul>
+            <li><strong>Step 1:</strong> Open <code>va_dbupdate.aspx</code> from the iDash hub.</li>
+            <li><strong>Step 2:</strong> Upload your Excel or Text data file under <em>Data File</em>.</li>
+            <li><strong>Step 3:</strong> Download <code>va_dbupdate_upsert_enrich.sql</code> from the Secure Downloads Center &rarr; Administrative folder, then upload it under <em>SQL Script</em>.</li>
+            <li><strong>Step 4:</strong> Click the <strong style="color:#f59e0b;">Preview Run (Dry Run)</strong> button.</li>
+            <li><strong>Step 5:</strong> A summary will show how many locations, assets, and enrichments would have occurred. A table shows the first 25 records that <em>would</em> have been inserted or enriched, including their Name, RFID, Description, and Location.</li>
+            <li><strong>Step 6:</strong> If everything looks correct, click the blue <strong>Run DB Update Script</strong> button to permanently apply the same process.</li>
+        </ul>
+        <div class="alert-blue">
+            <strong>&#9432; Note on Script Compatibility</strong><br/>
+            The Preview Run feature works with <em>any</em> uploaded SQL script, not just the Enrichment script.
+            However, the preview table (showing affected records) is only populated when using a script that includes the <code>#PreviewLog</code> table logic &mdash; which is built into <code>va_dbupdate_upsert_enrich.sql</code>.
+            Standard scripts will still show the summary counts, but no per-record preview rows.
+        </div>
+    </div>
+
+    <!-- &&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;- -->
+    <div class="card" style="border-color:#f59e0b;">
+        <h2 style="color:#f59e0b;">&#9888; Recovering Accidentally Deleted or Wiped Field Data</h2>
+        <p>
+            If a bulk operation, manual error, or failed import has accidentally cleared out a field across many asset records &mdash; such as CMR numbers, Serial Numbers, Manufacturers, or Equipment Categories &mdash;
+            the <strong>Enrichment script can fully restore that data</strong> from any historical or current data file that contains the correct values.
+        </p>
+        <div class="alert-red">
+            <strong>&#9888; Prerequisite: The field must now be NULL or empty in the database.</strong><br/>
+            The Enrichment script will only write into a field if the database currently holds <code>NULL</code> or an empty string for that field.
+            If the field was accidentally overwritten with bad data (not just cleared), you would need a targeted SQL <code>UPDATE</code> instead.
+            Both true <code>NULL</code> and empty string <code>''</code> are treated as blank and will be overwritten.
+        </div>
+        <h3>Fields That Can Be Recovered This Way</h3>
+        <ul>
+            <li><code>text1</code> &mdash; Manufacturer</li>
+            <li><code>text2</code> &mdash; Model</li>
+            <li><code>text3</code> &mdash; Serial #</li>
+            <li><code>text4</code> &mdash; Equipment Category</li>
+            <li><code>text5</code> &mdash; Service Pointer</li>
+            <li><code>text6</code> &mdash; SP + Location</li>
+            <li><code>text8</code> &mdash; <strong>CMR / EIL Number</strong></li>
+            <li><code>text9</code> &mdash; Purchase Order #</li>
+            <li><code>text10</code> &mdash; Physical Inventory Date (raw)</li>
+            <li><code>description</code> &mdash; Equipment Name</li>
+            <li><code>lastobservedlocation</code> &mdash; Last Known Location</li>
+            <li><code>disposalstatus</code> &mdash; Use Status (In Use / Disposed / etc.)</li>
+        </ul>
+    </div>
+
+    <!-- &&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;- -->
+    <div class="card" style="border-color:#a855f7;">
+        <h2 style="color:#a855f7;">&#128196; Targeted CMR Recovery Script (<code>va_cmr_recovery.sql</code>)</h2>
+        <p>
+            For cases where the standard Enrichment script cannot match existing assets &mdash; typically because the VA data file uses a different entry number format than what is stored in the database &mdash;
+            a <strong>dedicated CMR recovery script</strong> is available in the Downloads Center under the Administrative folder.
+        </p>
+
+        <h3>Why a Dedicated Script Is Needed</h3>
+        <p>
+            The standard Enrichment script matches assets by their <strong>full constructed asset name</strong> (e.g. <code>649 EE10109</code>) plus Company ID, or by exact RFID tag.
+            The VA sends data files in inconsistent entry number formats &mdash; sometimes raw numbers only (<code>10109</code>), sometimes full prefix (<code>649 EE10109</code>),
+            sometimes concatenated (<code>649EE10109</code>). The standard script cannot reconcile these differences and incorrectly identifies all existing assets as new records,
+            reporting thousands of phantom inserts with zero enrichments. The dedicated recovery script solves this entirely.
+        </p>
+
+        <h3>Entry Number Format Normalization</h3>
+        <div class="alert-green">
+            <strong>&#9989; All Three VA Export Formats Are Handled Automatically</strong><br/>
+            <ul style="margin-top:8px;">
+                <li>File: <code>10109</code> &rarr; Normalized: <code>10109</code> &rarr; Matches DB asset: <code>649 EE10109</code> &#10003;</li>
+                <li>File: <code>649 EE10109</code> &rarr; Normalized: <code>10109</code> &rarr; Matches DB asset: <code>649 EE10109</code> &#10003;</li>
+                <li>File: <code>649EE10109</code> &rarr; Normalized: <code>10109</code> &rarr; Matches DB asset: <code>649 EE10109</code> &#10003;</li>
+            </ul>
+            The script detects whether <code>EE</code> is present in the entry number and takes everything after it. If no <code>EE</code> is found, the raw value is used as-is.
+            The resulting clean number is matched against what is extracted from the database asset name using the same stripping logic.
+        </div>
+
+        <h3>Performance Architecture &mdash; Why It Completes in Seconds</h3>
+        <p>
+            A naive match using <code>LIKE '%EE10109'</code> (leading wildcard) forces SQL Server to perform a <strong>full table scan for every single file row</strong>.
+            On 48,000 assets with 7,000 file rows, that is over 336 million string comparisons with no index possible &mdash; causing multi-minute hangs or outright timeouts.
+        </p>
+        <p>The recovery script uses a three-stage precomputed index strategy instead:</p>
+        <ul>
+            <li><strong>Stage 1 &mdash; Build <code>#AssetIndex</code>:</strong> Scans the asset table <em>once</em>, extracts the numeric entry portion from each name (<code>649 EE10109</code> &rarr; <code>10109</code>), stores it in an indexed session-scoped temp table. This scan happens one time only regardless of file size.</li>
+            <li><strong>Stage 2 &mdash; Build <code>#NormalizedEntries</code>:</strong> Normalizes file entry numbers into a second indexed temp table using the same stripping logic.</li>
+            <li><strong>Stage 3 &mdash; Exact Equality Join:</strong> All preview, count, and update operations use <code>ExtractedEntryNumber = CleanEntryNumber</code> &mdash; a fully index-assisted equality join. No wildcards, no scans. Completes in seconds on any dataset size.</li>
+        </ul>
+
+        <h3>Session Isolation &mdash; No Lock Contention</h3>
+        <p>
+            All staging uses <code>#</code>-prefixed temp tables. These are <strong>completely session-scoped</strong> &mdash; invisible to every other database connection, automatically dropped when the session ends.
+            An earlier design using permanent <code>dbo.</code> tables caused DDL schema lock contention between concurrent web sessions, manifesting as 4-5 minute hangs even after browser cancellation.
+            The current session-isolated design eliminates this class of problem entirely. Each web request gets its own private staging environment.
+        </p>
+
+        <h3>Step-by-Step: CMR Recovery Procedure</h3>
+        <ul>
+            <li><strong>Step 1:</strong> Open the <strong>Secure Downloads Center</strong> from the iDash hub &rarr; Administrative folder &rarr; download <code>va_cmr_recovery.sql</code>.</li>
+            <li><strong>Step 2:</strong> Open <code>va_dbupdate.aspx</code>.</li>
+            <li><strong>Step 3:</strong> Upload your VA data file (Excel or tab-delimited text). The entry number format does not matter &mdash; normalization is automatic.</li>
+            <li><strong>Step 4:</strong> Upload <code>va_cmr_recovery.sql</code> as the SQL Script.</li>
+            <li><strong>Step 5:</strong> Click the yellow <strong>Preview Run (Dry Run)</strong> button. The summary shows how many assets will be updated (<em>Assets Updated</em> counter). The preview table lists the first 25 matches with action <code>CMR RESTORE</code>, the asset name as stored in the database, the RFID tag, and the CMR value that would be written.</li>
+            <li><strong>Step 6:</strong> Verify the count and sample records are correct. Then click <strong>Run DB Update Script</strong> to permanently commit the CMR restoration.</li>
+        </ul>
+
+        <div class="alert-blue">
+            <strong>&#9432; Production Validated Result</strong><br/>
+            This workflow was validated live on a production iDash database containing <strong>48,000+ asset records</strong>.
+            After CMR data (<code>text8</code>) was accidentally cleared across the entire site, the recovery script:
+            <ul style="margin-top:8px;">
+                <li>Identified <strong>6,391 matching records</strong> with empty CMR and available file data</li>
+                <li>Completed the full preview (including index build, normalization, and matching) in <strong>under 30 seconds</strong></li>
+                <li>Restored all 6,391 CMR values on commit with <strong>zero duplicate records created</strong> and <strong>zero other fields modified</strong> on any asset</li>
+                <li>The Preview Run confirmed the entire match set before a single byte was permanently written to disk</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  CHANGELOG: JUNE 30, 2026 UPDATES                             -->
+    <!-- ============================================================ -->
+    <div class="card" style="border-color: #f59e0b;">
+        <h2 style="color:#f59e0b;">&#128221; Changelog &mdash; June 30, 2026</h2>
+        <p>Summary of all changes made to <code>va_dbupdate.aspx</code>, <code>va_dbupdate.aspx.cs</code>,
+           the SQL import scripts, and the Service Worker during this session.</p>
+
+        <!-- ── Mobile-Friendly File Selection ── -->
+        <h3>&#128241; Server-Side File Selection (Mobile Support)</h3>
+        <div class="alert-green">
+            <strong>Problem:</strong> The page used browser <code>&lt;input type="file"&gt;</code> controls.
+            On mobile devices and across multiple VISN servers, users had to navigate their phone's filesystem
+            to find SQL scripts and data files &mdash; impractical and error-prone.
+        </div>
+        <p><strong>Solution:</strong> Replaced both file upload controls with <strong>ASP.NET DropDownList</strong> controls
+           that automatically scan the iDash application root directory for available files:</p>
+        <ul>
+            <li><strong>Data File dropdown</strong> &mdash; lists all <code>.xlsx</code> and <code>.txt</code> files</li>
+            <li><strong>SQL Script dropdown</strong> &mdash; lists all <code>.sql</code> files</li>
+            <li><strong>Refresh File Lists</strong> button &mdash; re-scans the server directory for newly added files</li>
+            <li><strong>Manual upload fallback</strong> &mdash; hidden behind an "or upload manually" link for edge cases.
+                Manual uploads override dropdown selections.</li>
+        </ul>
+        <p><strong>Files changed:</strong></p>
+        <table>
+            <tr><th>File</th><th>Change</th></tr>
+            <tr><td><code>va_dbupdate.aspx</code></td><td>New <code>DdlDataFile</code> and <code>DdlSqlScript</code> DropDownList controls,
+                <code>.ddl</code> CSS class, collapsible upload fallback panel</td></tr>
+            <tr><td><code>va_dbupdate.aspx.cs</code></td><td><code>PopulateFileDropdowns()</code> method scans <code>Server.MapPath("~/")</code> on page load.
+                <code>ExecuteUpdate()</code> resolves files from dropdown or upload with priority: upload &gt; dropdown.</td></tr>
+        </table>
+        <p><strong>Why:</strong> The DB update process runs on several different servers and needs to be fully
+           mobile-accessible. Users now tap a dropdown instead of browsing a filesystem. All SQL scripts and
+           data files live in the iDash root &mdash; no <code>downloads/Scripts/</code> subdirectory needed.</p>
+
+        <!-- ── Row Count &amp; Progress Timer ── -->
+        <h3>&#9201; Row Count, Estimated Time &amp; Live Progress Timer</h3>
+        <div class="alert-blue">
+            <strong>Problem:</strong> Running an import on 80K+ rows with no feedback created anxiety &mdash;
+            users couldn't tell if the process was running, stuck, or had failed. Imports can take 5&ndash;10 minutes.
+        </div>
+        <p><strong>Solution:</strong> Three layers of feedback:</p>
+        <ol>
+            <li><strong>On file select</strong> &mdash; When a data file is chosen from the dropdown, an <code>AutoPostBack</code>
+                fires, the server counts rows (via <code>ClosedXML</code> for XLSX or <code>File.ReadAllLines</code> for TXT),
+                and displays an info bar: <em>"79,280 data rows &mdash; estimated processing time: 5 - 10 minutes"</em></li>
+            <li><strong>On Run click</strong> &mdash; A progress panel appears with:
+                <ul>
+                    <li>Animated CSS spinner</li>
+                    <li>Selected file names and row count</li>
+                    <li>Estimated completion time (based on row count tiers)</li>
+                    <li>Live elapsed timer counting up in <code>MM:SS</code> format</li>
+                    <li>Reminder not to close the page</li>
+                </ul>
+            </li>
+            <li><strong>On completion</strong> &mdash; Page reloads with the standard results summary</li>
+        </ol>
+        <p><strong>Files changed:</strong> <code>va_dbupdate.aspx</code> (progress panel HTML/CSS/JS),
+           <code>va_dbupdate.aspx.cs</code> (<code>DdlDataFile_SelectedIndexChanged</code> handler, <code>HidRowCount</code> hidden field)</p>
+
+        <!-- ── Script Timeout Fix ── -->
+        <h3>&#9888;&#65039; ASP.NET Script Timeout Fix</h3>
+        <div class="alert-red" style="background:#fef2f2; border-left:4px solid #ef4444; padding:12px 16px; border-radius:4px; margin:12px 0;">
+            <strong>Root cause of "blank screen after 30+ minutes":</strong> The default ASP.NET
+            <code>Server.ScriptTimeout</code> is <strong>110 seconds</strong>. Imports with 80K+ rows
+            take 5&ndash;10 minutes. After 110 seconds, IIS silently killed the request &mdash; the browser
+            kept waiting for a response that would never arrive, while the SQL transaction rolled back on the server.
+        </div>
+        <p><strong>Fix:</strong> Added <code>Server.ScriptTimeout = 1800</code> (30 minutes) at the start of
+           <code>ExecuteUpdate()</code>. Also added <code>Async="true"</code> to the page directive.</p>
+        <p><strong>Note:</strong> The SQL <code>CommandTimeout</code> was already set to <code>0</code> (unlimited)
+           in the batch executor &mdash; only the ASP.NET layer was timing out.</p>
+
+        <!-- ── Scientific Notation Prevention ── -->
+        <h3>&#128300; Scientific Notation Prevention (Excel Conversion)</h3>
+        <div class="alert-green">
+            <strong>Problem:</strong> When Excel stores serial numbers as numeric values, the
+            <code>.Text</code> property returns scientific notation (e.g., <code>1.23457E+10</code>)
+            instead of the actual number (<code>12345678901</code>). The old code used <code>ws.Cells[r,c].Text</code>
+            for all cells, so these garbled serial numbers were imported into the database.
+        </div>
+        <p><strong>Fix in <code>ConvertXlsxToTxt()</code>:</strong></p>
+        <ul>
+            <li>Detects cells where <code>cell.Value is double</code> or <code>cell.Value is decimal</code></li>
+            <li>If the value is a whole number (no fractional part), formats as a plain integer via <code>((long)d).ToString()</code></li>
+            <li>Non-integer and text values continue to use <code>cell.Text</code> as before</li>
+        </ul>
+        <p><strong>Design decision:</strong> The fix is applied <strong>only in the C# conversion layer</strong>
+           (clean data in, clean data out). An earlier attempt to add a SQL cleanup step (Step 12.7) during the
+           import was removed because:</p>
+        <ul>
+            <li>The SQL <code>ISNUMERIC()</code> function is unreliable &mdash; it accepts values that cannot actually be <code>CAST</code> to <code>FLOAT</code></li>
+            <li>The <code>CAST(text3 AS FLOAT)</code> caused "Error converting data type varchar to float" on dirty data</li>
+            <li>The <code>CAST(... AS BIGINT)</code> caused "Arithmetic overflow" on values with large exponents</li>
+            <li>Full-table JOINs against the asset table on 80K+ staging rows caused unacceptable processing times</li>
+        </ul>
+        <p><strong>Files changed:</strong> <code>va_dbupdate.aspx.cs</code> (ConvertXlsxToTxt method).
+           <code>va_dbupdate.sql</code> and <code>va_dbupdate_upsert_enrich.sql</code> (Step 12.7 removed).</p>
+
+        <!-- ── Service Worker Exclusion ── -->
+        <h3>&#128679; Service Worker: Admin Page Exclusion</h3>
+        <div class="alert-blue">
+            <strong>Problem:</strong> The Service Worker (designed for scanner offline support) intercepted
+            <strong>all</strong> <code>.aspx</code> POST requests. When <code>va_dbupdate.aspx</code> timed out
+            or lost connection during a long import, the SW caught the failed POST and served the scanner
+            offline fallback page ("You are offline. Your scan has been saved locally...") &mdash; which
+            was confusing and incorrect for an admin page.
+        </div>
+        <p><strong>Fix:</strong> Added an exclusion list in the SW fetch handler. Pages containing
+           <code>va_dbupdate</code> or <code>va_autodbupdate</code> in the URL are now passed through
+           to normal browser handling, bypassing the offline interception entirely.</p>
+        <p><strong>Files changed:</strong> <code>sw.js</code> (fetch event handler, cache bumped to v9)</p>
+    </div>
+
+    <div style="text-align:center; color:var(--muted-docs); font-size:12px; margin-top:40px;">
+        VA Asset Intelligence Hub Documentation &copy; 2026<br/>
+        Authored by the iDash project lead.
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>ENNX Live Scan (Mobile RFID Optimized) &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .badge-db   { background: color-mix(in srgb, var(--accent2-docs), transparent 85%); color: var(--accent2-docs); border: 1px solid color-mix(in srgb, var(--accent2-docs), transparent 70%); }
+        .badge-file { background: color-mix(in srgb, var(--accent-docs), transparent 85%); color: var(--accent-docs); border: 1px solid color-mix(in srgb, var(--accent-docs), transparent 70%); }
+        .badge-new  { background: color-mix(in srgb, var(--warn-docs), transparent 85%); color: var(--warn-docs); border: 1px solid color-mix(in srgb, var(--warn-docs), transparent 70%); }
+        .badge-archived { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.4); }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+        <a href="index.aspx">&larr; Back to Documentation Hub</a>
+        <div style="display:flex; gap:8px;">
+            <a href="../va_ennx_live_scan.aspx" class="badge badge-db" style="text-decoration:none; font-weight:700; padding:6px 12px; border-radius:8px;">&#9654; Open ENNX Live Scan</a>
+            <a href="va_ennx_live_scan_legacy.html" class="badge badge-archived" style="text-decoration:none; font-weight:700; padding:6px 12px; border-radius:8px;">&#128214; Legacy Docs</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h1>&#128228; ENNX Live Scan (Mobile RFID Optimized)</h1>
+        <div style="margin-bottom:12px; display:flex; gap:8px; flex-wrap:wrap;">
+            <span class="badge badge-db">&#10004; Direct Database Commit</span>
+            <span class="badge badge-file">&#9993; Email Export</span>
+            <span class="badge badge-new">&#9889; Mobile RFID Optimized (v2.0)</span>
+            <span class="badge badge-db">&#128100; Operator Auth Synchronized</span>
+        </div>
+        <p style="font-size:16px;margin:0;">
+            The <strong>ENNX Live Scan</strong> module is a high-speed, mobile-optimized asset scanning and inventory reconciliation tool designed for Zebra mobile RFID handhelds and web workstations. It captures location barcodes and asset tags in real time, organizes them into government-ready ENNX structures, and directly <strong>commits the updated inventory locations and timestamps to the iDash database</strong> with an automated audit log.
+        </p>
+    </div>
+
+    <!-- 09/12/2026 ARCHITECTURE MODERNIZATION -->
+    <div class="card">
+        <h2>Version 2.0 Major Update (09/12/2026)</h2>
+        <p>
+            Upgraded to match the high-performance scanning architecture and unified design language of <code>va_inventory.aspx</code> and <code>va_universal_ennx.aspx</code>:
+        </p>
+        <table>
+            <tr><th>Component</th><th>Modern Implementation</th><th>Benefit</th></tr>
+            <tr>
+                <td><strong>Unified Skinny Toolbar &amp; Sign-In</strong></td>
+                <td>Top status bar matching <code>va_inventory.aspx</code> with operator badge (<code>&#128100; Gary Moe</code>), technician modal sign-in, theme toggle, and hub link.</td>
+                <td>Consistent universal look-and-feel across all mobile scanning screens; operator identity automatically tagged on all committed assets.</td>
+            </tr>
+            <tr>
+                <td><strong>Default Site Locking</strong></td>
+                <td>Auto-selects and locks the technician's assigned facility (e.g. <code>517 Beckley</code>), preventing accidental cross-site inventory assignment.</td>
+                <td>Eliminates manual station selection errors and locks the 3-digit station prefix for all ENNX records.</td>
+            </tr>
+            <tr>
+                <td><strong>Direct Database "Commit Scans"</strong></td>
+                <td>Replaced passive text saving with active database execution: updates <code>dbo.asset.text6</code> (location), <code>lastinventoried = SYSDATETIMEOFFSET()</code>, <code>lastmodifiedby</code>, and inserts an audit record into <code>dbo.EnnxLiveSession</code>.</td>
+                <td>Scanned rooms immediately reflect in iDash master reports and inventory history without manual file re-importing.</td>
+            </tr>
+            <tr>
+                <td><strong>Mobile Streamlined Workflow</strong></td>
+                <td>Retired WebSerial, browser download blobs, and server disk file writes in favor of direct database commits and automated email distribution.</td>
+                <td>Zero clutter for technicians on mobile handhelds; prevents local file management headaches.</td>
+            </tr>
+            <tr>
+                <td><strong>Single-Row Counts &amp; Filter Tabs</strong></td>
+                <td>Replaced bulky KPI cards with a compact, sticky single row featuring <code>All</code>, <code>Locations</code>, <code>Assets</code>, <code>Duplicates</code>, <code>Total Scans</code>, and <code>Active Loc</code>.</td>
+                <td>Maximizes vertical screen real-estate for the live scan feed on mobile screens.</td>
+            </tr>
+            <tr>
+                <td><strong>4-Color Stream Feed</strong></td>
+                <td>Live visual reconciliation rows: Green for Assets, Blue for Locations, Orange for Duplicates, and Pink for Ignored/Mismatches.</td>
+                <td>Instant feedback for technicians walking rooms and sweeping inventory tags.</td>
+            </tr>
+            <tr>
+                <td><strong>Rounded Manual Input Row</strong></td>
+                <td>Manual room or tag input box styled with 8px rounded corners and flush-left alignment.</td>
+                <td>Clean visual alignment with scan trigger card and streamlined mobile usability.</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- STEP-BY-STEP WORKFLOW -->
+    <div class="card">
+        <h2>Field Sweep User Workflow</h2>
+
+        <div class="step"><span class="step-num sn-blue">1</span><div>
+            <strong>Verify Operator &amp; Site:</strong> Confirm your technician name is displayed in the top bar (e.g., <code>&#128100; Gary Moe</code>). Your assigned VA facility is auto-selected and locked.
+        </div></div>
+
+        <div class="step"><span class="step-num sn-blue">2</span><div>
+            <strong>Scan a Location Barcode:</strong> Pull the scanner trigger or scan a room barcode starting with <code>SP</code> (e.g., <code>SP009-BD. 8A</code>). The room is highlighted in blue and set as the active location.
+        </div></div>
+
+        <div class="step"><span class="step-num sn-blue">3</span><div>
+            <strong>Sweep Equipment Asset Tags:</strong> Pull the RFID trigger or scan asset barcodes. All valid tags under the active location are highlighted in green, de-duplicated in memory, and formatted into the live ENNX preview.
+        </div></div>
+
+        <div class="step"><span class="step-num sn-blue">4</span><div>
+            <strong>Move to Next Location:</strong> Scanning another <code>SP</code> room barcode automatically begins a new location block. Or, click <strong>&#8614; Force Location</strong> if the barcode format is non-standard.
+        </div></div>
+
+        <div class="step"><span class="step-num sn-green">5</span><div>
+            <strong>Commit Scans to Database:</strong> Tap <strong>&#128190; Commit Scans to Database</strong>. All scanned assets are immediately updated with their new room location (<code>text6</code>) and current inventory timestamp. An audit row is logged with the session payload.
+        </div></div>
+
+        <div class="step"><span class="step-num sn-green">6</span><div>
+            <strong>Optional: Email ENNX File:</strong> Tap <strong>&#9993; Email ENNX File</strong> to dispatch the formatted ENNX text file directly to designated inventory administrators.
+        </div></div>
+    </div>
+
+    <!-- ARCHIVED LEGACY PAGE -->
+    <div class="card">
+        <h2>Legacy Page Reference</h2>
+        <p>
+            The original postback-based ENNX scanner with WebSerial USB support and local disk saving has been preserved and archived at:
+        </p>
+        <p>
+            <a href="../va_ennx_live_scan_legacy.aspx" class="badge badge-archived" style="text-decoration:none; font-size:13px; font-weight:700;">&#9654; Open Archived Legacy Page (va_ennx_live_scan_legacy.aspx)</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>

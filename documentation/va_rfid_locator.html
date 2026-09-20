@@ -1,0 +1,398 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>RFID Asset Locator &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .badge-db   { background: color-mix(in srgb, var(--accent2-docs), transparent 85%); color: var(--accent2-docs); border: 1px solid color-mix(in srgb, var(--accent2-docs), transparent 70%); }
+        .badge-file { background: color-mix(in srgb, var(--accent-docs), transparent 85%); color: var(--accent-docs); border: 1px solid color-mix(in srgb, var(--accent-docs), transparent 70%); }
+        .badge-new  { background: color-mix(in srgb, var(--warn-docs), transparent 85%); color: var(--warn-docs); border: 1px solid color-mix(in srgb, var(--warn-docs), transparent 70%); }
+        .badge-fix  { background: color-mix(in srgb, #10b981, transparent 85%); color: #10b981; border: 1px solid color-mix(in srgb, #10b981, transparent 70%); }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <a href="index.aspx">&larr; Back to Documentation Hub</a><br/><br/>
+
+    <div class="card">
+        <h1>&#128225; RFID Asset Locator</h1>
+        <div style="margin-bottom:12px;">
+            <span class="badge badge-db">Database Connected</span>
+            <span class="badge badge-fix">Mobile RFID Optimized</span>
+            <span class="badge badge-new">Active v2.0 (09/2026)</span>
+        </div>
+        <p style="font-size:16px;margin:0;">
+            The <strong>RFID Asset Locator</strong> is a dedicated tool for locating specific missing assets using an
+            RFID handheld reader. Unlike the VA Site Inventory (which sweeps an entire room), this tool
+            helps you hunt for specific targets that are <em>not where they should be</em>. It features a high-speed
+            scanner engine (30&ndash;50 tags/sec), a Geiger counter-style proximity radar meter, dynamic Web Audio pitch feedback,
+            and a responsive mobile-optimized UI.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>Changelog</h2>
+        <h3>09/12/2026 &mdash; Mobile RFID Optimization &amp; Visual Alignment (v2.0)</h3>
+        <p>Overhauled the RFID Asset Locator interface to align with the visual and architectural standards of <code>va_inventory.aspx</code> and <code>va_universal_ennx.aspx</code>:</p>
+        <table>
+            <tr><th>Change</th><th>Detail</th></tr>
+            <tr>
+                <td><strong>High-Speed Scanner Card</strong></td>
+                <td>Replaced hidden-input focus traps with the visible, pulsing scanner trigger card (<code>#raw</code>) supporting rapid 30&ndash;50 reads/sec bursts with instant $O(1)$ target lookups.</td>
+            </tr>
+            <tr>
+                <td><strong>Single-Row Filter Toolbar</strong></td>
+                <td>Implemented single-row filter bar with real-time numeric badges (<code>All Targets</code>, <code>Found</code>, <code>Remaining</code>, <code>Unresolved</code>), total reads counter, and <code>Reset Found</code> / <code>Clear All</code> controls.</td>
+            </tr>
+            <tr>
+                <td><strong>WebSerial Removal</strong></td>
+                <td>Eliminated WebSerial USB connection elements to streamline the workflow exclusively for wireless handheld mobile scanners.</td>
+            </tr>
+            <tr>
+                <td><strong>Collapsible Mobile Target Drawer</strong></td>
+                <td>Target input automatically collapses into a slim badge on mobile once resolved, granting full screen height to the Geiger proximity meter and located assets table.</td>
+            </tr>
+            <tr>
+                <td><strong>High-Contrast Dark &amp; Light Themes</strong></td>
+                <td>Integrated dual-theme support with pure white light mode and high-contrast emerald green found rows.</td>
+            </tr>
+            <tr>
+                <td><strong>Legacy Archival</strong></td>
+                <td>Preserved the original WebSerial implementation as <code>va_rfid_locator_legacy.aspx</code> for historical fallback.</td>
+            </tr>
+        </table>
+
+        <h3>07/25/2026 &mdash; Tag Matching Bug Fixes &amp; Raw Read Debug Log</h3>
+        <p>Resolved a silent failure where RFID reads were received correctly but no assets were matched. Root cause:
+        iDash stores <code>rfidtag</code> values with F-padding appended for word alignment (e.g., <code>512EE17360FFF</code>),
+        and the comparison was not stripping this padding before comparing. Additionally, the SQL lookup did not handle the
+        space/no-space variant of EE numbers (e.g., <code>512 EE17360</code> vs <code>512EE17360</code>).</p>
+        <table>
+            <tr><th>Change</th><th>Detail</th></tr>
+            <tr>
+                <td><strong>Fix: F-padding strip</strong></td>
+                <td>All tag values (from the reader and from the <code>rfidtag</code> column) are now normalized by stripping
+                trailing F characters before comparison. This matches normalization used in <code>va_eil_live_scan.aspx</code>.</td>
+            </tr>
+            <tr>
+                <td><strong>Fix: EE-number fuzzy match</strong></td>
+                <td>Third matching strategy added: if both the scanned tag and the stored rfidtag contain the same numeric EE
+                portion (extracted via regex <code>/EE\s*(\d+)/i</code>), they are considered a match.</td>
+            </tr>
+            <tr>
+                <td><strong>Fix: Space-agnostic SQL lookup</strong></td>
+                <td>The <code>LookupAssets</code> WebMethod SQL now also compares <code>REPLACE(a.name, ' ', '') = @idNoSpace</code>
+                and <code>REPLACE(a.rfidtag, ' ', '') = @idNoSpace</code>, so entering <code>512 EE17360</code> finds assets
+                stored as <code>512EE17360</code> and vice versa.</td>
+            </tr>
+            <tr>
+                <td><strong>New: Raw Read Debug Log</strong></td>
+                <td>A <strong>Raw Read Log</strong> panel (enabled via &ldquo;Show Raw Read Log&rdquo; checkbox) records every
+                scan: exact raw string from reader, normalized form used for matching, and whether a match was found.</td>
+            </tr>
+        </table>
+        <div class="alert alert-info">
+            <strong>&#8505; Quick Diagnostic:</strong> If reads are happening (Total Reads increments) but nothing turns green
+            &mdash; enable the Raw Read Log, scan the tag, then compare the <em>Norm:</em> value shown to the <em>RFID Tag</em>
+            column value in the results grid.
+        </div>
+        <h3>07/24/2026 &mdash; Initial Release</h3>
+        <p>New dedicated asset locator page with proximity meter, audio feedback, WebSerial USB support, and query-string pre-loading.</p>
+    </div>
+
+    <div class="card">
+        <h2>Why This Tool Exists</h2>
+        <ul>
+            <li><strong>Inventory = verification:</strong> &ldquo;Walk this room and confirm what is here.&rdquo;</li>
+            <li><strong>Locator = hunting:</strong> &ldquo;I have a list of missing items &mdash; help me find them.&rdquo;</li>
+        </ul>
+        <p>Inspired by the RFID WayFinder feature in the iDash Data Dashboard, this iDash version adds proximity metering,
+        audio feedback, WebSerial USB support, and pre-loading from other pages.</p>
+    </div>
+
+    <div class="card">
+        <h2>How to Use It &mdash; Step by Step (User Guide)</h2>
+        <h3>Step 1: Enter Target Assets</h3>
+        <p>In the <strong>Target Assets</strong> panel, type or paste asset identifiers &mdash; one per line, comma-separated,
+        or tab-separated (Excel paste). Accepted formats: <code>512 EE17360</code>, <code>512EE17360</code>, barcode, serial number,
+        or rfidtag value. Both space and no-space EE formats are recognized.</p>
+
+        <h3>Step 2: Load &amp; Resolve</h3>
+        <p>Click <strong>&#128269; Load &amp; Resolve</strong>. The database returns:</p>
+        <table>
+            <tr><th>Field</th><th>Source Column</th><th>Purpose</th></tr>
+            <tr><td>Asset Name</td><td><code>name</code></td><td>EE number / display name</td></tr>
+            <tr><td>RFID Tag</td><td><code>rfidtag</code></td><td>Tag ID used for matching (may include F-padding)</td></tr>
+            <tr><td>Serial Number</td><td><code>text3</code></td><td>Equipment serial</td></tr>
+            <tr><td>EIL / CMR</td><td><code>text8</code></td><td>Accountability grouping</td></tr>
+            <tr><td>Barcode</td><td><code>text12</code></td><td>Original barcode</td></tr>
+            <tr><td>Location</td><td><code>location.name</code></td><td>Last known location in iDash</td></tr>
+            <tr><td>Site</td><td><code>company.name</code></td><td>Facility / site</td></tr>
+        </table>
+        <p>If the RFID Tag column shows <code>-</code>, that asset has no rfidtag and will show
+        <span style="color:#ef4444;font-weight:700;">&#10060; No RFID tag</span>.</p>
+
+        <h3>Step 3: Start Scanning</h3>
+        <p>Click <strong>&#9654; Start Scanning</strong>. A hidden textarea auto-focuses for DataWedge keystroke input, or use
+        the WebSerial <strong>&#128268; Connect</strong> button. The scan banner pulses while active.</p>
+
+        <h3>Step 4: Walk and Locate</h3>
+        <p>Walk the area. Matching rows flash bright green then fade to soft green. The proximity meter and KPIs update in real time.</p>
+
+        <h3>Step 5: Stop</h3>
+        <p>Click <strong>&#9632; Stop</strong>. Found assets remain highlighted.</p>
+
+        <div class="alert alert-info">
+            <strong>&#8505; Tip:</strong> If reads happen but nothing matches, enable <strong>Show Raw Read Log</strong> and scan
+            again. Compare the <em>Norm:</em> value in the log to the RFID Tag column in the grid.
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Raw Read Debug Log</h2>
+        <p>Enable with the <em>Show Raw Read Log (debug)</em> checkbox. Each read shows:</p>
+        <table>
+            <tr><th>Column</th><th>What It Shows</th></tr>
+            <tr><td><strong>Time</strong></td><td>HH:MM:SS timestamp</td></tr>
+            <tr><td>&#9989; / &#10060;</td><td>Green = matched a target; Red = no match</td></tr>
+            <tr><td><strong>Raw:</strong></td><td>Exact string the reader sent, before normalization</td></tr>
+            <tr><td><strong>Norm:</strong></td><td>After stripping trailing F-padding and uppercasing</td></tr>
+        </table>
+        <p>Last 20 reads kept. Only records while scanning is active (after clicking Start Scanning).</p>
+    </div>
+
+    <div class="card">
+        <h2>Dashboard KPIs</h2>
+        <table>
+            <tr><th>KPI</th><th>Description</th></tr>
+            <tr><td><strong>Targets</strong></td><td>Total assets in your hunt list.</td></tr>
+            <tr><td><strong>Found</strong></td><td>Assets matched by the reader so far.</td></tr>
+            <tr><td><strong>Remaining</strong></td><td>Targets &minus; Found.</td></tr>
+            <tr><td><strong>Total Reads</strong></td><td>All reads including non-targets.</td></tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Proximity Meter (Geiger Counter Mode)</h2>
+        <table>
+            <tr><th>Bar Level</th><th>Color</th><th>Meaning</th></tr>
+            <tr><td>0 &ndash; 30%</td><td style="color:#ef4444;font-weight:700;">Red</td><td>Far &mdash; tag in range but distant</td></tr>
+            <tr><td>30 &ndash; 60%</td><td style="color:#f59e0b;font-weight:700;">Yellow</td><td>Getting closer</td></tr>
+            <tr><td>60 &ndash; 85%</td><td style="color:#10b981;font-weight:700;">Green</td><td>Close!</td></tr>
+            <tr><td>85 &ndash; 100%</td><td style="color:#2ea8ff;font-weight:700;">Blue/Green</td><td>Very close &mdash; within arm&rsquo;s reach</td></tr>
+        </table>
+        <div class="alert alert-info">
+            Counts RFID reads in the last 3 seconds. 10 reads/second = 100%. Bar decays by 5% every 300ms when no reads arrive.
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Audio Feedback</h2>
+        <p>Toggle the &#128266; Audio Feedback switch. Off by default.</p>
+        <table>
+            <tr><th>Sound</th><th>When</th><th>Description</th></tr>
+            <tr><td><strong>Proximity beeps</strong></td><td>Scanning unfound targets</td><td>Frequency and speed increase as you approach (300&ndash;1100 Hz).</td></tr>
+            <tr><td><strong>Found chime</strong></td><td>First match</td><td>Two-tone ascending beep (880 Hz &rarr; 1100 Hz).</td></tr>
+            <tr><td><strong>All-found chime</strong></td><td>All targets located</td><td>Three-tone victory chime (660 &rarr; 880 &rarr; 1100 Hz).</td></tr>
+            <tr><td><strong>Background tick</strong></td><td>Non-target reads</td><td>Faint low beep (200 Hz, 100ms) &mdash; confirms reader is active.</td></tr>
+        </table>
+        <div class="alert alert-warn">Audio requires a user gesture. Click &ldquo;Start Scanning&rdquo; first to unlock it.</div>
+    </div>
+
+    <div class="card">
+        <h2>Supported Input Methods</h2>
+        <table>
+            <tr><th>Method</th><th>How It Works</th><th>Requirements</th></tr>
+            <tr>
+                <td><strong>DataWedge Keystroke</strong></td>
+                <td>Reads injected as keystrokes into hidden textarea. ENTER triggers matching.</td>
+                <td>Zebra TC53/RFD40 or similar. DataWedge profile: keystroke output + ENTER suffix.</td>
+            </tr>
+            <tr>
+                <td><strong>WebSerial USB</strong></td>
+                <td>Click &#128268; Connect. Reads come from the serial stream (115200 baud, 8N1, hardware flow).</td>
+                <td>Chrome or Edge. HTTPS or localhost required.</td>
+            </tr>
+            <tr>
+                <td><strong>Manual / Keyboard</strong></td>
+                <td>Click Start Scanning, type or paste a tag value, press ENTER. For testing only.</td>
+                <td>Any browser.</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Pre-Loading Targets from Other Pages</h2>
+        <p>Pass asset identifiers via query string:</p>
+        <pre>va_rfid_locator.aspx?assets=512 EE17360,512 EE17361,512 EE17362</pre>
+        <p>The textarea is auto-filled and assets resolved on page load.</p>
+        <div class="alert alert-info">
+            Future: VA Site Inventory will have a &ldquo;Locate Missing&rdquo; button that links here pre-loaded with unscanned assets.
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>How It Works (Developer Reference)</h2>
+
+        <h3>Architecture</h3>
+        <table>
+            <tr><th>File</th><th>Purpose</th></tr>
+            <tr><td><code>va_rfid_locator.aspx</code></td><td>Frontend: HTML + vanilla JS. Target entry, scan capture, grid, proximity, audio, WebSerial, debug log.</td></tr>
+            <tr><td><code>va_rfid_locator.aspx.cs</code></td><td>Code-behind: session auth + <code>LookupAssets</code> WebMethod.</td></tr>
+        </table>
+
+        <h3>LookupAssets WebMethod</h3>
+        <p><code>[WebMethod] public static object LookupAssets(string[] identifiers)</code></p>
+        <p>SQL WHERE clause searches these columns for each identifier:</p>
+        <ul>
+            <li><code>name = @id</code> &mdash; exact EE number (e.g., <code>512 EE17360</code>)</li>
+            <li><code>rfidtag = @id</code> &mdash; stored RFID tag value</li>
+            <li><code>text12 = @id</code> &mdash; barcode</li>
+            <li><code>text3 = @id</code> &mdash; serial number</li>
+            <li><code>REPLACE(name, ' ', '') = @idNoSpace</code> &mdash; space-stripped EE (e.g., <code>512EE17360</code>)</li>
+            <li><code>REPLACE(rfidtag, ' ', '') = @idNoSpace</code> &mdash; space-stripped rfidtag</li>
+        </ul>
+        <p>Response JSON per asset:</p>
+        <pre>{ input, assetId, name, rfidtag, serial, eil, barcode, location, site, found:false }</pre>
+
+        <h3>rfidtag Field Format</h3>
+        <p>The <code>rfidtag</code> column stores a <strong>formatted string</strong>, NOT raw EPC hex. Import formula:</p>
+        <pre>rfidtag = CONCAT(station, 'EE', assetNumber,
+    REPLICATE('F', 4 - ((5 + LEN(assetNumber)) % 4)))</pre>
+        <p>Example: asset <code>512 EE17360</code> &rarr; rfidtag = <code>512EE17360FF</code>. A Zebra reader
+        in DataWedge RFID mode outputs exactly this string.</p>
+        <div class="alert alert-warn">
+            <strong>&#9888;</strong> If the Raw Read Log shows long hex strings like <code>E2801160600002141D4A5B2F</code>,
+            DataWedge is outputting raw EPC. Reconfigure DataWedge to decode RFID user memory to ASCII.
+        </div>
+
+        <h3>Tag Matching Logic (Updated 07/25/2026)</h3>
+        <pre>// Normalize: strip trailing F-padding, uppercase, trim
+function normalizeTag(s) { return s.replace(/F+$/i, '').toUpperCase().trim(); }
+
+// Extract EE number from any format
+function extractEENumber(s) { var m = s.match(/EE\s*(\d+)/i); return m ? m[1] : null; }
+
+var tag  = normalizeTag(rawScan);    // "512EE17360"
+var rfid = normalizeTag(dbRfidTag);  // "512EE17360"
+
+var isMatch =
+    rfid === tag                                           // 1) Exact
+    || (tag.length &gt; 4 &amp;&amp; (tag.includes(rfid)
+                           || rfid.includes(tag)))         // 2) Substring
+    || (extractEENumber(tag) === extractEENumber(rfid));   // 3) Same EE#</pre>
+
+        <h3>Raw Read Debug Log (Developer Notes)</h3>
+        <p>Module-level <code>debugLog[]</code> array (max 20, newest-first). Populated by <code>addDebugEntry(raw, normalized, matched)</code>
+        inside <code>processRead()</code> only when <code>#chkDebug</code> is checked. Fully client-side. Cleared by <code>clearAll()</code>.</p>
+
+        <h3>Proximity Calculation</h3>
+        <pre>var recent = timestamps.filter(t =&gt; (Date.now() - t) &lt; 3000);
+var rps = recent.length / 3;              // reads per second, 3-sec window
+var pct = Math.min(100, Math.round((rps / 10) * 100));  // 0-10 rps = 0-100%</pre>
+        <p>Bar decays by 5% every 300ms on no reads.</p>
+
+        <h3>Audio Engine</h3>
+        <p>Web Audio API (<code>AudioContext</code>), no audio files. Proximity beep frequency: 300 Hz (far) &rarr; 1100 Hz (close).
+        Duration shortens as proximity increases.</p>
+
+        <h3>Database Schema</h3>
+        <table>
+            <tr><th>Table</th><th>Column</th><th>Purpose</th></tr>
+            <tr><td><code>dbo.asset</code></td><td><code>name</code></td><td>EE number (e.g., <code>512 EE17360</code>)</td></tr>
+            <tr><td><code>dbo.asset</code></td><td><code>rfidtag</code></td><td>RFID tag with F-padding (e.g., <code>512EE17360FF</code>)</td></tr>
+            <tr><td><code>dbo.asset</code></td><td><code>text3</code></td><td>Serial number (alternate lookup)</td></tr>
+            <tr><td><code>dbo.asset</code></td><td><code>text8</code></td><td>EIL / CMR number</td></tr>
+            <tr><td><code>dbo.asset</code></td><td><code>text12</code></td><td>Barcode (alternate lookup)</td></tr>
+            <tr><td><code>dbo.asset</code></td><td><code>locationid</code></td><td>FK &rarr; <code>dbo.location</code></td></tr>
+            <tr><td><code>dbo.asset</code></td><td><code>companyid</code></td><td>FK &rarr; <code>dbo.company</code></td></tr>
+            <tr><td><code>dbo.location</code></td><td><code>name</code></td><td>Location display name</td></tr>
+            <tr><td><code>dbo.company</code></td><td><code>name</code></td><td>Site / facility name</td></tr>
+        </table>
+
+        <h3>Access Control</h3>
+        <p>Tile key: <code>scan_inventory</code>. Unauthenticated users redirected to <code>index.aspx</code>.</p>
+    </div>
+
+    <div class="card">
+        <h2>Troubleshooting</h2>
+
+        <h3>&ldquo;No RFID tag&rdquo; shown for an asset</h3>
+        <p>The <code>rfidtag</code> column is empty. Asset must be physically tagged and the value recorded in the DB.</p>
+
+        <h3>Asset not found by Load &amp; Resolve</h3>
+        <ul>
+            <li>Try both <code>512 EE17360</code> and <code>512EE17360</code> &mdash; both are now supported.</li>
+            <li>Run <code>SELECT name, rfidtag FROM dbo.asset WHERE name LIKE '%17360%'</code> to confirm the asset exists.</li>
+        </ul>
+
+        <h3>RFID Tag column shows a value but nothing matches during scanning</h3>
+        <ol>
+            <li>Enable the Raw Read Log checkbox.</li>
+            <li>Start scanning and point reader at the tagged asset.</li>
+            <li>Compare <strong>Norm:</strong> in the log against the RFID Tag column in the grid.</li>
+            <li>If Norm shows a long hex string (EPC), reconfigure DataWedge to output decoded RFID user memory.</li>
+            <li>If Norm shows a different EE number than expected, the physical tag does not match the asset entered.</li>
+        </ol>
+
+        <h3>Total Reads counter stays at 0</h3>
+        <ul>
+            <li>Click Start Scanning first &mdash; the pulsing banner must be visible.</li>
+            <li>DataWedge: verify RFID profile is active. Scan capture textarea auto-focuses every 500ms.</li>
+            <li>WebSerial: status must show &ldquo;Connected&rdquo; in green.</li>
+        </ul>
+
+        <h3>Audio not playing</h3>
+        <ul>
+            <li>Click Start Scanning first (satisfies browser user-gesture requirement).</li>
+            <li>Verify the &#128266; Audio Feedback toggle is green.</li>
+        </ul>
+
+        <h3>WebSerial shows &ldquo;Not Available&rdquo;</h3>
+        <p>Requires HTTPS or localhost. DataWedge keystroke mode continues to work regardless.</p>
+
+        <h3>Proximity meter not moving</h3>
+        <ul>
+            <li>Only activates on target tag reads. Non-target reads do not affect the meter.</li>
+            <li>Reader must be in continuous/inventory mode, not single-read.</li>
+            <li>Requires at least 2 reads to calculate RPS.</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>Comparison: WayFinder vs. iDash Locator</h2>
+        <table>
+            <tr><th>Feature</th><th>WayFinder (Dashboard)</th><th>RFID Locator (iDash)</th></tr>
+            <tr><td>Scope</td><td>Full asset grid</td><td>Target list only</td></tr>
+            <tr><td>Visual Feedback</td><td>Row turns green</td><td>Flash + proximity meter + KPIs</td></tr>
+            <tr><td>Audio</td><td>None</td><td>Proximity beeps + found chimes</td></tr>
+            <tr><td>Pre-loading</td><td>Manual filter</td><td>Query string, paste, or manual</td></tr>
+            <tr><td>Input Methods</td><td>DataWedge only</td><td>DataWedge + WebSerial + keyboard</td></tr>
+            <tr><td>Tag Normalization</td><td>Exact match</td><td>F-strip + EE-fuzzy + substring</td></tr>
+            <tr><td>Debug Logging</td><td>None</td><td>Raw Read Log (last 20 reads)</td></tr>
+            <tr><td>Auth</td><td>Cookie-based</td><td>Session-based, tile-gated</td></tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Related Pages</h2>
+        <table>
+            <tr><th>Page</th><th>Relationship</th></tr>
+            <tr><td><a href="va_inventory.html">VA Site Inventory</a></td><td>Inventory verifies room contents; Locator finds missing assets.</td></tr>
+            <tr><td><a href="va_ennx_live_scan.html">ENNX Live Scan</a></td><td>Shares WebSerial USB pattern.</td></tr>
+            <tr><td><a href="va_eil_live_scan.html">EIL Live Scan</a></td><td>Shares F-padding normalization logic.</td></tr>
+            <tr><td><a href="va_tagteam_scan.html">Tag Team Scan</a></td><td>Bulk tagging; Locator finds what was missed.</td></tr>
+            <tr><td><a href="va_reader_config.html">Fixed Reader Config</a></td><td>Fixed readers passively observe; Locator actively hunts.</td></tr>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>

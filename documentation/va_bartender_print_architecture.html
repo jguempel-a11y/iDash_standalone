@@ -1,0 +1,635 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>BarTender Print Architecture &amp; Troubleshooting &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .arch-flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 16px 0; }
+        .arch-box { padding: 10px 16px; border-radius: 8px; font-weight: 600; font-size: 13px; text-align: center; min-width: 120px; }
+        .arch-arrow { font-size: 20px; color: var(--muted-docs); }
+        .timeline { border-left: 3px solid var(--accent-docs); margin: 20px 0 20px 16px; padding-left: 20px; }
+        .timeline-item { position: relative; margin-bottom: 20px; }
+        .timeline-item::before { content: ''; position: absolute; left: -27px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-docs); border: 2px solid var(--bg); }
+        .timeline-item h4 { margin: 0 0 4px 0; color: var(--accent-docs); font-size: 14px; }
+        .timeline-item p { margin: 0; font-size: 13px; color: var(--muted-docs); }
+    </style>
+</head>
+<body>
+<div class="wrap">
+
+    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         HEADER
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" style="border-top:4px solid #06B6D4;">
+        <h1>&#128424; BarTender Print Architecture &amp; Troubleshooting</h1>
+        <div style="margin-bottom:16px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <div style="margin-right:15px; color:var(--muted-docs); font-size:14px;">Integrations:</div>
+            <span class='badge badge-new'>Modern REST API &amp; SDK</span>
+            <span class='badge' style="background:color-mix(in srgb, #10B981 15%, transparent); color:#10B981; border:1px solid #10B981;">Stateless SubStrings</span>
+            <span class='badge badge-db'>Legacy DB Connected</span>
+            <span class='badge' style="background:color-mix(in srgb, #8B5CF6 15%, transparent); color:#8B5CF6; border:1px solid #8B5CF6;">MQTT Spooler</span>
+            <span class='badge' style="background:color-mix(in srgb, #ef4444 15%, transparent); color:#ef4444; border:1px solid #ef4444;">Legacy Batch Fix</span>
+        </div>
+        <p style="color:var(--muted-docs); font-size:14px; margin-bottom:8px;">
+            Documents the label printing pipeline across iDash, iDash, BarTender Enterprise, and Zebra RFID printers.
+            Explains the legacy MQTT Print Server architecture (and its N&times;N duplicate bug fix) alongside the
+            modern <strong>Stateless BarTender API Engine</strong> that requires zero BarTender SQL Database.
+        </p>
+
+        <div class="alert-blue" style="margin-top:14px; margin-bottom:12px;">
+            <strong>&#127991;&#65039; Looking for the Modern Stateless Integration?</strong>
+            For documentation on the direct <strong>BarTender Enterprise REST API &amp; Print Engine</strong> with live 200 DPI visual label previews, in-memory SubStrings, and complete independence from local BarTender SQL databases, see:
+            <br>
+            <a href="va_bartender_api_integration.html" style="font-weight:700; color:var(--accent-docs); text-decoration:underline;">&rarr; View the BarTender REST API &amp; Print Engine Integration Guide</a>
+        </div>
+
+        <div style="margin-top:12px; font-size:13px; color:var(--muted-docs);">
+            Related pages:
+            <a href="va_bartender_api_integration.html"><strong>BarTender REST API Guide</strong></a> &bull;
+            <a href="va_print_admin.html">Print Administration</a> &bull;
+            <a href="va_tagteam_scan.html">Tag Team Scan</a> &bull;
+            <a href="va_excel_print.html">Excel Print</a> &bull;
+            <a href="va_printing_guide.html">Printing Asset Labels</a> &bull;
+            <a href="va_mqtt_config.html">MQTT Configuration</a>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TABLE OF CONTENTS
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>&#128218; Table of Contents</h2>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px 32px; font-size:14px;">
+            <div>1. <a href="#architecture">Print Pipeline Architecture</a></div>
+            <div>7. <a href="#substring-vs-db">SubStrings vs Database Fields</a></div>
+            <div>2. <a href="#data-flow">Data Flow: How Label Data Gets to BarTender</a></div>
+            <div>8. <a href="#code-changes">Code Changes Reference</a></div>
+            <div>3. <a href="#the-bug">The N&times;N Duplicate Label Bug</a></div>
+            <div>9. <a href="#troubleshooting">Troubleshooting Guide</a></div>
+            <div>4. <a href="#the-fix">The Fix: Batch Print Trigger</a></div>
+            <div>10. <a href="#deployment">Deployment Checklist</a></div>
+            <div>5. <a href="#bartender-setup">BarTender Template Setup</a></div>
+            <div>11. <a href="#lessons">Lessons Learned</a></div>
+            <div>6. <a href="#field-mapping">Complete Field Mapping Reference</a></div>
+            <div>&nbsp;</div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         1. ARCHITECTURE
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" id="architecture">
+        <h2>&#127959;&#65039; 1. Print Pipeline Architecture</h2>
+        <p>The iDash label printing system spans four components. Understanding this pipeline is essential for diagnosing print issues.</p>
+
+        <div class="arch-flow">
+            <div class="arch-box" style="background:color-mix(in srgb, #3b82f6 15%, transparent); border:2px solid #3b82f6; color:#3b82f6;">iDash / iDash UI<br><small style="font-weight:400;">User selects assets</small></div>
+            <div class="arch-arrow">&rarr;</div>
+            <div class="arch-box" style="background:color-mix(in srgb, #8B5CF6 15%, transparent); border:2px solid #8B5CF6; color:#8B5CF6;">iDash core API<br><small style="font-weight:400;">/printjob/print</small></div>
+            <div class="arch-arrow">&rarr;</div>
+            <div class="arch-box" style="background:color-mix(in srgb, #06B6D4 15%, transparent); border:2px solid #06B6D4; color:#06B6D4;">iDash Print Server<br><small style="font-weight:400;">MQTT subscriber</small></div>
+            <div class="arch-arrow">&rarr;</div>
+            <div class="arch-box" style="background:color-mix(in srgb, #10b981 15%, transparent); border:2px solid #10b981; color:#10b981;">BarTender<br><small style="font-weight:400;">Seagull SDK</small></div>
+            <div class="arch-arrow">&rarr;</div>
+            <div class="arch-box" style="background:color-mix(in srgb, #f59e0b 15%, transparent); border:2px solid #f59e0b; color:#f59e0b;">Zebra Printer<br><small style="font-weight:400;">Physical label</small></div>
+        </div>
+
+        <h3>Component Details</h3>
+        <table>
+            <thead><tr><th>Component</th><th>Location</th><th>Role</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>iDash / iDash UI</strong></td>
+                    <td><code>va_excel_print.aspx</code>, <code>va_asset_master.aspx</code>, iDash Angular</td>
+                    <td>User selects assets, chooses a label template, clicks "Print"</td>
+                </tr>
+                <tr>
+                    <td><strong>iDash core API</strong></td>
+                    <td><code>POST /api/printjob/print</code></td>
+                    <td>Receives the print request, <strong>inserts a row into <code>dbo.printjob</code></strong>, and <strong>publishes an MQTT message</strong> to the Print Server</td>
+                </tr>
+                <tr>
+                    <td><strong>iDash Print Server</strong></td>
+                    <td><code>C:\Program Files (x86)\InfinID Technologies\iDash Print Server\</code></td>
+                    <td>Subscribes to MQTT, receives print commands, opens the <code>.btw</code> template via the Seagull BarTender Print SDK, and calls <code>format.Print()</code></td>
+                </tr>
+                <tr>
+                    <td><strong>BarTender</strong></td>
+                    <td><code>C:\idash_prints\AW_Std_Small.btw</code> (template)</td>
+                    <td>Renders the label. If configured with a database connection, queries the <code>printjob</code> + <code>asset</code> tables for dynamic data</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Key Database Tables</h3>
+        <table>
+            <thead><tr><th>Table</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td><code>dbo.printjob</code></td><td>Queue of print jobs. <code>completed=0</code> = pending, <code>completed=1</code> = done, <code>completed=-1</code> = error</td></tr>
+                <tr><td><code>dbo.asset</code></td><td>Asset data. Print jobs reference assets via <code>printjob.recordid = asset.id</code></td></tr>
+                <tr><td><code>dbo.template</code></td><td>Label templates. Maps template name to <code>.btw</code> file path, company, and print client</td></tr>
+                <tr><td><code>dbo.customfield</code></td><td>Display names for asset fields (e.g., <code>text3</code> &rarr; "Serial Number"). <strong>These are the SubString names the Print Server uses</strong></td></tr>
+            </tbody>
+        </table>
+        <h3>Two Architectural Implementations</h3>
+        <p>iDash supports two distinct label printing pathways. Depending on your environment and database restrictions, you can use the legacy MQTT spooler or the modern stateless REST API engine:</p>
+
+        <table>
+            <thead><tr><th>Feature</th><th>Legacy: InfinID Print Server (MQTT)</th><th>Modern: Native iDash BarTender Engine</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>Execution Path</strong></td>
+                    <td>iDash &rarr; Core API &rarr; MQTT (8883) &rarr; Windows Service</td>
+                    <td>iDash UI &rarr; <code>BarTenderHandler.ashx</code> &rarr; <code>BarTenderApiHelper.cs</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Data Injection</strong></td>
+                    <td>Direct SQL query in <code>.btw</code> template (<code>WHERE completed=0</code>)</td>
+                    <td>In-memory SubStrings (Named Data Sources: <code>lblname</code>, <code>lblsn</code>, etc.)</td>
+                </tr>
+                <tr>
+                    <td><strong>SQL Database Need</strong></td>
+                    <td>Requires BarTender template to connect to <code>dbo.printjob</code></td>
+                    <td><strong>Zero SQL database needed</strong> (<code>doc.PrintSetup.UseDatabase = false</code>)</td>
+                </tr>
+                <tr>
+                    <td><strong>Visual Previews</strong></td>
+                    <td>&#10060; None (blind spooling only)</td>
+                    <td>&#9989; High-res 200 DPI PNG previews generated in RAM</td>
+                </tr>
+                <tr>
+                    <td><strong>Printer Status</strong></td>
+                    <td>Blind spooling via MQTT queue</td>
+                    <td>&#9989; Real-time detection of status &amp; models (e.g. Zebra ZD500R)</td>
+                </tr>
+                <tr>
+                    <td><strong>VA Compliance</strong></td>
+                    <td>Challenging if BarTender cannot host local SQL instances</td>
+                    <td><strong>100% compliant</strong> with separate network-hosted VA databases</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         2. DATA FLOW
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" id="data-flow">
+        <h2>&#128260; 2. Data Flow: How Label Data Gets to BarTender</h2>
+
+        <h3>&#9989; Method 1: Native iDash BarTender API (Modern Stateless SubStrings)</h3>
+        <p>
+            Implemented in <code>App_Code/BarTenderApiHelper.cs</code> and <code>api/BarTenderHandler.ashx</code>.
+            This method directly utilizes the <code>Seagull.BarTender.Print.dll</code> SDK in memory, completely bypassing the legacy Print Server limitation.
+            It sets <code>doc.PrintSetup.UseDatabase = false;</code> and injects data directly into Named Data Sources (SubStrings):
+        </p>
+        <pre class="code-block">doc.SubStrings.SetSubString("lblname", asset.item_desc);
+doc.SubStrings.SetSubString("lblsn", asset.serial_number);
+doc.SubStrings.SetSubString("lbleil", asset.eil_number);
+doc.SubStrings.SetSubString("lblrfidtag", asset.rfid_tag);
+doc.ExportPrintToFileToImage(...); // Generates instant 200 DPI PNG preview
+doc.Print("Std_Small");           // Spools directly to Zebra printer</pre>
+
+        <div class="alert-green">
+            <strong>&#9989; Recommended for VA Sites:</strong> 100% stateless, zero SQL database footprint in BarTender, and supports interactive visual previews before printing.
+        </div>
+
+        <h3>&#10060; Method 2: SubStrings with Legacy iDash Print Server (Does NOT Work)</h3>
+        <p>In theory, the legacy Windows service (<code>iDash.PrintServer.exe</code>) could open the <code>.btw</code> template and call <code>format.SubStrings.SetSubString()</code>. In practice, <strong>the legacy iDash Print Server does NOT inject SubStrings</strong>. It opens the template and prints it, but the SubString values remain as whatever "Embedded Data" was saved in the template.</p>
+
+        <div class="alert-red">
+            <strong>&#9888; Confirmed 08/25/2026:</strong> When using the legacy MQTT Print Server with Embedded Data fields (any name &mdash; <code>lblsn</code>, <code>Serial Number</code>, etc.), every label prints with the same static sample data baked into the template. The legacy Print Server does not call <code>SetSubString()</code>.
+        </div>
+
+        <h3>&#9881;&#65039; Method 3: Database Field Connection (Legacy Working Solution)</h3>
+        <p>For environments still operating the legacy MQTT Print Server, the BarTender template must be configured with a direct SQL Server database connection querying <code>dbo.printjob</code> and <code>dbo.asset</code>. When the Print Server triggers a print, BarTender executes the query and populates each label with real asset data from the database.</p>
+
+        <div class="alert-amber">
+            <strong>Legacy Operational Note:</strong> Requires maintaining SQL credentials inside the <code>.btw</code> template and careful coordination via <code>SubmitPrintJobsBatch()</code> to prevent N&times;N duplicate labels.
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         3. THE BUG
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" id="the-bug">
+        <h2>&#128027; 3. The N&times;N Duplicate Label Bug</h2>
+
+        <h3>The Problem</h3>
+        <p>When a user selected <strong>N</strong> assets to print, the system created <strong>N</strong> print jobs via the API. Each API call to <code>/printjob/print</code> does two things:</p>
+        <ol>
+            <li>Inserts a row into <code>dbo.printjob</code> with <code>completed=0</code></li>
+            <li>Publishes an MQTT message that triggers the Print Server</li>
+        </ol>
+
+        <p>With BarTender's database query set to <code>WHERE completed = 0</code> and "All Records" enabled:</p>
+
+        <div class="alert-red">
+            <strong>Select 3 assets &rarr; 3 API calls &rarr; 3 MQTT triggers</strong><br><br>
+            <strong>Trigger 1:</strong> BarTender queries DB &rarr; finds 1 pending record &rarr; prints 1 label<br>
+            <strong>Trigger 2:</strong> BarTender queries DB &rarr; finds 2 pending records &rarr; prints 2 labels<br>
+            <strong>Trigger 3:</strong> BarTender queries DB &rarr; finds 3 pending records &rarr; prints 3 labels<br><br>
+            <strong>Total: 6 labels</strong> (should be 3). Each label printed 1&ndash;3 times depending on timing. With rapid-fire triggers, it was closer to <strong>N &times; N = 9 labels</strong>.
+        </div>
+
+        <h3>Root Cause</h3>
+        <p>The <code>/printjob/print</code> API endpoint performs two actions atomically (DB insert + MQTT publish) and <strong>there is no way to separate them</strong>. Calling it N times triggers N prints. Combined with BarTender's "All Records" query, each trigger prints ALL pending records, causing exponential duplication.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         4. THE FIX
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" id="the-fix">
+        <h2>&#9989; 4. The Fix: Native API Sequential Batch Trigger</h2>
+
+        <div class="alert-green">
+            <strong>Solution: <code>SubmitPrintJobsBatch()</code></strong> &mdash; Submits each print job via the native <code>/api/printjob/print</code> endpoint using OAuth credentials, waiting for BarTender to complete each job (polling <code>completed = 1</code>) before sending the next. This ensures 100% independent server execution with zero duplicate labels.
+        </div>
+
+        <h3>How It Works</h3>
+        <ol style="line-height:2;">
+            <li>User selects N assets and clicks "Send to Printer" in Asset Master or Excel Print</li>
+            <li>iDash calls <code>IdashApiHelper.SubmitPrintJobsBatch()</code></li>
+            <li>The helper requests a site-scoped OAuth token and calls <code>POST /api/printjob/print</code> for the first asset</li>
+            <li>The API inserts the job, generates the RFID hex tag, and publishes the MQTT trigger to <code>iDash.PrintServer</code> on port 8883</li>
+            <li>The Print Server executes BarTender, prints the physical label, and marks <code>completed = 1</code> in SQL</li>
+            <li><code>WaitForPendingJobsComplete()</code> confirms the job is finished, then immediately dispatches the next asset in the queue</li>
+        </ol>
+
+        <p><strong>Result:</strong> Every selected asset prints exactly once. Zero duplicates, zero orphaned jobs, and zero external PowerShell scripts needed on production VA servers.</p>
+
+        <h3>Code Location</h3>
+        <pre class="code-block">// File: App_Code/IdashApiHelper.cs
+// Method: SubmitPrintJobsBatch(List&lt;long&gt; assetIds, long templateId, int companyId, out List&lt;string&gt; errors)
+
+// Submits each asset natively via /api/printjob/print, then awaits completion before dispatching the next.</pre>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         5. BARTENDER TEMPLATE SETUP
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" id="bartender-setup">
+        <h2>&#128736;&#65039; 5. BarTender Template Setup</h2>
+
+        <div class="alert-blue" style="margin-bottom:16px;">
+            <strong>&#127991;&#65039; Important for VA Installations (Zero SQL Database Mode):</strong>
+            If your site is utilizing the <strong>Native iDash BarTender REST API &amp; Print Engine</strong> (<a href="va_bartender_api_integration.html">documented here</a>), you do <strong>NOT</strong> need to configure a database connection inside the <code>.btw</code> template!
+            Templates for the native API engine use Named Data Sources (<code>lblname</code>, <code>lblsn</code>, <code>lbleil</code>, <code>lblrfidtag</code>) with <code>doc.PrintSetup.UseDatabase = false;</code>, completely eliminating local SQL database requirements.
+            The database connection setup below is strictly required only when running the legacy MQTT Print Server.
+        </div>
+
+        <div class="alert-amber">
+            <strong>&#9888;&#65039; Legacy MQTT Print Server Only:</strong> If relying on the legacy <code>iDash.PrintServer.exe</code> Windows service, the BarTender template must be configured with a database connection. Follow these steps exactly:
+        </div>
+
+        <h3>Step 1: Database Connection Setup</h3>
+        <ol>
+            <li>Open the <code>.btw</code> template in BarTender (e.g., <code>AW_Std_Small.btw</code>)</li>
+            <li>Go to <strong>File &rarr; Database Connection Setup</strong></li>
+            <li>Click <strong>Add...</strong></li>
+            <li>Choose <strong>"Microsoft OLE DB Provider for SQL Server"</strong> (or SQL Server Native Client)</li>
+            <li>Configure the connection:
+                <ul>
+                    <li><strong>Server:</strong> <code>.\sqlexpress</code> (or <code>localhost\sqlexpress</code>)</li>
+                    <li><strong>Database:</strong> <code>iDash</code></li>
+                    <li><strong>Authentication:</strong> SQL Server &rarr; <code>idashadmin</code> / <code>idashadmin</code></li>
+                </ul>
+            </li>
+        </ol>
+
+        <h3>Step 2: Set the Query</h3>
+        <p>Use a <strong>custom SQL query</strong> (not a table selection). This query joins <code>printjob</code> to <code>asset</code> to retrieve the actual asset data for each pending print job:</p>
+        <pre class="code-block">SELECT a.name, a.description, a.text3, a.text8, a.rfidtag
+FROM printjob p
+INNER JOIN asset a ON p.recordid = a.id
+WHERE p.completed = 0
+ORDER BY p.id ASC</pre>
+
+        <h3>Step 3: Configure Record Selection</h3>
+        <p>In the Database Connection Setup dialog, go to the <strong>Record Selection</strong> tab and set it to <strong>"All Records"</strong>. This tells BarTender to print one label per row returned by the query.</p>
+
+        <h3>Step 4: Map Fields to Database Columns</h3>
+        <p>For each text field on the label:</p>
+        <ol>
+            <li>Double-click the field on the label to open <strong>Text Properties</strong></li>
+            <li>Change the <strong>Type</strong> from "Embedded Data" to <strong>"Database Field"</strong></li>
+            <li>Select the corresponding column from the database connection</li>
+        </ol>
+
+        <table>
+            <thead><tr><th>Label Field Name</th><th>Type</th><th>Database Column</th><th>Asset Data</th></tr></thead>
+            <tbody>
+                <tr><td><code>lblname</code> (or any name)</td><td><strong>Database Field</strong></td><td><code>name</code></td><td>Asset name / EE number</td></tr>
+                <tr><td><code>lbldescription</code></td><td><strong>Database Field</strong></td><td><code>description</code></td><td>Equipment description</td></tr>
+                <tr><td><code>lblsn</code></td><td><strong>Database Field</strong></td><td><code>text3</code></td><td>Serial Number</td></tr>
+                <tr><td><code>lbleil</code></td><td><strong>Database Field</strong></td><td><code>text8</code></td><td>CMR / EIL</td></tr>
+                <tr><td><code>lblrfidtag</code></td><td><strong>Database Field</strong></td><td><code>rfidtag</code></td><td>RFID Tag EPC</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Step 5: Verify Print Settings</h3>
+        <ul>
+            <li><strong>Number of Identical Copies:</strong> <code>1</code></li>
+            <li><strong>File &rarr; Print &rarr; Copies:</strong> <code>1</code></li>
+            <li>No other "quantity" settings should be &gt; 1</li>
+        </ul>
+
+        <h3>Step 6: Save</h3>
+        <p>Save the template (<code>Ctrl+S</code>) and close BarTender. The Print Server will use this template for all future print jobs.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         6. FIELD MAPPING REFERENCE
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" id="field-mapping">
+        <h2>&#128209; 6. Complete Field Mapping Reference</h2>
+        <p>The <code>dbo.customfield</code> table defines the display names for each asset field. These are the names the iDash Print Server <em>should</em> use as SubString names (though it currently doesn't inject them).</p>
+
+        <table>
+            <thead><tr><th>DB Column</th><th>Custom Field Name (SubString)</th><th>iDash Display</th><th>Handheld Display</th></tr></thead>
+            <tbody>
+                <tr><td><code>name</code></td><td><code>Name</code> (built-in)</td><td>EE Number</td><td>EE Number</td></tr>
+                <tr><td><code>description</code></td><td><code>Description</code> (built-in)</td><td>Description</td><td>Description</td></tr>
+                <tr><td><code>text1</code></td><td><code>Manufacturer</code></td><td>Manufacturer</td><td>Manufacturer</td></tr>
+                <tr><td><code>text2</code></td><td><code>Model</code></td><td>Model</td><td>Model</td></tr>
+                <tr><td><code>text3</code></td><td><code>Serial Number</code></td><td>Serial Number</td><td>Serial</td></tr>
+                <tr><td><code>text4</code></td><td><code>Equipment Category</code></td><td>Equipment Category</td><td>Equipment Category</td></tr>
+                <tr><td><code>text5</code></td><td><code>Service Pointer</code></td><td>Service Pointer</td><td>Service Pointer</td></tr>
+                <tr><td><code>text6</code></td><td><code>Location</code></td><td>Location</td><td>Location</td></tr>
+                <tr><td><code>text7</code></td><td><code>Site</code></td><td>Site</td><td>Site</td></tr>
+                <tr><td><code>text8</code></td><td><code>CMR</code></td><td>CMR</td><td>CMR</td></tr>
+                <tr><td><code>text9</code></td><td><code>PO</code></td><td>PO</td><td>PO</td></tr>
+                <tr><td><code>text10</code></td><td><code>Physical Inventory Date</code></td><td>Physical Inventory Date</td><td>Inv Date</td></tr>
+                <tr><td><code>text11</code></td><td><code>Previous Location</code></td><td>Previous Location</td><td>Prev Location</td></tr>
+                <tr><td><code>text12</code></td><td><code>Entry Number</code></td><td>Entry Number</td><td>Entry Number</td></tr>
+                <tr><td><code>text13</code></td><td><code>EMPL_ID</code></td><td>EMPL_ID</td><td>EMPL_ID</td></tr>
+                <tr><td><code>text14</code></td><td><code>Substation</code></td><td>Substation</td><td>Substation</td></tr>
+                <tr><td><code>rfidtag</code></td><td><code>RFIDTag</code> (built-in)</td><td>RFID Tag</td><td>RFID Tag</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         7. SUBSTRINGS VS DATABASE FIELDS
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" id="substring-vs-db">
+        <h2>&#128260; 7. SubStrings vs Database Fields</h2>
+
+        <h3>What Are BarTender SubStrings?</h3>
+        <p>SubStrings (also called "Named Data Sources") are named fields in a BarTender template that can be programmatically set via the <code>Seagull.BarTender.Print.dll</code> SDK:</p>
+        <pre class="code-block">format.SubStrings.SetSubString("lblsn", "12345");  // Set serial number
+format.SubStrings.SetSubString("lbleil", "ABC-123"); // Set CMR</pre>
+
+        <h3>Why SubStrings Didn't Work with Legacy iDash Print Server</h3>
+        <div class="alert-red">
+            <p><strong>The legacy iDash Print Server does NOT call <code>SetSubString()</code></strong>. Despite having the <code>Seagull.BarTender.Print.dll</code> in its directory, the legacy Windows service simply opens the template and prints it without injecting any SubString values. All labels print with whatever "Embedded Data" was last saved in the template.</p>
+            <p style="margin-top:8px;"><strong>Tested with the following SubString names:</strong> <code>lblsn</code>, <code>lbleil</code>, <code>lblname</code>, <code>lbldescription</code>, <code>Serial Number</code>, <code>CMR</code>, <code>Name</code>, <code>Description</code> &mdash; none worked with the legacy service.</p>
+        </div>
+
+        <h3>&#9989; How SubStrings DO Work (Modern Native Engine &amp; Spooler)</h3>
+        <p>SubStrings work natively and reliably when driven through either:</p>
+        <ol style="line-height:1.8;">
+            <li>
+                <strong>The Native iDash BarTender Integration Engine</strong> (<code>App_Code/BarTenderApiHelper.cs</code> + <code>api/BarTenderHandler.ashx</code>):
+                Directly sets SubStrings in memory, supports live 200 DPI PNG visual previews to the browser, and executes physical print jobs to Zebra printers without touching local SQL.
+                See the <a href="va_bartender_api_integration.html">BarTender REST API Integration Guide</a> for full details.
+            </li>
+            <li>
+                <strong>The iDash Bypass Spooler</strong> (<code>iDash\printing\Run_Bypass_Spooler.ps1</code>):
+                A standalone PowerShell utility that calls the Seagull SDK directly from an interactive user session.
+            </li>
+        </ol>
+
+        <p>Both methods utilize these standardized <code>lbl</code>-prefixed Named Data Sources:</p>
+        <table>
+            <thead><tr><th>SubString Name</th><th>Data Source</th><th>Rendered Element</th></tr></thead>
+            <tbody>
+                <tr><td><code>lblname</code></td><td><code>asset.name</code> / Description</td><td>Top header text &amp; 2D DataMatrix</td></tr>
+                <tr><td><code>lbldescription</code></td><td><code>asset.description</code></td><td>Secondary equipment description</td></tr>
+                <tr><td><code>lblsn</code></td><td><code>asset.text3</code> (Serial Number)</td><td>Human-readable text &amp; barcode</td></tr>
+                <tr><td><code>lbleil</code></td><td><code>asset.text8</code> (CMR)</td><td>Primary Code 128 linear barcode</td></tr>
+                <tr><td><code>lblrfidtag</code></td><td><code>asset.rfidtag</code> (EPC Hex)</td><td>RFID tag inlay encoding</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         8. CODE CHANGES REFERENCE
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" id="code-changes">
+        <h2>&#128187; 8. Code Changes Reference</h2>
+        <p><strong>Date:</strong> 08/25/2026 &nbsp; <strong>Author:</strong> Antigravity AI + John Guempel</p>
+
+        <h3>File 1: <code>App_Code/IdashApiHelper.cs</code></h3>
+        <p><strong>Change:</strong> Added <code>SubmitPrintJobsBatch()</code> method</p>
+        <pre class="code-block">/// Batch print: Inserts all print jobs into the DB directly via SQL,
+/// then triggers the Print Server only ONCE (for the last job) via the API.
+public static int SubmitPrintJobsBatch(
+    List&lt;long&gt; assetIds, long templateId, int companyId,
+    out List&lt;string&gt; errors)
+{
+    // For 1 job: uses normal SubmitPrintJob() API call
+    // For N jobs:
+    //   1. INSERT (N-1) rows into dbo.printjob via SQL (no MQTT trigger)
+    //   2. Call SubmitPrintJob() for the LAST asset (triggers MQTT once)
+    //   3. BarTender "All Records" query picks up all N pending jobs
+}</pre>
+
+        <h3>File 2: <code>va_excel_print.aspx.cs</code></h3>
+        <p><strong>Change:</strong> <code>BtnImportPrint_Click</code> now calls <code>SubmitPrintJobsBatch()</code> instead of looping through <code>SubmitPrintJob()</code> per asset.</p>
+
+        <h3>File 3: <code>va_asset_master.aspx.cs</code></h3>
+        <p><strong>Change:</strong> <code>SubmitPrintJobs</code> WebMethod now collects all asset IDs first, then calls <code>SubmitPrintJobsBatch()</code> instead of per-asset API calls.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         9. TROUBLESHOOTING GUIDE
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" id="troubleshooting">
+        <h2>&#128269; 9. Troubleshooting Guide</h2>
+
+        <h3>Symptom: All labels print the same data (embedded sample data)</h3>
+        <div class="alert-red">
+            <strong>Cause:</strong> BarTender template fields are set to "Embedded Data" type, and the Print Server is not injecting SubStrings.<br>
+            <strong>Fix:</strong> Set up a database connection in the template with fields mapped as "Database Field" type. See <a href="#bartender-setup">Section 5</a>.
+        </div>
+
+        <h3>Symptom: Duplicate labels (N selected &rarr; N&times;N printed)</h3>
+        <div class="alert-red">
+            <strong>Cause:</strong> Each print API call triggers MQTT, and BarTender's "All Records" query prints all pending records each time.<br>
+            <strong>Fix:</strong> Use <code>SubmitPrintJobsBatch()</code> which triggers only once. See <a href="#the-fix">Section 4</a>.
+        </div>
+
+        <h3>Symptom: Only 1 label prints (selecting multiple)</h3>
+        <div class="alert-amber">
+            <strong>Cause:</strong> BarTender Record Selection is set to "First Record" instead of "All Records".<br>
+            <strong>Fix:</strong> In BarTender Database Connection Setup &rarr; Record Selection &rarr; set to <strong>"All Records"</strong>.
+        </div>
+
+        <h3>Symptom: "Bartender Print Result Failure" in Print Server logs</h3>
+        <div class="alert-amber">
+            <strong>Cause:</strong> Template file not found, BarTender license expired, printer not available, or template configuration error.<br>
+            <strong>Fix:</strong> Check:
+            <ul style="margin:8px 0 0 0;">
+                <li>Template path in <code>dbo.template.filename</code> matches the actual file location</li>
+                <li>BarTender is installed and licensed on the print server machine</li>
+                <li>The target printer is online and configured</li>
+                <li>Print Server log: <code>C:\Logs\PrintServer_log*.txt</code></li>
+            </ul>
+        </div>
+
+        <h3>Symptom: "Print Client not currently connected" message in printjob</h3>
+        <div class="alert-blue">
+            <strong>Cause:</strong> The iDash Print Server is not running or cannot connect to the MQTT broker.<br>
+            <strong>Fix:</strong> Start the Print Server service. Check <code>appsettings.json</code>:
+            <ul style="margin:8px 0 0 0;">
+                <li><code>MqttServer</code>: <code>localhost</code></li>
+                <li><code>MqttServerPort</code>: <code>8883</code></li>
+                <li><code>PrintClientUsername</code>: <code>MasterPrint</code></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         10. DEPLOYMENT CHECKLIST
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" id="deployment">
+        <h2>&#128640; 10. Deployment Checklist</h2>
+
+        <div class="alert-amber" style="margin-bottom:16px;">
+            <strong>&#9888;&#65039; BarTender SDK DLLs &amp; Reboot Requirement:</strong> The BarTender DLLs (<code>Seagull.BarTender.Print.dll</code>, <code>Seagull.Interop.dll</code>, etc.) required for printing from iDash will <strong>not</strong> be present or accessible until:
+            <ol style="margin:8px 0 0 0; padding-left:20px; line-height:1.6;">
+                <li><strong>BarTender is installed</strong> (use 64-bit edition).</li>
+                <li><strong>iDash Print Server is installed</strong> (places the SDK assemblies into <code>C:\Program Files (x86)\InfinID Technologies\iDash Print Server\</code>).</li>
+                <li><strong>The system is restarted (rebooted)</strong> to initialize BarTender background services, register native COM objects, and refresh system environment variables.</li>
+            </ol>
+        </div>
+
+        <h3>For each iDash server:</h3>
+        <table>
+            <thead><tr><th style="width:40px;">&#10003;</th><th>Step</th><th>Details</th></tr></thead>
+            <tbody>
+                <tr><td>&#9744;</td><td>Deploy <code>IdashApiHelper.cs</code></td><td>Copy to <code>iDash\App_Code\</code> &mdash; contains <code>SubmitPrintJobsBatch()</code></td></tr>
+                <tr><td>&#9744;</td><td>Deploy <code>va_excel_print.aspx.cs</code></td><td>Copy to <code>iDash\</code> &mdash; uses batch method for Import &amp; Print</td></tr>
+                <tr><td>&#9744;</td><td>Deploy <code>va_asset_master.aspx.cs</code></td><td>Copy to <code>iDash\</code> &mdash; uses batch method for Asset Master print</td></tr>
+                <tr><td>&#9744;</td><td>Run <code>iisreset</code></td><td>As Administrator &mdash; forces recompilation of App_Code</td></tr>
+                <tr><td>&#9744;</td><td>Configure BarTender template</td><td>Database connection + "Database Field" types + "All Records" &mdash; See <a href="#bartender-setup">Section 5</a></td></tr>
+                <tr><td>&#9744;</td><td>Verify Print Server running</td><td><code>iDash.PrintServer.exe</code> must be running and MQTT connected</td></tr>
+                <tr><td>&#9744;</td><td>Test: Print 1 label</td><td>Should print 1 label with correct data</td></tr>
+                <tr><td>&#9744;</td><td>Test: Print 3 labels</td><td>Should print exactly 3 labels, each with unique data</td></tr>
+                <tr><td>&#9744;</td><td>Test: Print from Asset Master</td><td>Same behavior &mdash; 1 trigger, N labels</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         11. LESSONS LEARNED
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" id="lessons">
+        <h2>&#128218; 11. Lessons Learned</h2>
+
+        <div class="timeline">
+            <div class="timeline-item">
+                <h4>1. The iDash Print Server does NOT inject SubStrings</h4>
+                <p>Despite having the Seagull SDK, the Print Server only opens the template and prints it. It does not call <code>SetSubString()</code>. Do not rely on SubStrings for dynamic data when using the Print Server.</p>
+            </div>
+            <div class="timeline-item">
+                <h4>2. BarTender "Embedded Data" = Static Sample Data</h4>
+                <p>Fields set to "Embedded Data" type always print whatever value was last saved in the template. They are NOT dynamically populated by the Print Server.</p>
+            </div>
+            <div class="timeline-item">
+                <h4>3. "Database Field" type is the only reliable way to get dynamic data</h4>
+                <p>Configure the BarTender template with a direct SQL Server connection and map fields to database columns. This is the only approach that reliably prints correct, unique data per label.</p>
+            </div>
+            <div class="timeline-item">
+                <h4>4. /printjob/print API = DB Insert + MQTT Trigger (inseparable)</h4>
+                <p>The iDash core API endpoint <code>/printjob/print</code> always inserts a row AND publishes an MQTT message. There is no way to insert a row without triggering the Print Server.</p>
+            </div>
+            <div class="timeline-item">
+                <h4>5. Multiple MQTT triggers + "All Records" = N&times;N duplicate labels</h4>
+                <p>Each MQTT trigger causes BarTender to query ALL pending records. If N triggers fire while N records are pending, you get approximately N&times;N labels. The fix is to trigger only once.</p>
+            </div>
+            <div class="timeline-item">
+                <h4>6. Direct SQL INSERT bypasses MQTT</h4>
+                <p>Inserting into <code>dbo.printjob</code> via SQL does not trigger the Print Server. This is the key insight that enables batch printing: insert N-1 rows via SQL, then trigger once via the API for the last row.</p>
+            </div>
+            <div class="timeline-item">
+                <h4>7. The Bypass Spooler and Native iDash Engine Inject SubStrings Correctly</h4>
+                <p>While the legacy InfinID Windows service failed to call <code>SetSubString()</code>, both <code>Run_Bypass_Spooler.ps1</code> and the new native <code>BarTenderApiHelper.cs</code> directly call the BarTender SDK and inject Named Data Sources in memory. This eliminates database dependencies in label templates.</p>
+            </div>
+            <div class="timeline-item">
+                <h4>8. Always verify on the actual print system</h4>
+                <p>The development server and the production print server may have different configurations, different Print Server versions, and different BarTender setups. Always test on the system where printing actually occurs.</p>
+            </div>
+            <div class="timeline-item">
+                <h4>9. BarTender DLLs Require Install Order + System Reboot</h4>
+                <p>The BarTender SDK DLLs (including <code>Seagull.BarTender.Print.dll</code> and <code>Seagull.Interop.dll</code>) required by the Print Server and Bypass Spooler will not be present or operational until BarTender is installed, the iDash Print Server installer has run, and the system is rebooted. Attempting to print before a reboot causes <em>Could not load file or assembly 'Seagull.Interop.dll'</em>.</p>
+            </div>
+            <div class="timeline-item">
+                <h4>10. Modern Native REST API &amp; Print Engine Resolves VA Database Constraints</h4>
+                <p>In secure VA hospital networks where local SQL Database instances (such as <code>MSSQL$BARTENDER</code>) cannot be maintained on the web server, the native iDash BarTender Integration Engine operates 100% statelessly using in-memory SubStrings and generates 200 DPI PNG label previews for the browser.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         REVISION HISTORY
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>&#128221; Revision History</h2>
+        <table>
+            <thead><tr><th>Date</th><th>Version</th><th>Change</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>2026-09-16</td>
+                    <td>2.2</td>
+                    <td><strong>Added Native BarTender API Engine &amp; Stateless SubString Architecture.</strong> Updated architecture comparisons, documented zero-SQL template mode for VA compliance, added Native Engine to SubString reference, and cross-referenced <a href="va_bartender_api_integration.html">va_bartender_api_integration.html</a>.</td>
+                </tr>
+                <tr>
+                    <td>2026-09-04</td>
+                    <td>2.1</td>
+                    <td><strong>Added BarTender DLL &amp; Reboot Prerequisites.</strong> Added explicit note to Section 10 Checklist and Lesson 9 documenting that BarTender SDK DLLs require BarTender installation, iDash Print Server installation, and a system reboot before printing can succeed.</td>
+                </tr>
+                <tr>
+                    <td>2026-08-31</td>
+                    <td>2.0</td>
+                    <td><strong>Documentation Overhaul.</strong> Migrated to card-based layout with docs_theme.css, standardized alert classes, added TOC grid, related pages nav, proper footer and revision history. Content unchanged.</td>
+                </tr>
+                <tr>
+                    <td>2026-08-25</td>
+                    <td>1.0</td>
+                    <td>Initial documentation. BarTender print architecture, N&times;N bug root cause, batch print fix, template setup, field mapping reference, troubleshooting, deployment checklist, and lessons learned.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-top:40px;padding-top:20px;border-top:1px solid var(--line);">
+        <a href="index.aspx" style="font-weight:600;">&larr; Back to Documentation Hub</a>
+        &nbsp;&bull;&nbsp;
+        <a href="va_mqtt_config.html">MQTT Configuration &rarr;</a>
+    </div>
+</div>
+
+<footer style="margin-top:40px;padding:20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted-docs);display:flex;justify-content:space-between;align-items:center;max-width:1100px;margin-left:auto;margin-right:auto;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
+        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
+        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+        <span>&copy; 2026 ID Integration Inc.</span>
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height:14px;opacity:0.9;">
+    </div>
+</footer>
+</body>
+</html>

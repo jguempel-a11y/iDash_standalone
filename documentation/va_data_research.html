@@ -1,0 +1,170 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA DATA RESEARCH &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<div class="wrap">
+    <a href="index.aspx">&larr; Back to Documentation Hub</a><br/><br/>
+
+    <div class="card">
+        <h1>&#128269; Data Research Portal</h1>
+        <div style="margin-bottom:12px;">
+            <span class="badge badge-db">Database Connected</span>
+            <span class="badge badge-api">WebMethod JSON API</span>
+        </div>
+        <p style="font-size:16px;margin:0;">
+            The <strong>Data Research Portal</strong> (<code>va_data_research.aspx</code>) is a high-capacity, dual-mode
+            asset investigation tool for administrators and field leads. It provides both a <strong>flat-file spreadsheet
+            viewer</strong> (for inspecting uploaded Excel/CSV data) and a <strong>live SQL search engine</strong> (for
+            querying the iDash database in real time). It is the go-to tool for debugging missing attributes,
+            tracking down specific assets, cross-referencing inventory data, and performing ad-hoc data quality investigations.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>Dual Operating Modes</h2>
+        <table>
+            <tr><th>Mode</th><th>How to Activate</th><th>Data Source</th><th>Best For</th></tr>
+            <tr>
+                <td><strong>Flat File Viewer</strong></td>
+                <td>Upload an Excel or CSV file via the file picker</td>
+                <td>Client-uploaded spreadsheet</td>
+                <td>Reviewing source data files, validating import batches, offline data inspection</td>
+            </tr>
+            <tr>
+                <td><strong>Live SQL Search</strong></td>
+                <td>Type a term in the search box and click <em>Load / Search</em></td>
+                <td>iDash SQL database (<code>dbo.asset</code>)</td>
+                <td>Finding specific assets, debugging records, bulk browsing live inventory data</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Flat File Viewer &mdash; How It Works</h2>
+        <p>
+            Click the file picker to select any <code>.xlsx</code>, <code>.xls</code>, or <code>.csv</code> file from your
+            local device. On upload, the server reads the file using the <strong>NPOI</strong> library (for Excel formats)
+            or a custom CSV parser, converts it to a <code>DataTable</code>, and renders the result as a fully interactive
+            HTML grid.
+        </p>
+        <ul>
+            <li>All column names are automatically extracted from the first row of the file.</li>
+            <li>The column chooser panel lets you show/hide any column to focus on specific fields.</li>
+            <li>The per-column search filter bar allows instant client-side filtering without reloading from the server.</li>
+            <li>Rows are rendered with alternating styles and hover highlights for readability.</li>
+        </ul>
+        <div class="warn">
+            <strong>&#9888; Note:</strong> Flat file uploads are read-only. The tool displays the data for inspection only &mdash;
+            it does not write any uploaded file data to the SQL database. Use the <a href="va_dbupdate.html">Database Update</a>
+            or <a href="va_sql_upload.html">SQL Upload</a> tools for import operations.
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Live SQL Search &mdash; How It Works</h2>
+        <p>
+            On page load, the tool auto-loads the 200 most recently modified asset records. Entering a search term and
+            clicking <strong>Load / Search</strong> (or pressing Enter) triggers the <code>SearchSqlAssets</code>
+            <code>[WebMethod]</code>, which runs a parameterized SQL query against <code>dbo.asset</code>.
+        </p>
+
+        <h3>Search Query Logic</h3>
+        <p>The search term is matched against multiple fields simultaneously using <code>LIKE</code> pattern matching:</p>
+        <pre>SELECT TOP (@top) *
+FROM dbo.asset
+WHERE description LIKE @like
+   OR name         LIKE @like
+   OR rfidtag      LIKE @like
+   [AND companyid = @site]  -- optional site filter
+ORDER BY lastmodified DESC</pre>
+
+        <p>This means a single search term will match against:</p>
+        <ul>
+            <li><strong><code>description</code></strong> &mdash; the human-readable asset description</li>
+            <li><strong><code>name</code></strong> &mdash; the EE barcode number</li>
+            <li><strong><code>rfidtag</code></strong> &mdash; the RFID EPC hex string</li>
+        </ul>
+
+        <h3>Site Filtering</h3>
+        <p>
+            If a site is selected from the <strong>Site</strong> dropdown before searching, an additional
+            <code>AND companyid = @site</code> clause is injected, restricting results to only assets belonging
+            to that facility. This is critical for multi-site environments where the same barcode prefix may
+            exist at different stations.
+        </p>
+
+        <h3>Column Chooser</h3>
+        <p>
+            The rendered grid includes <em>all</em> columns from the asset table by default, but a configurable
+            set of default visible columns is pre-defined in the code-behind:
+        </p>
+        <pre>id, name, description, lastobservedlocation, lastobservedtime,
+listvalue1, text6, text8, text16, text19,
+lastmodified, lastmodifiedby, lastinventoried, companyid, locationname</pre>
+        <p>
+            Users can toggle any column on or off using the <strong>Column Chooser</strong> panel, and the selection
+            persists within the session. A built-in column search box filters the chooser list for tables with many fields.
+        </p>
+
+        <h3>DataTables-Style Server API</h3>
+        <p>
+            The flat file viewer also exposes a secondary <code>[WebMethod]</code> endpoint (<code>GetDataTableData</code>)
+            that accepts DataTables-compatible parameters: <code>start</code>, <code>length</code>, <code>sortCol</code>,
+            <code>sortDir</code>, and a <code>searchCols</code> array for per-column filtering. This enables large datasets
+            to be paged and filtered server-side without loading the full file into the browser.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>Technical Architecture</h2>
+        <table>
+            <tr><th>Component</th><th>File</th><th>Role</th></tr>
+            <tr><td>Frontend UI</td><td><code>va_data_research.aspx</code></td><td>File picker, search box, site dropdown, interactive grid, column chooser</td></tr>
+            <tr><td>Backend Logic</td><td><code>va_data_research.aspx.cs</code></td><td>File parsing, SQL search, DataTable rendering, WebMethod API</td></tr>
+            <tr><td>Live Search API</td><td><code>[WebMethod] SearchSqlAssets</code></td><td>Parameterized SQL query returning JSON asset records</td></tr>
+            <tr><td>Grid Paging API</td><td><code>[WebMethod] GetDataTableData</code></td><td>Server-side paging, sorting, filtering for flat file datasets</td></tr>
+            <tr><td>File Parsing</td><td>NPOI + custom CSV parser</td><td>Converts uploaded Excel/CSV to <code>DataTable</code> for rendering</td></tr>
+            <tr><td>Site Filter</td><td><code>dbo.company</code> lookup</td><td>Translates site dropdown selection to <code>companyid</code> for SQL filter</td></tr>
+        </table>
+
+        <h3>Default Result Limit</h3>
+        <table>
+            <tr><th>Action</th><th>Record Limit</th></tr>
+            <tr><td>Page load (no search)</td><td>200 most recently modified assets</td></tr>
+            <tr><td>Load button (no search term)</td><td>500 most recently modified assets</td></tr>
+            <tr><td>Search with a term</td><td>Top 500 matching records by <code>lastmodified DESC</code></td></tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Access &amp; Security</h2>
+        <div class="ok">
+            This module is restricted to users with the <code>data_research</code> tile key in their iDash
+            <code>TileAccess</code> profile. It is typically granted to administrators and field leads only.
+            See <a href="va_user_management.html">User Management</a> for details.
+        </div>
+        <p>
+            All SQL queries are fully parameterized using <code>SqlParameter</code> &mdash; user search input is never
+            interpolated directly into any SQL string. The <code>[WebMethod]</code> endpoints are accessible only within
+            the same IIS application and do not expose unauthenticated external API access.
+        </p>
+    </div>
+
+    <div style="margin-top:20px;"><a href="index.aspx">&larr; Back to Documentation Hub</a></div>
+    <footer>
+        <span>&copy; 2026 ID Integration Inc. &mdash; iDash Documentation</span>
+        <span>iDash Data Research Portal</span>
+    </footer>
+</div>
+</body>
+</html>

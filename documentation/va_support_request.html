@@ -1,0 +1,417 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Support Request &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .field-table { width:100%; border-collapse:collapse; font-size:0.9rem; margin:16px 0; }
+        .field-table th { background:rgba(0,0,0,0.2); text-align:left; padding:10px 14px; border-bottom:2px solid var(--line-docs); font-weight:600; text-transform:uppercase; font-size:0.8rem; letter-spacing:.5px; }
+        .field-table td { padding:10px 14px; border-bottom:1px solid var(--line-docs); vertical-align:top; }
+        .field-table tr:hover td { background:rgba(99,102,241,0.06); }
+        .req  { color:var(--danger); font-weight:700; }
+        .auto { color:var(--accent-docs); font-style:italic; font-size:0.85em; }
+        .email-path { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:16px 0; }
+        .ep-box  { background:rgba(0,0,0,0.12); border:1px solid var(--line-docs); border-radius:8px; padding:8px 16px; font-size:0.9rem; text-align:center; }
+        .ep-arrow { color:var(--accent-docs); font-size:1.2rem; font-weight:700; }
+        .note-box { background:color-mix(in srgb,var(--accent-docs),transparent 92%); border-left:6px solid var(--accent-docs); padding:14px 18px; border-radius:0 10px 10px 0; margin:16px 0; font-size:0.9rem; }
+        .warn-box { background:color-mix(in srgb,#f59e0b,transparent 92%); border-left:6px solid #f59e0b; padding:14px 18px; border-radius:0 10px 10px 0; margin:16px 0; font-size:0.9rem; }
+        .code-block { background:rgba(0,0,0,0.15); border:1px solid var(--line-docs); border-radius:8px; padding:14px 18px; font-family:'Cascadia Code','Fira Code',monospace; font-size:0.85rem; overflow-x:auto; white-space:pre; line-height:1.6; }
+        .arch-flow { display:flex; align-items:stretch; gap:0; flex-wrap:wrap; margin:20px 0; }
+        .arch-step { flex:1; min-width:140px; padding:14px 16px; text-align:center; font-size:0.85rem; border:1px solid var(--line-docs); background:rgba(0,0,0,0.08); }
+        .arch-step:first-child { border-radius:10px 0 0 10px; }
+        .arch-step:last-child  { border-radius:0 10px 10px 0; }
+        .arch-step strong { display:block; color:var(--accent-docs); margin-bottom:4px; font-size:0.9rem; }
+        .arch-arrow { display:flex; align-items:center; color:var(--accent-docs); font-size:1.4rem; font-weight:700; padding:0 2px; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <a href="index.aspx">&larr; Back to Documentation Hub</a><br/><br/>
+
+    <!-- ═══════════════════════════════════════════════════════
+         HEADER
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card" style="background:linear-gradient(135deg,var(--card),rgba(46,168,255,0.05));">
+        <h1><img src="../Assets/branding/rfid.png" style="height:28px;vertical-align:middle;margin-right:10px;" alt="RFID" />Support Request</h1>
+        <p style="color:var(--muted-docs);font-size:16px;line-height:1.6;max-width:800px;">
+            Lets any authenticated iDash user submit a help ticket directly to ID Integration Support from the Hub.
+            The email is routed using the site&rsquo;s SMTP settings, the subject is pre-populated with the user&rsquo;s
+            assigned site name, and a copy goes to the submitter. Requests are sent asynchronously via AJAX &mdash;
+            no page reload required.
+        </p>
+        <div style="margin-top:12px;">
+            <span style="color:var(--muted-docs);font-size:0.9rem;">Source files:&nbsp;</span>
+            <code>index.aspx</code> &nbsp;&bull;&nbsp; <code>support_send.ashx</code> &nbsp;&bull;&nbsp; <code>App_Code/EmailHelper.cs</code>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         USER GUIDE — HOW TO ACCESS
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>&#128073; How to Access</h2>
+        <p>
+            When logged in, look in the <strong>upper-right user bar</strong> for the
+            <strong>Support Request</strong> pill (next to the theme toggle and Sign Out).
+            Clicking it opens a modal overlay without leaving the Hub.
+        </p>
+        <div class="note-box">
+            <strong>&#x2139; Visibility:</strong> The pill is only shown when a user is authenticated. It is not visible on the login screen.
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         USER GUIDE — FORM FIELDS
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>&#128203; Form Fields</h2>
+        <table class="field-table">
+            <tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr>
+            <tr>
+                <td><strong>Subject</strong></td>
+                <td>Read-only</td>
+                <td><span class="auto">Auto</span></td>
+                <td>Pre-populated as <em>&ldquo;Support Request from [site]&rdquo;</em>. Site name is pulled from the <code>IdashSiteAccess</code> session dictionary keys (exact site names from <code>dbo.company.name</code>). Admin accounts with wildcard access show the server machine name. Multiple sites joined with a comma.</td>
+            </tr>
+            <tr>
+                <td><strong>Your Name</strong></td>
+                <td>Text</td>
+                <td><span class="req">Required</span></td>
+                <td>First and last name of the person submitting the request.</td>
+            </tr>
+            <tr>
+                <td><strong>Email Address</strong></td>
+                <td>Email</td>
+                <td><span class="req">Required</span></td>
+                <td>Must be a valid email format. Receives a CC copy and is set as Reply-To so support replies go directly to the submitter.</td>
+            </tr>
+            <tr>
+                <td><strong>Phone Number</strong></td>
+                <td>Text</td>
+                <td><span class="req">Required</span></td>
+                <td>Contact phone for the submitter.</td>
+            </tr>
+            <tr>
+                <td><strong>Describe the Issue</strong></td>
+                <td>Multiline text</td>
+                <td><span class="req">Required</span></td>
+                <td>Full description. Resizable. White-space is preserved in the email body.</td>
+            </tr>
+        </table>
+        <div class="note-box">
+            <strong>&#x2139; Validation:</strong> All fields are validated client-side before submitting.
+            Empty or invalid fields are highlighted red. The Send button shows <em>&ldquo;&#x23F3; Sending&hellip;&rdquo;</em>
+            while the request is in flight to prevent double-submission.
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         USER GUIDE — EMAIL ROUTING
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>&#9993; Email Routing</h2>
+        <div class="email-path">
+            <div class="ep-box">iDash Server<br/><small>SMTP from<br/>Site Configuration</small></div>
+            <div class="ep-arrow">&#8594;</div>
+            <div class="ep-box"><strong>To:</strong><br/>varfid_support@<br/>id-integration.com</div>
+            <div class="ep-arrow">+</div>
+            <div class="ep-box"><strong>CC:</strong><br/>Submitter email</div>
+        </div>
+        <table class="field-table">
+            <tr><th>Header</th><th>Value</th></tr>
+            <tr>
+                <td><strong>From</strong></td>
+                <td><code>iDash Support Request &lt;[SMTP_FromEmail]&gt;</code><br/>Display name is always &ldquo;iDash Support Request&rdquo;. Address comes from Site Configuration.</td>
+            </tr>
+            <tr>
+                <td><strong>Reply-To</strong></td>
+                <td>Submitter name + email. Hitting Reply in any email client routes back to the person who submitted the request.</td>
+            </tr>
+            <tr>
+                <td><strong>To</strong></td>
+                <td><code>varfid_support@id-integration.com</code> (hardcoded)</td>
+            </tr>
+            <tr>
+                <td><strong>CC</strong></td>
+                <td>Submitter email address entered in the form.</td>
+            </tr>
+            <tr>
+                <td><strong>Subject</strong></td>
+                <td><em>Support Request from [site name]</em></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         USER GUIDE — CONFIRMATION & ERRORS
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>&#9989; Confirmation &amp; Error Behavior</h2>
+        <table class="field-table">
+            <tr><th>Outcome</th><th>What Happens</th></tr>
+            <tr>
+                <td><strong>Success</strong></td>
+                <td>Form fields cleared. Green confirmation shows the CC&rsquo;d address. Modal auto-closes after 4 seconds.</td>
+            </tr>
+            <tr>
+                <td><strong>Validation Failure</strong></td>
+                <td>Invalid fields highlighted red. Send blocked. Modal stays open.</td>
+            </tr>
+            <tr>
+                <td><strong>Send Failure</strong></td>
+                <td>Red error message with the SMTP host and full error detail (including inner exceptions). Modal stays open and the Send button re-enables for retry.</td>
+            </tr>
+            <tr>
+                <td><strong>Network Error</strong></td>
+                <td>Red message with the JavaScript error. Indicates a problem reaching the server handler itself (not the SMTP server).</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         SMTP DEPENDENCY
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>&#128268; SMTP Dependency</h2>
+        <p>Uses <code>EmailHelper.SendDirectEmail()</code> &mdash; the exact same SMTP code path that sends ENNX reports and all other automated iDash emails. Managed via <a href="va_site_config.html">Site Configuration</a>.</p>
+        <table class="field-table">
+            <tr><th>web.config Key</th><th>Used For</th></tr>
+            <tr><td><code>SMTP_Host</code></td><td>Mail server hostname or IP</td></tr>
+            <tr><td><code>SMTP_Port</code></td><td>587 for Office 365 / TLS, 25 for internal relay</td></tr>
+            <tr><td><code>SMTP_User</code></td><td>Auth username (blank = unauthenticated relay)</td></tr>
+            <tr><td><code>SMTP_Password</code></td><td>Auth password (blank = unauthenticated relay)</td></tr>
+            <tr><td><code>SMTP_FromEmail</code></td><td>From address. Must be a valid email address.</td></tr>
+        </table>
+        <div class="warn-box">
+            <strong>&#9888; SMTP_FromEmail must be a valid email address.</strong> If the Site Configuration
+            page previously saved a display name (e.g., &ldquo;613 - Martinsburg&rdquo;) into this field
+            instead of an address, email sending will fail. Verify in Site Configuration &rarr; Email &rarr; From Email.
+        </div>
+        <div class="note-box">
+            <strong>&#x2139; VA Facility Servers:</strong> VA firewalls may block outbound SMTP to external servers (e.g., smtp.office365.com:587).
+            Configure an internal SMTP relay (port 25, no credentials, no SSL). Contact VA IT for the relay hostname.
+            When credentials are blank, SSL is automatically disabled.
+        </div>
+        <div class="note-box">
+            <strong>&#x2139; Portability:</strong> The From address always reflects whatever <code>SMTP_FromEmail</code>
+            is configured on the current server. Nothing is hardcoded &mdash; deploying iDash to a new machine automatically
+            uses that machine&rsquo;s Site Configuration SMTP settings.
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         DEVELOPER REFERENCE — ARCHITECTURE
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>&#128736; Developer Reference &mdash; Architecture</h2>
+        <p>The Support Request uses an <strong>AJAX (fetch) architecture</strong> instead of an ASP.NET postback.
+           This was a deliberate design decision to solve modal reliability issues with full-page postbacks.</p>
+
+        <h3>Request Flow</h3>
+        <div class="arch-flow">
+            <div class="arch-step"><strong>1. User</strong>Clicks Send in modal</div>
+            <div class="arch-arrow">&rarr;</div>
+            <div class="arch-step"><strong>2. JavaScript</strong>Client-side validation<br/><code>sendSupportRequest()</code></div>
+            <div class="arch-arrow">&rarr;</div>
+            <div class="arch-step"><strong>3. fetch()</strong>POST to<br/><code>support_send.ashx</code></div>
+            <div class="arch-arrow">&rarr;</div>
+            <div class="arch-step"><strong>4. Handler</strong>Session check &rarr;<br/>server validation &rarr;<br/><code>EmailHelper.SendDirectEmail()</code></div>
+            <div class="arch-arrow">&rarr;</div>
+            <div class="arch-step"><strong>5. Response</strong>JSON back to modal<br/><code>{"ok":true}</code></div>
+        </div>
+
+        <h3>Why AJAX Instead of Postback?</h3>
+        <p>The Support Request modal lives inside <code>index.aspx</code> &mdash; a complex page with a large form, ViewState,
+           and many server controls. A full-page postback had several problems:</p>
+        <ul style="line-height:1.8;">
+            <li><strong>Modal hang:</strong> ASP.NET postback submits the entire form, reloads the page, and discards the modal state. The &ldquo;Sending&hellip;&rdquo; button would stay frozen because the page was waiting for the server to finish sending the email before returning the response.</li>
+            <li><strong>ViewState bloat:</strong> The large page ViewState made every postback slow, even before the SMTP send.</li>
+            <li><strong>User experience:</strong> Any server-side error during the SMTP send would close the modal and require re-opening it to see what happened.</li>
+        </ul>
+        <p>The AJAX approach sends <strong>only the 5 form fields</strong> to a lightweight <code>.ashx</code> handler. The modal stays open,
+           the button shows a spinner, and the JSON response updates the modal in-place &mdash; no page reload, no ViewState, instant feedback.</p>
+
+        <div class="note-box">
+            <strong>&#x2139; Session Requirement:</strong> The <code>support_send.ashx</code> handler implements <code>IRequiresSessionState</code>
+            so it can check <code>Session["IdashSiteAccess"]</code> to verify the user is authenticated. Without this interface, ASP.NET handlers
+            don&rsquo;t have access to session state.
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         DEVELOPER REFERENCE — FILE MAP
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>&#128193; Developer Reference &mdash; File Map</h2>
+        <table class="field-table">
+            <tr><th>File</th><th>Role</th></tr>
+            <tr>
+                <td><code>index.aspx</code></td>
+                <td>
+                    <strong>Modal UI &amp; JavaScript.</strong> Contains the modal overlay HTML (plain HTML inputs, not asp:TextBox server controls),
+                    CSS styles, and the <code>sendSupportRequest()</code> JavaScript function that validates fields and calls <code>fetch()</code>.
+                    The subject is auto-populated server-side via <code>&lt;%= GetSiteLabel() %&gt;</code>.
+                </td>
+            </tr>
+            <tr>
+                <td><code>index.aspx.cs</code></td>
+                <td>
+                    <strong>GetSiteLabel() helper only.</strong> Provides the site name for the auto-populated subject line.
+                    No email sending code &mdash; that was moved to the handler.
+                </td>
+            </tr>
+            <tr>
+                <td><code>support_send.ashx</code></td>
+                <td>
+                    <strong>AJAX endpoint.</strong> Lightweight HTTP handler that receives the form POST, validates inputs server-side,
+                    builds the HTML email body, and calls <code>EmailHelper.SendDirectEmail()</code>. Returns JSON:
+                    <code>{"ok":true}</code> on success or <code>{"ok":false,"error":"..."}</code> on failure.
+                    Implements <code>IRequiresSessionState</code> for authentication checks.
+                </td>
+            </tr>
+            <tr>
+                <td><code>App_Code/EmailHelper.cs</code></td>
+                <td>
+                    <strong>Shared SMTP engine.</strong> The <code>SendDirectEmail()</code> method uses the identical SMTP client setup
+                    as <code>SendEmail()</code> (used by ENNX reports). Reads <code>SMTP_*</code> settings from <code>web.config</code>,
+                    configures SSL/credentials, and sends with a <strong>15-second timeout</strong> to prevent indefinite hangs.
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         DEVELOPER REFERENCE — EmailHelper.SendDirectEmail()
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>&#128268; Developer Reference &mdash; EmailHelper.SendDirectEmail()</h2>
+        <p>Added to <code>App_Code/EmailHelper.cs</code> to support sending emails to arbitrary addresses (not just the ENNX recipient list).
+           Uses the <strong>exact same SMTP setup</strong> as the existing <code>SendEmail()</code> method.</p>
+
+        <h3>Method Signature</h3>
+        <div class="code-block">public static void SendDirectEmail(
+    string toAddress,       // Primary recipient email
+    string toName,          // Primary recipient display name
+    string ccAddress,       // CC recipient email (can be empty)
+    string ccName,          // CC recipient display name
+    string replyTo,         // Reply-To email (can be empty)
+    string replyToName,     // Reply-To display name
+    string subject,         // Email subject line
+    string body,            // HTML email body
+    string fromDisplayName  // From display name (default: "iDash")
+)</div>
+
+        <h3>Key Behaviors</h3>
+        <ul style="line-height:1.8;">
+            <li><strong>Timeout:</strong> 15-second hard limit via <code>SmtpClient.Timeout</code>. Prevents indefinite hangs when firewalls silently drop TCP connections.</li>
+            <li><strong>SSL:</strong> Enabled only when <code>SMTP_User</code> and <code>SMTP_Password</code> are both non-empty. This automatically handles both Office 365 (SSL + credentials) and internal VA relays (no SSL, no credentials).</li>
+            <li><strong>From address:</strong> Always uses <code>SMTP_FromEmail</code> from <code>web.config</code>. The <code>fromDisplayName</code> parameter only sets the display name, not the email address.</li>
+            <li><strong>Reusable:</strong> Can be used by any future feature that needs to send email to a specific address (not the ENNX recipient list). Just call <code>EmailHelper.SendDirectEmail(...)</code>.</li>
+        </ul>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         DEVELOPER REFERENCE — JSON API
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>&#128640; Developer Reference &mdash; Handler API</h2>
+        <h3>Endpoint</h3>
+        <div class="code-block">POST /iDash/support_send.ashx</div>
+
+        <h3>Request (form-encoded)</h3>
+        <table class="field-table">
+            <tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr>
+            <tr><td><code>name</code></td><td>string</td><td><span class="req">Yes</span></td><td>Submitter name</td></tr>
+            <tr><td><code>email</code></td><td>string</td><td><span class="req">Yes</span></td><td>Submitter email (used for CC and Reply-To)</td></tr>
+            <tr><td><code>phone</code></td><td>string</td><td><span class="req">Yes</span></td><td>Submitter phone number</td></tr>
+            <tr><td><code>message</code></td><td>string</td><td><span class="req">Yes</span></td><td>Issue description</td></tr>
+            <tr><td><code>subject</code></td><td>string</td><td><span class="req">Yes</span></td><td>Email subject line</td></tr>
+        </table>
+
+        <h3>Response (JSON)</h3>
+        <table class="field-table">
+            <tr><th>Status</th><th>Body</th><th>Meaning</th></tr>
+            <tr><td><code>200</code></td><td><code>{"ok":true}</code></td><td>Email sent successfully</td></tr>
+            <tr><td><code>400</code></td><td><code>{"ok":false,"error":"..."}</code></td><td>Validation failure (missing fields, bad email)</td></tr>
+            <tr><td><code>401</code></td><td><code>{"ok":false,"error":"Not authenticated"}</code></td><td>User not logged in (no session)</td></tr>
+            <tr><td><code>405</code></td><td><code>{"ok":false,"error":"Method not allowed"}</code></td><td>Not a POST request</td></tr>
+            <tr><td><code>500</code></td><td><code>{"ok":false,"error":"Failed to send via [host]: [detail]"}</code></td><td>SMTP failure with full error chain</td></tr>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         TROUBLESHOOTING
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>&#128679; Troubleshooting</h2>
+        <table class="field-table">
+            <tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+            <tr>
+                <td><strong>&ldquo;Network error: Unexpected token&rdquo;</strong></td>
+                <td>The <code>.ashx</code> handler returned an HTML error page instead of JSON. Usually a compilation error in the handler or a missing dependency.</td>
+                <td>Open <code>/iDash/support_send.ashx</code> directly in a browser to see the full ASP.NET error page. Fix the compilation error and recycle the app.</td>
+            </tr>
+            <tr>
+                <td><strong>&ldquo;Not authenticated&rdquo;</strong></td>
+                <td>Session expired or the handler can&rsquo;t access session state.</td>
+                <td>Verify <code>IRequiresSessionState</code> is implemented on the handler class. Refresh the page and log in again.</td>
+            </tr>
+            <tr>
+                <td><strong>&ldquo;Failed to send via smtp.office365.com&rdquo;</strong></td>
+                <td>SMTP credentials invalid, or the VA firewall is blocking outbound port 587.</td>
+                <td>Check <a href="va_site_config.html">Site Configuration</a> SMTP settings. For VA servers, use the internal relay (port 25, no creds).</td>
+            </tr>
+            <tr>
+                <td><strong>Button stays on &ldquo;Sending&hellip;&rdquo; for 15+ seconds</strong></td>
+                <td>SMTP timeout (15s). Firewall silently dropping TCP connection.</td>
+                <td>Verify SMTP connectivity: <code>Test-NetConnection smtp.office365.com -Port 587</code> from PowerShell on the server.</td>
+            </tr>
+            <tr>
+                <td><strong>ENNX reports send but Support Request doesn&rsquo;t</strong></td>
+                <td>Should not happen after v2.0 &mdash; both use the same <code>EmailHelper</code> code path. If it does, check browser DevTools console for JavaScript errors.</td>
+                <td>Open DevTools (F12) &rarr; Network tab, click Send, and inspect the <code>support_send.ashx</code> request/response.</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         REVISION HISTORY
+         ═══════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>&#128221; Revision History</h2>
+        <table class="field-table">
+            <tr><th>Date</th><th>Version</th><th>Change</th></tr>
+            <tr>
+                <td>2026-07-30</td>
+                <td>2.0</td>
+                <td>
+                    <strong>Major refactor: Postback &rarr; AJAX.</strong>
+                    Replaced ASP.NET postback with <code>fetch()</code> + <code>support_send.ashx</code> handler.
+                    Modal form fields converted from <code>asp:TextBox</code> server controls to plain HTML inputs.
+                    Email sending moved from <code>index.aspx.cs</code> code-behind to standalone <code>.ashx</code> handler.
+                    Added <code>EmailHelper.SendDirectEmail()</code> method to <code>App_Code/EmailHelper.cs</code> for reusable
+                    direct-address email sending. 15-second SMTP timeout added to prevent indefinite hangs.
+                    Error responses now include the SMTP host and full inner exception chain for diagnosis.
+                </td>
+            </tr>
+            <tr>
+                <td>2026-07-28</td>
+                <td>1.0</td>
+                <td>Initial implementation. Pill in Hub user bar. Modal with name, email, phone, issue. Auto-populated subject from session site. Reply-To set to submitter. Email to varfid_support@id-integration.com with CC to submitter.</td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="text-align:center;color:var(--muted-docs);font-size:12px;margin-top:40px;">
+        iDash Documentation v2.0 &middot; Build 2026-07-30 &middot; ID Integration Inc. &copy; 2026
+    </div>
+</div>
+</body>
+</html>

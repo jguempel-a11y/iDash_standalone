@@ -1,0 +1,232 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA PRINT MAPPING &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<div class="wrap">
+    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
+    <br/><br/>
+
+    <!-- HEADER -->
+    <div class="card">
+        <h1>&#128204; Print Mapping &amp; Routing Guide</h1>
+        <p style="color:var(--muted-docs); font-size:15px; margin:0;">
+            Covers <code>va_print_mapping.aspx</code>, the <code>print_mapping_config.json</code> it manages,
+            and how it fits into the three-layer print routing architecture.
+            Also explains the difference between <em>iDash web-based print mapping</em> and the
+            <em>PS Spooler hardware routing</em> &mdash; two separate systems that are often confused.
+        </p>
+    </div>
+
+    <!-- ARCHITECTURE OVERVIEW -->
+    <div class="card">
+        <h2>Three-Layer Print Routing Architecture</h2>
+        <p style="color:var(--muted-docs);">
+            A successful print job passes through three independent routing decisions. Each layer is controlled
+            by a different file or database table. Misconfiguring any layer will cause jobs to go to the wrong
+            template or printer.
+        </p>
+        <table>
+            <tr><th>Layer</th><th>What It Does</th><th>Controlled By</th><th>Who Reads It</th></tr>
+            <tr>
+                <td><span class="layer-num l1">1</span><strong>Mobile Auto-Map</strong></td>
+                <td>Selects which template ID gets assigned when the mobile app creates a print job</td>
+                <td>SQL <code>template.name</code> column &mdash; must exactly match the RFID tag type string</td>
+                <td>iDash Mobile App</td>
+            </tr>
+            <tr>
+                <td><span class="layer-num l2">2</span><strong>iDash Web Mapping</strong></td>
+                <td>When printing from the Tag Team Scan web UI, resolves which template ID to use for a given tag type</td>
+                <td><code>print_mapping_config.json</code> &mdash; managed by <code>va_print_mapping.aspx</code></td>
+                <td><code>va_tagteam_scan.aspx</code> via <code>InjectPrintScript()</code></td>
+            </tr>
+            <tr>
+                <td><span class="layer-num l3">3</span><strong>Hardware Routing</strong></td>
+                <td>Maps the <code>.btw</code> filename to the correct Windows printer name at print time</td>
+                <td><code>printer_routing.json</code> &mdash; edited manually in the spooler folder</td>
+                <td><code>Run_Bypass_Spooler.ps1</code></td>
+            </tr>
+        </table>
+
+        <div class="alert-yel" style="margin-top:18px;">
+            <strong style="color:#f59e0b;">&#9888; Common Confusion</strong><br/>
+            <code>print_mapping_config.json</code> and <code>printer_routing.json</code> are completely separate files
+            with different purposes. <code>va_print_mapping.aspx</code> manages <strong>only</strong>
+            <code>print_mapping_config.json</code>. The spooler hardware routing is controlled by
+            <code>printer_routing.json</code> in the spooler script folder &mdash; see the
+            <a href="print_server_setup.html">Print Server Setup guide</a> for that.
+        </div>
+    </div>
+
+    <!-- WHAT va_print_mapping.aspx DOES -->
+    <div class="card">
+        <h2>What <code>va_print_mapping.aspx</code> Does</h2>
+        <p style="color:var(--muted-docs);">
+            This page provides a UI for configuring Layer 2 &mdash; the <strong>iDash web print mapping</strong>.
+            It allows you to draw explicit links between an RFID tag type and a specific BarTender template,
+            and optionally force the print job to a specific print client or service.
+        </p>
+
+        <h3>What it writes</h3>
+        <p style="color:var(--muted-docs);">Saves to <code>print_mapping_config.json</code> in the iDash root directory:</p>
+        <pre>C:\inetpub\wwwroot\iDash\print_mapping_config.json</pre>
+        <p style="color:var(--muted-docs);">Example file content:</p>
+        <pre>{
+  "IQ350":         { "TemplateID": 3, "TargetType": "Default",  "TargetValue": "" },
+  "Large_Metal":   { "TemplateID": 5, "TargetType": "Client",   "TargetValue": "613Print" },
+  "Small_Standard":{ "TemplateID": 4, "TargetType": "Default",  "TargetValue": "" }
+}</pre>
+        <ul>
+            <li><strong>Key</strong>: The RFID tag type string (must match exactly what appears in the Tag Type column)</li>
+            <li><strong>TemplateID</strong>: The SQL <code>template.id</code> value to use for this tag type</li>
+            <li><strong>TargetType</strong>: <code>Default</code>, <code>Client</code>, or <code>Service</code></li>
+            <li><strong>TargetValue</strong>: The specific print client or service name (only when TargetType is not Default)</li>
+        </ul>
+
+        <h3 style="margin-top:18px;">What reads it</h3>
+        <p style="color:var(--muted-docs);">
+            On every page load of <code>va_tagteam_scan.aspx</code>, the C# method <code>InjectPrintScript()</code>
+            reads <code>print_mapping_config.json</code> and injects it as a JavaScript object:
+        </p>
+        <pre>window.awPrintConfig.templateMappings = { "IQ350": { "TemplateID": 3, ... }, ... };</pre>
+        <p style="color:var(--muted-docs);">
+            The <code>printCheckedTags()</code> and <code>printSingleTag()</code> JavaScript functions then use
+            <code>templateMappings</code> to resolve the correct template ID at print time.
+            If a tag type has no entry in the config, it falls back to a name-match against the template list,
+            then falls back to the first available template.
+        </p>
+    </div>
+
+    <!-- PRINT METHODS -->
+    <div class="card">
+        <h2>Server Print</h2>
+        <table>
+            <tr><th>Button</th><th>How It Works</th><th>When to Use</th><th>Requires BarTender?</th></tr>
+            <tr>
+                <td><strong>Server Print</strong></td>
+                <td>Calls the iDash <code>/api/printjobs/print</code> API &larr;&rsquo; inserts a <code>printjob</code> SQL row &larr;&rsquo; PS Spooler picks it up &larr;&rsquo; BarTender opens the <code>.btw</code>, encodes RFID chip, prints label</td>
+                <td>RFID tag encoding, any label requiring BarTender layout precision</td>
+                <td>&#10003; Yes &mdash; BarTender + PS Spooler must be running</td>
+            </tr>
+        </table>
+        <div class="alert-grn" style="margin-top:12px;">
+            The count shown (e.g., <em>Server Print (3)</em>) reflects the number of checked rows.
+        </div>
+    </div>
+
+    <!-- HOW TO CONFIGURE -->
+    <div class="card">
+        <h2>How to Configure Print Mappings</h2>
+
+        <h3>Option A &mdash; Name Match (Preferred, No UI Needed)</h3>
+        <p style="color:var(--muted-docs);">
+            The simplest approach. In the <code>template</code> SQL table, set the <code>name</code> column to
+            exactly match the RFID tag type string (e.g., <code>IQ350</code>, <code>Large_Metal</code>,
+            <code>Small_Standard</code>). The iDash print JS automatically performs a name-match fallback
+            against the template list, so no entry in <code>print_mapping_config.json</code> is needed at all.
+        </p>
+        <pre>UPDATE template SET name = 'IQ350'         WHERE id = 3;
+UPDATE template SET name = 'Small_Standard' WHERE id = 4;
+UPDATE template SET name = 'Large_Metal'    WHERE id = 5;</pre>
+        <div class="alert-grn">
+            This approach also fixes the mobile app auto-map (Layer 1) at the same time &mdash; one SQL
+            update resolves both the web and mobile print pipeline simultaneously.
+        </div>
+
+        <h3 style="margin-top:18px;">Option B &mdash; Explicit Mapping via <code>va_print_mapping.aspx</code></h3>
+        <p style="color:var(--muted-docs);">
+            Use this when your template is named differently from the tag type, or when you need to force
+            a specific print client per tag type.
+        </p>
+        <ol style="color:var(--muted-docs);">
+            <li>Open <strong>iDash Hub &rarr; Configure Print Templates</strong> (or navigate directly to <code>va_print_mapping.aspx</code>).</li>
+            <li>Select the <strong>Tag Type</strong> from the left dropdown (e.g., <code>IQ350</code>).</li>
+            <li>Select the <strong>Template</strong> from the middle dropdown (shows <code>template.name (Template ID: N)</code>).</li>
+            <li>Optionally set a <strong>Target Type</strong>:
+                <ul>
+                    <li><strong>Default</strong> &mdash; uses the routing target embedded in the template's SQL record (<code>template.usewithservice</code> or linked <code>printclient</code>)</li>
+                    <li><strong>Client</strong> &mdash; forces this tag type to a specific named print client (e.g., <code>613Print</code>)</li>
+                    <li><strong>Service</strong> &mdash; forces routing to a background print service</li>
+                </ul>
+            </li>
+            <li>Click <strong>Add Mapping</strong>. The entry is immediately written to <code>print_mapping_config.json</code>.</li>
+        </ol>
+        <div class="alert-yel">
+            <strong style="color:#f59e0b;">Note:</strong> Mappings added here only affect printing from the
+            <strong>iDash web interface</strong> (Tag Team Scan). They have no effect on the mobile app
+            auto-map or the PS Spooler hardware routing. Those are controlled by Layer 1 (SQL) and
+            Layer 3 (<code>printer_routing.json</code>) respectively.
+        </div>
+    </div>
+
+    <!-- ROUTING PRIORITY -->
+    <div class="card">
+        <h2>Template Resolution Priority (Web UI)</h2>
+        <p style="color:var(--muted-docs);">When <em>Server Print</em> or <em>Auto Print</em> is triggered from the web, the JS resolves the template in this order:</p>
+        <ol style="color:var(--muted-docs);">
+            <li><strong>Manual Override Dropdown</strong> &mdash; if the user selected a template from the <em>DdlPrintTemplate</em> dropdown in the action bar, that template ID is used unconditionally.</li>
+            <li><strong>print_mapping_config.json lookup</strong> &mdash; if the tag type has an entry in the mapping config, the mapped <code>TemplateID</code> is used.</li>
+            <li><strong>Name match</strong> &mdash; if no config entry, finds a template whose <code>name</code> exactly equals the tag type string.</li>
+            <li><strong>First available template</strong> &mdash; fallback of last resort; uses <code>printTemplates[0]</code>.</li>
+        </ol>
+    </div>
+
+    <!-- TROUBLESHOOTING -->
+    <div class="card">
+        <h2>&#128270; Troubleshooting</h2>
+
+        <h3>All jobs use the same template regardless of tag type</h3>
+        <ul>
+            <li>Check that <code>print_mapping_config.json</code> has entries for each tag type: open <code>va_print_mapping.aspx</code> and verify the mapping grid.</li>
+            <li>If using name-match, run <code>SELECT id, name FROM template</code> and confirm <code>name</code> exactly matches the tag type string (case-sensitive).</li>
+            <li>Open browser DevTools console on Tag Team Scan and check <code>window.awPrintConfig.templateMappings</code> &mdash; if it is <code>{}</code> or empty, the config file is missing or unreadable by IIS.</li>
+        </ul>
+
+        <h3 style="margin-top:16px;">Print goes to the wrong physical printer despite correct template</h3>
+        <ul>
+            <li>The template routing in <code>print_mapping_config.json</code> controls which <em>print client</em> receives the job, not which Windows hardware printer is used.</li>
+            <li>The hardware printer selection is controlled by <code>printer_routing.json</code> in the PS Spooler folder. See the <a href="print_server_setup.html">Print Server Setup guide</a>.</li>
+        </ul>
+
+        <h3 style="margin-top:16px;">Changes to mappings not taking effect</h3>
+        <ul>
+            <li><code>print_mapping_config.json</code> is re-read on every page load of <code>va_tagteam_scan.aspx</code> &mdash; no IIS restart needed.</li>
+            <li>Hard refresh the Tag Team Scan page (<kbd>Ctrl+Shift+R</kbd>) after adding a mapping.</li>
+            <li>Verify IIS has write permission to the iDash directory so <code>va_print_mapping.aspx</code> can save the file.</li>
+        </ul>
+
+        <h3 style="margin-top:16px;">print_mapping_config.json vs printer_routing.json quick reference</h3>
+        <table>
+            <tr><th>File</th><th>Location</th><th>Format</th><th>Read By</th><th>Purpose</th></tr>
+            <tr>
+                <td><code>print_mapping_config.json</code></td>
+                <td>iDash root (<code>C:\inetpub\wwwroot\...\iDash\</code>)</td>
+                <td><code>{ "TagType": { "TemplateID": N, "TargetType": "...", "TargetValue": "..." } }</code></td>
+                <td>iDash web JS via <code>InjectPrintScript()</code></td>
+                <td>Maps tag type &rarr; template ID for web UI prints</td>
+            </tr>
+            <tr>
+                <td><code>printer_routing.json</code></td>
+                <td>Same folder as running <code>.ps1</code> script (<code>$PSScriptRoot</code>)</td>
+                <td><code>{ "AW_IQ350.btw": "Metal_Small" }</code></td>
+                <td><code>Run_Bypass_Spooler.ps1</code></td>
+                <td>Maps <code>.btw</code> filename &rarr; Windows printer name</td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="text-align:center; color:var(--muted-docs); font-size:12px; margin-top:40px;">
+        iDash Documentation &copy; 2026 &mdash; Last updated 2026-04-24
+    </div>
+</div>
+</body>
+</html>

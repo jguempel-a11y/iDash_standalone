@@ -1,0 +1,249 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA LOG VIEWER &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<div class="container">
+
+    <h1>&#128270; IIS &amp; App Log Analyzer</h1>
+
+    <div style="margin-bottom: 28px; display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <span class="badge badge-iis">IIS W3C Logs</span>
+        <span class="badge badge-file">Serilog App Logs</span>
+        <span class="badge badge-none">Read-Only &mdash; No DB Required</span>
+        <span class="badge" style="background:color-mix(in srgb, #10b981, transparent 85%); color:#10b981; border:1px solid #10b981;">Login Audit</span>
+    </div>
+
+    <div class="info-box">
+        <strong>&#128270; What This Page Does:</strong> The IIS &amp; App Log Analyzer is an advanced, read-only log analysis tool for iDash administrators.
+        It parses raw IIS web server access logs and .NET application logs directly from the server's file system and presents them in a searchable,
+        filterable dashboard &mdash; complete with KPI summaries, bar charts, and an automated error diagnosis engine.
+    </div>
+
+
+    <h2>Module Purpose</h2>
+    <p>
+        When something goes wrong with the iDash portal or the iDash backend service, this page is where you start your investigation.
+        It reads two types of logs:
+    </p>
+    <ul>
+        <li>
+            <strong>IIS Web Server Logs (Tab 1 &mdash; Default):</strong> The raw access log written by IIS (Windows web server) for every single HTTP request that hits the server.
+            Think of it like a security camera log for your web site &mdash; every page visit, every API call, every error response is recorded here.
+        </li>
+        <li>
+            <strong>Application Service Logs (Tab 2):</strong> The structured log written by the iDash .NET background service using the <em>Serilog</em> logging library.
+            This is where authentication failures, database connection errors, and application startup problems are recorded.
+        </li>
+        <li>
+            <strong>Login Audit Trail (Tab 4):</strong> A persistent audit log of every sign-in attempt to iDash.
+            Records username, IP address, timestamp, role, and whether the login succeeded or failed.
+            Auto-trimmed at 90 days or 5,000 entries.
+        </li>
+    </ul>
+
+    <div class="warn-box">
+        <strong>&#9888; Login Required:</strong> This page requires an administrator login using the iDash admin account (<code>idashadmin</code>).
+        The login gate appears automatically when you open the page. Once authenticated, your session is remembered for the browser session.
+    </div>
+
+
+    <h2>Tab 1 &mdash; IIS Web Server Logs</h2>
+    <p>
+        IIS logs are W3C Extended Format text files stored in <code>C:\inetpub\logs\LogFiles\W3SVC1\</code>.
+        A new file is created each day, named like <code>u_ex260425.log</code> (year+month+day).
+    </p>
+
+    <h3>What You See</h3>
+    <ul>
+        <li><strong>KPI Cards:</strong> Total requests, 2xx successes, 3xx redirects, 4xx/5xx errors, unique client IPs, average response time in milliseconds, and total megabytes sent.</li>
+        <li><strong>Top Pages Chart:</strong> Bar graph showing the 8 most-requested pages/endpoints on the server.</li>
+        <li><strong>Top Client IPs Chart:</strong> Bar graph showing the 8 most active client IP addresses (loopback excluded).</li>
+        <li><strong>Status Code Breakdown:</strong> Visual breakdown of 2xx / 3xx / 4xx / 5xx response groups.</li>
+        <li><strong>Filterable Log Table:</strong> Every matching request shown with date, time, client IP, HTTP method, URI, query string, status code, response time, and browser.</li>
+    </ul>
+
+    <h3>Filters Available</h3>
+    <table>
+        <tr><th>Filter</th><th>What It Does</th></tr>
+        <tr><td>Log File</td><td>Select which day's IIS log to analyze from the dropdown. The most recent file is selected by default.</td></tr>
+        <tr><td>Filter URI (contains)</td><td>Type part of a page name to only show requests to that page. For example: <code>idash</code> shows all iDash requests; <code>ennx</code> shows only ENNX scan requests.</td></tr>
+        <tr><td>Client IP</td><td>Filter by part of an IP address. For example: <code>192.168</code> shows all internal network requests.</td></tr>
+        <tr><td>Method</td><td>Filter by HTTP method: All, GET (page loads), POST (form submissions), or HEAD.</td></tr>
+        <tr><td>Status</td><td>Filter by response group: All, 2xx Success, 3xx Redirect, 4xx Client Error, or 5xx Server Error.</td></tr>
+        <tr><td>Rows / Page</td><td>Control how many log entries are shown per page (50, 100, 250, or 500).</td></tr>
+    </table>
+
+    <h3>Exporting Data</h3>
+    <p>
+        Click <strong>Export CSV</strong> to download all filtered IIS log entries as a CSV file. The export includes all columns:
+        date, time, client IP, method, URI, query string, status code, sub-status, response time, bytes sent, and port.
+        This is useful for sharing with your network team or doing deeper analysis in Excel.
+    </p>
+
+    <h3>Reading Status Codes</h3>
+    <table>
+        <tr><th>Code Range</th><th>Meaning</th><th>Example</th></tr>
+        <tr><td style="color:#10b981;"><strong>2xx</strong></td><td>Success &mdash; the request worked normally</td><td>200 OK, 201 Created</td></tr>
+        <tr><td style="color:#f59e0b;"><strong>3xx</strong></td><td>Redirect &mdash; the browser was sent somewhere else</td><td>301 Moved, 302 Found</td></tr>
+        <tr><td style="color:#ef4444;"><strong>4xx</strong></td><td>Client Error &mdash; bad request or missing page</td><td>401 Unauthorized, 404 Not Found</td></tr>
+        <tr><td style="color:#f87171;"><strong>5xx</strong></td><td>Server Error &mdash; the server itself had a problem</td><td>500 Internal Server Error</td></tr>
+    </table>
+
+
+    <h2>Tab 2 &mdash; Application Service Logs</h2>
+    <p>
+        Application logs are written by the iDash .NET background service using <em>Serilog</em> structured logging.
+        Files are stored in <code>C:\logs\</code> with <code>.txt</code> or <code>.log</code> extensions.
+        Each line in the file represents one log entry, formatted like:
+    </p>
+    <pre>2026-04-15 11:27:15.492 -04:00 [ERR] Unable to acquire authentication token. GetTokenEndpoint failed.</pre>
+
+    <h3>Log Level Badges</h3>
+    <p>Each log entry is color-coded by severity level:</p>
+    <table>
+        <tr>
+            <td><span class="level-badge lvl-err">ERR</span> / <span class="level-badge lvl-err">FTL</span></td>
+            <td>Error or Fatal &mdash; something broke. These need attention. Red background on the row.</td>
+        </tr>
+        <tr>
+            <td><span class="level-badge lvl-wrn">WRN</span></td>
+            <td>Warning &mdash; something unusual happened but the service kept running. Yellow background.</td>
+        </tr>
+        <tr>
+            <td><span class="level-badge lvl-inf">INF</span></td>
+            <td>Informational &mdash; normal operational activity (service started, request handled, etc.).</td>
+        </tr>
+        <tr>
+            <td><span class="level-badge lvl-dbg">DBG</span> / <span class="level-badge lvl-dbg">VRB</span></td>
+            <td>Debug or Verbose &mdash; very detailed developer messages. Usually not shown unless debugging.</td>
+        </tr>
+    </table>
+
+    <h3>KPI Cards on App Logs Tab</h3>
+    <ul>
+        <li><strong>Total Entries:</strong> Total log entries in the selected file.</li>
+        <li><strong>Errors [ERR]:</strong> Count of ERR + FTL entries &mdash; the ones that need investigation.</li>
+        <li><strong>Warnings [WRN]:</strong> Count of warning-level entries.</li>
+        <li><strong>Info [INF]:</strong> Count of normal informational entries.</li>
+        <li><strong>Unique Messages:</strong> Number of distinct log messages &mdash; high ratios indicate spam/flooding.</li>
+        <li><strong>Top Error Repeat -:</strong> The single most repeated error message &mdash; its repeat count. A high number means the same crash is happening over and over.</li>
+    </ul>
+
+    <h3>App Log Filters</h3>
+    <table>
+        <tr><th>Filter</th><th>What It Does</th></tr>
+        <tr><td>Log File</td><td>Choose which Serilog log file to analyze.</td></tr>
+        <tr><td>Level</td><td>Filter to only show ERR, WRN, INF, or DBG entries.</td></tr>
+        <tr><td>Keyword (contains)</td><td>Free-text search across both the log message and the stack trace. For example: <code>token</code>, <code>authentication</code>, <code>PopulateData</code>.</td></tr>
+        <tr><td>Hide Stack Traces</td><td>Set to "Header Only" to collapse the exception call stack under each error &mdash; useful when you just need a quick count of what's failing.</td></tr>
+        <tr><td>Deduplicate</td><td>Set to "Unique Only" to collapse repeated identical messages into one row &mdash; makes it much easier to spot distinct failure types.</td></tr>
+    </table>
+
+    <h3>Auto-Diagnosis Banner</h3>
+    <p>
+        The analyzer automatically scans the loaded log file for known failure patterns and displays a highlighted warning banner at the top when issues are found. Currently it detects:
+    </p>
+    <ul>
+        <li>
+            <strong>Authentication token failures</strong> &mdash; detected when errors mention <code>GetTokenEndpoint</code>, <code>openid-configuration</code>, or <code>Unable to acquire authentication token</code>.
+            Root cause: the iDash API / IdentityServer process at <code>http://localhost/</code> is not running. Fix: start it in IIS.
+        </li>
+        <li>
+            <strong>High-frequency error spam</strong> &mdash; when the same error appears 5 or more times, the banner calls it out with the repeat count. This indicates a crash loop that is flooding the log file and should be fixed urgently.
+        </li>
+        <li>
+            <strong>Startup messages logged as ERR</strong> &mdash; indicates a misconfigured Serilog minimum level setting.
+        </li>
+    </ul>
+
+
+    <h2>Source Architecture</h2>
+    <table>
+        <tr><th>File</th><th>Purpose</th></tr>
+        <tr><td><code>va_log_viewer.aspx</code></td><td>Frontend markup &mdash; tabbed interface with IIS log panel and App log panel, KPI cards, filter bar, and log table</td></tr>
+        <tr><td><code>va_log_viewer.aspx.cs</code></td><td>Backend logic &mdash; IIS W3C parser, Serilog parser, KPI rendering, chart rendering, CSV export, auto-diagnosis engine, admin login session guard</td></tr>
+        <tr><td><code>C:\inetpub\logs\LogFiles\W3SVC1\</code></td><td>IIS log source directory &mdash; <code>u_ex*.log</code> files</td></tr>
+        <tr><td><code>C:\logs\</code></td><td>iDash .NET application log directory &mdash; <code>*.txt</code> / <code>*.log</code> Serilog files</td></tr>
+    </table>
+
+
+    <h2>Access Control</h2>
+    <p>
+        The page uses a simple session-based admin guard. The login credentials are the iDash SQL administrator account.
+        Upon a successful login, <code>Session["IsAdminAuthenticated"]</code> is set to <code>true</code>, unlocking the main dashboard panels.
+        Clicking <strong>Logout</strong> clears the session flag and returns to the login screen.
+    </p>
+    <div class="err-box">
+        <strong>&#128274; Security Note:</strong> The admin credentials for this page are the same as the iDash SQL admin account configured in <code>web.config</code>.
+        Do not share this password with non-administrative staff. The credential is stored in the application's session &mdash; it is not transmitted on each request after login.
+    </div>
+
+
+    <h2>Frequently Asked Questions</h2>
+    <ul>
+        <li>
+            <strong>Q: The IIS log dropdown is empty. What happened?</strong><br/>
+            A: The IIS log directory <code>C:\inetpub\logs\LogFiles\W3SVC1\</code> does not exist or contains no log files.
+            Verify that IIS logging is enabled for the site in IIS Manager.
+        </li>
+        <li>
+            <strong>Q: The App Logs dropdown is empty. What happened?</strong><br/>
+            A: No <code>.txt</code> or <code>.log</code> files were found in <code>C:\logs\</code>.
+            The iDash service may not have written any logs yet, or the Serilog output path may be configured differently.
+        </li>
+        <li>
+            <strong>Q: I see hundreds of "Unable to acquire authentication token" errors. What should I do?</strong><br/>
+            A: The iDash API (IdentityServer) is not running. Open IIS Manager, find the iDash API site, and start it.
+            Then wait 1&ndash;2 minutes &mdash; the errors should stop appearing in new log files.
+        </li>
+        <li>
+            <strong>Q: Can I delete or clear log files from this page?</strong><br/>
+            A: No. This page is read-only for IIS and app logs. If you need to clear logs, do so manually via the server file system or via the <strong>System Logs &amp; DB Automation</strong> page for iDash-specific logs.
+        </li>
+    </ul>
+
+    <h2>Tab 4 &mdash; Login Audit Trail</h2>
+    <p>The <strong>Login Audit</strong> tab shows every sign-in attempt recorded by iDash. Events are logged on both successful and failed logins from the main <code>index.aspx</code> login handler.</p>
+
+    <h3>KPI Cards</h3>
+    <table>
+        <tr><th>Card</th><th>Metric</th></tr>
+        <tr><td>Logins Today</td><td>Successful logins since midnight</td></tr>
+        <tr><td>Failures Today</td><td>Failed login attempts since midnight</td></tr>
+        <tr><td>Unique Users (7d)</td><td>Distinct usernames with successful logins in the last 7 days</td></tr>
+        <tr><td>Total Entries</td><td>Total entries in the audit log file</td></tr>
+    </table>
+
+    <h3>Table Columns</h3>
+    <p>Timestamp, Username, IP Address, Role, Result (OK / FAILED). Shows the last 100 entries, newest first.</p>
+
+    <h3>Storage &amp; Size Control</h3>
+    <p>Stored in <code>logs/login_audit.jsonl</code> (JSON Lines). File is auto-trimmed at 90 days or 5,000 entries, keeping the file under ~500 KB.</p>
+    <p>The same data is also visible on the <strong>User Management</strong> page (<code>va_user_management.aspx</code>) in the Login History card.</p>
+
+    <a href="index.aspx" class="back">&#8592; Back to Main Documentation</a>
+</div>
+
+<footer>
+    <div class="logo-row">
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height:16px; border-radius:3px;">
+        <span style="font-weight:700; font-size:14px; color:var(--text); letter-spacing:0.5px;">iDash<span style="color:#2ea8ff;">.</span></span>
+        <span style="color:var(--muted-docs); font-size:11px; margin-left:2px;">by ID Integration Inc.</span>
+    </div>
+    <div class="logo-row">
+        <span>&copy; 2026 ID Integration Inc.</span>
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height:14px; opacity:0.9;">
+    </div>
+</footer>
+</body>
+</html>

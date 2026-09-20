@@ -1,0 +1,44 @@
+{
+  "modules": [
+    {
+      "id": 1,
+      "title": "Module 1: Introduction to iDash",
+      "description": "Read pages 1 through 5 of the attached configure guide, then complete the quiz to advance.",
+      "pdfUrl": "documentation/VISN 5 Use and Configuration Guide for iDash.pdf",
+      "pdfPageStart": 1,
+      "minTimeSeconds": 60,
+      "questions": [
+        { "q": "What is the primary purpose of iDash?", "options": ["Inventory Tracking", "Email Client", "Game Engine", "Word Processor"], "answerIndex": 0 },
+        { "q": "Which of the following is an iDash feature?", "options": ["3D Modeling", "Tag Team Scan", "Video Editing", "Music Production"], "answerIndex": 1 },
+        { "q": "iDash is accessed via:", "options": ["Command Line only", "Web Browser", "Desktop App only", "Mobile App only"], "answerIndex": 1 },
+        { "q": "How often should you scan active assets?", "options": ["Never", "Yearly", "According to facility policy", "Every hour"], "answerIndex": 2 },
+        { "q": "What does a RFID tag do?", "options": ["Plays music", "Provides location tracking", "Cools the asset", "Sends emails"], "answerIndex": 1 },
+        { "q": "What is the meaning of a 'Flagged' asset in Tag Team Scan?", "options": ["Deleted asset", "Wrong site code", "Newly purchased", "Broken asset"], "answerIndex": 1 },
+        { "q": "How many characters is an EPC tag typically?", "options": ["4", "10", "24", "100"], "answerIndex": 2 },
+        { "q": "Can you operate Tag Team Scan offline?", "options": ["Yes, it queues scans", "No, it crashes", "Yes, but it deletes data", "No, it requires 5G"], "answerIndex": 0 },
+        { "q": "What scanning mode does ENNX use?", "options": ["Camera mode only", "Continuous keystroke output via DataWedge", "Bluetooth serial", "Manual entry only"], "answerIndex": 1 },
+        { "q": "If you scan a location tag (SP...), what happens?", "options": ["The system deletes it", "The system updates the current location", "The system logs out", "Nothing"], "answerIndex": 1 }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Module 2: Advanced Configuration",
+      "description": "Review advanced settings starting on page 6 of the guide, then take the quiz.",
+      "pdfUrl": "documentation/VISN 5 Use and Configuration Guide for iDash.pdf",
+      "pdfPageStart": 6,
+      "minTimeSeconds": 60,
+      "questions": [
+        { "q": "Sample question 1?", "options": ["A", "B", "C", "D"], "answerIndex": 0 },
+        { "q": "Sample question 2?", "options": ["A", "B", "C", "D"], "answerIndex": 1 },
+        { "q": "Sample question 3?", "options": ["A", "B", "C", "D"], "answerIndex": 0 },
+        { "q": "Sample question 4?", "options": ["A", "B", "C", "D"], "answerIndex": 0 },
+        { "q": "Sample question 5?", "options": ["A", "B", "C", "D"], "answerIndex": 0 },
+        { "q": "Sample question 6?", "options": ["A", "B", "C", "D"], "answerIndex": 0 },
+        { "q": "Sample question 7?", "options": ["A", "B", "C", "D"], "answerIndex": 0 },
+        { "q": "Sample question 8?", "options": ["A", "B", "C", "D"], "answerIndex": 0 },
+        { "q": "Sample question 9?", "options": ["A", "B", "C", "D"], "answerIndex": 0 },
+        { "q": "Sample question 10?", "options": ["A", "B", "C", "D"], "answerIndex": 0 }
+      ]
+    }
+  ]
+}

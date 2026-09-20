@@ -1,0 +1,15 @@
+{
+  "dwellTimeHours": 24,
+  "autoReassignLocation": false,
+  "departureTimeoutMinutes": 60,
+  "reportCron": "0 6 * * *",
+  "emailReport": false,
+  "emailRecipients": "",
+  "observationMismatchAlert": true,
+  "recentWindowDays": 7,
+  "readerIdentities": [
+    "Web Server"
+  ],
+  "lastDwellCheckUtc": "2026-08-27T20:11:02.8273809Z",
+  "lastReassignmentCount": 8
+}

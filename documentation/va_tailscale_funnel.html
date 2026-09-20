@@ -1,0 +1,306 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>TAILSCALE FUNNEL SETUP &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <div style="display:flex; gap:8px; padding:12px 32px; background:var(--card); border-bottom:1px solid var(--line); flex-wrap:wrap; font-size:13px;">
+        <a href="../index.aspx" style="color:var(--accent); text-decoration:none; font-weight:600;">&#8962; Hub</a>
+        <span style="color:var(--muted);">&bull;</span>
+        <a href="index.aspx" style="color:var(--accent); text-decoration:none; font-weight:600;">&#128196; All Docs</a>
+    </div>
+    <div class="container">
+        <h1>&#128279; Tailscale Funnel &mdash; Remote Access Setup</h1>
+        <div style="margin-bottom:30px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span class='badge' style="background:color-mix(in srgb, #3b82f6 15%, transparent); color:#3b82f6; border:1px solid #3b82f6;">Networking</span>
+            <span class='badge' style="background:color-mix(in srgb, #10b981 15%, transparent); color:#10b981; border:1px solid #10b981;">Remote Access</span>
+            <span class='badge' style="background:color-mix(in srgb, #f59e0b 15%, transparent); color:#f59e0b; border:1px solid #f59e0b;">VISN5-8</span>
+        </div>
+
+        <!-- OVERVIEW -->
+        <h2>Overview</h2>
+        <p>This guide configures <strong>Tailscale Funnel</strong> on <code>VISN5-8</code> to expose iDash and iDash (running on IIS port 80) through a public HTTPS URL. VA staff can then access iDash, print labels, and use all web features from their desktop without VPN or firewall changes.</p>
+
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Detail</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Value</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>Server</strong></td>
+                <td style="padding:10px;"><code>VISN5-8</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>Tailscale Account</strong></td>
+                <td style="padding:10px;"><code>v5martinsburg@id-integration.com</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>Local Service</strong></td>
+                <td style="padding:10px;">IIS on port <code>80</code> (iDash Web Portal + iDash)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>Public URL</strong></td>
+                <td style="padding:10px;"><code>https://visn5-8.tail&lt;xxxxx&gt;.ts.net</code> (auto-assigned by Tailscale)</td>
+            </tr>
+            <tr>
+                <td style="padding:10px;"><strong>Protocol</strong></td>
+                <td style="padding:10px;">Incoming: HTTPS (443, TLS by Tailscale) &rarr; Proxied to: HTTP (80, local IIS)</td>
+            </tr>
+        </table>
+
+        <!-- PREREQUISITES -->
+        <h2>Prerequisites</h2>
+        <div style="background:var(--chip); border:1px solid var(--line); border-radius:10px; padding:16px; margin:16px 0;">
+            <ul style="margin:0; padding-left:18px; line-height:2;">
+                <li>Tailscale client installed on <code>VISN5-8</code> and signed in as <code>v5martinsburg@id-integration.com</code></li>
+                <li>IIS running and serving iDash / iDash on port 80 (<code>http://localhost/iDash</code> works locally)</li>
+                <li>Admin access to the Tailscale admin console at <a href="https://login.tailscale.com/admin" target="_blank" style="color:var(--accent);">login.tailscale.com/admin</a></li>
+                <li>Administrator PowerShell on <code>VISN5-8</code></li>
+            </ul>
+        </div>
+
+        <!-- STEP 1 -->
+        <h2>Step 1 &mdash; Enable Funnel in the Admin Console</h2>
+        <p>These settings are account-wide and only need to be done once per tailnet.</p>
+
+        <h3>1a. Enable MagicDNS</h3>
+        <ol>
+            <li>Go to <a href="https://login.tailscale.com/admin/dns" target="_blank" style="color:var(--accent);">login.tailscale.com/admin/dns</a></li>
+            <li>Scroll to <strong>MagicDNS</strong> &mdash; toggle it <strong>ON</strong> if not already</li>
+        </ol>
+
+        <h3>1b. Enable HTTPS Certificates</h3>
+        <ol>
+            <li>On the same DNS page, find <strong>HTTPS Certificates</strong></li>
+            <li>Click <strong>Enable HTTPS</strong></li>
+            <li>This lets Tailscale auto-provision TLS certs for your <code>.ts.net</code> domain</li>
+        </ol>
+
+        <h3>1c. Allow Funnel in ACLs</h3>
+        <ol>
+            <li>Go to <a href="https://login.tailscale.com/admin/acls" target="_blank" style="color:var(--accent);">login.tailscale.com/admin/acls</a></li>
+            <li>Edit your access policy and add (or merge into existing <code>nodeAttrs</code>):</li>
+        </ol>
+        <pre style="background:var(--chip); border:1px solid var(--line); border-radius:8px; padding:14px; font-size:13px; overflow-x:auto;">"nodeAttrs": [
+  {
+    "target": ["autogroup:member"],
+    "attr":   ["funnel"]
+  }
+]</pre>
+        <p>Click <strong>Save</strong>. This allows all members of your tailnet to use Funnel.</p>
+
+        <!-- STEP 2 -->
+        <h2>Step 2 &mdash; Enable Unattended Mode</h2>
+        <p>This ensures Tailscale stays connected even when no user is logged in (critical for a server).</p>
+
+        <p><strong>Option A &mdash; GUI:</strong></p>
+        <ol>
+            <li>Right-click the Tailscale tray icon on <code>VISN5-8</code></li>
+            <li>Go to <strong>Preferences</strong></li>
+            <li>Check <strong>Run unattended</strong></li>
+        </ol>
+
+        <p><strong>Option B &mdash; CLI:</strong></p>
+        <pre style="background:var(--chip); border:1px solid var(--line); border-radius:8px; padding:14px; font-size:13px; overflow-x:auto;">tailscale up --unattended</pre>
+
+        <!-- STEP 3 -->
+        <h2>Step 3 &mdash; Verify Tailscale Service</h2>
+        <p>Make sure the Tailscale service starts automatically on boot:</p>
+        <pre style="background:var(--chip); border:1px solid var(--line); border-radius:8px; padding:14px; font-size:13px; overflow-x:auto;"># Run in elevated PowerShell on VISN5-8
+Get-Service Tailscale | Select-Object Name, Status, StartType
+
+# Should show: Running / Automatic
+# If not:
+Set-Service -Name Tailscale -StartupType Automatic
+Start-Service Tailscale</pre>
+
+        <!-- STEP 4 -->
+        <h2>Step 4 &mdash; Start Tailscale Funnel</h2>
+        <p>Open an <strong>Administrator PowerShell</strong> on <code>VISN5-8</code> and run both commands:</p>
+        <pre style="background:var(--chip); border:1px solid var(--line); border-radius:8px; padding:14px; font-size:13px; overflow-x:auto;"># Funnel 1: iDash / iDash (IIS port 80 → public HTTPS 443)
+tailscale funnel --bg 80
+
+# Funnel 2: BarTender Print Portal (port 8080 → public HTTPS 8443)
+tailscale funnel --bg --https=8443 8080</pre>
+
+        <p>Tailscale will:</p>
+        <ul>
+            <li>Auto-provision a TLS certificate for <code>visn5-8.tail&lt;xxxxx&gt;.ts.net</code></li>
+            <li>Listen on public HTTPS port <strong>443</strong> &rarr; proxy to local IIS port 80</li>
+            <li>Listen on public HTTPS port <strong>8443</strong> &rarr; proxy to local BarTender port 8080</li>
+        </ul>
+
+        <div style="background:color-mix(in srgb, #10b981, transparent 90%); border:1px solid #10b981; border-radius:10px; padding:16px; margin:16px 0;">
+            <strong style="color:#10b981;">&#128161; The <code>--bg</code> flag is critical</strong>
+            <p style="margin:6px 0 0; font-size:13px;">Without <code>--bg</code>, Funnel only runs while the PowerShell window is open. With <code>--bg</code>, it runs as a background service and survives reboots.</p>
+        </div>
+
+        <div style="background:color-mix(in srgb, #8B5CF6, transparent 90%); border:1px solid #8B5CF6; border-radius:10px; padding:16px; margin:16px 0;">
+            <strong style="color:#8B5CF6;">&#128214; Funnel Port Limitations</strong>
+            <p style="margin:6px 0 0; font-size:13px;">Tailscale Funnel only supports public ports <strong>443</strong>, <strong>8443</strong>, and <strong>10000</strong>. You cannot use 8080 as the public-facing port, which is why BarTender is mapped to 8443 instead.</p>
+        </div>
+
+        <!-- STEP 5 -->
+        <h2>Step 5 &mdash; Get Your Public URLs</h2>
+        <pre style="background:var(--chip); border:1px solid var(--line); border-radius:8px; padding:14px; font-size:13px; overflow-x:auto;"># Check what URLs were assigned
+tailscale funnel status</pre>
+
+        <p>Output will show something like:</p>
+        <pre style="background:var(--chip); border:1px solid var(--line); border-radius:8px; padding:14px; font-size:13px; overflow-x:auto; color:#10b981;"># https://visn5-8.tail12345.ts.net/
+# |-- proxy http://127.0.0.1:80
+#
+# https://visn5-8.tail12345.ts.net:8443/
+# |-- proxy http://127.0.0.1:8080
+# Funnel on (tailnet + public)</pre>
+
+        <p><strong>URLs for VA users:</strong></p>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">App</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Public URL</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong>iDash</strong></td>
+                <td style="padding:10px;"><code>https://visn5-8.tail&lt;xxxxx&gt;.ts.net/iDash/</code></td>
+            </tr>
+            <tr>
+                <td style="padding:10px;"><strong>BarTender Print Portal</strong></td>
+                <td style="padding:10px;"><code>https://visn5-8.tail&lt;xxxxx&gt;.ts.net:8443/</code></td>
+            </tr>
+        </table>
+
+        <!-- STEP 6 -->
+        <h2>Step 6 &mdash; Test from Outside</h2>
+        <ol>
+            <li>On a device <strong>NOT on the tailnet</strong> (e.g., a VA user's desktop, your phone), open a browser</li>
+            <li>Test <strong>iDash</strong>: navigate to <code>https://visn5-8.tail12345.ts.net/iDash/</code> &mdash; should see the login page</li>
+            <li>Test <strong>BarTender</strong>: navigate to <code>https://visn5-8.tail12345.ts.net:8443/</code> &mdash; should see the Print Portal</li>
+            <li>Test printing to confirm the full stack works through the tunnel</li>
+        </ol>
+
+        <!-- STEP 7 -->
+        <h2>Step 7 &mdash; Verify After Reboot</h2>
+        <p>Restart <code>VISN5-8</code> and confirm Funnel comes back automatically:</p>
+        <pre style="background:var(--chip); border:1px solid var(--line); border-radius:8px; padding:14px; font-size:13px; overflow-x:auto;"># After reboot, check status
+tailscale funnel status
+tailscale status</pre>
+        <p>Both should show the node online and Funnel active.</p>
+
+        <!-- MANAGEMENT -->
+        <h2>Management Commands</h2>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Action</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Command</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">Start Funnel &mdash; iDash (port 80)</td>
+                <td style="padding:10px;"><code>tailscale funnel --bg 80</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">Start Funnel &mdash; BarTender (port 8080)</td>
+                <td style="padding:10px;"><code>tailscale funnel --bg --https=8443 8080</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">Check status</td>
+                <td style="padding:10px;"><code>tailscale funnel status</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">Stop Funnel (close public access)</td>
+                <td style="padding:10px;"><code>tailscale funnel off</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">Check Tailscale status</td>
+                <td style="padding:10px;"><code>tailscale status</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">View node's public hostname</td>
+                <td style="padding:10px;"><code>tailscale whois --self</code></td>
+            </tr>
+            <tr>
+                <td style="padding:10px;">Restart Tailscale service</td>
+                <td style="padding:10px;"><code>Restart-Service Tailscale</code></td>
+            </tr>
+        </table>
+
+        <!-- SECURITY -->
+        <h2>Security Considerations</h2>
+        <div style="background:color-mix(in srgb, #f59e0b, transparent 90%); border:1px solid #f59e0b; border-radius:10px; padding:16px; margin:16px 0;">
+            <strong style="color:#f59e0b;">&#9888; Funnel = Public Internet Access</strong>
+            <p style="margin:6px 0 0; font-size:13px;">Tailscale Funnel exposes your server to the <strong>entire internet</strong>, not just your tailnet. Anyone with the URL can reach IIS. Make sure:</p>
+            <ul style="font-size:13px; margin:8px 0 0; padding-left:18px;">
+                <li>iDash and iDash have <strong>authentication enabled</strong> (login required)</li>
+                <li>IIS is <strong>not</strong> serving other sensitive apps on port 80</li>
+                <li>The WebClient API requires <strong>Bearer token auth</strong> (it does by default)</li>
+                <li>Consider <strong>IP allowlisting</strong> in IIS if only specific VA networks need access</li>
+            </ul>
+        </div>
+
+        <!-- TROUBLESHOOTING -->
+        <h2>Troubleshooting</h2>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Symptom</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Fix</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><code>funnel: not enabled</code></td>
+                <td style="padding:10px;">ACL policy missing <code>"funnel"</code> attr &mdash; see Step 1c</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><code>HTTPS cert error</code></td>
+                <td style="padding:10px;">Enable HTTPS Certificates in the admin DNS page &mdash; see Step 1b</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">502 Bad Gateway</td>
+                <td style="padding:10px;">IIS is not running or not listening on port 80. Check with <code>netstat -an | findstr :80</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">Funnel gone after reboot</td>
+                <td style="padding:10px;">Re-run <code>tailscale funnel --bg 80</code>. Ensure <code>Run unattended</code> is on (Step 2). Verify Tailscale service is Automatic (Step 3).</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">Page loads but prints fail</td>
+                <td style="padding:10px;">MQTT runs on a separate port (8883) not exposed by Funnel. Print jobs go DB &rarr; MQTT &rarr; Print Server, so MQTT only needs to work <em>locally</em> on the server. Printing should still work.</td>
+            </tr>
+            <tr>
+                <td style="padding:10px;">Can't reach from VA desktop</td>
+                <td style="padding:10px;">VA firewall may block <code>*.ts.net</code>. The user needs outbound HTTPS (443) to Tailscale's relay. No inbound rules needed on the VA side.</td>
+            </tr>
+        </table>
+
+        <!-- HOW IT WORKS -->
+        <h2>How It Works (Architecture)</h2>
+        <pre style="background:var(--chip); border:1px solid var(--line); border-radius:8px; padding:14px; font-size:12px; overflow-x:auto; line-height:1.8;">
+VA User's Browser
+    |
+    | HTTPS (port 443)
+    v
+Tailscale Edge (cloud relay)
+    |
+    | Encrypted WireGuard tunnel
+    v
+VISN5-8 Tailscale Client
+    |
+    | HTTP (port 80, localhost)
+    v
+IIS &rarr; iDash Web Portal &rarr; iDash
+    |
+    | MQTT (port 8883, localhost)
+    v
+iDash Print Server &rarr; BarTender &rarr; Label Printer
+        </pre>
+        <p>Key: The VA user only needs outbound HTTPS. No VPN, no firewall rules, no port forwarding. Tailscale handles TLS termination and proxies to local IIS.</p>
+
+        <div style="margin-top:30px; padding-top:20px; border-top:1px solid var(--line); font-size:12px; color:var(--muted-docs);">
+            <em>Created: August 2026 &bull; Server: VISN5-8 &bull; Account: v5martinsburg@id-integration.com &bull; Tailscale Funnel</em>
+        </div>
+    </div>
+</body>
+</html>

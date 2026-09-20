@@ -1,0 +1,280 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>iDash Docs &mdash; Scanner &amp; Device Registration Management</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+</head>
+<body>
+    <a href="index.aspx" class="back-link">&larr; Documentation Hub</a>
+
+    <div class="doc-container">
+        <h1>&#128225; Scanner &amp; Device Registration Management</h1>
+        <p class="doc-subtitle">Understanding, auditing, and managing RFID scanner registrations in the iDash <code>dbo.scanner</code> table. Includes compliance tracking, safe cleanup procedures, and impact analysis.</p>
+
+        <div class="callout callout-info">
+            <strong>What is this?</strong> iDash automatically registers RFID handheld scanners (Android app) when they connect and sync. Each device gets a unique <code>deviceid</code> fingerprint. The compliance page in iDash counts these registrations to ensure you stay within your license limits.
+        </div>
+
+        <!-- ═══════ SECTION 1 ═══════ -->
+        <h2 id="s1"><span class="section-num">1</span> Table Schema: <code>dbo.scanner</code></h2>
+
+        <table class="doc-table">
+            <thead>
+                <tr>
+                    <th>Column</th>
+                    <th>Type</th>
+                    <th>Nullable</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>id</code></td>
+                    <td>int</td>
+                    <td>NO</td>
+                    <td>Primary key (identity)</td>
+                </tr>
+                <tr>
+                    <td><code>companyname</code></td>
+                    <td>varchar(100)</td>
+                    <td>NO</td>
+                    <td>Site/company name at time of registration (e.g. "613 Martinsburg")</td>
+                </tr>
+                <tr>
+                    <td><code>deviceid</code></td>
+                    <td>varchar(100)</td>
+                    <td>YES</td>
+                    <td>Unique device fingerprint (hardware-generated hex string)</td>
+                </tr>
+                <tr>
+                    <td><code>inactive</code></td>
+                    <td>bit</td>
+                    <td>YES</td>
+                    <td>Soft-delete flag &mdash; <code>1</code> = deactivated, <code>0</code> = active</td>
+                </tr>
+                <tr>
+                    <td><code>description</code></td>
+                    <td>varchar(500)</td>
+                    <td>YES</td>
+                    <td>Optional description or label for the device</td>
+                </tr>
+                <tr>
+                    <td><code>lastseen</code></td>
+                    <td>datetimeoffset</td>
+                    <td>YES</td>
+                    <td>Timestamp of the last sync from this scanner</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- ═══════ SECTION 2 ═══════ -->
+        <h2 id="s2"><span class="section-num">2</span> Dependency &amp; Impact Analysis</h2>
+
+        <div class="callout callout-ok">
+            <strong>Safe to delete.</strong> The <code>scanner</code> table has <strong>no foreign key references</strong> from any other table. Deleting rows will not cascade or break any relationships.
+        </div>
+
+        <h3>What happens when you delete scanner records:</h3>
+        <table class="doc-table">
+            <thead>
+                <tr>
+                    <th>Area</th>
+                    <th>Impact</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Foreign keys</td>
+                    <td>&#10003; <strong>None</strong> &mdash; no other table references <code>scanner</code></td>
+                </tr>
+                <tr>
+                    <td>Asset data</td>
+                    <td>&#10003; <strong>No impact</strong> &mdash; assets are in <code>dbo.asset</code>, completely independent</td>
+                </tr>
+                <tr>
+                    <td>Scan sessions</td>
+                    <td>&#10003; <strong>No impact</strong> &mdash; scan data is stored in <code>dbo.audit</code> and history tables</td>
+                </tr>
+                <tr>
+                    <td>User accounts</td>
+                    <td>&#10003; <strong>No impact</strong> &mdash; <code>dbo.sysuser</code> is independent</td>
+                </tr>
+                <tr>
+                    <td>Scanner functionality</td>
+                    <td>&#10003; Scanners auto-re-register on next sync &mdash; no manual re-setup needed</td>
+                </tr>
+                <tr>
+                    <td>Compliance count</td>
+                    <td>&#9888; Resets to 0 until scanners reconnect (temporary)</td>
+                </tr>
+                <tr>
+                    <td>Last seen history</td>
+                    <td>&#9888; Lost &mdash; you won't know when a device last synced until it syncs again</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Related tables (NOT affected by scanner deletion):</h3>
+        <ul>
+            <li><code>dbo.asset</code> &mdash; has <code>vtaggpsdeviceid</code> but this is a GPS device ID, unrelated to scanner registrations</li>
+            <li><code>dbo.session</code> &mdash; tracks login sessions by ticket ID, not scanner devices</li>
+            <li><code>dbo.clientapp</code> &mdash; API client credentials for app authentication, separate from scanner registration</li>
+        </ul>
+
+        <!-- ═══════ SECTION 3 ═══════ -->
+        <h2 id="s3"><span class="section-num">3</span> Diagnostic Queries</h2>
+
+        <h3>3.1 &mdash; List all registered scanners</h3>
+        <pre class="code-block">SELECT
+    id,
+    companyname   AS [Site],
+    deviceid      AS [Device Fingerprint],
+    inactive      AS [Inactive],
+    description   AS [Label],
+    lastseen      AS [Last Sync]
+FROM dbo.scanner
+ORDER BY lastseen DESC;</pre>
+
+        <h3>3.2 &mdash; Count active scanners per site</h3>
+        <pre class="code-block">SELECT
+    companyname   AS [Site],
+    COUNT(*)      AS [Total Devices],
+    SUM(CASE WHEN inactive = 0 OR inactive IS NULL THEN 1 ELSE 0 END) AS [Active],
+    SUM(CASE WHEN inactive = 1 THEN 1 ELSE 0 END) AS [Inactive],
+    MAX(lastseen) AS [Most Recent Sync]
+FROM dbo.scanner
+GROUP BY companyname
+ORDER BY companyname;</pre>
+
+        <h3>3.3 &mdash; Find stale scanners (not seen in 90+ days)</h3>
+        <pre class="code-block">SELECT
+    id, companyname, deviceid, lastseen,
+    DATEDIFF(DAY, lastseen, GETDATE()) AS [Days Since Sync]
+FROM dbo.scanner
+WHERE lastseen < DATEADD(DAY, -90, GETDATE())
+   OR lastseen IS NULL
+ORDER BY lastseen;</pre>
+
+        <h3>3.4 &mdash; Verify no FK dependencies exist</h3>
+        <pre class="code-block">-- Returns empty if safe to delete
+SELECT fk.name AS FK_Name, tp.name AS ParentTable
+FROM sys.foreign_keys fk
+INNER JOIN sys.tables tp ON fk.parent_object_id = tp.object_id
+INNER JOIN sys.tables tr ON fk.referenced_object_id = tr.object_id
+WHERE tr.name = 'scanner' OR tp.name = 'scanner';</pre>
+
+        <!-- ═══════ SECTION 4 ═══════ -->
+        <h2 id="s4"><span class="section-num">4</span> Cleanup Scripts</h2>
+
+        <div class="callout callout-warn">
+            <strong>Always back up first.</strong> Run <code>SELECT * FROM dbo.scanner</code> and save the results before deleting, so you have a record of what was registered.
+        </div>
+
+        <h3>4.1 &mdash; Delete all scanner registrations (full reset)</h3>
+        <pre class="code-block">-- Full reset: removes all device registrations
+-- Scanners will auto-re-register on next sync
+DELETE FROM dbo.scanner;
+
+-- Verify
+SELECT COUNT(*) AS [Remaining] FROM dbo.scanner;</pre>
+
+        <h3>4.2 &mdash; Delete scanners for a specific site</h3>
+        <pre class="code-block">-- Remove only scanners registered to a specific site
+DELETE FROM dbo.scanner
+WHERE companyname = '613 Martinsburg';  -- change to your site</pre>
+
+        <h3>4.3 &mdash; Delete stale scanners only (90+ days)</h3>
+        <pre class="code-block">-- Remove only scanners that haven't synced in 90+ days
+DELETE FROM dbo.scanner
+WHERE lastseen < DATEADD(DAY, -90, GETDATE())
+   OR lastseen IS NULL;</pre>
+
+        <h3>4.4 &mdash; Soft-deactivate instead of delete</h3>
+        <pre class="code-block">-- Mark as inactive without removing from the table
+-- Useful if you want to keep the record but exclude from count
+UPDATE dbo.scanner
+SET inactive = 1
+WHERE id = 3;  -- change to target scanner ID</pre>
+
+        <h3>4.5 &mdash; Delete a specific scanner by device ID</h3>
+        <pre class="code-block">-- Remove one specific scanner
+DELETE FROM dbo.scanner
+WHERE deviceid = '73ad1b8535d2fb54';  -- change to target device ID</pre>
+
+        <!-- ═══════ SECTION 5 ═══════ -->
+        <h2 id="s5"><span class="section-num">5</span> How Scanner Registration Works</h2>
+
+        <ol>
+            <li>User opens the <strong>iDash Handheld</strong> Android app on an RFID scanner</li>
+            <li>App authenticates via the iDash API using the <code>clientapp</code> credentials</li>
+            <li>On first sync, iDash generates a unique <code>deviceid</code> from the device hardware</li>
+            <li>A row is inserted into <code>dbo.scanner</code> with the company name and current timestamp</li>
+            <li>On subsequent syncs, the <code>lastseen</code> timestamp is updated</li>
+            <li>The compliance page reads <code>COUNT(*) WHERE inactive = 0</code> to show active device count</li>
+        </ol>
+
+        <div class="callout callout-info">
+            <strong>Auto-recovery:</strong> If you delete all scanner records, the count will drop to zero. As soon as each scanner syncs again, it will automatically re-register itself. No manual intervention is needed on the scanner side.
+        </div>
+
+        <!-- ═══════ SECTION 6 ═══════ -->
+        <h2 id="s6"><span class="section-num">6</span> Compliance Notes</h2>
+
+        <ul>
+            <li>The scanner compliance page in iDash shows how many active devices are registered vs. your license limit</li>
+            <li>Deleting stale/unused scanner records is a valid way to bring the count back into compliance</li>
+            <li>If a scanner hasn't synced in 90+ days, it's likely no longer in active use and safe to remove</li>
+            <li>The <code>inactive</code> flag provides a soft-delete alternative &mdash; the device stays in the table but doesn't count toward the license</li>
+        </ul>
+
+        <!-- ═══════ SECTION 7 ═══════ -->
+        <h2 id="s7"><span class="section-num">7</span> Quick Reference</h2>
+
+        <table class="doc-table">
+            <thead>
+                <tr>
+                    <th>Action</th>
+                    <th>SQL</th>
+                    <th>Reversible?</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>View all scanners</td>
+                    <td><code>SELECT * FROM dbo.scanner ORDER BY lastseen DESC</code></td>
+                    <td>N/A</td>
+                </tr>
+                <tr>
+                    <td>Count active</td>
+                    <td><code>SELECT COUNT(*) FROM dbo.scanner WHERE inactive = 0</code></td>
+                    <td>N/A</td>
+                </tr>
+                <tr>
+                    <td>Deactivate one</td>
+                    <td><code>UPDATE dbo.scanner SET inactive = 1 WHERE id = ?</code></td>
+                    <td>Yes (set back to 0)</td>
+                </tr>
+                <tr>
+                    <td>Delete one</td>
+                    <td><code>DELETE FROM dbo.scanner WHERE id = ?</code></td>
+                    <td>Auto-recovers on next sync</td>
+                </tr>
+                <tr>
+                    <td>Full reset</td>
+                    <td><code>DELETE FROM dbo.scanner</code></td>
+                    <td>Auto-recovers on next sync</td>
+                </tr>
+                <tr>
+                    <td>Purge stale (&gt;90d)</td>
+                    <td><code>DELETE WHERE lastseen &lt; DATEADD(DAY, -90, GETDATE())</code></td>
+                    <td>Only if device syncs again</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</body>
+</html>

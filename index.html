@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 ldataAsst-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"--> 
+    <!--<![endif]-->
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
+    <!--link rel="stylesheet" href="css/tailwind.idi.css" /-->  
+    <link rel="stylesheet" href="css/apiConfig.css" />
+    <link rel="stylesheet" href="css/tippy.css"/>
+    <link rel="stylesheet" href="css/flatpickr.min.css" />
+
+    <script src="dat/apiData.js" ></script>
+    <script src="js/apiConfig.js" ></script>
+    <script src="js/apiComponents.js" ></script>
+    <script src="js/addin/cookies.min.js" ></script>
+    <script src="js/addin/dayjs.min.js"></script>
+    <script src="js/addin/duration.js"></script>
+    <script src="js/addin/isBetween.js"></script>
+    <script> dayjs.extend(window.dayjs_plugin_duration); </script>
+    <script> dayjs.extend(window.dayjs_plugin_isBetween);</script>
+    <script src="js/addin/flatpickr.js"></script>
+    <script src="js/addin/FileSaver.min.js" ></script><!-- Provides FileSave functionality -->
+    <script src="js/addin/collapse.js" defer ></script>
+    <script src="js/addin/tooltip.js" defer ></script>
+    <script src="js/addin/papaparse.min.js" defer ></script>
+    <script src="js/addin/alpineFocus.js" defer></script>
+    <!--script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script-->
+    <script src="js/addin/tailwindcss.js"></script>
+   <!--script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.2/dist/cdn.min.js"></script-->
+    <script src="js/addin/alpine.js" defer></script>
+    <script >
+        if (window.File && window.FileReader && window.FileList && window.Blob) { } else {  alert('The File APIs are not fully supported in this browser.'); }
+        
+    </script>
+</head>
+<body x-data="dashboard();" x-init="data.readDefaults()" @resize.window="data.narrow = window.innerWidth < 801"  >
+    <!-- Navigation Bar Defintion -------------------------------------------------------------------------------->
+    <header >
+	    <!---------------------------------------------------------------->
+	    <!-----vvvvvvvvvv  'wrench569+' icon and menu vvvvvvvvvv-------->
+	    <!---------------------------------------------------------------->
+      <div x-data="{ openDefaults: false }" class="flex justify-left z-20 ">
+        <!-- Button to toggle the menu -->
+        <span @click="openDefaults = !openDefaults" class="relative flex items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-2xl"
+
+        ><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#FFFFFF"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z"/></svg></span>
+        <!-- alternate wrench icon  &#x1F527;  -->
+
+        <!-- The flyout menu with transitions -->
+        <div x-cloak id="flyoutConfig" x-show="openDefaults" @click.outside="openDefaults=!openDefaults"
+          x-transition:enter="transition ease-out duration-400"
+          x-transition:enter-start="opacity-100 -translate-x-full"
+          x-transition:enter-end="opacity-100 translate-x-0"
+          x-transition:leave="transition ease-in duration-400"
+          x-transition:leave-start="opacity-100 translate-x-0"
+          x-transition:leave-end="opacity-100 -translate-x-full"
+            >
+            <!-- Menu items -->
+             <div class="flex justify-between items-center pl-2 text-xl">
+                <h6 class="text-xl font-bold " >Configuration Options:</h6>
+                <button class="m-0 p-0 yellow" type="button" @click="openDefaults=!openDefaults">&nbsp;x&nbsp;</button>
+            </div>
+            <button class=" block m-auto" @click="data.setDefaults();">Save Current Settings</button>
+            <hr class="hr-text my-2" data-content="Table Settings">
+            <button class="block m-auto p-0 ltblue" @click="data.toggleMode = !data.toggleMode; data.toggleColorMode();" 
+                x-text="data.toggleMode ? 'Use Light Mode' : 'Use Dark Mode'"               
+                >
+            </button> 	
+            <li class="opt1 py-0 text-right mx-2">
+                <span class="text-base" >Table Page Size:
+                <input type="text" class="config text-base w-16 " x-model="data.elementsPerPage" @keyup="data.totalPages = Math.ceil(data.numFiltered / data.elementsPerPage); " > </span>
+            </li>
+            <li class="opt2 py-0 text-right mx-2">
+                <span class="text-base " >Export As:</span>
+                <input type="text" class="text-base w-32 " x-model="data.fileExport" placeholder="filename" > 
+            </li><hr class="">
+            <li class="opt1 py-0 text-right mx-2">
+                <span class="text-base " >WayFinder Prefix</span>
+                <input type="text" class="config text-base w-16" x-model="data.tagPrefix" placeholder= '/^\d{3}E/i';
+ > 
+            </li>
+            <li class="opt1 py-0 text-right mx-2">
+                <span class="text-base" >Default TagType:</span>
+                <select  id="tagList" tabindex="1" x-model="data.user"  class="input text-base mx-2" placeholder="Pick Default Size">
+                        <template x-for="tag in tagList" >
+                            <option :value="tag" x-text="tag"></option>
+                        </template>	
+                </select>
+            </li>
+            <hr class="hr-text my-2" data-content="ENNX Report">
+            <li class="opt1 py-0 text-right mx-2">
+                <span class="text-base" >Email:</span>
+                <input type="text" class="config text-base w-40" x-model="data.email1" placeholder="default@email.com"  > 
+            </li>
+            <li class="opt2 py-0 text-right mx-2">
+                <span class="text-base" >SaveAs:</span>
+                <input type="text" class="config text-base w-40" x-model="data.filename1" placeholder="filename" > 
+            </li>
+            <li class="opt1 py-0 text-right mx-2">
+                <span class="text-base" >ENNX Prefix:</span>
+                <input type="text" class="config text-base w-16 " x-model="data.ennxPrefix" placeholder="ID123" x-on:blur="Cookies.set('email1', data.ennxPrefix, {expires: 365});" > 
+            </li>
+            <hr>
+            <button class=" block m-auto yellow" @click="localStorage.clear()">Clear Current Settings</button>
+            <div class="ml-2" >✅ To Close: Click ✖ or outside box</div>
+        </div>
+    </div> 
+        <!---------------------------------------------------------------->
+        <!-- ^^^^^^^^^^ End of Settings 'wrench' icon and menu ^^^^^^^^^---->
+        <!---------------------------------------------------------------->
+        <!--Logo etc-->
+        <div class="logo" x-text="pageTitle">Page Title</div>
+        <div class="flex text-base text-white justify-center"></div> 
+        <!--Hamburger Phone Menu-->
+        <span class="hamburger" >&#9776; </span>
+        <!--Navigation Menu-->
+        <nav>
+            <template x-for="(item, index) in navbarMenu" >
+                <ul>
+                    <li class="navDefault"><a href="#" x-html="item.name" x-bind:class="{ 'navActive':  data.openNav == item.id }"  @click="data.openNav = item.id; if (item.id == 1) data.getStats(); ">Page Number</a>
+                        </li>
+                </ul>
+            </template>
+            <div class="relative m-0" x-data="{ openLogin: false}"  >
+				<button @click="openLogin = !openLogin" class="navBtnDefault " @keydown.escape="openLogin = false"  onblur="openLogin = false;"
+
+                    x-text="data.gotToken? 'Site: '+data.client : ' &#x1F468;Login'" >site?:user?
+				</button>
+				<ul x-show.transition="openLogin" @click.away="openLogin = false"
+				class="absolute font-normal bg-white shadow overflow-hidden w-64 border mt-0 mr-3 top-14 right-0 py-1 z-20 h-32"
+				>
+					<!-- Site Location Pull-Down -->
+					<li class="ml-1 flex-wrapper gap-y-2 h-auto" >
+                        
+                        <select id="siteList" tabindex="0" x-model="data.client" @change="data.getSecret()" class="text-xl my-2 mx-2 p-2 text-center" 
+                        >
+                            <option value=""  >Select Site</option>  
+                            <template x-for="(site,index) in data.stationArr" >
+                                <option :value="site.awClient" x-text="site.menuName"></option>
+                            </template>	              
+                        </select>					
+                        <input id="clientSecret" x-model="data.secret" type="password" placeholder="Site Password" class="text-lg mt-4 mx-2 " @keyup.enter="data.saveSecret();" />
+                        <button id="logon" class="cde" x-show="!data.gotToken" @click="data.login()">Log On</button>
+                        <button id="logoff" class="reset" x-show="data.gotToken" @click="data.logout()">Log Off</button>
+				    </li>
+				</ul>
+			</div>
+        </nav>
+    </header>
+    <hr id="hrStatus" class="online-msg" >
+    <!--div class="flex-wrapper"-->  
+        <!--Main Page Content-->
+	    <main class="">  
+             
+            <!----------------------------------->
+            <!--Page 1: AssetList Content-->  
+            <!----------------------------------->
+            <div x-cloak class="flex-wrapper" id="page1" x-show:bind="$el.id==data.openNav ? true : false">
+                <span class="my-3" x-data="{openHelp1:false}">
+                    <h2 class="inline text-2xl font-bold  " x-text="data.narrow ? 'Assets:' : 'Asset Data Analytics Tool:'" >Asset Data Tool: </h2>
+                    <span @click="openHelp1 = !openHelp1;" class="text-lg" x-text="openHelp1 ? '&#x1F44D' : '&#x2753;'"></span>
+               
+                    <button class="cde text-lg inline align-top" x-tooltip.raw="Click this button to auto select all table grid results, formatted with <TAB> between columns, and <ENTER> between rows - ready for text pasting into Excel or other documents." x-text="data.narrow ? 'Copy' : 'Copy Table'"
+                    @click="data.copyTable(0)">&#x1F4CB;&nbsp;Copy Tables </button>
+
+                    <button class="cde text-lg align-top" x-tooltip.raw="Click this button to save the table grid results to a file in the local Download folder.  " x-text="data.narrow ? 'Download' : '&#x2B73;&nbsp;Download'"
+                    @click="data.copyTable(1)" >&#x2B73;&nbsp;Download</button>
+
+                    
+                    <button x-show="!data.desktop" class="cde text-lg inline align-top" x-bind:disabled="!data.fetched" x-tooltip.raw="This will print RFID tags for each of the filtered asset rows shown. Unlike the standard AssetWorx Dashboard, this tool allows for parallel printing to multiple printers and tag sizes." 
+                    x-text="data.narrow ? 'Print' : '&#x1F5B6;&nbsp;Print RFID Tags'"
+                    @click="data.printTags()" >&#x1F5B6;&nbsp;Print RFID Tags</button>
+                             
+                        <p x-cloak x-show="openHelp1" class="text-base text-black text-base font-normal align-top m-1 p-0 leading-tight "> Use this tool to quickly create your own custom report for subsets of assets of interest. Begin in the upper RH corner to login to a specified site with an administrator-supplied password. Use the global and column filters to produce a report of your own desired constraints.  Cut & Paste, or download the results. Use the column visibility button to show only the date you are interested in. View asset location history, and even use a handheld RFID reader to search for any of the assets in your list - all at the same time.
+                        </p>
+                    <hr class="thin"  >	
+               </span>
+                <!-- ---------------------------->
+                <!-- Filters Accordian Section -->
+                <!------------------------------->
+                <section x-cloak x-data="{isOpen:false, openHelp2:false}" class=" m-0 p-0">
+                    <span class="flex items-center text-base font-bold">
+                        <span @click="isOpen=!isOpen" class="accordian">
+                            <span x-show="isOpen" aria-hidden="true" class="text-blue-500 font-bold text-xl ">&plus; </span>
+                            <span x-show="!isOpen" aria-hidden="true" class="text-red-500 font-bold text-xl ">&minus;</span>
+                            <span class="px-1 text-xl"><b>Filters&nbsp;&nbsp;</b></span>	
+                        </span>
+                        <hr class="flex-grow ml-1 my-0" x-show="!data.narrow"/> 
+                        <span  class="px-3 text-red-500 text-lg py-0 my-0" x-html="!data.narrow ? data.numFiltered + ' of ' +data.assetCount +' Items' : data.numFiltered + ' / ' +data.assetCount;" x-tooltip.raw="Status shows current Filtered and Total asset counts"> </span >
+                        <button class="reset" @click="data.clearFilters()" x-tooltip.raw="Click to erase all global and column filters">Reset</button> 
+                        <hr class="flex-grow ml-5 my-0" x-show="!data.narrow"/> 
+
+                    </span>
+            
+                    <!-- Global Filter Input Box -->	
+                    <span x-show="isOpen" x-data="{openHelp3: false}" class="text-left px-6 font-bold text-blue-500 text-l py-0 my-0 overflow-x-auto">Global Filter &amp; Case 
+                        <span @click="openHelp3 = !openHelp3;" x-text="openHelp3 ? '&#x1F44D' : '&#x2753;'"></span>
+                        <p x-show="openHelp3" class="text-base text-black text-base font-normal align-top m-1 p-0 leading-tight mx-5 "> The Global Text filter is for all column data, and defaults to any substring match ('INCLUDES').  But users can refine the search by using the prefix and suffix options listed below.  <b>Case sensitivity</b> is also supported with the [Aa] checkbox. Global and column searches can be combined to create a complex "AND" data filter result.
+                        </p>
+                        <ul x-show="openHelp3" class="help ">
+                                <li class="text-base font-normal">Prefix with <b> = </b> to perform an <b><i>Exact Match</i></b> of each column field value.</li>
+                                <li class="text-base font-normal">Prefix with <b> ^ </b> to perform a <b><i>BEGINS with Match</i></b> of each column field value.</li>
+                                <li class="text-base font-normal">Sufix with <b> ^ </b> to perform an <b><i>ENDS with Match</i></b> of each column field value.</li>
+                                <li class="text-base font-normal">Use <b> ! </b> BEFORE the previous options to perform a <b><i>NOT Match</i></b> of each column field value.</li>
+                        </ul>
+                    </span>
+                    <input x-show="isOpen" type="text" placeholder="Search ALL Fields" x-model.debounce="data.gFilter" @input.debounce = "data.getRows();" class="text-xl text-center border-black border-2 rounded" />
+                    <span x-show="isOpen" class="text-l text-black font-normal leading-6 ml-5 mr-0 border-2 border-gray " x-html="data.fCase ? 'AA &#9745;' : 'Aa &#9744; '" @click="data.fCase = !data.fCase; data.getRows();" >Case Sensitivity</span>
+                    <hr x-show="isOpen" class="thin flex-grow ml-5 my-0">
+                    <div x-show="isOpen" x-data="{openHelp4: false}" class="text-left px-6 font-bold text-blue-500 text-l py-0 my-0 overflow-x-auto">Hidden Column Filters
+                        <span @click="openHelp4 = !openHelp4;" x-text="openHelp4 ? '&#x1F44D' : '&#x2753;'"></span>
+                            <p x-show="openHelp4" class="text-base text-black text-base font-normal align-top m-1 p-0 leading-tight "> The column filter inputs below support the same filtering options as described for the Global Search Filter. In addition, for <b>Date/Time</b> columns, there are several date range search options available as described below.</p>
+                            <p x-show="openHelp4" class="text-base text-black text-base font-normal align-top m-1 p-0 leading-tight ">Below, the # character refers to an integer, the x character refers to one of the following alpha date options:<br>
+                                d (days); w (weeks); m (months); y (years)
+                            </p>
+                        <ul x-show="openHelp4" class="help ">
+                                <li class="text-base font-normal">Prefix with <b> &lt;#x </b> to perform a  <b><i>Time Period before today</i></b> date search</li>
+                                <li class="text-base font-normal">Prefix with <b> &lt;&lt;#x </b> to perform an <b><i>All Dates prior to the Specified time span before today</i></b> </li>
+                                <li class="text-base font-normal">Prefix with <b> &gt;#x </b> to perform an <b><i>Time Period after today</i></b> date search</li>
+                                <li class="text-base font-normal">Prefix with  <b> &gt;&gt;#x </b> to perform an <b><i>All Dates ahead to the Specified time span after today</i></b> </li>
+                        </ul>
+                        <table id="" class="my-0" >
+                            <thead >
+                                <tr>
+                                    <template x-for="(col, index) in data.assetColumns"  >
+                                        <th class="cheader text-base " x-text="col" x-show="!data.assetDefs[index].colShow" @click="" ></th>
+                                    </template>
+                                </tr>
+                                <tr>
+                                    <template x-for="(col, index) in data.assetColumns">
+                                        <th x-show="!data.assetDefs[index].colShow"><input type="text" class="cfilter w-full" x-model.debounce="data.assetDefs[index].cFilter" 
+                                                ></th>
+                                    </template>
+                                </tr>
+                            </thead>
+                        </table>
+
+                    </div>
+                    <hr x-show="isOpen" class="thin my-2">
+                </section>
+            
+                <!-- ---------------------------->
+                <!-- Asset Accordian Section -->
+                <!------------------------------->
+
+                <section x-data="{isOpen5:true, openHelp5:false, selectedRow: null}" class="m-0 p-0">
+                    
+                    <span class="flex items-center text-xl font-bold">
+                        <span @click="isOpen5=!isOpen5" class="accordian">
+                            <span x-show="isOpen5" aria-hidden="true" class="text-blue-500 font-bold text-xl ">&plus; </span>
+                            <span x-show="!isOpen5" aria-hidden="true" class="text-red-500 font-bold text-xl ">&minus;</span>
+                            <span class="px-1"><b>Assets</b></span>                
+                            
+                        </span>	
+                        <span x-show="isOpen5" class="inline-flex p-0 mt-2 text-xl"  >
+                            <span  @click="openHelp5 = !openHelp5;" class="text-lg text-black font-normal mt-2 mx-1 p-0 " x-text="openHelp5 ? '&#x1F44D' : '&#x2753;'"></span>
+                                <!-- Column Visibility Button -->
+                                    <button class="crop-container config" x-on:click="data.toggleColumn = !data.toggleColumn; " 
+                                    x-tooltip.raw="Show/Hide Columns" ><span class="cropped-symbol">&#x1F453;</span></button>&nbsp;&nbsp;
+                                <!-- Pagination Buttons-->
+                                    <span @click="data.currentPage--;" class="cntrl ">&nbsp;-&nbsp;</span>
+                                    <span x-text="data.narrow ? data.currentPage : 'Pg:'+data.currentPage + '/'+data.totalPages" class="pager" x-tooltip.raw="To improve loading speed, we display data in pages."></span>
+                                    <span @click="data.currentPage++;" class="cntrl">&nbsp;+&nbsp;</span>
+                                <!-- Location History Button -->
+                                <span class=" mt-1 text-4xl p-0"  @click="data.modalHistory = true; data.historyReset();" x-tooltip.raw="Create Location History Report">&#x1F4C6;</span>
+                                <!-- RFID WayFinder Button -->
+                                <div x-show="!data.desktop" class="text-base font-normal"  >
+                                    <button x-bind:class="{ 'finder bg-red': data.toggleFind, 'cde ': !data.toggleFind }" 
+                                        @click="data.toggleFind = !data.toggleFind; data.findMatch();" 
+                                        
+                                        x-text="data.narrow ? (data.toggleFind  ? '&#x2995;&#x2996;' : '&#x2995;&#x2996;') 
+                                        : (data.toggleFind  ? '&#x2995; STOP Search &#x2996;' : '&#x2995; RFID WayFinder &#x2996;')"
+                                        
+                                        >
+                                    </button> 	
+                                    <!-- Receiving Data LED -->
+                                    <div id="led" class="red" x-show="data.toggleFind"></div>   
+                                    <!-- Invisible Scanner Data Buckets --> 
+	                                <!-- 'Hidden Data Input Zones for RFID reader input'-->
+                                    
+                                    <textarea id="searchList" class="opacity-30 border-2 w-1 h-1 resize-none"  @keydown="document.getElementById('led').style.backgroundColor = 'red';" @keyup.enter="data.getReads(); document.getElementById('led').style.backgroundColor = 'green'"  ></textarea>
+                                    <textarea id="trash" class="opacity-30 border-2 w-1 h-1 resize-none"    ></textarea>                    
+                                </div>   
+                        </span>
+                    </span>
+                    <span x-cloak x-show="openHelp5" class="text-base align-top m-1 p-0 leading-tight "> The grid below reflects the filters defined above. 
+                        <ul class="ml-5 list-decimal text-lg">
+                        <li class="my-1 ">Use the <b>Column Visibility</b> button to quickly show/hide the columns of interest.</li>
+                        <li class="my-1">We use <b>Pagination</b> since the displayed dataset can be quite large. However, users can <b>Column Sort (header click)</b> the data fields to quickly focus on the primary assets of interest.</li>
+                        <li class="my-1">Click the <b>Location History</b> calendar icon to launch a popup form where you can show location history either by asset or by location. </li>
+                        <li class="my-1">Click the <b>RFID WayFinder</b> button to initiate an RFID handheld reader scan of matching tags in the displayed grid. A small circular 'led' will blink next to the 'STOP' button to indicate when the reader is reading tags.  Asset grid rows will flash dark green for each new read, and then subside to pale green to indicate that it was recently read. Use the dark green color to act as a directional wayfinder as you try to locate a tag with 1-15 feet.  Click the 'STOP Search' button when done.</li>
+                        
+                        </ul> 
+                    </span> 
+                    <div class="px-6" x-cloak>
+                        <button x-show="data.toggleColumn" class="config " x-on:click="data.hideAll()">Hide ALL</button>
+                        <template x-for="(val, index) in data.assetColumns" :key="index"  >
+                            <span x-show="data.toggleColumn" x-text="val + ' | '"  x-bind:class="{' text-xl text-blue-600': data.assetDefs[index].colShow, 'text-base text-red-500': !data.assetDefs[index].colShow}" x-on:click="data.assetDefs[index].colShow=!data.assetDefs[index].colShow" ></span>&nbsp;-&nbsp;
+                        </template>
+                        <button x-show="data.toggleColumn" class="config px-2" x-on:click="data.showAll()">Show ALL</button>
+                        <!-- ---------------------------->
+                        <!-- Asset Table Defined Here-->
+                        <!------------------------------->
+                        <div class="">
+                        <table id="assets" x-bind:class="{'text-xs': data.narrow, 'text-sm': !data.narrow}" x-show="isOpen5"  >
+                            <thead >
+                                <tr >
+                                    <template x-for="(col, index) in data.assetColumns"  >
+                                        <th class="" x-html="col" x-show="data.assetDefs[index].colShow" @click="data.sortTable(data.assetSortCols[index], data.assetArr)" ></th>
+                                    </template>
+                                </tr>
+                                <tr >
+                                    <template x-for="(col, index) in data.assetColumns">
+                                        <th x-show="data.assetDefs[index].colShow"><input type="text" class="cfilter w-full" x-model.debounce="data.assetDefs[index].cFilter" 
+                                                ></th>
+                                    </template>
+                                </tr>
+                            </thead>
+                            <tbody ><!-- x-bind:class="{'text-base online' : row[Object.keys(row)[cindex]] == 'Up',
+                                                'text-base offline' : row[Object.keys(row)[cindex]] == 'Down' }" -->
+                                <template x-for="(row, rindex) in data.getRows()" :key="rindex"><!--  -->
+                                    <tr x-bind:class="{'h-5': data.narrow, 'h-8': !data.narrow}" >
+                                        <template x-for="(col, cindex) in data.assetColumns" >
+                                            <td class="" x-show="data.assetDefs[cindex].colShow" x-html="row[Object.keys(row)[cindex]]" ></td>
+                                        </template>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table></div>
+                    </div>
+                            <!------------------------------->
+                            <!-- Location History Modal -->
+                            <!------------------------------->
+                    <div x-cloak 
+                        class="overflow-auto"   x-show="data.modalHistory"
+                        :class="{ 'absolute inset-0 z-10 flex items-start justify-center': data.modalHistory }"
+                    >
+                    <!-- dialog -->
+                    <div @keydown.escape.window="data.modalHistory = false"
+                        class="bg-black m-4 sm:m-8 border-white border-2" x-show="data.modalHistory"
+                        @click.away="data.modalHistory = false"
+                    >
+                        <div class="flex justify-between items-center p-2 text-xl">
+                            <h6 class="text-xl font-bold ml-2" x-text="data.historyType+' History Report for: '+data.historyTarget" >History Report:</h6><button type="button" @click="data.modalHistory = false">✖</button>
+                            
+                        </div><p class="px-3" x-html="data.historyCount + ' Reads,  spanning '+data.historySpan+' Days,  in '+data.historyLocationCount+' Locations.<br>Last Seen '+data.historyDays+' Days Ago'"></p>
+                        <div class="p-2">
+                            <!-- content -->
+                            <div class="text-center" x-trap="data.modalHistory">
+                            <input id="idSearch"  class="w-48 mt-1" placeholder="Enter Location or EE#" @keyup.enter="data.idLookup()" />
+                            
+                            <!--button class="cde text-lg inline align-top" x-tooltip.raw="Click this button to auto select all table grid results, formatted with <TAB> between columns, and <ENTER> between rows - ready for text pasting into Excel or other documents." >&#x1F4CB;&nbsp;Copy</button-->
+                            <button class="cde text-lg inline align-top" x-tooltip.raw="Click this button to save the table grid results to a file in the local Download folder.  " @click="data.historyReport()" >&#x2B73;&nbsp;Download</button>                       
+                        
+                        </div>
+                            <aside class="table" style="max-width: 800px; overflow-x: auto; max-height: 300px; overflow-y: auto;">
+                                
+                                <table id="" class="my-0" >
+                                    <thead >
+                                        <tr>
+                                            <template x-for="(col, index) in data.historyColumns"  >
+                                                <th class="text-base " x-html="col" x-show="data.historyDefs[index].colShow" @click="data.sortTable(data.historyDefs[index].awName, data.historyArr);" ></th>
+                                            </template>
+                                        </tr>
+                                    </thead>
+                                    <tbody >
+                                        <template x-for="(row, rindex) in data.historyArr" :key="rindex">
+                                            <tr  >
+                                                <template x-for="(col, cindex) in Object.keys(data.historyArr[0])" >
+                                                    <td class="text-base" x-show="data.historyDefs[cindex].colShow" x-html="row[Object.keys(row)[cindex]]"  ></td>
+                                                </template>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </aside>
+
+                            <div class="" >✅ To Close: Click ✖ or outside box, or Press &lt;ESC&gt;</div>
+                        </div>
+                    </div><!-- /dialog -->
+                    </div><!-- /overlay -->
+                    <hr x-show="isOpen5" class="thin my-2">
+                </section>
+                <!-- ---------------------------->
+                <!-- Map Accordian Section -->
+                <!-------------------------------->
+                <section x-cloak x-data="{isOpen:false, openHelp:false}" class="m-0 p-0">
+                    <span class="flex items-center text-xl font-bold">
+                        <span @click="isOpen=!isOpen" class="accordian">
+                            <span x-show="isOpen" aria-hidden="true" class="text-blue-500 font-bold text-xl ">&plus; </span>
+                            <span x-show="!isOpen" aria-hidden="true" class="text-red-500 font-bold text-xl ">&minus;</span>
+                            <span class="px-1"><b>Maps&nbsp;&nbsp;&nbsp;</b></span>   
+                                                
+                        </span> 
+                        <span x-show="isOpen" class="inline-flex p-0 my-0 text-xl">
+                            <span  @click="openHelp = !openHelp;" class="text-lg text-black font-normal mt-2 mx-1 p-0" x-text="openHelp ? '&#x1F44D' : '&#x2753;'"></span>
+                            <select x-model="data.mapFile" class="text-base pl-3" >
+                                <option value="maps/select.png" disabled selected>--Select Floor Map--</option>
+                                <option selected value="maps/B12_FB.png">B12_FB</option>
+                                <option value="maps/B12_F1.png">B12_F1</option>
+                                <option value="maps/B12_F2.png">B12_F2</option>
+                                <option value="maps/B13_F1.png">B13_F1</option>
+                                <option value="maps/B14_FB.png">B14_FB</option>
+                                <option value="maps/B14_F1.png">B14_F1</option>
+                                <option value="maps/B14_F2.png">B14_F2</option> 
+                            </select>
+                        </span>
+
+                    </span>
+                    <span x-show="openHelp" class="text-base text-black text-base font-normal align-top m-1 p-0 leading-tight "> User supplied floor maps can be linked to the select menu below to provide locational mapping of RFID fixed reader, antenna, and asset tag locations.  Because of the volume of asset tags, their display is usually grouped by room location with a 'dot' size and number and increases with tag quantity at that common location. <br> The data shown on these maps is defined by the filtered asset grid in the above section.
+                    </span>
+                    <div x-show="isOpen" class="imgBox">
+                        <img  class="imgMap block m-auto" x-bind:src="data.mapFile" alt="Unknown Map Image" />
+                    </div>
+                    <hr x-show="isOpen" class="thin my-2">
+                </section>
+            </div>  
+
+
+            <!---------------------------------------------------------->
+            <!--Page 2 Content: Reports -->
+            <!---------------------------------------------------------->
+            <div x-cloak class="flex-wrapper" id="page2" x-show:bind="$el.id==data.openNav ? true : false">
+                <ul class="tabbar" >
+                    <button class="cde" @click="data.getStats()">Run Stats Report</button>&nbsp;&nbsp;&nbsp;
+                    <template x-for="(item, index) in tabGroup1" >
+                        <li ><a x-html="item.name" x-bind:class="{ 'tabsActive': data.openTab1 == item.id, 'tabsDefault': data.openTab1 !== index }"  @click="data.openTab1=item.id; ">Page Number</a>
+                        </li>
+                    </template>
+                </ul>
+                <!--Start of tab21-->
+
+                <div  class="report tabContent" id="report1" x-show:bind="$el.id == data.openTab1 ? true : false" >
+
+                    <!-- ---------------------------->
+                    <!-- Asset Summary Section -->
+                    <!------------------------------->
+                    <section x-cloak x-data="{isOpen:true, openHelp2:false}" class="text-base m-0 p-0">
+                        <span class="flex items-center text-xl font-bold">
+                            <span @click="isOpen=!isOpen" class="accordian">
+                                <span x-show="isOpen" aria-hidden="true" class="text-blue-500 font-bold text-xl ">&plus; </span>
+                                <span x-show="!isOpen" aria-hidden="true" class="text-red-500 font-bold text-xl ">&minus;</span>
+                                <span class="px-1 text-xl"><b>Asset Statistics:</b></span>	
+                            </span>
+                            <span class="ml-4 text-xl" x-text="data.assetCount + ' Assets;   '+data.locationCount + ' Locations;   '+data.userCount+ 'AssetWorx Users;   '+data.readerCount+ ' Fixed RFID Readers'"></span>
+                        
+                        </span>
+                
+                        <div class="p-2 my-2" x-show="isOpen">
+                            <table class="border-0 items-center justify-center">
+                                <tr x-bind:class="{'h-5': data.narrow, 'h-8': !data.narrow}"><th x-text="'Site: '+data.client">Site: </th><th>Count</th></tr>
+                                <tr x-bind:class="{'h-5': data.narrow, 'h-8': !data.narrow, }">
+                                    <td x-data="" class="" >Asset Status: 
+                                        <template x-for="(stat, index) in data.statusList" :key="index">
+                                            <span x-bind:style="{ 'background-color': data.cssArr[index]}" class="mx-1" id="" x-text="stat" ></span>
+                                        </template>
+                                    </td>
+                                    <td x-data="" class="justify-center flex px-10 text-center">
+                                        <template x-for="(stat, index) in data.statusList" :key="index">
+                                            <span x-bind:style="data.numStatus[index] == 0 ? `display:none` : data.pctStatus[index] < 5 ? `flex-basis: content; background-color: ${data.cssArr[index]}` : `background-color: ${data.cssArr[index]}; flex-basis:  ${data.pctStatus[index]}%`"  id="" x-html="data.numStatus[index]+'<br>'+data.pctStatus[index]+'%'" ></span>
+                                        </template>
+                                    </td>
+                                </tr>
+
+                                <tr x-bind:class="{'h-5': data.narrow, 'h-8': !data.narrow}">
+                                    <td>Assets without:    Owner(EIL) | Location | Status: </td>
+                                    <td class="justify-center flex px-3" >
+                                        <span  x-text="data.noEIL" :class="data.noEIL == 0 ? `barchart green` : `barchart yellow`"></span>|
+                                        <span x-text="data.noLocation" :class="data.noLocation == 0 ? `barchart green` : `barchart yellow`"></span>|
+                                        <span x-text="data.noStatus" :class="data.noStatus == 0 ? `barchart green` : `barchart yellow`"></span>
+                                    </td>
+                                </tr>
+                                <tr x-bind:class="{'h-5': data.narrow, 'h-8': !data.narrow}">
+                                    <td>Asset Inventory Due: Overdue | 1|3|6|12 months: </td>
+                                    <td class="justify-center flex px-3" >
+                                    <span  class="barchart red">1276<br>22%</span>
+                                    <span  class="barchart orange">167<br>3%</span>
+                                    <span  class="barchart yellow">1194<br>21%</span>
+                                    <span  class="barchart blue">2059<br>36%</span>
+                                    <span  class="barchart green">1276<br>22%</span>
+                                    </td>
+                                </tr>
+
+                                <tr x-bind:class="{'h-5': data.narrow, 'h-8': !data.narrow}">
+                                    <td>UnSeen Assets: 1|3|6|12 months: </td>
+                                    <td class="justify-center flex px-3" >
+                                    <span x-text="data.dateCheck('s',3,'month')" :class="data.dateCheck('s',3) == 0 ? `barchart green` : `barchart yellow`"></span>
+                                    </td>
+                                </tr>
+
+                                <tr x-bind:class="{'h-5': data.narrow, 'h-8': !data.narrow}">
+                                    <td>Asset Maintenance: Overdue | Next Month</td>
+                                    <td class="justify-center flex px-3" >
+                                        <span x-text="data.assetCounts.cal.overdue" :class="data.assetCounts.cal.overdue > 0 ? 'barchart red' : 'barchart green'"></span>
+                                        <span x-text="data.assetCounts.cal.m1" class="barchart blue"></span>
+                                    </td>
+                                </tr>
+
+                                <tr x-bind:class="{'h-5': data.narrow, 'h-8': !data.narrow}">
+                                    <td>New Assets Added last: week|month|3-month|year</td>
+                                    <td class="justify-center flex px-3">
+                                        <span class="barchart green">872</span>
+                                    </td>
+                                </tr>
+                                <tr x-bind:class="{'h-5': data.narrow, 'h-8': !data.narrow}"><td>Unique Asset Reads: today|week|month|3-month</td><td class="justify-center flex px-3"><span class="barchart green">1247</span></td></tr>
+                                
+                                <tr x-bind:class="{'h-5': data.narrow, 'h-8': !data.narrow}">
+                                    <td>Asset Reads by Reader Type 
+                                        <span style="background-color: LightGreen" class="mx-1" >Fixed</span>
+                                        <span style="background-color: lightsalmon" class="mx-1" >Unknown</span>
+                                        <span style="background-color: LightBlue" class="mx-1" >Mobile</span>
+                                    </td>
+                                    <td class="justify-center flex px-3">
+                                        <span style="background-color: LightGreen" class="" x-html="data.numReadTyp[0]+'<br>'+data.pctReadTyp[0]+'%'">1</span>
+                                        <span style="background-color: LightSalmon" class="" x-html="data.numReadTyp[1]+'<br>'+data.pctReadTyp[1]+'%'">0</span>
+                                        <span style="background-color: LightBlue" class="" x-html="data.numReadTyp[2]+'<br>'+data.pctReadTyp[2]+'%'">1</span>
+                                    </td></tr>
+
+                                <!--
+                                <tr><td>Unique Qty:  CSN | Category | Service | EIL | PO | Status</td>
+                                <td class="justify-center flex px-3" x-text="data.listCSN.length + ' | '+data.listCategory.length + ' | '+data.listService.length + ' | '+data.listEIL.length + ' | '+data.listPO.length + ' | '+data.listStatus.length"></td></tr>
+                            -->
+                            </table>
+                        </div> 
+
+                        <hr x-show="isOpen" class="thin my-2">
+                    </section>
+
+                    <!-- ---------------------------->
+                    <!-- Asset by Location Section -->
+                    <!------------------------------->
+                    <section x-data="{isOpen5:false, openHelp5:false, selectedRow: null}" class="m-0 p-0">
+                        
+                        <span class="flex items-center text-xl font-bold">
+                            <span @click="isOpen5=!isOpen5" class="accordian">
+                                <span x-show="isOpen5" aria-hidden="true" class="text-blue-500 font-bold text-xl ">&plus; </span>
+                                <span x-show="!isOpen5" aria-hidden="true" class="text-red-500 font-bold text-xl ">&minus;</span>
+                                <span class="px-1"><b>Assets by Location</b></span>                
+                                
+                            </span>	
+                            <span x-show="isOpen5" class="inline-flex p-0 mt-2 text-xl"  >
+                                <span  @click="openHelp5 = !openHelp5;" class="text-lg text-black font-normal mt-2 mx-1 p-0 " x-text="openHelp5 ? '&#x1F44D' : '&#x2753;'"></span>
+
+                                    <!-- Column Visibility Button -->
+                                        <button class="crop-container config" x-on:click="data.toggleColumn2 = !data.toggleColumn2; " 
+                                        x-tooltip.raw="Show/Hide Columns" ><span class="cropped-symbol">&#x1F453;</span></button>&nbsp;&nbsp;
+                                    <!-- Pagination Buttons-->
+                                        <span @click="data.currentPage--;" class="cntrl ">&nbsp;-&nbsp;</span>
+                                        <span x-text="data.narrow ? data.currentPage : 'Pg:'+data.currentPage + '/'+data.totalPages" class="pager" x-tooltip.raw="To improve loading speed, we display data in pages."></span>
+                                        <span @click="data.currentPage++;" class="cntrl">&nbsp;+&nbsp;</span>
+    
+                    
+                            </span>
+
+
+                        </span>
+                        <span x-cloak x-show="openHelp5" class="text-base align-top m-1 p-0 leading-tight "> Asset Distribution by Location is presented in the grid below, using the same general funcationality as described for the Asset Table.  Sort the Table columns to assist with defining work priorities:
+                            <ul class="ml-5 list-decimal text-lg">
+                            <li class="my-1 ">Sort<b>Asset Qty</b> to identify locations of largest inventory opportunities.</li>
+                            <li class="my-1">Filter by <b>Status Code</b> to quickly generate list of locations that </li>
+                            <li class="my-1">Filter by <b>Maintenance Date Ranges</b> to identify which locations have overdue assets, or to schedule equipment pickup for near-term calibration/maintenance requirements.</li>
+                            <li class="my-1">Filter by <b>Inventory Date Ranges</b> to identify which locations have overdue inventory records, or to prioritze inventory activities to items soom to become overdue .</li>
+                            
+                            </ul> 
+                        </span> 
+
+
+
+                        <div class="px-6" x-cloak>
+                            <button x-show="data.toggleColumn2" class="config " x-on:click="data.hideAll('locations')">Hide ALL</button>
+                            <template x-for="(val, index) in data.locationColumns" :key="index"  >
+                                <span x-show="data.toggleColumn2" x-text="val + ' | '"  x-bind:class="{' text-xl text-blue-600': data.locationDefs[index].colShow, 'text-base text-red-500': !data.locationDefs[index].colShow}" x-on:click="data.locationDefs[index].colShow=!data.locationDefs[index].colShow" ></span>&nbsp;-&nbsp;
+                            </template>
+                            <button x-show="data.toggleColumn2" class="config px-2" x-on:click="data.showAll('locations')">Show ALL</button>
+                            <!-- ---------------------------->
+                            <!-- Asset Table Defined Here-->
+                            <!------------------------------->
+                            <div class="overflow-x-scroll">
+                            <table id="locations" x-bind:class="{'text-xs': data.narrow, 'text-sm': !data.narrow}" x-show="isOpen5"  >
+                                <thead >
+                                    <tr >
+                                        <template x-for="(col, index) in data.locationColumns"  >
+                                            <th class="" x-html="col" x-show="data.locationDefs[index].colShow" @click="data.sortTable(data.locationSortCols[index], data.locationArr)" ></th>
+                                        </template>
+                                    </tr>
+                                    <tr >
+                                        <template x-for="(col, index) in data.locationColumns">
+                                            <th x-show="data.locationDefs[index].colShow"><input type="text" class="cfilter w-full" x-model.debounce="data.locationDefs[index].cFilter" 
+                                                    ></th>
+                                        </template>
+                                    </tr>
+                                </thead>
+                                <tbody >
+                                    <template x-for="(row, rindex) in data.locationArr" :key="rindex"><!--  -->
+                                        <tr x-bind:class="{'h-5': data.narrow, 'h-8': !data.narrow}" >
+                                            <template x-for="(col, cindex) in data.locationColumns" >
+                                                <td class="" x-show="data.locationDefs[cindex].colShow" x-html="row[Object.keys(row)[cindex]]" ></td>
+                                            </template>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                            </div>
+                        </div>
+
+                        <hr x-show="isOpen5" class="thin my-2">
+                    </section>
+
+ 
+                </div>	<!--End of Stats Tab-->
+                <!--------------------------------------->
+                <!--Start of ENNX Tab-------------------->
+                <!--------------------------------------->
+                <div class="report tabContent" x-data="{openHelp:false}" id="report2" x-show:bind="$el.id == data.openTab1 ? true : false" >
+                    <span class=" mb-2 text-xl"><h2 class="inline text-2xl font-bold" >Generate ENNX Report: <span @click="openHelp = !openHelp;" class="text-lg" x-text="openHelp ? '&#x1F44D' : '&#x2753;'"></span></h2>
+                        
+                        For Site: <span class="text-xl font-bold" x-text="data.client">?</span> and User:                          
+                        <select id="userList" tabindex="0"  x-model="data.user" @change="data.getInvArr($event.target.value)" class="text-lg " >
+                            <option value="" selected >Select User</option>
+                            <option value="Web Server" >Fixed Reader</option>
+                                <template x-for="usr in data.userList" :key="usr">
+                                    <option :value="usr" x-text="usr"></option>
+                                </template>	
+                            <option value="ALL">All Users</option>
+                        </select>
+
+                        <span class="text-xl align-center" x-text="'( '+data.scanDateLen+' Scan Dates)'">0 Scan Dates</span>       
+                        
+                    </span>
+                    
+                    <p x-cloak x-show="openHelp" class="text-lg text-left align-top m-1 p-0 leading-tight"> Select a <b>Site</b>, and then a <b>User</b> from that site, to retrieve historical Inventory Scan data performed by that user. Generate the <b>ENNX Report Text</b> by selecting either a specific date (from Date List button), or date range (from the Date Range button).  These results will be shown in the right-hand pane with options to 'Copy', 'Download', or 'Email' the results for import into AEMS-MERS.
+                    </p>
+                    <div x-show="(data.user != '')" class="boxOuter" >
+                
+                            <div x-data="{buttonList:true}"  class="boxLeft" x-data="">
+                                <div class="text-lg text-center m-1 p-0" x-html="data.narrow ? 'Scans from:' : 'Choose Inventory Scans from:'"><b>Choose Inventory Scans from: </b></div>
+                                <button :class="buttonList? 'toggleON':'toggleOFF'" @click="buttonList = false;" x-text="data.narrow ? 'Range' : 'Date Range'">Date Range</button>
+                                <span class="text-lg align-top hideWhenSmall">&larr;Or&rarr;</span>
+                                <button class=""  :class="buttonList? 'toggleOFF':'toggleON'" @click="buttonList = true;" x-text="data.narrow ? 'List' : 'Date List'">Date List</button>							
+
+                                <div class="text-lg mt-2" >Status?: 
+                                    <label><input type="radio" x-model="data.ennxStatus" name="ennx" value="0" @click="data.getInvDates(0)">All</label>
+                                    <label><input type="radio" x-model="data.ennxStatus" name="ennx" value="1" @click="data.getInvDates(1)">'IN USE'</label>
+                                    <label><input type="radio" x-model="data.ennxStatus" name="ennx" value="2" @click="data.getInvDates(2)">Other</label>
+                                </div>
+                                <hr class="thin" >
+                                <!-- Date Selection Button -->
+                                <div class="m-0" x-show="!buttonList">
+                                    <div class="my-3 px-6 text-lg" x-data="{
+                                    //	value: ['02/01/2022', '02/05/2022'],
+                                        //value: data.dateRange,
+                                        init() {
+                                            let picker = flatpickr(this.$refs.picker, {
+                                                mode: 'range',
+                                                defaultDate: data.dateRange,
+                                                dateFormat: 'm-d-Y',
+                                                onChange: (date, dateString) => {
+                                                    data.dateRange = dateString.split(' to ');
+                                                    data.ennxReport();
+                                                }
+                                            });
+                                            this.$watch('data.dateRange', () => picker.setDate(data.dateRange))
+                                        },
+                                    }"
+                                    >
+                                        <label for="drange block" class="text-lg m-0 align-top" >Select Range:&nbsp;<input id="drange" type="text" x-ref="picker" class="inline text-left text-lg rounded-md border-2 border-black px-3" @click="data.ennxReport();" @blur="data.ennxReport();"></label>
+                                        <br>
+                                        <span class="text-lg align-top" >or Manual Edit:<br><input class=" inline border-black rounded border-2 text-lg text-center w-32" type="text" x-model="data.dateRange[0]" @keyup="data.ennxReport()"><input class="inline border-black rounded border-2 text-lg text-center w-32" type="text" x-model="data.dateRange[1]" @keyup="data.ennxReport()"></span>
+                                    </div>
+                                </div>
+                                <div id="scanDates" class="overflow-scroll text-center text-xl px-3 my-3" x-show="buttonList;">
+                                    <template x-for="(item,index) in data.scanDates;">
+                                        <p class="linkBlue leading-6"><span x-text="item"  @click="data.dateRange=[item,item];  data.ennxReport();">Link</span>	</p>
+                                    </template>
+                                    
+
+                                </div>
+                                    <!-- Modal Form for Status Results Overlay -->
+
+                            </div><!--End of Left half of container with Date Selection & Status Report-->
+
+                            <div  class="boxRight">
+                                <div class="m-0 p-0">
+                                    <button class="cde text-lg inline align-top" x-tooltip.raw="Click button to auto select all results, formatted with a simple [CR] delimiter suitable for AEMS-MERS pasting." @click="data.copyContent(data.report1t); $tooltip('Results copied to the clipboard.')" x-text="data.narrow ? '&#x1F4CB;' : '&#x1F4CB;&nbsp;Copy'">&#x1F4CB;&nbsp;Copy</button>
+                                    <button class="cde text-lg align-top" x-tooltip.raw="Click button to save the inventory list to a file in the local Download folder. " @click="data.saveFile(data.report1t,data.fileName1)" x-text="data.narrow ? '&#x2B73;&nbsp;File' : '&#x2B73;&nbsp;Download'">&#x2B73;&nbsp;Download</button>
+                                    <a x-bind:href="'mailto:'+data.email1+'?subject='+subject1+datetime()+'&body=' + data.report1e">
+                                    <button x-bind:disabled="!data.fetched" x-tooltip.raw="Click button to open your default email program and send all results, formatted with a simple [CR] delimiter suitable for AEMS-MERS pasting." class="cde text-lg inline align-top" x-text="data.narrow ? '&#9993;' : '&#9993;&nbsp;Email'">&#9993;&nbsp;Email</button></a>
+                                </div>
+                                
+                                <div class="text-lg m-1" x-text="!data.ennxRange ? '&#x1F4C6;'+ data.dateRange[0] : '&#x1F4C6;'+ data.dateRange[0] + '&nbsp;:&nbsp;' + data.dateRange[1]">
+                                </div>
+                                <!-- Statistics and Report Text -->
+                                <div class="text-lg m-0 p-0" x-text="data.roomLen+'&nbsp;Rooms,&nbsp;'+data.itemLen+'&nbsp;Scans'">ewrtaeaw
+                                <button class="green text-lg " >&#9993;&nbsp;Print Tags</button></div>
+                                <hr style="height:2px;width:100%;border-width:0;color:gray;background-color:gray; margin: 10px 0px 10px 0px;" >
+                                <div id="ennxList" x-html="data.ennxList" class="whitespace-pre-line text-lg leading-tight ">ENNX</div>
+                            </div><!--End of Right half of container with ENNX Report-->
+                    </div><!--End of outer container with ENNX Report-->
+                
+                </div>	<!--End of ENNX Page-->
+                <!------------------------------------------>
+                <!-- Fixed Reader Status Report ------------>
+                <!------------------------------------------>
+                
+                <div  x-data="{openHelp:false}" class="report tabContent" id="report3" x-show:bind="$el.id == data.openTab1 ? true : false" >
+                    <span class=" mb-2 text-xl">
+                        <h2 class="inline text-2xl font-bold ">RFID Fixed Reader Status: <span @click="openHelp = !openHelp;" class="text-lg" x-text="openHelp ? '&#x1F44D' : '&#x2753;'"></span> </h2> 
+
+                        <span class="text-xl" x-text="data.readerCount + ' Readers, '+ data.antennaCount+' Antennas'"></span>
+
+                    </span>
+                    <div x-cloak x-show="openHelp" class="ttext-lg text-left align-top m-1 p-0 leading-tight w-full"> Review the list of fixed RFID readers for online/offline status, and current asset read statistics.	</div>	
+                    <div class="p-2 my-2" >
+                        <table class="border-0 items-center justify-center w-full">
+                            <tr x-bind:class="{'h-5': data.narrow, 'h-8': !data.narrow}"><th x-text="'Site: '+data.client">Site: </th><th >Count</th></tr>
+                            <tr x-bind:class="{'h-5': data.narrow, 'h-8': !data.narrow}">
+                                <td>Fixed RFID Readers 
+                                    <span id="" class="barchart green">Online</span>
+                                    <span id="" class="barchart red">Offline</span>
+                                </td>
+                                <td class="justify-center flex px-3" >
+                                    <div class="barchart green" x-show="data.readersUp > 0" x-text="data.readersUp" x-bind:style="data.readerpctUp < 5 ? `flex-basis: content; ` : `flex-basis:  ${data.readerspctUp}%`"  ></div>
+                                    <div class="barchart red" x-show="data.readersDown > 0" x-text="data.readersDown" x-bind:style="data.readerpctDn < 5 ? `flex-basis: content; ` : `flex-basis:  ${data.readerspctDn}%`"></div>
+                                </td>
+                            </tr>
+                            <tr x-bind:class="{'h-5': data.narrow, 'h-8': !data.narrow}">
+                                <td>Unique Fixed Reader Tags: today|week|month|3-month</td>
+                                <td class="justify-center flex px-3">
+                                    <span class="">1247 | 12 | 234 | 452</span>
+                                </td>
+                            </tr>                            
+                            <tr x-bind:class="{'h-5': data.narrow, 'h-8': !data.narrow}">
+                                <td>Unique Mobile Reader Tags: today|week|month|3-month</td>
+                                <td class="justify-center flex px-3">
+                                    <span class="">1247</span>
+                                </td>
+                            </tr>   
+                            <!--
+                            <tr><td>Unique Qty:  CSN | Category | Service | EIL | PO | Status</td>
+                            <td class="justify-center flex px-3" x-text="data.listCSN.length + ' | '+data.listCategory.length + ' | '+data.listService.length + ' | '+data.listEIL.length + ' | '+data.listPO.length + ' | '+data.listStatus.length"></td></tr>
+                           -->
+                        </table>
+                    </div>                     
+                    <div x-init="" class="items-center p-2 my-2">
+ 
+                        <table id="" class="my-0" >
+                            <thead >
+                                <tr>
+                                    <template x-for="(col, index) in data.readerColumns"  >
+                                        <th class="cheader text-base " x-text="col" x-show="data.readerDefs[index].colShow" @click="data.sortTable(data.readerSortCols[index], data.readerArr)"  ></th>
+                                    </template>
+                                </tr>
+                            </thead>
+                            <tbody ><!--  -->
+                                <template x-for="(row, rindex) in data.readerArr" :key="rindex"><!--  -->
+                                    <tr x-bind:class="{'h-5 ': data.narrow, 'h-8 ': !data.narrow}">
+                                        <template x-for="(col, cindex) in data.readerColumns" >
+                                            <td x-bind:class="{'text-base online' : row[Object.keys(row)[cindex]] == 'Up',
+                                                'text-base offline' : row[Object.keys(row)[cindex]] == 'Down' }" 
+                                                x-show="data.readerDefs[cindex].colShow" x-html="row[Object.keys(row)[cindex]]"  ></td>
+                                        </template>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>	<!--End of Fixed Reader Status Report -->
+                <!------------------------------------------>
+                <!-- Date Search Report -------------------->
+                <!------------------------------------------>
+                <div  class="report tabContent" id="report4" x-show:bind="$el.id == data.openTab1 ? true : false" >
+                    <h2 class="inline text-2xl font-bold ">*** UNDER CONSTRUCTION ***</h2>
+                    <p>Help create this page by making a request for your own custom report. ID Integration is committed to adding value to your work processes by harnessing the power of the AssetWorx API. <a href="mailto:ganderson@id-integration.com?subject=AssetWorx Custom Report Request">Send an email</a> with your ideas about a custom data report with options and features that you would like to see.</p>                    
+                    <hr>
+                </div>	<!--End of Date Search Report-->
+            </div>	<!--End of Reports Page2-->
+            <!---------------------------------------------------------->
+            <!--Page 3 Content: Tools -->
+            <!---------------------------------------------------------->
+            <div x-cloak class="flex-wrapper" id="page3" x-show:bind="$el.id==data.openNav ? true : false">
+                
+                <ul class="tabbar"  >
+                    <template x-for="(item, index) in tabGroup2" >
+                        <li ><a x-html="item.name" x-bind:class="{ 'tabsActive': data.openTab2 == item.id, 'tabsDefault': data.openTab2 !== index }"  @click="data.openTab2=item.id; ">Page Number</a>
+                        </li>
+                    </template>
+                </ul>	
+                <div class="thing tabContent" id="thing1" x-show:bind="$el.id == data.openTab2 ? true : false" >
+                    <div>
+                        <h2 class="text-2xl font-bold ">Overview of Toolkit: </h2> 
+                        <p class="text-xl text-black text-base font-normal align-top m-1 p-0 leading-tight "> This AssetWorx support page allows editing of AssetWorx data in different ways. The Inventory and Scan-2-Print tools require that the page be run on a Zebra Android device with barcode and RFID reader connections. The Add-Data tool is intended mainly for Receiving Departments that have daily responsibilities for printing new RFID tracking tags, and inputting these new assets into the AssetWorx database. Expand the sections below to learn more of what can be accomplished. </p>
+                        <hr class="thin"  >
+                    </div>
+                    <div class="flex"><details x-data="{isOpen:false}" class="block px-3">
+                        <summary class="text-xl" x-on:click="isOpen = !isOpen" :aria-expanded="isOpen"><b>Inventory Tools</b> </summary>
+                        <div x-show="isOpen" x-collapse.duration.500ms>
+                            <p class="mx-7 text-base font-medium">These are tools for performing Initial and Periodic Room Inventory scans, and locating missing items using RFID handheld readers.</p>
+                            <p class="mt-3 pl-12 -indent-8 ">
+                                <b>Scan-2-Print</b> is used for initial room barcode scans of legacy asset labels.  These scans validate expected room assets, and allow the user to identify an appropriate RFID tag size to use for each item scanned. A "NOTES" field is available to document data discrepencies with the actual tagged part.  The tool also auto-updates the AssetWorx database for unexpected assets and locations.  </p><p class="pl-12 ">After completion of each room scan and update to the AssetWorx database, a print tags button appears, allowing the user to send tag print jobs to each tag size printer.  <p class="pl-12 " >Finally, this tool also tracks progress of the initial tagging process by maintaining a status log for each asset as ['Scanned', 'Printed', 'Tagged', 'NRF' (no record found)]. </p>
+                            <p class="mt-3 pl-12 -indent-8"><b>Room Inventory</b> can be used as an alternative to the AssetWorx Android Mobile app. Unlike the current AssetWorx mobile app, this tool generates a new status option of 'Missing' for all unfound items during a room inventory.  This allows the 'WayFinder' feature to be used more efficiently for a group of tags.</p>    
+                        </div>
+                    </details></div>
+                    <div class="flex"><details x-data="{isOpen:false}" class="block px-3 ">
+                        <summary class="text-xl" x-on:click="isOpen = !isOpen" :aria-expanded="isOpen"><b>Adding Data to AssetWorx</b>
+
+                        </summary>
+                        <div x-show="isOpen" x-collapse.duration.500ms>
+                            <p class="mx-7 text-base font-medium">This API tool is primarily intended to support the needs of Receiving departments that need to add newly acquired assets to the AssetWorx database AND to print and attach new RFID tags to those new products.  The same process can be use to add fixed RFID readers, AssetWorx users, custom alarms, and importing other data such as 'Maintenace Date updates' from external software programs like Nuvolo.</p>
+                        </div>
+                    </details></div>
+
+                </div>
+                <div class="thing " id="thing2" x-show:bind="$el.id == data.openTab2 ? true : false" >
+                    <div>
+                        <select  class="" id="tagList" tabindex="1" x-model="data.tagSize"  class="input text-base mx-2" placeholder="Pick Default Size">
+                            <option value="" disabled>Select Default TagSize</option>
+                            <template x-for="tag in tagList" >
+                                <option :value="tag" x-text="tag"></option>
+                            </template>	
+                        </select>
+                        <button class="reset " x-tooltip.raw="Click this button to save the table grid results to a file in the local Download folder.  " x-text="data.narrow ? 'Reset' : '&#x27F3;Reset'" @click="data.reset()" >&#x2B73;&nbsp;Reset</button>
+          <textarea id="raw" @focus="data.paused = false;" autofocus class="" @focusout="data.paused = true;"  @keyup.enter="data.getReads();"  x-model="data.scan" 
+          x-bind:style="data.paused ? `background-color:rgb(239, 166, 121)` : `background-color:green` "></textarea>
+          <button id="" x-html="data.paused ? 'Paused - Click to Scan' : data.nRooms == 0 ? 'Scan Room ID, then Assets' : data.room+', '+data.scanArr[data.room].length + ' Tags'" @click="document.getElementById('raw').focus(); data.paused=false;" :class="data.paused ? 'reset' : 'none'">
+          </button>
+                                          <!-- Column Visibility Button -->
+                                    <button class="crop-container config" x-on:click="data.toggleColumn = !data.toggleColumn; " 
+                                    x-tooltip.raw="Show/Hide Columns" ><span class="cropped-symbol">&#x1F453;</span></button>&nbsp;&nbsp;
+                        <button x-show="data.toggleColumn" class="config " x-on:click="data.hideAll()">Hide ALL</button>
+                        <template x-for="(val, index) in data.assetColumns" :key="index"  >
+                            <span x-show="data.toggleColumn" x-text="val + ' | '"  x-bind:class="{' text-xl text-blue-600': data.assetDefs[index].colShow, 'text-base text-red-500': !data.assetDefs[index].colShow}" x-on:click="data.assetDefs[index].colShow=!data.assetDefs[index].colShow" ></span>&nbsp;-&nbsp;
+                        </template>
+                        <button x-show="data.toggleColumn" class="config px-2" x-on:click="data.showAll()">Show ALL</button>
+                        <table id="scan2print" x-bind:class="{'text-xs': data.narrow, 'text-sm': !data.narrow}" >
+                            <thead >
+                                <tr >
+                                    <template x-for="(col, index) in data.assetColumns"  >
+                                        <th class="" x-html="col" x-show="data.assetDefs[index].colShow" @click="data.sortTable(data.assetSortCols[index], data.assetArr)" ></th>
+                                    </template>
+                                </tr>
+                                <tr >
+                                    <template x-for="(col, index) in data.assetColumns">
+                                        <th x-show="data.assetDefs[index].colShow"><input type="text" class="cfilter w-full" x-model.debounce="data.assetDefs[index].cFilter" 
+                                                ></th>
+                                    </template>
+                                </tr>
+                            </thead>
+                            <tbody ><!-- x-bind:class="{'text-base online' : row[Object.keys(row)[cindex]] == 'Up','text-base offline' : row[Object.keys(row)[cindex]] == 'Down' }" -->
+                                <template x-for="(row, rindex) in data.getRows()" :key="rindex"><!--  -->
+                                    <tr x-bind:class="{'h-5': data.narrow, 'h-8': !data.narrow}" >
+                                        <template x-for="(col, cindex) in data.assetColumns" >
+                                            <td class="" x-show="data.assetDefs[cindex].colShow" x-html="row[Object.keys(row)[cindex]]" ></td>
+                                        </template>
+                                        <td><select><option value="MS">MS</option><option value="ML">ML</option></select></td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+
+                        <hr class="thin">
+                    </div>
+                </div>
+                <div class="thing tabContent" id="thing3" x-show:bind="$el.id == data.openTab2 ? true : false" >
+                    <div>
+                        <h2 class="text-2xl font-bold ">inventory: </h2> 
+                        <p class="text-xl text-black text-base font-normal align-top m-1 p-0 leading-tight "> This  </p>
+                        <hr class="thin"  >
+                    </div>
+                </div>
+                <div class="thing tabContent" id="thing4" x-show:bind="$el.id == data.openTab2 ? true : false" >
+                    <div>
+                        <h2 class="text-2xl font-bold ">Adding: </h2> 
+                        <p class="text-xl text-black text-base font-normal align-top m-1 p-0 leading-tight "> This  </p>
+                        <hr class="thin"  >
+                    </div>
+                </div>
+            </div><!--End of Page 3 Content-->
+            <!---------------------------------------------------------->
+            <!--Page 4 Content: HELP -->
+            <!---------------------------------------------------------->
+            <div x-cloak class="flex-wrapper" id="page4" x-show:bind="$el.id==data.openNav ? true : false">
+                <ul class="tabbar"  >
+                    <template x-for="(item, index) in tabGroup3" >
+                        <li ><a x-html="item.name" x-bind:class="{ 'tabsActive': data.openTab3 == item.id, 'tabsDefault': data.openTab3 !== index }"  @click="data.openTab3=item.id; ">Page Number</a>
+                        </li>
+                    </template>
+                </ul>	
+                
+                <!--HELP OVERVIEW Content-->
+                <div class="help tabContent" id="help1" x-show:bind="$el.id == data.openTab3 ? true : false" >
+                    <h2 class="text-2xl font-bold ">Overview: </h2>                            <fieldset class="float-left p-3 vid"><legend><b>Dashboard Usage Videos</b></legend>
+                                <select class="border-2" name="usage" id="usage" onchange="document.getElementById('usage').src = this.value;">	
+                                    <option value="" >Interface Overview</option>		
+                                    <option value="" >Asset Grid & Filtering</option>
+                                    <option value="" >Reports: Asset Summary</option>
+                                    <option value="" >Reports: ENNX Creation</option>
+                                    <option value="" >Reports: Reader Status</option>
+                                    <option value="" >Help / Support</option>
+                                </select> 
+                                <br> 
+                                <iframe id="vidh3" width="320" height="180" src="https://www.youtube.com/embed/rI8qfzDUfUY" frameborder="0"  allowfullscreen></iframe>
+                            </fieldset>
+                    <p class="mx-3 my-2 text-xl leading-normal"> ID Integration provides this software extension as a more useful data analysis dashboard for the AssetWorx! Tracking Software package. It is a responsive web app, allowing it to be used on any browser enabled device without hardware or OS restrictions.  This tool also provides custom data output reports, and a reference for setup and operation of all related hardware and software elements.  This browser dashboard can be either installed as a local fileset, or as an IIS web service.
+                    </p>
+
+                    <p class="mx-3 my-4 text-xl">The API Dashboard has the following advantages over the standard AssetWorx Dashboard.</p>
+                    <ol class="my-4 mx-4 list-decimal list-inside indent-15 text-xl">
+                        <li class="my-3"><b>Easier Data Column Organization</b> - Naming, Order, Visibility</li>
+                        <li class="my-3"><b>Better Data Filter Options</b> - combine global, column, and location filters</li>
+                        <li class="my-3"><b>Calendar Date Filtering Options</b></li>
+                        <li class="my-3"><b>Easier Data Report Export</b> - Auto Cut/Paste, FileSave, and Email options</li>
+                        <li class="my-3"><b>Personalized Configuration</b> - Set user default preferences via browser cookies</li>
+                        <li class="my-3"><b>Asset Location Mapping</b> - via imported floorplan images</li>
+                        
+                    </ol>
+
+                </div>
+                <!--HELP Installation Content-->
+                <div class="help tabContent" id="help2" x-show:bind="$el.id == data.openTab3 ? true : false" >
+                    <h2 class="inline text-2xl font-bold ">Dashboard Installation: </h2>
+                    <p class="mx-3 my-2 text-xl leading-normal"> It is important to recognize that this Data Dashboard tool is NOT an executable software application. It is simply a collection of text files (html, css, javascript) that can be located anywhere on a PC, but always viewed within a web browser.  More commonly, these files are loaded onto a web server such as IIS, so that everyone on your network can benefit from the tool without requiring separate software installations.</p>
+                    <p class="mx-3 my-2 text-xl leading-normal">Because this Dashboard is built using the AssetWorx API, it can be highly customized for each AssetWorx deployment.  Contact ID Integration to schedule an online session where we can assist you with the configuration setup for your data environment, using your vocabulary, and your data preferences.
+                    </p>
+
+                            <fieldset class="float-left p-3 vid"><legend><b>Installation Videos - AssetWorx API Dashboard</b></legend>
+                                <select class="border-2" name="install" id="install" onchange="document.getElementById('install').src = this.value;">	
+                                    <option value="" >Local File installation</option>		
+                                    <option value="" >IIS installation</option>
+                                    <option value="" >AssetWorx 'Client' Creation</option>
+                                </select> 
+                                <br> 
+                                <iframe id="vidh3" width="320" height="180" src="https://www.youtube.com/embed/rI8qfzDUfUY" frameborder="0"  allowfullscreen></iframe>
+                            </fieldset>
+                    
+                </div>
+                <!--HELP HARDWARE Content-->
+                <div class="help tabContent " id="help3" x-show:bind="$el.id == data.openTab3 ? true : false">
+                    <div>
+                        <a href="http://www.zebra.com" target="_blank"><img class="float-right mx-3" src="img/zebra-logo.jpg" alt="Zebra Home" /></a>
+                        <span class="mb-2"><h2 class="inline text-2xl font-bold ">Hardware Elements:  </h2> Click on the company logo and product images in each section below to browse to the official company and product websites for the most up to date information.  NOTE: all hardware is delivered by ID Integration with the latest firmware, and preconfigured for the intended label media and intended data content.  The links below are provided for documentation of the 'as delivered' state, and are provided here should reinstallation and/or configuration be necessary.
+                        </span>
+                    </div>
+               
+                    <div class="flex"><details x-data="{isOpen:false}" class="block px-3">
+                        <summary x-on:click="isOpen = !isOpen" :aria-expanded="isOpen"><b>Zebra ZD621R RFID Printer</b> </summary>
+                        <div x-show="isOpen" x-collapse.duration.500ms>
+                            <a x-show="isOpen"class="mx-8 text-blue-600 " href="https://www.zebra.com/us/en/support-downloads/rfid/rfid-readers/fx9600.html" target="_blank">Product Support Site &amp; Downloads</a>	
+                            <a href="https://www.zebra.com/us/en/products/rfid/rfid-readers/fx9600.html" target="_blank"><img class="float-left ml-2" src="img/zd621r.jpg" alt="Zebra ZD621R Product Page" /></a>
+
+
+                            <a class="float-left items-baseline m-5" href="docs/zt411-tech-specs-en-us.pdf" target="_blank"><figure style='display: table'><img src="img/pdf.png" title="DataSheet" /><figcaption style='display: table-caption; caption-side: bottom;'>DataSheet <figcaption></figure></a>
+                            <a class="float-left items-baseline m-5" href="docs/zt411-tech-specs-en-us.pdf" target="_blank"><figure style='display: table'><img src="img/pdf.png" title="DataSheet" /><figcaption style='display: table-caption; caption-side: bottom;'>UserManual <figcaption></figure></a>
+
+                            <fieldset class="float-left p-3 vid"><legend><b>Training Videos - ZT410/420 Printers</b></legend>
+                                <select class="border-2" name="vlisth3" id="vlisth3" onchange="document.getElementById('vidh3').src = this.value;">	
+                                    <option value="https://www.youtube.com/embed/rI8qfzDUfUY" >ZT410 Model Overview</option>		
+                                    <option value="https://www.youtube.com/embed/84_J3Nr3PbI" >ZT410 Ribbon &amp; Media Loading</option>		
+                                    <option value="https://www.youtube.com/embed/9mW8xgzVvhs" >ZT410 Sensor Cleaning</option>		
+                                    <option value="https://www.youtube.com/embed/veg6rhTKUiA" >ZT410 Printhead &amp; Roller Cleaning</option>		
+                                    <option value="https://www.youtube.com/embed/4PvBKdpGrxM" >ZT410 Printhead Replacement</option>		
+                                    <option value="https://www.youtube.com/embed/I0a8q8RCo8E" >ZT410 Printhead Pressure Adjustment</option>		
+                                    <option value="https://www.youtube.com/embed/FiJnfNwBw8I" >ZT410 Auto Calibation</option>		
+                                    <option value="https://www.youtube.com/embed/2hd-wDxfwuA" >ZT410 Manual Calibration</option>		
+                                    <option value="https://www.youtube.com/embed/kxQnKGHqYxA" >ZT410 Replace Platen Roller</option>		
+                                    <option value="https://www.youtube.com/embed/5jQm2XvJRPg" >ZT410 RFID Media Calibration</option>		
+                                </select> 
+                                <br> 
+                                <iframe id="vidh3" width="320" height="180" src="https://www.youtube.com/embed/rI8qfzDUfUY" frameborder="0"  allowfullscreen></iframe>
+                            </fieldset>
+
+                        </div>
+                    </details></div>
+                    <div class="flex"><details x-data="{isOpen:false}" class="block px-3 ">
+                        <summary x-on:click="isOpen = !isOpen" :aria-expanded="isOpen"><b>Zebra ZT411R RFID Printer</b>
+
+                        </summary>
+                        <div x-show="isOpen" x-collapse.duration.500ms>
+                            <a href="https://www.zebra.com/us/en/products/rfid/rfid-readers/fx9600.html" target="_blank"><img class="float-left ml-2" src="img/zt411r.jpg" alt="Zebra ZT411R Product Page" /></a>
+                            <a class="mx-8 text-blue-600 " href="https://www.zebra.com/us/en/support-downloads/rfid/rfid-readers/fx9600.html" target="_blank">Product Support Site &amp; Downloads</a><br>
+                            <a class="float-left items-baseline mx-5" href="docs/zt411-tech-specs-en-us.pdf" target="_blank"><figure style='display: table'><img src="img/pdf.png" title="DataSheet" /><figcaption style='display: table-caption; caption-side: bottom;'>DataSheet <figcaption></figure></a>
+
+                        </div>
+                    </details></div>
+                    <div class="flex"><details x-data="{isOpen:false}" class="block px-3 ">
+                        <summary x-on:click="isOpen = !isOpen" :aria-expanded="isOpen"><b>Zebra TC53 Android Terminal</b>
+
+                        </summary>
+                        <div x-show="isOpen" x-collapse.duration.500ms>
+                            <a href="https://www.zebra.com/us/en/products/rfid/rfid-readers/fx9600.html" target="_blank"><img class="float-left ml-2" src="img/tc53.jpg" alt="Zebra ZD621R Product Page"></a>
+                            <a class="mx-8 text-blue-600 " href="https://www.zebra.com/us/en/support-downloads/rfid/rfid-readers/fx9600.html" target="_blank">Product Support Site &amp; Downloads</a>
+                            <br>
+                            <a class="float-left items-baseline mx-5" href="docs/zt411-tech-specs-en-us.pdf" target="_blank"><figure style='display: table'><img src="img/pdf.png" title="DataSheet" /><figcaption style='display: table-caption; caption-side: bottom;'>DataSheet </figcaption></figure></a>
+
+                        </div>
+                    </details></div>
+                    <div class="flex"><details x-data="{isOpen:false}" class="block px-3 ">
+                        <summary x-on:click="isOpen = !isOpen" :aria-expanded="isOpen"><b>Zebra RFD40 'Sled' RFID Reader</b>
+
+                        </summary>
+                        <div x-show="isOpen" x-collapse.duration.500ms>
+                            <a href="https://www.zebra.com/us/en/products/rfid/rfid-readers/fx9600.html" target="_blank"><img class="float-left ml-2" src="img/rfd40.jpg" alt="Zebra RFD40 Product Page" /></a>
+                            <a class="mx-8 text-blue-600 " href="https://www.zebra.com/us/en/support-downloads/rfid/rfid-readers/fx9600.html" target="_blank">Product Support Site &amp; Downloads</a><br>
+                            <a class="float-left items-baseline mx-5" href="docs/zt411-tech-specs-en-us.pdf" target="_blank"><figure style='display: table'><img src="img/pdf.png" title="DataSheet" /><figcaption style='display: table-caption; caption-side: bottom;'>DataSheet <figcaption></figure></a>
+                        </div>
+                    </details></div>
+                    <div class="flex"><details x-data="{isOpen:false}" class="block px-3 ">
+                        <summary x-on:click="isOpen = !isOpen" :aria-expanded="isOpen"><b>Zebra FX9600 Fixed RFID Reader</b>
+
+                        </summary>
+                        <div x-show="isOpen" x-collapse.duration.500ms>
+                            <a href="https://www.zebra.com/us/en/products/rfid/rfid-readers/fx9600.html" target="_blank"><img class="float-left ml-2" src="img/fixed_readers.png" alt="Zebra FX9600 Product Page"></a>
+                            <a class="mx-8 text-blue-600 " href="https://www.zebra.com/us/en/support-downloads/rfid/rfid-readers/fx9600.html" target="_blank">Product Support Site &amp; Downloads</a>
+
+                        </div>
+                    </details></div>
+                
+                </div>
+                <!--HELP SOFTWARE Content-->        
+                <div class="help tabContent" id="help4"  x-show:bind="$el.id == data.openTab3 ? true : false">
+                    <div>
+                    <span class="mb-2"><h2 class="inline text-2xl font-bold ">Software Elements: </h2> Click on the company logo and product images in each section below to browse to the official company and product websites for the most up to date information.  NOTE: The links below are provided for documentation of the 'current' release versions, and are provided here should reinstallation, update, and/or configuration be necessary.
+                    </span></div>
+                    <div class="flex"><details x-data="{isOpen:false}" class="block px-3 ">
+                        <summary x-on:click="isOpen = !isOpen" :aria-expanded="isOpen"><b>WinOS Printer Drivers</b>
+                        </summary>
+                        <div x-show="isOpen" x-collapse.duration.500ms>
+                            <a href="https://portal.seagullscientific.com/downloads/drivers" target="_blank"><img class="float-left mx-3" src="img/drivers.jpg" alt="Seagull Drivers"></a>
+                            <a href="https://portal.seagullscientific.com/downloads/drivers" target="_blank"><img class="float-right mx-3" src="img/seagull.gif" alt="Seagull Drivers"></a>
+                            <a class="mx-8 " href="https://portal.seagullscientific.com/downloads/drivers#" target="_blank">>> Download Seagull Drivers for Zebra Printer Family</a><br>
+                            <a class="mx-8 " href="https://support.seagullsoftware.com/hc/en-us/categories/8124542816279-Drivers-by-Seagull" target="_blank">>> Installation, Setup, Troubleshooting Support</a>
+                        </div>
+                    </details></div>
+            
+
+
+                    <div class="flex"><details x-data="{isOpen:false}" class="block px-3 ">
+                        <summary x-on:click="isOpen = !isOpen" :aria-expanded="isOpen"><b>Bartender Label Design Software</b>
+                        </summary>
+                        <div x-show="isOpen" x-collapse.duration.500ms>
+                            <span class="flex">
+                                <a href="https://www.bartendersoftware.com/" target="_blank"><img class="float-left mx-3" src="img/Bartender_logo.png" alt="Zebra ZD621R Product Page"></a>
+                                <a class="mx-8 text-blue-600 " href="docs/zt411-tech-specs-en-us.pdf" target="_blank"><figure style='display: table'><img src="img/pdf.png" title="DataSheet" /><figcaption style='display: table-caption; caption-side: bottom;'>DataSheet <figcaption></figure></a>
+                                <a href="https://www.bartendersoftware.com/" target="_blank"><img class="float-right x-3" src="img/seagull.gif" alt="Bartender Home"></a>
+                            </span>
+                        </div>
+                    </details></div>
+
+                    <div class="flex"><details x-data="{isOpen:false}" class="block px-3 ">
+                        <summary x-on:click="isOpen = !isOpen" :aria-expanded="isOpen"><b>Assetworx! Tracking Software</b>
+                        </summary>
+                        <div x-show="isOpen" x-collapse.duration.500ms>
+                            <a href="https://my.infinidtech.com/" target="_blank"><img class="float-left mx-3" src="img/assetworx2.png" alt="AssetWorx Home"></a>
+                            <a href="https://www.infinidtech.com/" target="_blank"><img class="float-right mx-3" src="img/infinid.png" alt="InfinID Home"></a>
+                            <a class="float-left flex items-baseline mx-5" href="docs/zt411-tech-specs-en-us.pdf" target="_blank"><figure style='display: table'><img src="img/pdf.png" title="DataSheet" /><figcaption style='display: table-caption; caption-side: bottom;'>DataSheet <figcaption></figure></a>
+                            <a class="mx-8 text-blue-600 " href="https://www.zebra.com/us/en/support-downloads/rfid/rfid-readers/fx9600.html" target="_blank">Product Support Site &amp; Downloads</a>
+                            <br>
+                        </div>
+                    </details></div>
+                </div>
+                
+
+                <!--HELP MATERIAL Content-->            
+                <div class="help tabContent" id="help5" x-data="{matList: material}"  x-show:bind="$el.id == data.openTab3 ? true : false">
+                    <span class="mb-2"><h2 class="inline text-2xl font-bold ">Material Elements: </h2> Filter the table below to find components, accessories, spares, and consumables for this system.
+                    </span>     
+                    <div class="table-wrapper">   
+                    <table id="material" class="" >
+                        <thead >
+                            <tr>
+                                <template x-for="(col, index) in Object.keys(matList[0])" >
+                                    <th class="text-base " x-text="col"  ></th>
+                                </template>
+                            </tr>
+                        </thead>
+                        <tbody ><!--  -->
+                            <template x-for="(row, rindex) in matList"><!--  -->
+                                <tr>
+                                    <template x-for="(col, cindex) in Object.keys(matList[0])" >
+                                        <td class="text-base"  x-html="row[Object.keys(row)[cindex]]"  ></td>
+                                    </template>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                    </div> 
+                </div>    
+        
+
+                <!--HELP FAQs Content-->            
+                <div class="help tabContent" id="help6"  x-show:bind="$el.id == data.openTab3 ? true : false">
+                    <span class="mb-2"><h2 class="inline text-2xl font-bold ">Frequently Asked Questions: </h2> Common questions are addressed in this list, with answers toggled with a click.  Please also visit the ID Integration YouTube Channel at:  <a class="linkBlue" href="https://www.youtube.com/@idintegration" target="_blank">https://www.youtube.com/@id-integration</a></span>
+                    <div class="m-0 px-0 py-0" x-data="{topics: faqs}">        
+                        <div class=" mt-1">
+                            <template x-for="(topic, index) in topics" :key="index">
+                                <details x-data="{isOpen:false}" class="m-0 p-0">
+                                    <summary x-on:click="isOpen = !isOpen" :aria-expanded="isOpen" x-html="'<u><b>'+topic.title+'</b></u> '+topic.question">
+                                    </summary>
+                                    <div x-show="isOpen" x-collapse.duration.500ms   >
+                                        <span x-html="topic.answer" class="" ></span>
+                                        <br><hr>    
+                                    </div>
+                                </details>
+                            </template>
+                        </div>
+                    </div>
+                </div><!--End of HELP FAQs Content-->
+
+            </div><!--End of Page 4 Content-->
+
+
+
+        <footer class="">
+            <span class="" x-text="'Copyright 2026 ID Integration, Inc., '+pageVersion">Copyright 2026 ID Integration, v ??</span>
+        </footer>	
+        </main>
+
+    <!--/div-->
+<script>
+// Check if page is running on Android Device
+/**/    //let isAndroid = false; let isiPhone = false; let desktop = false;
+   // if(window.navigator.userAgent.match(/Android/i)) { data.isAndroid = true; } else {data.isAndroid = false;}
+   // if(window.navigator.userAgent.match(/iPhone/i)) { data.isiPhone = true; } else {data.isiPhone = false;}
+//    if(data.isAndroid || data.isiPhone) {data.desktop = false;} else {data.desktop = true;} 
+// Check for online status and change Navbar <hr> element green or red.
+    window.addEventListener("offline", (e) => {document.getElementById('hrStatus').className = "offline-msg"; data.online = false;});
+    window.addEventListener("online", (e) => {document.getElementById('hrStatus').className = "online-msg"; data.online = true;});
+// Check for WinOS desktop or Mobile Device
+        var desk; if(window.navigator.userAgent.match(/Win/i)) { desk = true; } else {desk = false;}
+// Check for screen width change
+    window.addEventListener('resize', () => { narrow = window.innerWidth < 801; });
+      // Check for online status and change Navbar <hr> element green or red.
+      window.addEventListener("offline", (e) => {document.getElementById('hrStatus').className = "offline-msg";let online = false;});
+      window.addEventListener("online", (e) => {document.getElementById('hrStatus').className = "online-msg";let online = true;});
+    function sp_clearTerminal() { 
+      //sp_rawData.value = "";
+      //sp_cleanData.value = "";
+    //  document.getElementById("sp_num_unique").innerHTML = "";
+  //    document.getElementById("period").innerHTML = "";
+    }
+/**/window.onload = function () {
+        // Check to make sure we can actually do serial stuff
+        
+
+
+        if ("serial" in navigator) {
+                  console.log("Awesome, The serial port is supported.") // The Web Serial API is supported.
+                  navigator.serial.addEventListener("connect", (event) => {alert("New Connection Found"); });
+                  // TODO: Automatically open event.target or warn user a port is available.
+                  navigator.serial.addEventListener("disconnect", (event) => {alert("Cable Removed");});
+                  // TODO: Remove |event.target| from the UI.
+                  // If the serial port was opened, a stream error would be observed as well.
+            sp_clearTerminal(); // Clear the term_window textarea
+        }
+        else {alert('Sorry, this browser does not support the WebSerial API. Please try with Chrome or Edge')}    
+      };
+          // Clear the contents of the term_window textarea
+document.getElementById('userList').selectedIndex = 0;
+/*  Define DOM I/O references  */
+    const led = document.getElementById("led");
+    const inBox = document.getElementById("inventory");
+    const findBox = document.getElementById("searchList");	
+    const trashBin = document.getElementById("trash");
+    const trows = document.getElementById("assets").querySelectorAll('td');
+    const historyIn = document.getElementById("idSearch");
+//    const ennxRadio = document.getElementsByName('ennx');
+    const assetTable = document.getElementById('assets');
+document.addEventListener('DOMContentLoaded', () => {
+  const summaryElement = document.querySelector('details summary'); // Or a more specific selector
+  const inlineElements = summaryElement.querySelectorAll('.no-toggle'); // Select your specific inline elements
+
+  inlineElements.forEach(element => {
+    element.addEventListener('click', (event) => {
+      event.stopPropagation(); // Prevent the click from bubbling up to the summary
+      // Add your desired functionality for the inline element here
+     // console.log('Inline element clicked, details not toggled.');
+    });
+  });
+});
+
+       
+        
+async function getFilenamesInFolder() {
+  try {
+    // Open the directory picker, prompting the user to select a folder
+ //   const directoryHandle = await window.showDirectoryPicker();
+    const directoryHandle = await window.showDirectoryPicker();
+    const filenames = [];
+
+    // Iterate through the entries (files and subdirectories) within the selected directory
+    for await (const entry of directoryHandle.values()) {
+      // Check if the entry is a file
+      if (entry.kind === 'file') {
+        filenames.push(entry.name);
+      }
+    }
+
+    return filenames;
+  } catch (error) {
+    console.error('Error selecting directory or accessing files:', error);
+    return []; // Return an empty array in case of an error or user cancellation
+  }
+}
+function getMapList() {
+    getFilenamesInFolder().then(filenames => {
+        if (filenames.length > 0) {
+            console.log('Filenames in the selected folder:');
+            filenames.forEach(name => console.log(name));
+        } else {
+            console.log('No files found or directory selection was cancelled.');
+        }
+    });
+}
+function handleRowClick(index, event) {
+    if (event.ctrlKey) {
+        if (this.selectedRows.includes(index)) {
+            this.selectedRows = this.selectedRows.filter(i => i !== index);
+        } else {
+            this.selectedRows.push(index);
+        }
+        this.lastClickedRow = index;
+    } else if (event.shiftKey && this.lastClickedRow !== null) {
+        const start = Math.min(this.lastClickedRow, index);
+        const end = Math.max(this.lastClickedRow, index);
+        this.selectedRows = [];
+        for (let i = start; i <= end; i++) {
+            this.selectedRows.push(i);
+        }
+    } else {
+        this.selectedRows = [index];
+        this.lastClickedRow = index;
+    }
+}
+</script>
+</body>
+</html>

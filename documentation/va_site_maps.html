@@ -1,0 +1,333 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VA Site Maps &mdash; Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="../theme.css" />
+    <script src="../theme-init.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --doc-bg: var(--bg, #0f1117); --doc-card: var(--card, #1a1d27); --doc-chip: var(--chip, #22252f); --doc-text: var(--text, #e2e8f0); --doc-muted: var(--muted, #8892a4); --doc-line: var(--line, #1f2a44); --doc-h3: #93c5fd; --doc-code-bg: rgba(59,130,246,0.1); --doc-code-text: #93c5fd; }
+        [data-theme="light"] { --doc-h3: #2563eb; --doc-code-bg: rgba(37,99,168,0.08); --doc-code-text: #1e40af; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--doc-bg); color: var(--doc-text); line-height: 1.7; transition: background-color 0.25s ease, color 0.25s ease; }
+        .container { max-width: 960px; margin: 0 auto; padding: 40px 32px 80px; }
+        .back-link { color: var(--accent, #3b82f6); text-decoration: none; font-size: 13px; font-weight: 600; }
+        .back-link:hover { text-decoration: underline; }
+        h1 { font-size: 32px; font-weight: 800; margin: 20px 0 8px; background: linear-gradient(90deg, #3b82f6, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { color: var(--doc-muted); font-size: 15px; margin-bottom: 36px; }
+        h2 { font-size: 20px; font-weight: 700; margin: 36px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--doc-line); }
+        h3 { font-size: 16px; font-weight: 700; margin: 24px 0 10px; color: var(--doc-h3); }
+        p { margin-bottom: 14px; font-size: 14px; }
+        ul, ol { margin: 10px 0 16px 24px; font-size: 14px; }
+        li { margin-bottom: 6px; }
+        code { background: var(--doc-code-bg); color: var(--doc-code-text); padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'Consolas', 'Courier New', monospace; }
+        .callout { background: var(--doc-chip); border-left: 4px solid var(--accent, #3b82f6); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 16px 0; font-size: 13px; transition: background-color 0.25s ease; }
+        .callout.green { border-left-color: #10b981; }
+        .callout.amber { border-left-color: #f59e0b; }
+        .callout.red { border-left-color: #ef4444; }
+        .callout.purple { border-left-color: #8b5cf6; }
+        .callout strong { display: block; margin-bottom: 4px; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+        th { background: var(--doc-chip); text-align: left; padding: 10px 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; font-size: 11px; color: var(--doc-muted); border-bottom: 1px solid var(--doc-line); transition: background-color 0.25s ease; }
+        td { padding: 10px 14px; border-bottom: 1px solid var(--doc-line); }
+        .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+        .dot-red { background: #ef4444; } .dot-purple { background: #8b5cf6; } .dot-amber { background: #f59e0b; } .dot-green { background: #10b981; } .dot-grey { background: #6b7280; }
+        .kbd { display: inline-block; background: var(--doc-chip); border: 1px solid var(--doc-line); padding: 2px 8px; border-radius: 4px; font-size: 12px; font-family: 'Consolas', monospace; }
+        .status-flow { display: flex; gap: 16px; flex-wrap: wrap; margin: 16px 0; }
+        .status-card { padding: 12px 16px; border: 1px solid var(--doc-line); border-radius: 8px; background: var(--doc-chip); flex: 1; min-width: 140px; text-align: center; transition: background-color 0.25s ease, border-color 0.25s ease; }
+        .status-card .dot { width: 16px; height: 16px; margin: 0 auto 8px; display: block; }
+        .status-card .label { font-size: 12px; font-weight: 700; }
+        .status-card .range { font-size: 11px; color: var(--doc-muted); }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <a class="back-link" href="../va_site_maps.aspx">&larr; Back to Site Maps</a>
+
+    <h1>VA Site Maps &mdash; Tagging Command Center</h1>
+    <p class="subtitle">
+        Complete documentation for the site maps dashboard, including how it works, what the status indicators mean,
+        and how to use every feature. Updated July 2026.
+    </p>
+
+    <!-- ─── OVERVIEW ─── -->
+    <h2>What This Page Does</h2>
+    <p>
+        The <strong>Site Maps</strong> page is the central hub for tracking RFID tagging progress across VA medical centers.
+        It displays architectural floor plan maps for each building at a site, overlays real-time tagging statistics from the
+        iDash database, and lets you drill into room-level asset data.
+    </p>
+    <div class="callout">
+        <strong>Why does this exist?</strong>
+        Before this tool, tracking tagging progress required manually cross-referencing exported Excel reports with physical floor plans.
+        This dashboard automates that process, showing which buildings and rooms have been fully tagged, partially tagged, or not yet started.
+        The reporting team and field technicians can see at a glance where to focus their efforts.
+    </div>
+
+    <!-- ─── HOW IT WORKS ─── -->
+    <h2>How It Works — The Architecture</h2>
+    <p>
+        The page works in three layers:
+    </p>
+    <ol>
+        <li><strong>Map Files:</strong> Physical floor plan images (PNG/PDF) stored in <code>iDash/site_maps/VISN##/### SiteName/</code>. File names start with the building number (e.g., <code>500-1st Floor Arch.pdf</code>).</li>
+        <li><strong>Database:</strong> Asset tagging data from <code>dbo.v_asset</code> in the iDash database. Key fields: <code>text18</code> (tagged flag = '1'), <code>text6</code> (location code like <code>SP4C141-500</code> where 500 = building), <code>text20</code> (notes).</li>
+        <li><strong>Building Stats API:</strong> The page calls <code>buildingstats</code> API which groups assets by building number (extracted from <code>text6</code>) and returns tagged/remaining counts per building.</li>
+    </ol>
+
+    <h3>Data Flow</h3>
+    <p>When you select a site from the dropdown:</p>
+    <ol>
+        <li>Three API calls fire simultaneously: <code>sitestats</code>, <code>locationstats</code>, <code>buildingstats</code></li>
+        <li>KPI chips update (Tagged / Remaining / % Complete)</li>
+        <li>Map cards render with building-specific status dots and progress bars</li>
+        <li>Directory sidebar shows folders matching the selected site's station number (e.g., 613)</li>
+    </ol>
+
+    <!-- ─── STATUS DOTS ─── -->
+    <h2>Status Dot Legend</h2>
+    <p>
+        Each map card displays a colored status dot in the top-right corner and a percentage badge.
+        These indicate the <strong>tagging completion percentage</strong> for that building:
+    </p>
+
+    <div class="status-flow">
+        <div class="status-card">
+            <span class="dot dot-red"></span>
+            <div class="label" style="color:#ef4444;">Red</div>
+            <div class="range">0% Tagged</div>
+        </div>
+        <div class="status-card">
+            <span class="dot dot-purple"></span>
+            <div class="label" style="color:#8b5cf6;">Purple</div>
+            <div class="range">1–49% Tagged</div>
+        </div>
+        <div class="status-card">
+            <span class="dot dot-amber"></span>
+            <div class="label" style="color:#f59e0b;">Amber</div>
+            <div class="range">50–89% Tagged</div>
+        </div>
+        <div class="status-card">
+            <span class="dot dot-green"></span>
+            <div class="label" style="color:#10b981;">Green</div>
+            <div class="range">90%+ Tagged</div>
+        </div>
+        <div class="status-card">
+            <span class="dot dot-grey"></span>
+            <div class="label" style="color:#9ca3af;">Grey</div>
+            <div class="range">No Data</div>
+        </div>
+    </div>
+
+    <div class="callout green">
+        <strong>How building numbers are matched:</strong>
+        The system extracts the building number from map filenames (e.g., <code>500</code> from <code>500-1st Floor Arch.pdf</code>)
+        and matches it against the <code>text6</code> location field in the database (e.g., <code>SP4C141-500</code>).
+        The last segment after the final dash is the building number.
+    </div>
+
+    <!-- ─── SIDEBAR ─── -->
+    <h2>Sidebar Features</h2>
+
+    <h3>Site Selector</h3>
+    <p>
+        Dropdown populated from <code>dbo.company</code>. Selecting a site loads its maps and tagging statistics.
+        The site <strong>613 Martinsburg</strong> is auto-selected by default.
+    </p>
+
+    <h3>KPI Chips</h3>
+    <table>
+        <tr><th>Chip</th><th>Meaning</th></tr>
+        <tr><td style="color:#10b981;font-weight:700;">Tagged</td><td>Total assets with <code>text18 = '1'</code> for the selected site</td></tr>
+        <tr><td style="color:#ef4444;font-weight:700;">Remaining</td><td>Assets where <code>text18</code> is not '1' — still need tagging</td></tr>
+        <tr><td style="color:#3b82f6;font-weight:700;">Complete</td><td>Percentage: Tagged / Total &times; 100</td></tr>
+    </table>
+
+    <h3>Map Status Toggle (All / Done / Pending)</h3>
+    <p>
+        This filters map <em>cards</em> by their manual completion status (set via the "Mark Complete" button in the detail panel):
+    </p>
+    <ul>
+        <li><strong>All</strong> — Show all map cards</li>
+        <li><strong>Done</strong> — Only maps you've marked as "Complete" (saved in browser localStorage)</li>
+        <li><strong>Pending</strong> — Maps not yet marked as complete</li>
+    </ul>
+    <div class="callout amber">
+        <strong>Important:</strong> This toggle is about map-level completion tracking — it does NOT filter by RFID tag status.
+        It's for the tagging team to track which floor plans they've finished reviewing.
+    </div>
+
+    <h3>Directory Navigator</h3>
+    <p>
+        Shows folder structure under <code>site_maps/</code>. Click a folder to filter map cards to just that directory.
+        The badge shows how many maps are in each folder.
+    </p>
+
+    <!-- ─── DETAIL PANEL ─── -->
+    <h2>Detail Panel</h2>
+    <p>Click any map card to open the detail panel, which shows:</p>
+
+    <h3>Map Viewer</h3>
+    <p>
+        PDFs render in an iframe, images render as <code>&lt;img&gt;</code>. Click "Open Map File" to view the full file in a new tab.
+    </p>
+
+    <h3>Building-Scoped Asset Table</h3>
+    <p>
+        When you open a map, the system queries assets scoped to that building. For example, opening
+        <code>500-1st Floor Arch.pdf</code> queries assets where the location field ends with <code>-500</code>.
+        This ensures you see only relevant assets, not the entire site's 79,000+ records.
+    </p>
+
+    <h3>Filter Buttons</h3>
+    <table>
+        <tr><th>Button</th><th>Action</th></tr>
+        <tr><td><span class="dot dot-green"></span> Show Tagged</td><td>Filter to assets with <code>text18 = '1'</code> in this building</td></tr>
+        <tr><td><span class="dot dot-red"></span> Show Remaining</td><td>Filter to untagged assets in this building</td></tr>
+        <tr><td>Show All</td><td>Show both tagged and untagged assets</td></tr>
+    </table>
+    <p>The active filter button is highlighted with a subtle shadow/raised effect.</p>
+
+    <h3>Location Breakdown Grid</h3>
+    <p>
+        Below the map viewer, a grid of room cards shows per-room tagging progress for the selected building.
+        Click any room card to filter the asset table to just that room's assets.
+    </p>
+    <p>The heading shows: <em>"Location Breakdown — Building 500 (1421 rooms)"</em></p>
+
+    <h3>Mark Complete</h3>
+    <p>
+        Toggles a "Done" badge on the map card. This is saved in your browser's <code>localStorage</code> — it's
+        a personal tracking tool for the tagging team, not stored in the database.
+    </p>
+
+    <!-- ─── NOTES ─── -->
+    <h2>Inline Notes</h2>
+    <p>
+        The asset table has a <strong>Notes</strong> column at the far right. Each cell shows the current note from
+        <code>dbo.asset.text20</code> or a clickable <em>"+ note"</em> placeholder if empty.
+    </p>
+    <h3>Adding/Editing Notes</h3>
+    <ol>
+        <li>Click the Notes cell for any asset</li>
+        <li>A <strong>centered modal dialog</strong> opens with the current note and the asset name in the title bar</li>
+        <li>Type your note and click <strong>Save</strong> (or press <span class="kbd">Ctrl+Enter</span>)</li>
+        <li>The note saves to the database immediately via AJAX</li>
+    </ol>
+    <div class="callout">
+        <strong>Database field:</strong> Notes are saved to <code>dbo.asset.text20</code> with <code>lastmodified</code> updated. to the current UTC timestamp.
+        This field syncs through the normal Field Sync process.
+    </div>
+
+    <!-- ─── VERSION CONTROL ─── -->
+    <h2>Map Version Control</h2>
+    <p>
+        When a map file is uploaded through the UI, the previous version is automatically backed up before overwriting.
+    </p>
+    <h3>How It Works</h3>
+    <ul>
+        <li>Previous versions are saved to a <code>.versions/</code> subdirectory next to the original file</li>
+        <li>Backup naming format: <code>500-1st Floor Arch_v1_20260712_153000.pdf</code></li>
+        <li>A <code>version_history.json</code> file tracks who uploaded what and when</li>
+        <li>Click the <strong>🕑 History</strong> button in the detail panel to view the version log</li>
+    </ul>
+    <div class="callout green">
+        <strong>Automatic:</strong> You don't need to do anything special — version tracking happens automatically when you upload a new map through the UI.
+        Existing maps before this feature won't have history entries, but will start tracking on their next update.
+    </div>
+
+    <!-- ─── ENNX IMPORT ─── -->
+    <h2>ENNX Report Import</h2>
+    <p>
+        The "Import ENNX Report" button in the sidebar opens a drag-and-drop panel for importing ENNX reader output files.
+        The system parses the file and cross-references lines against the database by RFID tag or asset name.
+    </p>
+    <h3>Supported Formats</h3>
+    <ul>
+        <li><code>.ennx.txt</code> files from EPC readers</li>
+        <li>Any text file with one identifier per line (RFID EPC hex values or asset names)</li>
+        <li>Lines starting with <code>#</code> or <code>//</code> are ignored</li>
+    </ul>
+
+    <!-- ─── EXPORTS ─── -->
+    <h2>Export Functions</h2>
+    <p>Three export buttons in the header generate native <strong>XLSX spreadsheet files</strong> (Excel format) with styled headers, auto-sized columns, and filters:</p>
+    <table>
+        <tr><th>Button</th><th>Contents</th></tr>
+        <tr><td style="color:#10b981;font-weight:700;">Export Tagged</td><td>All tagged assets for the selected site (text18 = '1'). File: <code>SiteMap_Tagged_&lt;site&gt;_&lt;date&gt;.xlsx</code></td></tr>
+        <tr><td style="color:#ef4444;font-weight:700;">Export Remaining</td><td>All untagged assets for the selected site. File: <code>SiteMap_Remaining_&lt;site&gt;_&lt;date&gt;.xlsx</code></td></tr>
+        <tr><td style="color:#3b82f6;font-weight:700;">Export All</td><td>All assets for the selected site. File: <code>SiteMap_All_&lt;site&gt;_&lt;date&gt;.xlsx</code></td></tr>
+    </table>
+    <div class="callout green">
+        <strong>&#128204; XLSX Format (Updated September 12, 2026)</strong>
+        Exports use native XLSX format via ClosedXML (MIT License). Headers are styled with a dark blue header row, auto-fit column widths, and Excel AutoFilter enabled. Fully replaces legacy EPPlus.
+    </div>
+
+    <!-- ─── COLUMN CHOOSER ─── -->
+    <h2>Column Chooser</h2>
+    <p>
+        The asset table includes a <strong>Column Chooser</strong> button (&#9881; icon) that lets you show or hide specific columns. Click it to open a dropdown with checkboxes for every column.
+    </p>
+    <ul>
+        <li>Selections persist for your browser session</li>
+        <li>Hidden columns are excluded from the table display but included in exports</li>
+        <li>Default columns shown: <code>Name</code>, <code>Description</code>, <code>Location</code>, <code>RFID Tag</code>, <code>Tagged</code>, <code>Notes</code></li>
+    </ul>
+
+    <!-- ─── API REFERENCE ─── -->
+    <h2>API Reference (Internal)</h2>
+    <p>All endpoints are accessed via <code>va_site_maps.aspx?api=ACTION&amp;site=ID</code>:</p>
+    <table>
+        <tr><th>Endpoint</th><th>Method</th><th>Returns</th></tr>
+        <tr><td><code>sitestats</code></td><td>GET</td><td>Total, tagged, remaining counts for a site</td></tr>
+        <tr><td><code>locationstats</code></td><td>GET</td><td>Per-location tag counts grouped by location name</td></tr>
+        <tr><td><code>buildingstats</code></td><td>GET</td><td>Per-building tag counts (extracted from text6 suffix)</td></tr>
+        <tr><td><code>assets</code></td><td>GET</td><td>Asset detail list (params: location, filter)</td></tr>
+        <tr><td><code>versionhistory</code></td><td>GET</td><td>Upload history for a specific map file (param: map)</td></tr>
+        <tr><td><code>exporttagged/remaining/all</code></td><td>GET</td><td>XLSX download of assets</td></tr>
+    </table>
+    <p>POST endpoints:</p>
+    <table>
+        <tr><th>Action</th><th>Form Fields</th><th>Purpose</th></tr>
+        <tr><td>Save Note</td><td><code>save_note=1, asset_name, note_text, site_id</code></td><td>Update asset.text20 with a note</td></tr>
+        <tr><td>Map Upload</td><td><code>replace_path, file</code></td><td>Upload/replace a map file (with version backup)</td></tr>
+        <tr><td>ENNX Import</td><td><code>ennx_import=1, site_id, file</code></td><td>Cross-reference ENNX reader output</td></tr>
+    </table>
+
+    <!-- ─── TROUBLESHOOTING ─── -->
+    <h2>Troubleshooting</h2>
+
+    <h3>Maps show "No Data" (grey dots)</h3>
+    <p>
+        This means the building number extracted from the filename doesn't match any <code>text6</code> suffixes in the database.
+        Check that the filename starts with the correct building number and that assets have their location field populated.
+    </p>
+
+    <h3>KPIs show 0 / 0 / 0</h3>
+    <p>
+        The selected site has no assets in the database. Run Field Sync to import data from the field server backup.
+    </p>
+
+    <h3>Note save fails</h3>
+    <p>
+        The <code>dbo.asset</code> table must allow updates. Check SQL permissions for the IIS app pool identity.
+        The query uses <code>UPDATE dbo.asset SET text20 = @Note WHERE name = @Name</code>.
+    </p>
+
+    <h3>Version history is empty</h3>
+    <p>
+        Version tracking only starts when maps are uploaded through the web UI. Maps that existed before this feature
+        won't have history entries. The first upload will create the tracking file.
+    </p>
+
+    <p style="color:var(--muted); margin-top:48px; font-size:12px; text-align:center; border-top:1px solid var(--line); padding-top:20px;">
+        Documentation updated July 12, 2026 — iDash Site Maps v2.1 — XLSX export, modal notes, column chooser
+    </p>
+
+</div>
+</body>
+</html>

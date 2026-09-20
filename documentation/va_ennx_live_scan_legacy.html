@@ -1,0 +1,349 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA ENNX LIVE SCAN &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .badge-db   { background: color-mix(in srgb, var(--accent2-docs), transparent 85%); color: var(--accent2-docs); border: 1px solid color-mix(in srgb, var(--accent2-docs), transparent 70%); }
+        .badge-file { background: color-mix(in srgb, var(--accent-docs), transparent 85%); color: var(--accent-docs); border: 1px solid color-mix(in srgb, var(--accent-docs), transparent 70%); }
+        .badge-new  { background: color-mix(in srgb, var(--warn-docs), transparent 85%); color: var(--warn-docs); border: 1px solid color-mix(in srgb, var(--warn-docs), transparent 70%); }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <a href="index.aspx">&larr; Back to Documentation Hub</a><br/><br/>
+
+    <div class="card">
+        <h1>&#128228; ENNX Live Scan</h1>
+        <div style="margin-bottom:12px;">
+            <span class="badge badge-db">Database Connected</span>
+            <span class="badge badge-file">Disk / Email / SQL Export</span>
+            <span class="badge badge-new">Updated 09/09/2026</span>
+        </div>
+        <p style="font-size:16px;margin:0;">
+            The <strong>ENNX Live Scan</strong> module is a real-time, site-scoped asset scanning tool for generating ENNX
+            submission files. Unlike the EIL Live Scan (which reconciles against a predefined CMR parts list), this tool
+            operates in open-capture mode &mdash; any asset barcode scanned during a session is accepted, catalogued, and
+            accumulated into a government-ready ENNX payload. It is the primary field tool for general inventory sweeps
+            where the full scope of equipment in a location is not known in advance.
+        </p>
+    </div>
+
+    <!-- CHANGELOG -->
+    <div class="card">
+        <h2>Changelog</h2>
+
+        <h3>09/09/2026 &mdash; Offline Direct Download, Barcode Standardization &amp; Session Recovery</h3>
+        <p>
+            Comprehensive hardening for field sweeps, offline resilience, and multi-site VA barcode validation:
+        </p>
+        <table>
+            <tr><th>Change</th><th>Detail</th></tr>
+            <tr>
+                <td><strong>Alphanumeric Barcode Suffixes</strong></td>
+                <td>Updated barcode parsing regex across <code>normalizeAssetLine()</code> and <code>isEpcLike()</code> from digit-only (<code>\d+$</code>) to alphanumeric (<code>\w+$</code> / <code>[A-Za-z0-9]+</code>). Assets with letter suffixes (e.g. <code>512 EE12345A</code>, <code>517 EE10244B</code>, <code>581 EE9021X</code>) are now recognized and processed cleanly.</td>
+            </tr>
+            <tr>
+                <td><strong>Direct Client Blob Download (Offline Safe)</strong></td>
+                <td>Clicking <strong>Download ENNX</strong> now downloads the compiled file directly from the browser using a client-side Blob URL. It requires zero server communication, works 100% offline in Wi-Fi dead zones, and never triggers an ASP.NET form postback &mdash; eliminating the risk of network crash reloads wiping unsaved scan sessions.</td>
+            </tr>
+            <tr>
+                <td><strong>Session Auto-Recovery in <code>localStorage</code></strong></td>
+                <td>All scanned room blocks and assets are continuously auto-saved to device local storage (<code>EnnxLive_SessionBlocks</code>). If the browser tab crashes, reloads, or device loses power, the full sweep session restores automatically on load.</td>
+            </tr>
+            <tr>
+                <td><strong>Offline Guards on SQL &amp; Email</strong></td>
+                <td>Clicking <strong>Save Session (SQL)</strong>, <strong>Save ENNX File (Disk)</strong>, or <strong>Email ENNX</strong> while offline alerts the operator that server reachability is required, preventing failing postback navigations.</td>
+            </tr>
+            <tr>
+                <td><strong>Location vs. Asset Guard</strong></td>
+                <td>Location scans now reject equipment barcodes containing <code>EE</code>, preventing accidental equipment tag reads from corrupting room location headers.</td>
+            </tr>
+            <tr>
+                <td><strong>Active XHR Connectivity Probe &amp; Site Persistence</strong></td>
+                <td>Added an active 4-second XHR <code>HEAD</code> connectivity probe testing real IIS reachability, and auto-persisted the active station code in local storage across browser reloads.</td>
+            </tr>
+        </table>
+
+        <h3>07/24/2026 &mdash; EIL/CMR Dropdown Filtered by Site</h3>
+        <p>
+            The EIL/CMR dropdown now shows only the EIL values belonging to the currently selected site instead
+            of listing every EIL across all sites. Changing the site dropdown automatically reloads the EIL list.
+        </p>
+        <table>
+            <tr><th>Change</th><th>Detail</th></tr>
+            <tr>
+                <td><strong>Fix: EIL not site-filtered</strong></td>
+                <td>The initial <code>LoadEIL()</code> query now joins <code>dbo.asset</code> with <code>dbo.company</code> and filters by the selected station code (<code>LEFT(LTRIM(c.name), 3)</code>). Previously it returned all distinct <code>text8</code> values across all sites.</td>
+            </tr>
+            <tr>
+                <td><strong>New: <code>GetEILByStation</code> WebMethod</strong></td>
+                <td>Client-callable <code>[WebMethod]</code> that returns EIL values for a given station code via AJAX POST. Used by the new <code>reloadEILDropdown()</code> JavaScript function.</td>
+            </tr>
+            <tr>
+                <td><strong>New: Auto-reload on site change</strong></td>
+                <td>The <code>updateStation()</code> function now calls <code>reloadEILDropdown(val)</code>, which fetches the filtered EIL list and repopulates the dropdown without a full page reload.</td>
+            </tr>
+        </table>
+
+        <h3>07/03/2026 &mdash; WebSerial USB RFID Reader Support</h3>
+        <p>
+            Merged WebSerial API support from the standalone <code>VAscan.html</code> prototype into this page.
+            Users can now connect a USB-tethered RFID reader (or any serial device) directly through Chrome or Edge
+            without requiring DataWedge or a separate scanning application.
+        </p>
+        <table>
+            <tr><th>Change</th><th>Detail</th></tr>
+            <tr>
+                <td><strong>New: WebSerial section</strong></td>
+                <td>Collapsible <code>&lt;details&gt;</code> panel at the bottom of the scan controls panel. Contains Open/Close Port buttons and a live connection status indicator. Collapsed by default.</td>
+            </tr>
+            <tr>
+                <td><strong>New: Serial read loop</strong></td>
+                <td>~70 lines of JavaScript. Opens a browser-selected serial port (115200 baud, 8N1, hardware flow control), buffers incoming data, splits on newlines, and feeds each line directly into the existing <code>handleScan()</code> function. All existing location detection, EPC filtering, de-dupe, and EIL checking apply automatically.</td>
+            </tr>
+            <tr>
+                <td><strong>Fix: Character encoding</strong></td>
+                <td>Replaced corrupted curly-quote characters (<code>&acirc;&euro;&trade;</code>, <code>&acirc;&euro;&oelig;</code>) in the detection hint text with proper HTML entities.</td>
+            </tr>
+            <tr>
+                <td><strong>Fix: Focus stealing</strong></td>
+                <td>Updated the auto-focus logic (click handler + setInterval) to respect <code>&lt;summary&gt;</code> and <code>&lt;button&gt;</code> elements, so the WebSerial expand/collapse and port selection work without the scan input stealing focus.</td>
+            </tr>
+            <tr>
+                <td><strong>No blocking alerts</strong></td>
+                <td>If WebSerial is unavailable (HTTP instead of HTTPS, unsupported browser), an inline red error message is shown instead of a blocking <code>alert()</code> popup.</td>
+            </tr>
+        </table>
+
+        <div class="alert alert-info">
+            <strong>&#8505; Prerequisite:</strong> WebSerial requires the page to be served over <strong>HTTPS</strong>
+            (or <code>localhost</code>). If the site is served over plain HTTP, the WebSerial section will display
+            &quot;Not Available&quot; but all keyboard/DataWedge scanning continues to work normally.
+        </div>
+    </div>
+
+    <!-- WHEN TO USE -->
+    <div class="card">
+        <h2>When to Use This Tool</h2>
+        <table>
+            <tr><th>Scenario</th><th>Recommended Tool</th></tr>
+            <tr><td>You have a specific CMR and need to verify all items are physically present</td><td><a href="va_eil_live_scan.html">EIL Live Scan</a></td></tr>
+            <tr><td>You are walking a floor and scanning everything you find for a new ENNX report</td><td><strong>ENNX Live Scan (this tool)</strong></td></tr>
+            <tr><td>You need to generate an ENNX file with no database connection at all</td><td><a href="va_universal_ennx.html">Universal ENNX Creator</a></td></tr>
+            <tr><td>You need a scheduled or historical ENNX export from existing DB records</td><td><a href="va_ennx.html">ENNX Export Dashboard</a></td></tr>
+        </table>
+    </div>
+
+    <!-- INPUT METHODS -->
+    <div class="card">
+        <h2>Supported Input Methods</h2>
+        <table>
+            <tr><th>Method</th><th>How It Works</th><th>Requirements</th></tr>
+            <tr>
+                <td><strong>Keyboard / DataWedge</strong></td>
+                <td>Scans are typed or injected into the scan input field. ENTER key triggers processing. The page auto-focuses the scan input to capture DataWedge keystroke output.</td>
+                <td>Any browser. DataWedge configured with ENTER suffix.</td>
+            </tr>
+            <tr>
+                <td><strong>WebSerial (USB)</strong></td>
+                <td>A USB RFID reader or serial device is connected directly to the browser via the WebSerial API. Data is buffered and split on newline characters. Each complete line is passed to the same <code>handleScan()</code> function used by keyboard input.</td>
+                <td>Chrome or Edge. HTTPS (or localhost). Expand the &quot;WebSerial&quot; section and click &quot;Select/Open Serial Port&quot;.</td>
+            </tr>
+        </table>
+
+        <h3>Why WebSerial?</h3>
+        <p>
+            Traditional barcode/RFID scanning in a browser requires a middleware layer (DataWedge, COM-port relay app, or a
+            native mobile app) to translate serial data into keyboard events. <strong>WebSerial eliminates that middleware</strong>
+            by letting the browser talk directly to the USB serial port. This means:
+        </p>
+        <ul>
+            <li><strong>No extra software:</strong> No DataWedge profile, no COM-port relay, no native app installation.</li>
+            <li><strong>Any USB serial device:</strong> Works with any reader that outputs newline-terminated data over a serial/USB-serial connection.</li>
+            <li><strong>Zero configuration:</strong> The browser prompts the user to select their serial port &mdash; no driver setup, no port number guessing.</li>
+            <li><strong>Same scan pipeline:</strong> Data from the serial port flows through the exact same <code>handleScan()</code> function, so all location detection, EPC filtering, de-dupe logic, and ENNX assembly apply automatically.</li>
+        </ul>
+
+        <h3>How WebSerial Works (Technical Flow)</h3>
+        <ol>
+            <li>User clicks <strong>&quot;Select/Open Serial Port&quot;</strong> inside the collapsible WebSerial panel.</li>
+            <li>The browser displays its native serial port picker dialog (a security requirement &mdash; no port is accessed without explicit user interaction).</li>
+            <li>Once a port is selected, JavaScript opens it with the parameters below and starts an asynchronous read loop.</li>
+            <li>Incoming bytes are decoded as UTF-8 and appended to a line buffer. When a newline (<code>\n</code>) is detected, the complete line is trimmed and passed to <code>handleScan()</code>.</li>
+            <li>The scan is processed identically to a keyboard scan &mdash; location detection, EPC filtering, de-dupe, and ENNX assembly all apply.</li>
+            <li>The serial connection stays open until the user clicks <strong>&quot;Close Port&quot;</strong> or navigates away from the page.</li>
+        </ol>
+
+        <h3>WebSerial Port Configuration</h3>
+        <table>
+            <tr><th>Parameter</th><th>Value</th></tr>
+            <tr><td>Baud Rate</td><td><code>115200</code></td></tr>
+            <tr><td>Data Bits</td><td><code>8</code></td></tr>
+            <tr><td>Parity</td><td><code>None</code></td></tr>
+            <tr><td>Stop Bits</td><td><code>1</code></td></tr>
+            <tr><td>Flow Control</td><td><code>Hardware</code></td></tr>
+            <tr><td>Buffer Size</td><td><code>1024 bytes</code></td></tr>
+        </table>
+        <div class="alert alert-warn">
+            <strong>&#9888; Note:</strong> These serial parameters are currently hardcoded. If your reader uses different
+            settings (e.g., 9600 baud or no flow control), the code-behind will need to be updated.
+        </div>
+    </div>
+
+    <!-- STEP-BY-STEP WORKFLOW -->
+    <div class="card">
+        <h2>Step-by-Step User Workflow</h2>
+
+        <div class="step"><span class="step-num sn-blue">1</span><div>
+            <strong>Select Site (Station):</strong> Choose the VA facility from the <strong>Site</strong> dropdown.
+            The station code (e.g., <code>512</code>) is embedded in every normalized asset line
+            (e.g., <code>512 EE18193</code>) and in the exported ENNX filename.
+        </div></div>
+
+        <div class="step"><span class="step-num sn-blue">2</span><div>
+            <strong>Optional: Enable EIL Filter:</strong> Check &quot;Scan by EIL&quot; and select a CMR from the dropdown.
+            Assets scanned during the session will be verified against the selected EIL via an AJAX call to
+            <code>CheckAssetEIL</code>. Mismatches are logged with a WARN note but not added to the ENNX payload.
+        </div></div>
+
+        <div class="step"><span class="step-num sn-blue">3</span><div>
+            <strong>Scan a Location Barcode:</strong> The first scan must be a location. If the barcode starts with
+            <code>SP</code>, it is automatically detected as a location and starts a new block. If not, use the
+            &quot;Force Next = Location&quot; button to treat the next scan as a location.
+        </div></div>
+
+        <div class="step"><span class="step-num sn-blue">4</span><div>
+            <strong>Scan Asset Barcodes:</strong> All subsequent scans are treated as assets under the current location.
+            Each asset is normalized (e.g., <code>EE18193</code> becomes <code>512 EE18193</code>), de-duplicated
+            (if enabled), and appended to the ENNX preview. Raw EPC hex reads are silently filtered out.
+        </div></div>
+
+        <div class="step"><span class="step-num sn-blue">5</span><div>
+            <strong>Repeat:</strong> Scan the next location barcode to start a new block. Continue scanning assets.
+            The scan log shows a timestamped record of every action with color-coded status notes
+            (<span style="color:var(--accent-2)">OK</span>,
+             <span style="color:var(--warn)">WARN</span>,
+             <span style="color:var(--danger)">ERR</span>).
+        </div></div>
+
+        <div class="step"><span class="step-num sn-green">6</span><div>
+            <strong>Export the ENNX File:</strong> When ready, choose an output method:
+            <ul style="margin-top:8px;">
+                <li><strong>Download ENNX:</strong> Streams the file directly to your browser.</li>
+                <li><strong>Email ENNX:</strong> Sends as a UTF-8 attachment via the <code>EmailHelper</code> SMTP service.</li>
+                <li><strong>Save Session (SQL):</strong> Commits session data to the <code>EnnxLiveSession</code> table with UTC timestamps.</li>
+                <li><strong>Save ENNX File (Disk):</strong> Writes to <code>C:\VA_RFID\ennx_live\saved\</code> on the server.</li>
+            </ul>
+        </div></div>
+
+        <div class="alert alert-ok">
+            <strong>&#8505; Mobile Ready:</strong> This module uses a responsive flexbox layout with full viewport scaling.
+            It operates identically on desktop browsers and Zebra handheld scanners. No separate mobile app or
+            APK is required.
+        </div>
+    </div>
+
+    <!-- SCAN PROCESSING LOGIC -->
+    <div class="card">
+        <h2>Scan Processing Logic</h2>
+        <p>
+            All scan processing is handled client-side in a single <code>handleScan()</code> function. The same function
+            is used for both keyboard/DataWedge input and WebSerial input.
+        </p>
+        <table>
+            <tr><th>Step</th><th>Logic</th></tr>
+            <tr><td>1. Clean</td><td>Trim whitespace, normalize to single spaces, uppercase.</td></tr>
+            <tr><td>2. EPC Filter</td><td>If the value is 12+ hex characters with trailing <code>F</code>s (raw EPC read), silently ignore it.</td></tr>
+            <tr><td>3. Location Check</td><td>If <code>forceLoc</code> is true, or if &quot;Auto switch&quot; is enabled and the scan starts with <code>SP</code>, treat it as a location. Start a new block.</td></tr>
+            <tr><td>4. Normalize Asset</td><td>Match patterns like <code>512 EE18193</code>, <code>EE18193</code>, <code>512EE18193</code>. Prepend the station code if missing. Return <code>null</code> for unrecognized formats.</td></tr>
+            <tr><td>5. EIL Filter (Optional)</td><td>If &quot;Scan by EIL&quot; is enabled, make an AJAX call to <code>CheckAssetEIL</code>. Skip assets that don't match the selected EIL.</td></tr>
+            <tr><td>6. De-dupe</td><td>If enabled, check the current block's <code>assetSet</code> hash. Skip duplicates with a WARN log.</td></tr>
+            <tr><td>7. Add</td><td>Append to the current block's <code>assets[]</code> array. Update KPIs and ENNX preview.</td></tr>
+        </table>
+    </div>
+
+    <!-- TECHNICAL ARCHITECTURE -->
+    <div class="card">
+        <h2>Technical Architecture</h2>
+        <p>
+            The scan session state is maintained entirely in client-side JavaScript &mdash; a <code>blocks[]</code> array
+            where each block contains a location string and an array of normalized asset lines. On export, the C# code-behind
+            receives the compiled ENNX text and JSON session summary via hidden fields, then performs the selected
+            export action (download, email, SQL save, or disk save).
+        </p>
+
+        <table>
+            <tr><th>Component</th><th>File</th><th>Role</th></tr>
+            <tr><td>Frontend UI</td><td><code>va_ennx_live_scan.aspx</code></td><td>Scan input, session grid, ENNX preview, export buttons, WebSerial, mobile layout</td></tr>
+            <tr><td>Backend Logic</td><td><code>va_ennx_live_scan.aspx.cs</code></td><td>Asset lookup, session save, file/email output</td></tr>
+            <tr><td>Scan Accumulator</td><td>JS <code>blocks[]</code> array</td><td>In-memory session state built during scanning</td></tr>
+            <tr><td>Hidden Fields</td><td><code>HidEnnx</code>, <code>HidJson</code>, <code>HidStation</code>, etc.</td><td>Transfer session data to server on postback</td></tr>
+            <tr><td>WebSerial</td><td>JS <code>serialOpenClose()</code>, <code>serialClose()</code></td><td>USB serial port read loop, buffers data, feeds <code>handleScan()</code></td></tr>
+            <tr><td>Session Archive</td><td>SQL table <code>EnnxLiveSession</code></td><td>Stores completed sessions with UTC timestamps and full ENNX payload</td></tr>
+            <tr><td>File Archive</td><td><code>C:\VA_RFID\ennx_live\saved\</code></td><td>Disk storage for exported ENNX files</td></tr>
+            <tr><td>Email Dispatch</td><td><code>EmailHelper</code> (App_Code)</td><td>SMTP service for sending ENNX as email attachment</td></tr>
+        </table>
+
+        <h3>ENNX File Format</h3>
+        <p>
+            The output is a line-delimited <code>.ennx.txt</code> file with the following structure:
+        </p>
+<pre>ENNX
+ID
+SP101-1
+512 EE18193
+512 EE29472
+SP102-3
+512 EE11037
+***END***^5</pre>
+        <p>
+            The <code>^N</code> suffix on the <code>***END***</code> line is the total count of location + asset lines
+            (excluding the <code>ENNX</code>, <code>ID</code>, and <code>***END***</code> lines themselves).
+        </p>
+
+        <h3>Key Database Fields</h3>
+        <table>
+            <tr><th>DB Column</th><th>Meaning</th><th>Written to ENNX</th></tr>
+            <tr><td><code>name</code></td><td>EE Barcode</td><td>Yes &mdash; primary asset identifier</td></tr>
+            <tr><td><code>description</code></td><td>Asset Description</td><td>Yes</td></tr>
+            <tr><td><code>text8</code></td><td>CMR Number</td><td>Yes &mdash; accountability grouping</td></tr>
+            <tr><td><code>text6</code></td><td>Current Location (SP code)</td><td>Yes</td></tr>
+            <tr><td><code>text13</code></td><td>Employee ID</td><td>Yes &mdash; from scan session input</td></tr>
+            <tr><td><code>companyid</code></td><td>Site Link</td><td>Filters scope to selected station</td></tr>
+        </table>
+    </div>
+
+    <!-- ACCESS & SECURITY -->
+    <div class="card">
+        <h2>Access &amp; Security</h2>
+        <div class="alert alert-ok">
+            Users must have the <code>scan_ennx</code> tile key granted in their iDash <code>TileAccess</code> profile
+            to access this module. See <a href="va_user_management.html">User Management</a> for details.
+        </div>
+        <p>
+            All database queries are fully parameterized via <code>ADO.NET SqlParameter</code>. Barcode input is validated
+            server-side before any SQL is executed. No raw database errors are exposed to the user interface.
+        </p>
+        <p>
+            The WebSerial feature requires explicit user interaction to grant the browser permission to access a serial port.
+            No serial ports are accessed automatically. The browser's built-in permission prompt is displayed each time
+            a port is selected, and the permission does not persist across sessions.
+        </p>
+    </div>
+
+    <div style="margin-top:20px;"><a href="index.aspx">&larr; Back to Documentation Hub</a></div>
+    <footer>
+        <span>&copy; 2026 ID Integration Inc. &mdash; iDash Documentation</span>
+        <span>iDash ENNX Live Scan &mdash; Last updated 07/03/2026</span>
+    </footer>
+</div>
+</body>
+</html>

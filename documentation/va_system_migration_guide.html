@@ -1,0 +1,709 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>iDash Local-to-Remote Migration &amp; Replication Playbook &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .hero-banner {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(16, 185, 129, 0.12));
+            border: 2px solid var(--accent);
+            border-radius: 16px;
+            padding: 26px 30px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+        .hero-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 16px;
+            background: var(--accent);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            flex-shrink: 0;
+            box-shadow: 0 0 24px rgba(59, 130, 246, 0.35);
+        }
+        .hero-text h1 {
+            margin: 0 0 6px 0;
+            border-bottom: none;
+            padding-bottom: 0;
+            color: var(--text-docs);
+            font-size: 24px;
+        }
+        .hero-text p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .pill-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+        .pill-blue { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .pill-green { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .pill-amber { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+        
+        .code-box {
+            background: #0b1329;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 16px;
+            margin: 14px 0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 12px;
+            color: #f8fafc;
+            overflow-x: auto;
+            line-height: 1.6;
+        }
+        .code-box .comment { color: #64748b; font-style: italic; }
+        .code-box .cmd { color: #38bdf8; font-weight: bold; }
+        .code-box .str { color: #86efac; }
+        .code-box .param { color: #fde047; }
+
+        .boundary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 18px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-docs);
+        }
+        .boundary-table th {
+            background: var(--card-docs);
+            padding: 12px 14px;
+            text-align: left;
+            font-size: 13px;
+            border-bottom: 2px solid var(--border-docs);
+            color: var(--text-docs);
+        }
+        .boundary-table td {
+            padding: 10px 14px;
+            font-size: 12px;
+            border-bottom: 1px solid var(--border-docs);
+            vertical-align: middle;
+        }
+        .boundary-table tr:hover {
+            background: rgba(255,255,255,0.02);
+        }
+        .status-sync {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 11px;
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .status-keep {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 11px;
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .img-figure {
+            margin: 20px 0;
+            border: 1px solid var(--border-docs);
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--card-docs);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+        }
+        .img-figure img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-bottom: 1px solid var(--border-docs);
+        }
+        .img-caption {
+            padding: 10px 16px;
+            font-size: 12px;
+            color: var(--muted);
+            background: var(--card-docs);
+            font-weight: 500;
+        }
+        .step-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+        .alert-card {
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin: 18px 0;
+            border-left: 4px solid;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .alert-card-info {
+            background: rgba(59, 130, 246, 0.08);
+            border-left-color: #3b82f6;
+            color: var(--text-docs);
+        }
+        .alert-card-warning {
+            background: rgba(245, 158, 11, 0.08);
+            border-left-color: #f59e0b;
+            color: var(--text-docs);
+        }
+        .alert-card-success {
+            background: rgba(16, 185, 129, 0.08);
+            border-left-color: #10b981;
+            color: var(--text-docs);
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <a href="index.aspx">&larr; Back to Documentation Hub</a><br/><br/>
+
+    <!-- HERO HEADER -->
+    <div class="hero-banner">
+        <div class="hero-icon">&#128640;</div>
+        <div class="hero-text">
+            <h1>iDash Local-to-Remote Migration &amp; Replication Playbook</h1>
+            <p>Step-by-step engineering SOP for synchronizing remote field laptops, mobile inventory carts, and facility servers with the localhost development baseline &mdash; with 100% UI parity and zero database or configuration disruption.</p>
+            <div class="pill-bar">
+                <span class="pill pill-blue">&#128736; SOP-ENG-2026-09</span>
+                <span class="pill pill-green">&#9989; 1:1 Environment Sync</span>
+                <span class="pill pill-amber">&#128274; Safe Boundary Protected</span>
+                <span class="pill pill-blue">&#127760; Tailscale &amp; Manual Modes</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLE OF CONTENTS -->
+    <div class="card" style="margin-bottom:24px;">
+        <h3 style="margin-top:0;">Table of Contents</h3>
+        <ol style="margin-bottom:0; line-height:1.8;">
+            <li><a href="#sec-overview">Overview: The "Cherry-Picking" Trap vs. Full Site Sync</a></li>
+            <li><a href="#sec-boundary">The Safe Migration Boundary: What Gets Synced vs. Kept</a></li>
+            <li><a href="#sec-method-web">Method A: 1-Click Over-the-Air (OTA) Web Update (Recommended &mdash; Zero Scripts)</a></li>
+            <li><a href="#sec-method-ota">Method B: Automated Push via Tailscale &amp; SQL Web Uploader</a></li>
+            <li><a href="#sec-method-manual">Method C: Direct Manual Copy &amp; PowerShell Robocopy Script</a></li>
+            <li><a href="#sec-verification">Visual Verification &amp; Parity Checklist (With Screenshots)</a></li>
+            <li><a href="#sec-troubleshooting">Troubleshooting &amp; Common Pitfalls</a></li>
+        </ol>
+    </div>
+
+    <!-- SECTION 1: OVERVIEW -->
+    <div class="card" id="sec-overview">
+        <h2>1. Overview: The "Cherry-Picking" Trap vs. Full Site Sync</h2>
+        <p>When updating remote iDash instances (such as biomedical carts, field laptops, or secondary staging nodes), engineers often attempt to copy only the 2 or 3 files they recently edited (e.g. <code>va_asset_master.aspx</code> or <code>va_inventory.aspx</code>). In practice, this <strong>cherry-picking approach consistently causes environment drift and failures</strong>:</p>
+        <ul>
+            <li><strong>Dashboard &amp; Navigation Disconnect:</strong> If <code>index.aspx</code> on the target machine is not updated, it will still show deprecated tiles (e.g. the old standalone <em>Printer Administration</em> tile) or point to pages that have been relocated into unified hubs (e.g. <em>Site Configuration</em>).</li>
+            <li><strong>Missing Dependency DLLs:</strong> Modern reporting features depend on updated binaries in <code>bin/</code> (e.g. <code>ClosedXML.dll</code> replacing <code>EPPlus.dll</code>). If code-behinds reference new namespaces but the remote <code>bin/</code> was not synced, pages fail on compilation with <code>CS0246</code>.</li>
+            <li><strong>Missing Supporting Gateway Pages:</strong> Specialized navigation hubs like <code>va_alerts.aspx</code> or <code>va_notifications.aspx</code> will return <code>HTTP 404 (The resource cannot be found)</code> if their corresponding code-behind and template files are missing.</li>
+        </ul>
+        <div class="alert-card alert-card-success">
+            <strong>&#9989; The Solution: Full-Site Baseline Synchronization.</strong><br/>
+            Instead of manual cherry-picking, package the entire web application and deploy it as a unified baseline. By establishing a <strong>Safe Migration Boundary</strong>, you achieve 100% identical UI tiles, navigation, and features on the target machine without touching the target's SQL database, connection strings, or user accounts.
+        </div>
+    </div>
+
+    <!-- SECTION 2: SAFE MIGRATION BOUNDARY -->
+    <div class="card" id="sec-boundary">
+        <h2>2. The Safe Migration Boundary: What Gets Synced vs. Kept</h2>
+        <p>A successful replication replaces the software layer while preserving the remote machine's local identity and database connection. The table below specifies exactly what travels and what remains untouched:</p>
+
+        <table class="boundary-table">
+            <thead>
+                <tr>
+                    <th>Component / Directory</th>
+                    <th>Action</th>
+                    <th>Rationale &amp; Protection Rule</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Root Web Pages</strong> (<code>*.aspx</code>, <code>*.aspx.cs</code>)</td>
+                    <td><span class="status-sync">&#128259; OVERWRITE</span></td>
+                    <td>Ensures <code>index.aspx</code>, <code>va_asset_master.aspx</code>, <code>va_site_config.aspx</code>, and <code>va_alerts.aspx</code> match localhost 1:1.</td>
+                </tr>
+                <tr>
+                    <td><strong>Compiled Binaries</strong> (<code>bin/*.dll</code>)</td>
+                    <td><span class="status-sync">&#128259; OVERWRITE</span></td>
+                    <td>Deploys <code>ClosedXML.dll</code>, <code>DocumentFormat.OpenXml.dll</code>, and memory stream libraries.</td>
+                </tr>
+                <tr>
+                    <td><strong>Application Code</strong> (<code>App_Code/*.cs</code>)</td>
+                    <td><span class="status-sync">&#128259; OVERWRITE</span></td>
+                    <td>Synchronizes <code>UserManager.cs</code>, <code>LoginAuditHelper.cs</code>, and facility multi-tenant boundary filters.</td>
+                </tr>
+                <tr>
+                    <td><strong>API Endpoints</strong> (<code>api/*.ashx</code>)</td>
+                    <td><span class="status-sync">&#128259; OVERWRITE</span></td>
+                    <td>Deploys <code>LiveScanHandler.ashx</code>, <code>v_asset.ashx</code>, and fail-closed security guards on <code>va_remote_import.ashx</code>.</td>
+                </tr>
+                <tr>
+                    <td><strong>User Controls &amp; Assets</strong> (<code>controls/</code>, <code>Assets/</code>)</td>
+                    <td><span class="status-sync">&#128259; OVERWRITE</span></td>
+                    <td>Synchronizes top-bar user menus, branding logos, RFID icons, and typography.</td>
+                </tr>
+                <tr>
+                    <td><strong>Documentation Suite</strong> (<code>documentation/*</code>)</td>
+                    <td><span class="status-sync">&#128259; OVERWRITE</span></td>
+                    <td>Provides updated technical manuals, third-party SBOMs, and compliance standards directly on the target machine.</td>
+                </tr>
+                <tr>
+                    <td><strong>Styling &amp; Scripts</strong> (<code>theme.css</code>, <code>theme-init.js</code>)</td>
+                    <td><span class="status-sync">&#128259; OVERWRITE</span></td>
+                    <td>Ensures dark/light theme switching, button states, and CSS variables match.</td>
+                </tr>
+                <tr style="background: rgba(245, 158, 11, 0.05);">
+                    <td><strong><code>web.config</code></strong></td>
+                    <td><span class="status-keep">&#128274; PRESERVE / KEEP</span></td>
+                    <td><strong>CRITICAL:</strong> Contains the remote machine's local SQL Server instance name (e.g. <code>.\SQLEXPRESS</code>) and connection strings. Do NOT overwrite.</td>
+                </tr>
+                <tr style="background: rgba(245, 158, 11, 0.05);">
+                    <td><strong><code>App_Data/</code></strong></td>
+                    <td><span class="status-keep">&#128274; PRESERVE / KEEP</span></td>
+                    <td>Preserves local user logins (<code>idash_users.json</code>) and site database seed files.</td>
+                </tr>
+                <tr style="background: rgba(245, 158, 11, 0.05);">
+                    <td><strong><code>downloads/</code></strong></td>
+                    <td><span class="status-keep">&#128274; PRESERVE / KEEP</span></td>
+                    <td>Excludes large archive payloads (1.4+ GB) to keep migration packages compact (&le; 140 MB).</td>
+                </tr>
+                <tr style="background: rgba(245, 158, 11, 0.05);">
+                    <td><strong><code>logs/</code> &amp; <code>uploads/</code></strong></td>
+                    <td><span class="status-keep">&#128274; PRESERVE / KEEP</span></td>
+                    <td>Preserves active operator audit logs and incoming customer file drops.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- SECTION 3: METHOD A - 1-CLICK WEB UPDATE -->
+    <div class="card" id="sec-method-web">
+        <h2>3. Method A: 1-Click Over-the-Air (OTA) Web Update (Recommended &mdash; Zero Scripts)</h2>
+        <p>This is the primary, zero-command-line update method. It executes directly inside the web browser on the target machine with a live glassmorphic progress overlay, real-time download and file extraction tickers, IIS AppPool recycling, and automatic Safe Migration Boundary protection.</p>
+
+        <div class="alert-card alert-card-warning" style="border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.08); margin: 16px 0;">
+            <strong style="font-size:14px; color:#f59e0b;">&#9888;&#65039; One-Time Bootstrap Requirement for Older Systems:</strong><br/>
+            Older field laptops or secondary servers that do not yet have <code>va_system_update.aspx</code> and <code>va_system_update.aspx.cs</code> must be seeded with these two files once. You can copy them over via Windows file sharing (<code>\\&lt;target-laptop&gt;\c$\inetpub\wwwroot\iDash.WebClient\iDash\</code>), via USB drive, or by running the initial PowerShell sync script once.<br/>
+            <strong>Once <code>va_system_update.aspx</code> is in place, all future updates and releases can be applied 100% via the web interface with 1-click!</strong>
+        </div>
+
+        <h3><span class="step-num">1</span> Package the Latest Master Baseline</h3>
+        <p>On your master development workstation (<code>localhost</code> / <code>LingCod</code>), run the package builder in Administrator PowerShell:</p>
+        <div class="code-box">
+<span class="cmd">&amp;</span> <span class="str">"C:\inetpub\wwwroot\iDash\tools\Build-IdashMigrationPackage.ps1"</span>
+        </div>
+        <p>This generates the clean, compressed baseline archive (<code>idash_full_site.zip</code>, ~85 MB) and publishes it automatically to <code>/iDash/downloads/idash_full_site.zip</code>.</p>
+
+        <h3><span class="step-num">2</span> Open System Update &amp; Deployment on the Remote Machine</h3>
+        <p>Open your browser and navigate to the remote system's update page:</p>
+        <div style="margin: 12px 0;">
+            <a href="https://laptop-e74ckmo5.tail2fc4c5.ts.net/idash/va_system_update.aspx" target="_blank" style="display:inline-flex; align-items:center; gap:8px; padding:10px 18px; background:rgba(16,185,129,0.15); border:1px solid #10b981; border-radius:8px; color:#10b981; font-weight:700; text-decoration:none; font-size:14px;">
+                &#128640; Open System Update &amp; Deploy Tool &rarr; (https://laptop-e74ckmo5.tail2fc4c5.ts.net/idash/va_system_update.aspx)
+            </a>
+        </div>
+        <p style="font-size:12px; color:var(--muted);">
+            <em>Alternative navigation:</em> On the remote machine's dashboard (<a href="https://laptop-e74ckmo5.tail2fc4c5.ts.net/idash/index.aspx" target="_blank">index.aspx</a>), log in under <strong>iDash SQL Administrator</strong>, then click the green <strong>🚀 System Update &amp; Deploy (1-Click OTA)</strong> tile under Admin Tools.
+        </p>
+
+        <h3><span class="step-num">3</span> Select Your Update Source</h3>
+        <p>Choose where the remote system should pull its update from:</p>
+        <ul>
+            <li><strong>Master Node (LingCod Tailscale):</strong> <code>https://lingcod.tail585c9b.ts.net/iDash/downloads/idash_full_site.zip</code> &mdash; Direct P2P sync across your secure Tailscale mesh.</li>
+            <li><strong>GitHub Official Release:</strong> <code>https://github.com/jguempel-a11y/iDash/releases/latest/download/idash_full_site.zip</code> &mdash; Ideal fallback if the master development workstation is offline.</li>
+            <li><strong>GitHub Main Branch Zip:</strong> <code>https://github.com/jguempel-a11y/iDash/archive/refs/heads/main.zip</code> &mdash; Direct snapshot of the latest Git commits.</li>
+            <li><strong>Custom Package URL:</strong> Point to any internal staging server or cloud bucket.</li>
+        </ul>
+
+        <h3><span class="step-num">4</span> Click "Start System Update Now" &amp; Monitor Live Progress</h3>
+        <p>Click the green <strong>Start System Update Now</strong> button. The interactive glassmorphic modal overlay will automatically engage:</p>
+        <ul>
+            <li><strong>Live Percentage &amp; Speed Bar:</strong> Shows download progress (e.g. <code>42.5 MB / 85.6 MB &bull; 50%</code>).</li>
+            <li><strong>Unpacking Verification:</strong> Unpacks the clean archive safely into an isolated scratch directory.</li>
+            <li><strong>File Copy Ticker:</strong> Displays every active file being synchronized (e.g. <code>Deploying: va_inventory.aspx (480 of 975)</code>).</li>
+            <li><strong>Zero Downtime IIS Refresh:</strong> Recycles the IIS Application Pool automatically so new code and assemblies load immediately.</li>
+            <li><strong>Anti-Refresh Protection:</strong> Built-in browser protection prompts if the tab is accidentally refreshed or closed during an update.</li>
+        </ul>
+
+        <div class="alert-card alert-card-success" style="margin: 16px 0;">
+            <strong>&#9989; Update Complete:</strong> Upon reaching 100%, the completion banner confirms the exact number of synchronized files and initiates a 5-second countdown timer redirecting you back to the updated dashboard.
+        </div>
+    </div>
+
+    <!-- SECTION 4: METHOD B - OTA PUSH VIA SQL -->
+    <div class="card" id="sec-method-ota">
+        <h2>4. Method B: Automated Push via Tailscale &amp; Web SQL Uploader (Secondary Automated Method)</h2>
+        <p>This automated method leverages SQL Server xp_cmdshell to execute the update when web-based updates are restricted or when executing headless migrations:</p>
+
+        <h3><span class="step-num">1</span> Build the Clean Migration Package on Localhost</h3>
+        <p>On your local development machine (<code>localhost</code> / <code>LingCod</code>), open <strong>Windows PowerShell</strong> (Run as Administrator) and run the built-in migration builder script:</p>
+
+        <div class="alert-card alert-card-success" style="margin: 12px 0;">
+            <strong>&#128161; Recommended (Best Way):</strong> Run this single command in PowerShell. It automatically stages all 1,200+ application files, strictly preserves the Safe Migration Boundary, and generates the compressed package in seconds with zero risk of syntax errors:
+        </div>
+
+        <div class="code-box">
+<span class="cmd">&amp;</span> <span class="str">"C:\inetpub\wwwroot\iDash\tools\Build-IdashMigrationPackage.ps1"</span>
+        </div>
+
+        <p><strong>Expected Output in PowerShell:</strong></p>
+        <div class="code-box" style="color:#94a3b8;">
+==========================================================
+ iDash Full-Site Migration Package Builder                
+==========================================================
+[1/3] Staging application files (enforcing Safe Migration Boundary)...
+      Staged 1229 files successfully.
+[2/3] Compressing into migration archive: C:\inetpub\wwwroot\iDash\downloads\idash_full_site.zip...
+[3/3] Migration package created successfully: 142.59 MB
+        </div>
+
+        <details style="margin: 14px 0; background: var(--card-docs); border: 1px solid var(--border-docs); border-radius: 8px; padding: 10px 14px;">
+            <summary style="cursor:pointer; font-weight:600; font-size:13px; color:var(--muted);">Alternative: Run raw PowerShell inline (click to expand)</summary>
+            <p style="font-size:12px; color:var(--muted); margin-top:8px;">If you cannot run scripts due to execution policies, paste this single continuous command (semicolon-separated to prevent line-flattening errors):</p>
+            <div class="code-box" style="font-size:11px;">
+$zipPath = "C:\inetpub\wwwroot\iDash\downloads\idash_full_site.zip"; $tempStage = "C:\inetpub\wwwroot\iDash\scratch\stage_full_site"; if (Test-Path $zipPath) { Remove-Item $zipPath -Force }; if (Test-Path $tempStage) { Remove-Item $tempStage -Recurse -Force }; New-Item -ItemType Directory -Path $tempStage | Out-Null; robocopy "C:\inetpub\wwwroot\iDash\iDash" $tempStage /E /XD ".git" "scratch" "downloads" "App_Data" "logs" "uploads" "temp" /XF "web.config" "*.log" | Out-Null; Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::CreateFromDirectory($tempStage, $zipPath); Remove-Item $tempStage -Recurse -Force; $mb = [math]::Round((Get-Item $zipPath).Length / 1MB, 2); Write-Host "Migration package ready: $zipPath ($mb MB)" -ForegroundColor Green
+            </div>
+        </details>
+
+        <h3><span class="step-num">2</span> Verify the Download Endpoint</h3>
+        <p>Because the ZIP file is stored in <code>iDash\downloads\</code>, it is immediately downloadable over IIS or Tailscale Funnel. You can test it locally via <code>curl</code>:</p>
+        <div class="code-box">
+<span class="cmd">curl.exe</span> -k -I <span class="str">https://lingcod.tail585c9b.ts.net/iDash/downloads/idash_full_site.zip</span>
+<span class="comment"># Verify that it returns: HTTP/1.1 200 OK with Content-Type: application/x-zip-compressed</span>
+        </div>
+
+        <h3><span class="step-num">3</span> Trigger the Remote Deployment via Web SQL Upload</h3>
+        <p>This step tells the remote computer to download the clean 142&nbsp;MB update archive from your computer, extract it over its web folder, and refresh IIS &mdash; completely hands-free in about 20 seconds.</p>
+
+        <div class="alert-card alert-card-info" style="margin-bottom: 20px;">
+            <strong>&#128073; Two Easy Ways to Run This:</strong>
+            <ul style="margin: 6px 0 0 0; padding-left: 20px;">
+                <li><strong>Method 1 (Simplest &mdash; No file needed):</strong> Just copy the script below and paste it directly into the text box on the remote web page.</li>
+                <li><strong>Method 2 (File upload):</strong> Download the ready-to-run script file <a href="../downloads/run_migration.sql" download="run_migration.sql" style="font-weight:bold; color:var(--accent); text-decoration:underline;">run_migration.sql</a> and select it with the &ldquo;Choose File&rdquo; button.</li>
+            </ul>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px; margin: 20px 0;">
+
+            <!-- SUB-STEP 3.1 -->
+            <div style="background: var(--card-docs); border: 1px solid var(--border-docs); border-radius: 12px; padding: 18px 22px;">
+                <h4 style="margin: 0 0 8px 0; color: var(--accent); font-size: 15px;">
+                    <span style="background: var(--accent); color:#fff; border-radius:50%; width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; font-size:12px; margin-right:6px;">A</span>
+                    Step 3.1: Open the SQL Upload Screen on the Remote Machine
+                </h4>
+                <p style="margin: 0 0 8px 0; font-size: 13px;">In your web browser, navigate to the remote system's SQL Upload page:</p>
+                <div style="margin: 8px 0;">
+                    <a href="https://laptop-e74ckmo5.tail2fc4c5.ts.net/idash/va_sql_upload.aspx" target="_blank" style="display:inline-flex; align-items:center; gap:8px; padding:8px 16px; background:rgba(59,130,246,0.15); border:1px solid #3b82f6; border-radius:8px; color:#38bdf8; font-weight:600; text-decoration:none; font-size:13px;">
+                        &#127760; Open Field Laptop SQL Upload &rarr; (https://laptop-e74ckmo5.tail2fc4c5.ts.net/idash/va_sql_upload.aspx)
+                    </a>
+                </div>
+                <p style="margin: 6px 0 0 0; font-size: 12px; color: var(--muted);">
+                    <em>Alternative navigation:</em> If you are already looking at the remote main menu (<a href="https://laptop-e74ckmo5.tail2fc4c5.ts.net/idash/index.aspx" target="_blank">index.aspx</a>), click the <strong>⚙️ System Configuration</strong> tile, then click <strong>SQL Upload</strong> in the menu. Sign in with administrative credentials (e.g. <code>admin</code> / <code>admin</code>) if prompted.
+                </p>
+            </div>
+
+            <!-- SUB-STEP 3.2 -->
+            <div style="background: var(--card-docs); border: 1px solid var(--border-docs); border-radius: 12px; padding: 18px 22px;">
+                <h4 style="margin: 0 0 8px 0; color: #f59e0b; font-size: 15px;">
+                    <span style="background: #f59e0b; color:#fff; border-radius:50%; width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; font-size:12px; margin-right:6px;">B</span>
+                    Step 3.2: Check the &ldquo;Allow dangerous SQL&rdquo; Box (Do This First!)
+                </h4>
+                <p style="margin: 0 0 8px 0; font-size: 13px;">
+                    On the SQL Upload webpage, look below the buttons and text box for this checkbox:
+                </p>
+                <div style="padding: 10px 14px; background: rgba(245, 158, 11, 0.1); border: 1px dashed #f59e0b; border-radius: 8px; font-weight: 600; font-size: 13px; color: #fbbf24;">
+                    &#9745; Allow dangerous SQL (DROP / ALTER / TRUNCATE)
+                </div>
+                <p style="margin: 8px 0 0 0; font-size: 12px; color: var(--muted);">
+                    <strong>Why is this required?</strong> Because deploying the site uses server management commands (<code>EXEC sp_configure</code>). If this box is unchecked, the webpage blocks the script from running for safety.
+                </p>
+            </div>
+
+            <!-- SUB-STEP 3.3 -->
+            <div style="background: var(--card-docs); border: 1px solid var(--border-docs); border-radius: 12px; padding: 18px 22px;">
+                <h4 style="margin: 0 0 8px 0; color: var(--accent); font-size: 15px;">
+                    <span style="background: var(--accent); color:#fff; border-radius:50%; width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; font-size:12px; margin-right:6px;">C</span>
+                    Step 3.3: Provide the Migration Script (Pick Option 1 or Option 2)
+                </h4>
+
+                <div style="margin-top: 10px;">
+                    <div style="font-weight: 700; color: #10b981; font-size: 13px; margin-bottom: 6px;">&#10004; Option 1 (Recommended &mdash; Copy &amp; Paste, No File Needed):</div>
+                    <p style="font-size: 12px; margin: 0 0 8px 0; color: var(--text-docs);">
+                        Click the button below to copy the SQL script to your clipboard, then switch to the remote SQL Upload tab and paste it into the large text area labeled <em>&ldquo;-- Or paste your SQL script directly here instead of uploading a file...&rdquo;</em>:
+                    </p>
+                    <button type="button" onclick="copyMigrationSql()" id="btnCopySql" style="cursor:pointer; background:var(--accent); color:#fff; border:none; padding:8px 16px; border-radius:6px; font-size:13px; font-weight:600; display:inline-flex; align-items:center; gap:6px; margin-bottom:10px;">
+                        &#128203; Copy SQL Script to Clipboard
+                    </button>
+                    <span id="copyConfirm" style="display:none; color:#10b981; font-weight:bold; font-size:13px; margin-left:10px;">&#10004; Copied to clipboard!</span>
+                </div>
+
+                <div style="margin-top: 14px; border-top: 1px solid var(--border-docs); padding-top: 12px;">
+                    <div style="font-weight: 700; color: var(--text-docs); font-size: 13px; margin-bottom: 6px;">&#128190; Option 2 (File Upload):</div>
+                    <p style="font-size: 12px; margin: 0 0 8px 0; color: var(--muted);">
+                        If you prefer uploading a file:
+                        <br/>1. <a href="../downloads/run_migration.sql" download="run_migration.sql" style="color:var(--accent); font-weight:bold;">Click here to download run_migration.sql</a> (or locate it already generated on your local PC at <code>C:\inetpub\wwwroot\iDash\downloads\run_migration.sql</code>).
+                        <br/>2. On the remote page, click the <strong>&ldquo;Choose File&rdquo;</strong> button and select <code>run_migration.sql</code>.
+                    </p>
+                </div>
+            </div>
+
+            <!-- SUB-STEP 3.4 -->
+            <div style="background: var(--card-docs); border: 1px solid var(--border-docs); border-radius: 12px; padding: 18px 22px;">
+                <h4 style="margin: 0 0 8px 0; color: #38bdf8; font-size: 15px;">
+                    <span style="background: #38bdf8; color:#fff; border-radius:50%; width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; font-size:12px; margin-right:6px;">D</span>
+                    Step 3.4: Click the Blue &ldquo;Run SQL&rdquo; Button
+                </h4>
+                <p style="margin: 0 0 8px 0; font-size: 13px;">
+                    Click the blue <strong>Run SQL</strong> button near the top left of the card.
+                </p>
+                <div class="alert-card alert-card-warning" style="margin: 10px 0; padding: 12px 16px;">
+                    <strong>&#9203; Please Be Patient (15 &ndash; 30 Seconds):</strong><br/>
+                    The remote computer is downloading the 142&nbsp;MB archive across the network, extracting 1,200+ files, and restarting IIS. Your browser tab will show a loading spinner. <strong>Do not refresh, close the tab, or click &ldquo;Run SQL&rdquo; again while it is working!</strong>
+                </div>
+            </div>
+
+            <!-- SUB-STEP 3.5 -->
+            <div style="background: var(--card-docs); border: 1px solid var(--border-docs); border-radius: 12px; padding: 18px 22px;">
+                <h4 style="margin: 0 0 8px 0; color: #10b981; font-size: 15px;">
+                    <span style="background: #10b981; color:#fff; border-radius:50%; width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; font-size:12px; margin-right:6px;">E</span>
+                    Step 3.5: Confirm the Success Message
+                </h4>
+                <p style="margin: 0 0 8px 0; font-size: 13px;">
+                    When the page finishes loading, you will see the results grid appear with this exact confirmation:
+                </p>
+                <div style="background: #022c22; border: 1px solid #059669; border-radius: 8px; padding: 10px 16px; font-family: monospace; color: #6ee7b7; font-size: 13px;">
+                    MigrationResult<br/>
+                    <strong>FULL_SITE_MIGRATION_COMPLETE_SUCCESS</strong>
+                </div>
+                <p style="margin: 8px 0 0 0; font-size: 12px; color: var(--muted);">
+                    That's it! SQL Server security has been automatically restored (<code>xp_cmdshell = 0</code>). You can now click <strong>⌂ Hub</strong> in the upper navigation bar to explore your updated remote system.
+                </p>
+            </div>
+
+        </div>
+
+        <h4>Reference: Complete Migration SQL Code</h4>
+        <p style="font-size: 12px; color: var(--muted);">For reference or audit inspection, here is the exact script executed by Step 3:</p>
+
+        <div class="code-box" id="migrationSqlBox">
+<span class="comment">-- 1. Enable xp_cmdshell for the duration of the transfer</span>
+<span class="cmd">EXEC</span> sp_configure <span class="str">'show advanced options'</span>, 1;
+<span class="cmd">RECONFIGURE</span>;
+<span class="cmd">EXEC</span> sp_configure <span class="str">'xp_cmdshell'</span>, 1;
+<span class="cmd">RECONFIGURE</span>;
+
+<span class="comment">-- 2. Download, extract, and copy over the web root</span>
+<span class="cmd">CREATE TABLE</span> #p (line <span class="cmd">NVARCHAR</span>(<span class="cmd">MAX</span>));
+<span class="cmd">INSERT INTO</span> #p <span class="cmd">EXEC</span> xp_cmdshell <span class="str">'powershell.exe -ExecutionPolicy Bypass -Command "[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; $z = ''C:/Windows/Temp/idash_full_site.zip''; (New-Object Net.WebClient).DownloadFile(''https://lingcod.tail585c9b.ts.net/iDash/downloads/idash_full_site.zip'', $z); Add-Type -AssemblyName System.IO.Compression.FileSystem; $t = ''C:/Windows/Temp/stage_full_site''; if (Test-Path $t) { Remove-Item $t -Recurse -Force }; [System.IO.Compression.ZipFile]::ExtractToDirectory($z, $t); Copy-Item -Path ''C:/Windows/Temp/stage_full_site/*'' -Destination ''C:/inetpub/wwwroot/iDash.WebClient/iDash'' -Recurse -Force; Copy-Item -Path ''C:/Windows/Temp/stage_full_site/*'' -Destination ''C:/inetpub/wwwroot/idash'' -Recurse -Force; (Get-Item ''C:\inetpub\wwwroot\iDash\web.config'').LastWriteTime = Get-Date; Remove-Item $t -Recurse -Force; Remove-Item $z -Force; Write-Output ''FULL_SITE_MIGRATION_COMPLETE_SUCCESS'';"';</span>
+
+<span class="comment">-- 3. Recycle the IIS App Pool to clear ASP.NET VirtualPath cache</span>
+<span class="cmd">INSERT INTO</span> #p <span class="cmd">EXEC</span> xp_cmdshell <span class="str">'%windir%\system32\inetsrv\appcmd.exe recycle apppool "DefaultAppPool"'</span>;
+
+<span class="comment">-- 4. Re-lock SQL Server security immediately</span>
+<span class="cmd">EXEC</span> sp_configure <span class="str">'xp_cmdshell'</span>, 0;
+<span class="cmd">RECONFIGURE</span>;
+<span class="cmd">EXEC</span> sp_configure <span class="str">'show advanced options'</span>, 0;
+<span class="cmd">RECONFIGURE</span>;
+
+<span class="comment">-- 5. Review results</span>
+<span class="cmd">SELECT</span> line <span class="cmd">AS</span> MigrationResult <span class="cmd">FROM</span> #p <span class="cmd">WHERE</span> line <span class="cmd">IS NOT NULL</span>;
+<span class="cmd">DROP TABLE</span> #p;
+        </div>
+
+        <div class="img-figure">
+            <img src="images/migration_sql_uploader.png" alt="SQL Upload Execution" />
+            <div class="img-caption">&#128247; Figure 1: Running the automated migration and security lockdown through va_sql_upload.aspx.</div>
+        </div>
+
+        <div class="alert-card alert-card-info">
+            <strong>&#128274; Security Assurance:</strong> Step 4 explicitly restores <code>xp_cmdshell = 0</code> within the same SQL transaction batch, ensuring SQL Server remains locked down in compliance with NIST SP 800-53 (AC-3 / SC-7).
+        </div>
+    </div>
+
+    <!-- SECTION 5: METHOD C - MANUAL DIRECT COPY -->
+    <div class="card" id="sec-method-manual">
+        <h2>5. Method C: Direct Manual Copy &amp; PowerShell Robocopy Script</h2>
+        <p>If you prefer not to use web-based updaters or SQL scripts, you can deploy files directly using the generated PowerShell robocopy script or a USB drive / Windows file sharing (<code>\\&lt;remote-host&gt;\c$</code>). Follow these exact steps:</p>
+
+        <h3><span class="step-num">1</span> Package the Local Workstation</h3>
+        <p>On your local development machine, run the builder script in Administrator PowerShell to produce the clean baseline ZIP:</p>
+        <div class="code-box">
+<span class="cmd">&amp;</span> <span class="str">"C:\inetpub\wwwroot\iDash\tools\Build-IdashMigrationPackage.ps1"</span>
+        </div>
+        <p>Copy the resulting file (<code>C:\inetpub\wwwroot\iDash\downloads\idash_full_site.zip</code>) onto your USB thumb drive or network drop folder.</p>
+
+        <h3><span class="step-num">2</span> Copy and Extract on the Remote Target</h3>
+        <ol>
+            <li>On the target laptop or server, extract <code>idash_full_site.zip</code> into a temporary directory (e.g. <code>C:\temp\stage\</code>).</li>
+            <li>Copy all contents from <code>C:\temp\stage\</code> and paste them into:<br/>
+                <code>C:\inetpub\wwwroot\iDash\</code></li>
+            <li>When prompted by Windows Explorer: <strong>Click &ldquo;Replace the files in the destination&rdquo;</strong>.<br/>
+                <em>Note: Because <code>web.config</code> was excluded from the ZIP, your database credentials remain completely safe.</em></li>
+            <li>If a separate virtual directory exists at <code>C:\inetpub\wwwroot\idash\</code>, copy the files there as well.</li>
+        </ol>
+
+        <h3><span class="step-num">3</span> Set NTFS Permissions</h3>
+        <p>When files are copied from external drives or temporary folders, Windows may assign restrictive access control lists. Open an Administrator PowerShell on the target and run:</p>
+        <div class="code-box">
+<span class="cmd">icacls</span> <span class="str">"C:\inetpub\wwwroot\iDash\iDash"</span> /grant <span class="str">"IIS_IUSRS:(OI)(CI)RX"</span> /grant <span class="str">"Users:(OI)(CI)RX"</span> /T
+        </div>
+
+        <h3><span class="step-num">4</span> Recycle the IIS Application Pool</h3>
+        <p>Force IIS to invalidate compiled page caches and reload the fresh baseline:</p>
+        <div class="code-box">
+<span class="comment"># In elevated PowerShell or Command Prompt</span>
+<span class="cmd">&amp;</span> <span class="str">"$env:windir\system32\inetsrv\appcmd.exe"</span> recycle apppool <span class="str">"DefaultAppPool"</span>
+        </div>
+    </div>
+
+    <!-- SECTION 6: VERIFICATION & PARITY CHECKLIST -->
+    <div class="card" id="sec-verification">
+        <h2>6. Visual Verification &amp; Parity Checklist (With Screenshots)</h2>
+        <p>Once deployed, verify that the remote system displays identical tiles and functionality to localhost by checking the following flagship interfaces:</p>
+
+        <h3>1. Main Hub Parity (<code>index.aspx</code>)</h3>
+        <p>Verify that the tile grid matches localhost. The obsolete standalone &ldquo;Printer Administration&rdquo; tile should be gone (consolidated into Site Configuration), and the <strong>🔔 iDash Notifications</strong> tile should be visible in the Reports section:</p>
+        <div class="img-figure">
+            <img src="images/migration_dashboard_hub.png" alt="Main Hub Dashboard Verification" />
+            <div class="img-caption">&#128247; Figure 2: Verified remote main dashboard on laptop-e74ckmo5 matching localhost tile structure.</div>
+        </div>
+
+        <h3>2. Alerts &amp; Notifications Gateway (<code>va_alerts.aspx</code>)</h3>
+        <p>Navigate to <code>https://&lt;remote-host&gt;/idash/va_alerts.aspx</code>. It should load immediately with <strong>HTTP 200</strong> and display two distinct cards directing users to Operational Alerts or System Automations:</p>
+        <div class="img-figure">
+            <img src="images/migration_alerts_hub.png" alt="Alerts and Notifications Hub" />
+            <div class="img-caption">&#128247; Figure 3: va_alerts.aspx navigation hub resolving the legacy 404 issue.</div>
+        </div>
+
+        <h3>3. System Automations &amp; Event Triggers (<code>va_automated_reports.aspx</code>)</h3>
+        <p>Clicking &ldquo;Configure Automations&rdquo; opens the hardware failure and SMTP alerting console:</p>
+        <div class="img-figure">
+            <img src="images/migration_system_automations.png" alt="System Automations Console" />
+            <div class="img-caption">&#128247; Figure 4: va_automated_reports.aspx hardware failure triggers and master switch.</div>
+        </div>
+
+        <h3>4. Flagship Asset Master (<code>va_asset_master.aspx</code>)</h3>
+        <p>Verify that Asset Master loads the site's full record count (e.g. 16,000+ assets) with the new <strong>ClosedXML Selected Items Export</strong> engine:</p>
+        <div class="img-figure">
+            <img src="images/migration_asset_master.png" alt="Flagship Asset Master" />
+            <div class="img-caption">&#128247; Figure 5: va_asset_master.aspx loaded with active asset inventory and Selected Items export.</div>
+        </div>
+    </div>
+
+    <!-- SECTION 7: TROUBLESHOOTING & PITFALLS -->
+    <div class="card" id="sec-troubleshooting">
+        <h2>7. Troubleshooting &amp; Common Pitfalls</h2>
+        
+        <h4>&#9888; Pitfall 1: Virtual Directory Path Mismatch (<code>/idash</code> vs <code>/iDash.WebClient/iDash</code>)</h4>
+        <p>On some field systems, IIS contains two applications or virtual directories: one at <code>/idash</code> and another at <code>/iDash.WebClient/iDash</code>. If <code>/idash</code> was pointed to an empty directory (e.g. <code>C:\inetpub\wwwroot\idash</code>), new pages will return <code>HTTP 404 (The file does not exist)</code> even though they exist on disk.</p>
+        <p><strong>Fix:</strong> Re-align the virtual directory physical path using <code>appcmd</code>:</p>
+        <div class="code-box">
+<span class="cmd">&amp;</span> <span class="str">"$env:windir\system32\inetsrv\appcmd.exe"</span> set vdir <span class="str">"Default Web Site/idash"</span> -physicalPath:<span class="str">"C:\inetpub\wwwroot\iDash\iDash"</span>
+        </div>
+
+        <h4>&#9888; Pitfall 2: ASP.NET VirtualPath Cache Stale (HTTP 404 on newly added pages)</h4>
+        <p>ASP.NET caches its virtual directory structure in temporary compilation files. When new <code>.aspx</code> files are copied in, the runtime might not immediately detect them.</p>
+        <p><strong>Fix:</strong> Touch <code>web.config</code> to force an application pool recycle:</p>
+        <div class="code-box">
+(Get-Item <span class="str">"C:\inetpub\wwwroot\iDash\web.config"</span>).LastWriteTime = Get-Date
+        </div>
+
+        <h4>&#9888; Pitfall 3: Missing Code-Behind in Web Site Projects</h4>
+        <p>In ASP.NET Web Site projects, every template page that uses server-side logic must have a matching <code>.aspx.cs</code> file declaring <code>public partial class &lt;name&gt; : Page</code>. Pages defined purely inline without a code-behind can fail with <code>CheckVirtualFileExists</code> exceptions under strict IIS configurations.</p>
+    </div>
+
+</div>
+
+<script>
+function copyMigrationSql() {
+    var rawSql = `-- 1. Enable xp_cmdshell for the duration of the transfer
+EXEC sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXEC sp_configure 'xp_cmdshell', 1;
+RECONFIGURE;
+
+-- 2. Download, extract, and copy over the web root
+CREATE TABLE #p (line NVARCHAR(MAX));
+INSERT INTO #p EXEC xp_cmdshell 'powershell.exe -ExecutionPolicy Bypass -Command "[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; $z = ''C:/Windows/Temp/idash_full_site.zip''; (New-Object Net.WebClient).DownloadFile(''https://lingcod.tail585c9b.ts.net/iDash/downloads/idash_full_site.zip'', $z); Add-Type -AssemblyName System.IO.Compression.FileSystem; $t = ''C:/Windows/Temp/stage_full_site''; if (Test-Path $t) { Remove-Item $t -Recurse -Force }; [System.IO.Compression.ZipFile]::ExtractToDirectory($z, $t); Copy-Item -Path ''C:/Windows/Temp/stage_full_site/*'' -Destination ''C:/inetpub/wwwroot/iDash.WebClient/iDash'' -Recurse -Force; Copy-Item -Path ''C:/Windows/Temp/stage_full_site/*'' -Destination ''C:/inetpub/wwwroot/idash'' -Recurse -Force; (Get-Item ''C:\\inetpub\\wwwroot\\iDash.WebClient\\iDash\\web.config'').LastWriteTime = Get-Date; Remove-Item $t -Recurse -Force; Remove-Item $z -Force; Write-Output ''FULL_SITE_MIGRATION_COMPLETE_SUCCESS'';"';
+
+-- 3. Recycle the IIS App Pool to clear ASP.NET VirtualPath cache
+INSERT INTO #p EXEC xp_cmdshell '%windir%\\system32\\inetsrv\\appcmd.exe recycle apppool "DefaultAppPool"';
+
+-- 4. Re-lock SQL Server security immediately
+EXEC sp_configure 'xp_cmdshell', 0;
+RECONFIGURE;
+EXEC sp_configure 'show advanced options', 0;
+RECONFIGURE;
+
+-- 5. Review results
+SELECT line AS MigrationResult FROM #p WHERE line IS NOT NULL;
+DROP TABLE #p;`;
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(rawSql).then(showConfirmation);
+    } else {
+        var textArea = document.createElement("textarea");
+        textArea.value = rawSql;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            showConfirmation();
+        } catch (err) {
+            console.error('Unable to copy', err);
+        }
+        document.body.removeChild(textArea);
+    }
+}
+
+function showConfirmation() {
+    var c = document.getElementById("copyConfirm");
+    if (c) {
+        c.style.display = "inline";
+        setTimeout(function() {
+            c.style.display = "none";
+        }, 4000);
+    }
+}
+</script>
+</body>
+</html>

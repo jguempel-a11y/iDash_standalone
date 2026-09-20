@@ -1,0 +1,66 @@
+{
+    "ConfigSettings":  {
+                           "AllowUntrustedCertificates":  true,
+                           "ApplicationName":  "iDash",
+                           "AuthServerUrl":  "http://localhost:8181",
+                           "AuthServerPfxPath":  "",
+                           "AuthServerPfxPassword":  "",
+                           "AuthenticationServer":  "http://localhost:8181",
+                           "AuthServerUsesJwt":  false,
+                           "IntrospectThumbprint":  "",
+                           "MqttServer":  "localhost",
+                           "MqttServerPort":  8883,
+                           "PrintClientUsername":  "MasterPrint",
+                           "PrintClientPassword":  "V5MqttPrint2026!",
+                           "UseRedis":  false,
+                           "RedisServer":  "",
+                           "RedisPort":  7369,
+                           "TagSpeedup":  1,
+                           "DbOptions":  null,
+                           "ServiceOptions":  {
+                                                  "BaseUrl":  "",
+                                                  "TokenEndpoint":  null,
+                                                  "GrantType":  "Client Credentials",
+                                                  "ClientID":  "AlarmMonitoringService",
+                                                  "ClientSecret":  null,
+                                                  "AuthenticationServer":  null,
+                                                  "RefreshToken":  null,
+                                                  "Username":  null,
+                                                  "Password":  null,
+                                                  "IsUser":  false
+                                              },
+                           "SecurityModeLastSeenCutoff":  4.0,
+                           "BeaconPushModeThreshold":  3,
+                           "UseForPrinting":  true,
+                           "ProcessCommandsWithAms":  false,
+                           "TokenKeyValue":  "b1627f2a291e4fc08fe43b796b148da4",
+                           "TokenTimeout":  10
+                       },
+    "Serilog":  {
+                    "Using":  [
+                                  "Serilog.Sinks.Console"
+                              ],
+                    "MinimumLevel":  "Error",
+                    "WriteTo":  [
+                                    {
+                                        "Name":  "LiterateConsole",
+                                        "Args":  null
+                                    },
+                                    {
+                                        "Name":  "File",
+                                        "Args":  {
+                                                     "path":  "c:\\Logs\\PrintServer_log.txt",
+                                                     "rollingInterval":  "Day"
+                                                 }
+                                    }
+                                ],
+                    "Enrich":  [
+                                   "FromLogContext",
+                                   "WithMachineName",
+                                   "WithThreadId"
+                               ],
+                    "Properties":  {
+                                       "Application":  "iDash"
+                                   }
+                }
+}

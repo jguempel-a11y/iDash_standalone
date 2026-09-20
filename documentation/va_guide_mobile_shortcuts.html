@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Mobile Reader Shortcuts, Web Scanning, and Datawedge Setup &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .hero-banner {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(59, 130, 246, 0.12));
+            border: 2px solid #10b981;
+            border-radius: 16px;
+            padding: 26px 30px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+        .hero-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 16px;
+            background: #10b981;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            flex-shrink: 0;
+            box-shadow: 0 0 24px rgba(16, 185, 129, 0.35);
+        }
+        .hero-text h1 {
+            margin: 0 0 6px 0;
+            border-bottom: none;
+            padding-bottom: 0;
+            color: var(--text-docs);
+            font-size: 24px;
+        }
+        .hero-text p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .pill-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+        .pill-green { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .pill-blue { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .pill-purple { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.3); }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 18px;
+            margin: 20px 0;
+        }
+        .tool-card {
+            background: var(--card-docs);
+            border: 1px solid var(--border-docs);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s ease;
+        }
+        .tool-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        .tool-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .tool-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        .tool-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 0;
+            color: var(--text-docs);
+        }
+        .tool-url {
+            font-family: monospace;
+            font-size: 11px;
+            color: var(--accent);
+            background: rgba(56, 189, 248, 0.08);
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin-top: 4px;
+            display: inline-block;
+            word-break: break-all;
+        }
+        .tool-desc {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.5;
+            margin: 10px 0 14px;
+            flex: 1;
+        }
+        .tool-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .tool-link:hover { text-decoration: underline; }
+
+        .step-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #10b981;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+        .code-box {
+            background: #0b1329;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 16px;
+            margin: 14px 0;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 12px;
+            color: #f8fafc;
+            overflow-x: auto;
+            line-height: 1.6;
+        }
+        .alert-card {
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin: 18px 0;
+            border-left: 4px solid;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .alert-card-info { background: rgba(59, 130, 246, 0.08); border-left-color: #3b82f6; color: var(--text-docs); }
+        .alert-card-success { background: rgba(16, 185, 129, 0.08); border-left-color: #10b981; color: var(--text-docs); }
+        .alert-card-warning { background: rgba(245, 158, 11, 0.08); border-left-color: #f59e0b; color: var(--text-docs); }
+
+        .flow-diagram {
+            background: var(--card-docs);
+            border: 1px solid var(--border-docs);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .flow-node {
+            flex: 1;
+            min-width: 140px;
+            background: var(--chip);
+            border: 1px solid var(--border-docs);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+        .flow-arrow {
+            color: var(--muted);
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <a href="index.aspx">&larr; Back to Documentation Hub</a><br/><br/>
+
+    <!-- HERO HEADER -->
+    <div class="hero-banner">
+        <div class="hero-icon">&#128241;</div>
+        <div class="hero-text">
+            <h1>Mobile Reader Shortcuts, Web Scanning, and Datawedge Setup</h1>
+            <p>Field engineering guide for configuring 1-tap home screen shortcuts on Zebra TC53/TC58 mobile computers, installing Zebra Enterprise Browser, importing DataWedge profiles, and deploying the 4 core web scanning tools.</p>
+            <div class="pill-bar">
+                <span class="pill pill-green">&#9989; Zebra TC53 &amp; TC58 Verified</span>
+                <span class="pill pill-blue">&#128274; NIST Auth Gate Protected</span>
+                <span class="pill pill-purple">&#9889; 1-Tap Direct Launch</span>
+                <span class="pill pill-green">&#128225; RFD40 RFID Optimized</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 1: THE 4 CORE SCANNING SITES -->
+    <div class="card">
+        <h2>1. The Four Core Mobile Web Scanning Interfaces</h2>
+        <p>iDash provides four specialized, high-speed mobile web scanning pages designed for clinical and engineering environments. Each interface features the skinny sticky status bar, viewport scaling, high-contrast badges, and fast DataWedge / RFID keyboard wedge integration:</p>
+
+        <div class="tool-grid">
+            
+            <!-- TOOL 1: VA_INVENTORY -->
+            <div class="tool-card" style="border-top: 4px solid #10b981;">
+                <div class="tool-header">
+                    <div class="tool-icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">&#128225;</div>
+                    <div>
+                        <h3 class="tool-title">VA Site Inventory (Flagship)</h3>
+                        <div class="tool-url">/iDash/va_inventory.aspx</div>
+                    </div>
+                </div>
+                <div class="tool-desc">
+                    The primary room sweep and asset relocation engine. Performs continuous high-speed tag reads (30&ndash;50 tags/sec), instant $O(1)$ memory lookup, audible audio feedback, and automated asset room relocation.
+                </div>
+                <a href="../va_inventory.aspx" target="_blank" class="tool-link">&#9654; Open Tool in New Tab &rarr;</a>
+            </div>
+
+            <!-- TOOL 2: ENNX LIVE SCAN -->
+            <div class="tool-card" style="border-top: 4px solid #3b82f6;">
+                <div class="tool-header">
+                    <div class="tool-icon" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">&#128203;</div>
+                    <div>
+                        <h3 class="tool-title">ENNX Live Scan</h3>
+                        <div class="tool-url">/iDash/va_ennx_live_scan.aspx</div>
+                    </div>
+                </div>
+                <div class="tool-desc">
+                    Real-time Equipment Not in Expected Location (ENNX) scanning. Detects stray assets outside their home division, automatically logging discrepancies directly into the SQL database with operator audit timestamps.
+                </div>
+                <a href="../va_ennx_live_scan.aspx" target="_blank" class="tool-link">&#9654; Open Tool in New Tab &rarr;</a>
+            </div>
+
+            <!-- TOOL 3: EIL LIVE SCAN -->
+            <div class="tool-card" style="border-top: 4px solid #8b5cf6;">
+                <div class="tool-header">
+                    <div class="tool-icon" style="background: rgba(139, 92, 246, 0.15); color: #8b5cf6;">&#128257;</div>
+                    <div>
+                        <h3 class="tool-title">EIL Live Scan &amp; Reconciliation</h3>
+                        <div class="tool-url">/iDash/va_eil_live_scan.aspx</div>
+                    </div>
+                </div>
+                <div class="tool-desc">
+                    On-the-fly CMR and Equipment Inventory List (EIL) reconciliation. Compares physical RFID sweeps against official custody records, flagging missing, found, and unassigned items.
+                </div>
+                <a href="../va_eil_live_scan.aspx" target="_blank" class="tool-link">&#9654; Open Tool in New Tab &rarr;</a>
+            </div>
+
+            <!-- TOOL 4: UNIVERSAL ENNX CREATOR -->
+            <div class="tool-card" style="border-top: 4px solid #f59e0b;">
+                <div class="tool-header">
+                    <div class="tool-icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">&#128229;</div>
+                    <div>
+                        <h3 class="tool-title">Universal ENNX Creator</h3>
+                        <div class="tool-url">/iDash/va_universal_ennx.aspx</div>
+                    </div>
+                </div>
+                <div class="tool-desc">
+                    Rapid ad-hoc scanner for creating standard ENNX formatted files. Allows technicians to sweep any room, preview lines, and stream download or email the generated <code>ennx_*.txt</code> in one click.
+                </div>
+                <a href="../va_universal_ennx.aspx" target="_blank" class="tool-link">&#9654; Open Tool in New Tab &rarr;</a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SECTION 2: HOW TO CREATE SHORTCUTS -->
+    <div class="card">
+        <h2>2. How to Create Home Screen Shortcuts on Mobile Readers</h2>
+        <p>To give field technicians instant 1-tap access without typing URLs or searching through bookmark menus, install home screen shortcuts directly onto the Zebra TC53 / TC58 handhelds:</p>
+
+        <h3>Method A: Google Chrome / Microsoft Edge on Zebra Android (Quickest)</h3>
+        <ol style="line-height: 1.8;">
+            <li>On the Zebra handheld, open <strong>Chrome</strong> or <strong>Edge</strong> and navigate to the desired scanning tool URL (e.g. <code>https://&lt;your-server&gt;/idash/va_inventory.aspx</code>).</li>
+            <li>Tap the <strong>three vertical dots menu (&vellip;)</strong> in the top-right corner of the browser.</li>
+            <li>Select <strong>&ldquo;Add to Home screen&rdquo;</strong> (or <strong>&ldquo;Install app&rdquo;</strong>).</li>
+            <li>Edit the name to a short, recognizable title:
+                <ul>
+                    <li><code>VA Inventory</code> (for <code>va_inventory.aspx</code>)</li>
+                    <li><code>ENNX Scan</code> (for <code>va_ennx_live_scan.aspx</code>)</li>
+                    <li><code>EIL Reconcile</code> (for <code>va_eil_live_scan.aspx</code>)</li>
+                    <li><code>Universal ENNX</code> (for <code>va_universal_ennx.aspx</code>)</li>
+                </ul>
+            </li>
+            <li>Tap <strong>Add</strong>. The official iDash RFID badge icon will appear directly on the Android home screen launcher.</li>
+        </ol>
+
+        <div class="alert-card alert-card-info">
+            <strong>&#128161; Field Tip:</strong> Create all 4 shortcuts and place them inside a dedicated &ldquo;iDash Scanning&rdquo; home screen folder on the handheld for seamless access during shifts.
+        </div>
+
+        <h3>Method B: Zebra Enterprise Browser / StageNow (Locked Down Kiosk)</h3>
+        <p>If your facility utilizes <strong>Zebra Enterprise Browser</strong> or <strong>StageNow</strong> in dedicated kiosk mode, configure the shortcuts via <code>Config.xml</code>:</p>
+        <div class="code-box">
+<span class="comment">&lt;!-- Zebra Enterprise Browser Config.xml --&gt;</span>
+&lt;Configuration&gt;
+  &lt;Applications&gt;
+    &lt;Application&gt;
+      &lt;General&gt;
+        &lt;StartPage value="<span class="str">https://laptop-e74ckmo5.tail2fc4c5.ts.net/idash/va_inventory.aspx</span>"/&gt;
+      &lt;/General&gt;
+      &lt;Navigation&gt;
+        &lt;NavDelay value="<span class="param">0</span>"/&gt;
+        &lt;HideNavBar value="<span class="param">1</span>"/&gt;
+      &lt;/Navigation&gt;
+    &lt;/Application&gt;
+  &lt;/Applications&gt;
+&lt;/Configuration&gt;
+        </div>
+    </div>
+
+    <!-- SECTION 3: AUTHENTICATION GATE & DEEP-LINKING -->
+    <div class="card">
+        <h2>3. Security &amp; Deep-Linking Single Sign-On Workflow</h2>
+        <p>In accordance with NIST SP 800-53 Access Control guidelines and our commercial security review, direct URL access to scanning tools is strictly gated. However, to ensure frictionless user experience, iDash utilizes <strong>Safe ReturnUrl Deep-Linking</strong>:</p>
+
+        <div class="flow-diagram">
+            <div class="flow-node">
+                <div style="font-size:24px;">&#128241;</div>
+                <strong>1. Tap Shortcut</strong>
+                <div style="font-size:11px; color:var(--muted); margin-top:4px;">User taps Home icon for /va_inventory.aspx</div>
+            </div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-node" style="border-color:#f59e0b;">
+                <div style="font-size:24px;">&#128274;</div>
+                <strong>2. Auth Check</strong>
+                <div style="font-size:11px; color:var(--muted); margin-top:4px;">Not logged in? Redirects to /index.aspx?returnUrl=...</div>
+            </div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-node" style="border-color:#3b82f6;">
+                <div style="font-size:24px;">&#128100;</div>
+                <strong>3. Sign In</strong>
+                <div style="font-size:11px; color:var(--muted); margin-top:4px;">Tech enters credentials &amp; accepts agreement</div>
+            </div>
+            <div class="flow-arrow">&rarr;</div>
+            <div class="flow-node" style="border-color:#10b981;">
+                <div style="font-size:24px;">&#9989;</div>
+                <strong>4. Auto-Route</strong>
+                <div style="font-size:11px; color:var(--muted); margin-top:4px;">Immediately lands directly on the scanner!</div>
+            </div>
+        </div>
+
+        <h3>Why This Matters for Field Techs</h3>
+        <ul>
+            <li><strong>Active Session (0 Extra Taps):</strong> If the technician is already signed in on the handheld, tapping the shortcut opens the scanner immediately without any login prompts.</li>
+            <li><strong>Expired Session (Seamless Return):</strong> If the session expired overnight or between shifts, the tech enters their PIN or password, and the system <strong>automatically routes them straight back to the scanner they requested</strong> &mdash; never dumping them on the main dashboard to search for their tile again.</li>
+            <li><strong>Open Redirect Protection:</strong> The `returnUrl` validator strictly verifies that destinations are internal relative paths, preventing open-redirect security vulnerabilities.</li>
+        </ul>
+    </div>
+
+    <!-- SECTION 4: HARDWARE & SLED INTEGRATION -->
+    <div class="card">
+        <h2>4. DataWedge Profile Download &amp; Handheld Setup</h2>
+        <p>iDash provides a pre-tuned Zebra DataWedge profile tailored specifically for the <strong>Zebra TC53 / TC58</strong> mobile computer paired with the <strong>RFD40 RFID Sled</strong>. It configures hardware RFID triggers, duplicate tag filtering (100ms suppression), and Basic Data Formatting (BDF) with an automatic <strong>ENTER key suffix</strong> so scans immediately register in the web forms without requiring manual keypad taps.</p>
+
+        <div style="background:var(--card-docs); border:1px solid var(--border-docs); border-radius:12px; padding:20px; margin:20px 0;">
+            <h3 style="margin-top:0; color:var(--accent-docs);">&#128229; Download DataWedge Profile Files</h3>
+            <p style="font-size:13px; color:var(--muted-docs); margin-bottom:16px;">These files are hosted on your iDash server and can be downloaded directly from any handheld reader or PC:</p>
+            <div style="display:flex; gap:16px; flex-wrap:wrap;">
+                <a href="../downloads/Software/datawedge.db" download class="btn-step" style="background:#10b981; color:#fff; padding:10px 18px; border-radius:8px; text-decoration:none; font-weight:700; font-size:13px; display:inline-flex; align-items:center; gap:8px;">
+                    &#128452; Download datawedge.db (Direct Database)
+                </a>
+                <a href="../downloads/Software/Zebra_DataWedge_RFD40_Profile.zip" download class="btn-step" style="background:#3b82f6; color:#fff; padding:10px 18px; border-radius:8px; text-decoration:none; font-weight:700; font-size:13px; display:inline-flex; align-items:center; gap:8px;">
+                    &#128230; Download Zebra_DataWedge_RFD40_Profile.zip (Full Package)
+                </a>
+                <a href="../va_downloads.aspx" target="_blank" class="btn-step" style="background:var(--chip); border:1px solid var(--border-docs); color:var(--text-docs); padding:10px 18px; border-radius:8px; text-decoration:none; font-weight:600; font-size:13px; display:inline-flex; align-items:center; gap:8px;">
+                    &#128194; Browse Downloads Center &rarr;
+                </a>
+            </div>
+        </div>
+
+        <!-- CRITICAL PREREQUISITE ALERT -->
+        <div class="alert-card alert-card-warning" style="margin: 20px 0;">
+            <div style="font-weight: 700; font-size: 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+                &#9888;&#65039; CRITICAL PREREQUISITE: Install Zebra Enterprise Browser First!
+            </div>
+            <div>
+                Before importing the DataWedge profile, you <strong>MUST</strong> install <strong>Zebra Enterprise Browser</strong> on the handheld from the Google Play Store (package: <code>com.zebra.mdna.enterprisebrowser</code>).
+                <br/><br/>
+                <em>Why this is required:</em> When DataWedge imports the database, it searches the Android system for the associated app package. If Zebra Enterprise Browser is not installed yet, DataWedge will fail to link the profile, and the Associated Apps section in <code>iDash_Enterprise_Browser</code> will be blank!
+            </div>
+        </div>
+
+        <h3>Full Step-by-Step Reader Setup Procedure</h3>
+        
+        <div style="background:var(--card-docs); border:1px solid var(--border-docs); border-radius:12px; padding:20px; margin-bottom:20px;">
+            <h4 style="margin-top:0; color:var(--accent-docs);">Step 1: Install Zebra Enterprise Browser from Google Play Store</h4>
+            <ol style="margin-bottom:0;">
+                <li>Connect the <strong>Zebra TC53 / TC53E / TC58</strong> reader to Wi-Fi.</li>
+                <li>Open the <strong>Google Play Store</strong> on the handheld.</li>
+                <li>Search for <strong>Zebra Enterprise Browser</strong>.</li>
+                <li>Tap <strong>Install</strong>. Once installed, do not configure it yet &mdash; proceed to Step 2.</li>
+            </ol>
+        </div>
+
+        <div style="background:var(--card-docs); border:1px solid var(--border-docs); border-radius:12px; padding:20px; margin-bottom:20px;">
+            <h4 style="margin-top:0; color:var(--accent-docs);">Step 2: Copy the DataWedge Profile via USB from PC</h4>
+            <ol>
+                <li>On your workstation, download the profile from iDash:
+                    <br/>
+                    <a href="../downloads/Software/Zebra_DataWedge_RFD40_Profile.zip" download class="btn-step" style="background:#3b82f6; color:#fff; padding:6px 12px; border-radius:6px; text-decoration:none; font-weight:700; font-size:12px; display:inline-flex; align-items:center; gap:6px; margin:6px 0;">
+                        &#128230; Download Zebra_DataWedge_RFD40_Profile.zip
+                    </a> 
+                    or extract the <code>com.symbol.datawedge</code> folder from <code>downloads/Software/</code>.
+                </li>
+                <li>Connect the Zebra handheld (e.g. <strong>TC53E</strong>) to your PC using a USB-C cable.</li>
+                <li>On the handheld screen, swipe down the notification shade &rarr; tap <strong>Charging this device via USB</strong> &rarr; change USB preference to <strong>File Transfer</strong> (MTP).</li>
+                <li>On your PC, open <strong>File Explorer</strong> and navigate to:
+                    <div class="code-box" style="margin:8px 0; font-size:13px; font-weight:600;">This PC\TC53E\Internal shared storage\Android\data\</div>
+                    <em>(Replace TC53E with your specific handheld device name if different).</em>
+                </li>
+                <li>Copy the entire <strong><code>com.symbol.datawedge</code></strong> folder (which contains <code>files\datawedge.db</code>) into this <code>Android\data\</code> folder.
+                    <div style="font-size:12px; color:var(--muted-docs); margin-top:6px;">
+                        &#10004; The resulting path on the reader will be: <code>This PC\TC53E\Internal shared storage\Android\data\com.symbol.datawedge\files\datawedge.db</code>
+                    </div>
+                </li>
+            </ol>
+        </div>
+
+        <div style="background:var(--card-docs); border:1px solid var(--border-docs); border-radius:12px; padding:20px; margin-bottom:20px;">
+            <h4 style="margin-top:0; color:var(--accent-docs);">Step 3: Import the Profile into DataWedge</h4>
+            <ol style="margin-bottom:0;">
+                <li>On the handheld reader, open the Android app launcher and tap <strong>DataWedge</strong>.</li>
+                <li>Tap the <strong>three vertical dots (⋮)</strong> in the upper right corner of the screen.</li>
+                <li>Select <strong>Settings</strong>.</li>
+                <li>Select <strong>Restore</strong> (or <strong>Import database</strong>).</li>
+                <li>Browse and select <strong><code>datawedge.db</code></strong> (located in device storage under <code>Android/data/com.symbol.datawedge/files/</code> or <code>Download/</code>).</li>
+                <li>Tap <strong>OK</strong>. DataWedge will reload and confirm: <em>"Database restored successfully"</em>.</li>
+            </ol>
+        </div>
+
+        <div style="background:var(--card-docs); border:1px solid var(--border-docs); border-radius:12px; padding:20px; margin-bottom:20px;">
+            <h4 style="margin-top:0; color:var(--accent-docs);">Step 4: Verify Profile &amp; Associated App Link</h4>
+            <ol style="margin-bottom:0;">
+                <li>In DataWedge, look for the profile named <strong><code>iDash_Enterprise_Browser</code></strong>.</li>
+                <li>Tap into <code>iDash_Enterprise_Browser</code>.</li>
+                <li>Check <strong>Associated apps</strong>: You should see <code>*.com.zebra.mdna.enterprisebrowser</code> (or <code>com.symbol.enterprisebrowser</code>) populated.</li>
+                <li>Confirm <strong>RFID Input</strong> is checked/enabled (RFD40 trigger active).</li>
+                <li>Confirm <strong>Keystroke output</strong> is enabled with <strong>Basic data formatting (BDF) &rarr; Send ENTER key</strong> checked.</li>
+            </ol>
+        </div>
+
+        <h3>RFD40 Hardware Sled Ergonomics</h3>
+        <ul>
+            <li><strong>Bluetooth Sled Pairing:</strong> Ensure the 123RFID Mobile or Zebra RFID app reports <em>"Connected to RFD40"</em> before launching the web scanner.</li>
+            <li><strong>Keystroke Output &amp; ENTER Suffix:</strong> The profile ensures Keystroke Output is enabled with a carriage return (<code>\n</code> / hex <code>0x0A</code>), triggering instant $O(1)$ client-side tag matching.</li>
+            <li><strong>Power Range Setting:</strong>
+                <ul>
+                    <li><strong>Small Offices &amp; Exam Rooms:</strong> Set RF power to <strong>15&ndash;18 dBm</strong> to prevent signal bleed through drywall.</li>
+                    <li><strong>Warehouse / Open Bay Storage:</strong> Set RF power to <strong>27&ndash;30 dBm</strong> for maximum read range (15&ndash;25 feet).</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+</div>
+</body>
+</html>

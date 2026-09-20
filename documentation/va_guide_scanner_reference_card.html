@@ -1,0 +1,568 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Scanner &amp; ENNX Quick Reference Card &mdash; VA Asset Intelligence Hub</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <style>
+        :root {
+            --card-w: 5in;
+            --card-h: 3in;
+        }
+
+        .action-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: color-mix(in srgb, var(--accent, #3b82f6) 8%, var(--card));
+            border: 1px solid color-mix(in srgb, var(--accent, #3b82f6) 30%, transparent);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            text-decoration: none !important;
+        }
+        .btn-primary {
+            background: #10b981;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #059669;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+        }
+        .btn-outline {
+            background: transparent;
+            border-color: var(--line);
+            color: var(--text);
+        }
+        .btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .size-selector {
+            display: inline-flex;
+            background: color-mix(in srgb, var(--text) 5%, transparent);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 3px;
+            gap: 4px;
+        }
+        .size-btn {
+            background: transparent;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--muted-docs);
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .size-btn.active {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        /* Laminated Index Card Layout */
+        .cards-preview-container {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            align-items: center;
+            margin: 28px 0 40px;
+        }
+
+        .card-sheet {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 28px;
+            width: 100%;
+        }
+
+        .index-card-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-label {
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .index-card {
+            width: var(--card-w);
+            min-height: var(--card-h);
+            box-sizing: border-box;
+            background: #ffffff;
+            color: #0f172a;
+            border: 2px dashed #94a3b8;
+            border-radius: 12px;
+            padding: 16px 20px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            transition: width 0.2s, min-height 0.2s;
+        }
+
+        /* Corner trim guides */
+        .index-card::before {
+            content: "✂ CUT / TRIM LINE";
+            position: absolute;
+            top: -18px;
+            left: 6px;
+            font-size: 9px;
+            font-weight: 800;
+            color: #64748b;
+            letter-spacing: 0.08em;
+        }
+
+        .card-header {
+            border-bottom: 2px solid #0284c7;
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-header-title {
+            font-size: 13.5px;
+            font-weight: 900;
+            color: #0369a1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            line-height: 1.2;
+        }
+        .card-badge {
+            font-size: 10px;
+            font-weight: 800;
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 2px 8px;
+            border-radius: 12px;
+            border: 1px solid #bae6fd;
+            white-space: nowrap;
+        }
+
+        .step-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: 10.5px;
+            line-height: 1.45;
+            color: #1e293b;
+        }
+        .step-list li {
+            position: relative;
+            padding-left: 18px;
+            margin-bottom: 5px;
+        }
+        .step-list li::before {
+            content: attr(data-step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-weight: 900;
+            color: #0284c7;
+            font-size: 10px;
+        }
+
+        .highlight-pin {
+            display: inline-block;
+            background: #fef3c7;
+            color: #92400e;
+            font-weight: 900;
+            font-family: monospace;
+            padding: 1px 6px;
+            border-radius: 4px;
+            border: 1px solid #fde68a;
+            font-size: 11px;
+        }
+        .must-pc {
+            color: #b91c1c;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 9.5px;
+        }
+
+        .trigger-tag {
+            display: inline-block;
+            font-weight: 800;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-size: 9px;
+            text-transform: uppercase;
+        }
+        .trig-bottom {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+        .trig-top {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .color-legend {
+            display: inline-flex;
+            gap: 4px;
+            margin: 2px 0;
+            flex-wrap: wrap;
+        }
+        .c-pill {
+            font-size: 8.5px;
+            font-weight: 800;
+            padding: 1px 5px;
+            border-radius: 3px;
+        }
+        .cp-org { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
+        .cp-grn { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .cp-blu { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+        .cp-pnk { background: #fce7f3; color: #be185d; border: 1px solid #fbcfe8; }
+
+        .card-footer {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 6px;
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 8.5px;
+            color: #64748b;
+        }
+        .card-footer strong {
+            color: #0f172a;
+        }
+
+        /* Callout Boxes */
+        .info-box {
+            background: color-mix(in srgb, #3b82f6 10%, var(--card));
+            border-left: 4px solid #3b82f6;
+            padding: 14px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text);
+            margin: 20px 0;
+        }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 24px 0;
+        }
+        @media (max-width: 768px) {
+            .quick-grid { grid-template-columns: 1fr; }
+        }
+        .quick-box {
+            background: color-mix(in srgb, var(--text) 3%, var(--card));
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .quick-box h3 {
+            margin-top: 0;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+        }
+
+        /* PRINT STYLESHEET */
+        @media print {
+            @page {
+                size: letter portrait;
+                margin: 0.5in;
+            }
+            body {
+                background: #fff !important;
+                color: #000 !important;
+                padding: 0 !important;
+                font-family: Arial, sans-serif !important;
+            }
+            .wrap {
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .no-print, .back-link, .action-bar, .info-box, .quick-grid, h1, .doc-subtitle, footer {
+                display: none !important;
+            }
+            .cards-preview-container {
+                margin: 0 !important;
+                gap: 0.3in !important;
+            }
+            .card-sheet {
+                flex-direction: column !important;
+                align-items: center !important;
+                gap: 0.35in !important;
+                page-break-inside: avoid !important;
+            }
+            .index-card-wrapper {
+                page-break-inside: avoid !important;
+            }
+            .card-label {
+                font-size: 10pt !important;
+                color: #000 !important;
+                margin-bottom: 4px !important;
+            }
+            .index-card {
+                width: 5in !important;
+                min-height: 3in !important;
+                box-shadow: none !important;
+                border: 1.5pt dashed #475569 !important;
+                page-break-inside: avoid !important;
+                padding: 12pt 14pt !important;
+                background: #fff !important;
+                color: #000 !important;
+            }
+            .index-card::before {
+                color: #475569 !important;
+                font-size: 7.5pt !important;
+            }
+            .card-header {
+                border-bottom: 1.5pt solid #0284c7 !important;
+            }
+            .card-header-title {
+                color: #0284c7 !important;
+                font-size: 10.5pt !important;
+            }
+            .card-badge {
+                border: 1pt solid #0284c7 !important;
+                color: #0284c7 !important;
+                background: #f0f9ff !important;
+                font-size: 8pt !important;
+            }
+            .step-list {
+                font-size: 8.5pt !important;
+                line-height: 1.35 !important;
+            }
+            .step-list li {
+                margin-bottom: 3.5pt !important;
+            }
+            .step-list li::before {
+                color: #0284c7 !important;
+                font-weight: bold !important;
+            }
+            .highlight-pin {
+                border: 1pt solid #b45309 !important;
+                color: #b45309 !important;
+                background: #fef3c7 !important;
+            }
+            .card-footer {
+                border-top: 1pt solid #cbd5e1 !important;
+                font-size: 7pt !important;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <a href="index.aspx" class="back-link no-print">&larr; Documentation Hub</a>
+
+    <div class="no-print">
+        <h1>&#128196; Scanner &amp; ENNX Quick Reference Card</h1>
+        <p class="doc-subtitle" style="color:var(--muted-docs); margin-bottom:20px;">
+            Dual-sided reference card designed for field scanning technicians and trainees. Sized for standard index card printing (3&times;5&quot; or 4&times;6&quot;) to laminate and keep with scanning equipment.
+        </p>
+    </div>
+
+    <!-- PRINT ACTION BAR -->
+    <div class="action-bar no-print">
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="window.print()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                Print Cards (PDF / Printer)
+            </button>
+            <div class="size-selector">
+                <button type="button" class="size-btn active" id="btn3x5" onclick="setCardSize('3x5')">3&times;5&quot; Index Card</button>
+                <button type="button" class="size-btn" id="btn4x6" onclick="setCardSize('4x6')">4&times;6&quot; Pocket Card</button>
+            </div>
+        </div>
+        <div style="font-size:13px; color:var(--muted-docs);">
+            &#128161; Tip: Print on heavy cardstock and laminate for field durability.
+        </div>
+    </div>
+
+    <!-- CARDS DISPLAY (PRINTABLE CANVAS) -->
+    <div class="cards-preview-container">
+        <div class="card-sheet">
+            <!-- SIDE A: HANDHELD SCANNER (FRONT) -->
+            <div class="index-card-wrapper">
+                <div class="card-label">
+                    <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10b981;"></span>
+                    Side A (Front) &mdash; Handheld Scanner Workflow
+                </div>
+                <div class="index-card" id="cardA">
+                    <div>
+                        <div class="card-header">
+                            <div class="card-header-title">
+                                &#128241; VA RFID SCANNING &mdash; FIELD QUICK REF
+                            </div>
+                            <span class="card-badge">Zebra TC53 + RF40</span>
+                        </div>
+                        <ol class="step-list">
+                            <li data-step="1.">Take scanner and sled to <strong>Scanning PC</strong>.</li>
+                            <li data-step="2.">Enter pin on Scanner: <span class="highlight-pin">5613</span></li>
+                            <li data-step="3.">Open iDash, select <strong>&ldquo;Yes&rdquo;</strong> to sync app <span class="must-pc">(MUST BE DONE AT SCANNING PC)</span>.</li>
+                            <li data-step="4.">Log in with user &amp; password; wait until <strong>app sync is complete</strong> before leaving PC to scan locations.</li>
+                            <li data-step="5.">Scan room location tag with <span class="trigger-tag trig-bottom">Bottom Trigger</span> (Barcode) on sled.</li>
+                            <li data-step="6.">Scan room for RFID tags using <span class="trigger-tag trig-top">Top Trigger</span> (RFID Sweep) on sled.</li>
+                            <li data-step="7.">If updates are needed after scan: tap <strong>Asset</strong> &rarr; review items:
+                                <div class="color-legend">
+                                    <span class="c-pill cp-org">Orange: Inventoried</span>
+                                    <span class="c-pill cp-grn">Green: Confirmed</span>
+                                    <span class="c-pill cp-blu">Blue: Move / Move All</span>
+                                    <span class="c-pill cp-pnk">Pink: Locate Mode</span>
+                                </div>
+                            </li>
+                            <li data-step="8.">When inventory is done, click <strong>&ldquo;Inventory Done&rdquo;</strong> and proceed to next location, repeating steps 5&ndash;7 until finished.</li>
+                            <li data-step="9.">When finished scanning, return to Scanning PC &rarr; click <strong>&ldquo;More&rdquo; tab</strong> &rarr; scroll &amp; tap <strong>&ldquo;Sync App&rdquo;</strong> <span class="must-pc">(MUST BE DONE AT SCANNING PC)</span>.</li>
+                            <li data-step="10."><strong>Log out</strong> of iDash.</li>
+                        </ol>
+                    </div>
+                    <div class="card-footer">
+                        <span>PIN: <strong>5613</strong> &bull; Sled: <strong>RF40</strong></span>
+                        <span>Source: <code>Enter pin on Scanner.docx</code></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SIDE B: SCANNING PC & ENNX EXPORT (BACK) -->
+            <div class="index-card-wrapper">
+                <div class="card-label">
+                    <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3b82f6;"></span>
+                    Side B (Back) &mdash; Scanning PC &amp; ENNX Export
+                </div>
+                <div class="index-card" id="cardB">
+                    <div>
+                        <div class="card-header" style="border-bottom-color:#2563eb;">
+                            <div class="card-header-title" style="color:#1d4ed8;">
+                                &#128424; SCANNING PC &mdash; ENNX EXPORT &amp; EMAIL
+                            </div>
+                            <span class="card-badge" style="background:#eff6ff; color:#1d4ed8; border-color:#bfdbfe;">iDash Portal</span>
+                        </div>
+                        <ol class="step-list">
+                            <li data-step="1.">Go to <strong>Scanning PC</strong> and open <strong>Edge Browser</strong>.</li>
+                            <li data-step="2.">Open <strong>VA Intelligence Hub</strong> (Bookmarked):<br>
+                                <code style="font-size:9px; background:#f1f5f9; padding:1px 4px; border-radius:3px; color:#0f172a; word-break:break-all;">http://visn5-8.tail03df01.ts.net/idash/va_ennx.aspx</code>
+                            </li>
+                            <li data-step="3."><strong>Sign in</strong> (Use the <em>same credentials</em> as scanner).</li>
+                            <li data-step="4.">Click on <strong>&ldquo;ENNX EXPORT &amp; HISTORY&rdquo;</strong>.</li>
+                            <li data-step="5.">Enter date: <strong>(Date of Scan)</strong>.</li>
+                            <li data-step="6.">Select site: <strong>613</strong>.</li>
+                            <li data-step="7.">Enter user: <em>(Only users with scans show in drop down)</em>.</li>
+                            <li data-step="8.">Check <strong>&ldquo;Tagged Items Only&rdquo;</strong>.</li>
+                            <li data-step="9.">Click on <strong>&ldquo;Build ENNX&rdquo;</strong>.</li>
+                            <li data-step="10.">Click on <strong>&ldquo;Email ENNX + Excel&rdquo;</strong> <span style="font-size:9.5px; color:#15803d; font-weight:700;">(Recipients already set)</span>.</li>
+                        </ol>
+                    </div>
+                    <div class="card-footer">
+                        <span>Site: <strong>613</strong> &bull; Portal: <strong>iDash ENNX</strong></span>
+                        <span>Source: <code>scanner back.docx</code></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ON-SCREEN REFERENCE & EXPLANATORY DETAILS -->
+    <div class="no-print">
+        <div class="info-box">
+            <strong>&#128203; Printing Instructions for Field Use:</strong>
+            <ul style="margin:8px 0 0 0; padding-left:20px; line-height:1.7;">
+                <li>Click the <strong>Print Cards</strong> button above or press <kbd>Ctrl+P</kbd>.</li>
+                <li>In the print preview dialog, select standard <strong>Letter (8.5 &times; 11 in)</strong> paper and portrait orientation.</li>
+                <li>Both cards will print with dashed cutting lines. Cut along the borders and laminate back-to-back for a rigid, moisture-resistant pocket card.</li>
+                <li>Optionally hole-punch the top corner to attach to a lanyard or scanner holster.</li>
+            </ul>
+        </div>
+
+        <div class="quick-grid">
+            <div class="quick-box">
+                <h3>&#128295; Trigger &amp; Hardware Reference</h3>
+                <ul style="margin:0; padding-left:18px; line-height:1.8; font-size:13.5px; color:var(--muted-docs);">
+                    <li><strong>Bottom Trigger:</strong> 1D/2D Barcode imager. Aim at room door frame or location placard barcode.</li>
+                    <li><strong>Top Trigger:</strong> RFID UHF Antenna sweep. Pull and sweep room to read asset tags.</li>
+                    <li><strong>PIN:</strong> <code style="color:var(--accent); font-weight:bold;">5613</code> to unlock the Zebra TC53 screen.</li>
+                    <li><strong>Scanner Sled:</strong> Zebra RF40 UHF RFID sled connected via Bluetooth/eConn.</li>
+                </ul>
+            </div>
+
+            <div class="quick-box">
+                <h3>&#128392; Color Codes on Scanner Screen</h3>
+                <ul style="margin:0; padding-left:18px; line-height:1.8; font-size:13.5px; color:var(--muted-docs);">
+                    <li><strong style="color:#fb923c;">Orange:</strong> Inventoried / expected in this location.</li>
+                    <li><strong style="color:#22c55e;">Green:</strong> Confirmed found during this scan session.</li>
+                    <li><strong style="color:#60a5fa;">Blue:</strong> Located elsewhere in iDash database &mdash; tap to <em>Move</em> or <em>Move All</em>.</li>
+                    <li><strong style="color:#f472b6;">Pink:</strong> Locate Mode &mdash; Geiger counter signal-strength finder.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top:24px;">
+            <h2>Related User Walkthroughs</h2>
+            <p style="color:var(--muted-docs); font-size:14px; margin-bottom:16px;">
+                For detailed explanations with full-screen photos and step-by-step instructions, visit:
+            </p>
+            <div style="display:flex; gap:14px; flex-wrap:wrap;">
+                <a href="va_guide_scanner_daily_scan.html" class="btn btn-outline">&#128241; Daily Scanner Workflow (Full Guide)</a>
+                <a href="va_guide_post_scan_ennx.html" class="btn btn-outline">&#128203; Post-Scan: ENNX Export &amp; Email</a>
+                <a href="va_guide_scanner_setup.html" class="btn btn-outline">&#128241; Zebra TC53 Setup</a>
+                <a href="va_guide_locate.html" class="btn btn-outline">&#128205; How to Use Locate Feature</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function setCardSize(size) {
+    var root = document.documentElement;
+    var btn3x5 = document.getElementById('btn3x5');
+    var btn4x6 = document.getElementById('btn4x6');
+    
+    if (size === '4x6') {
+        root.style.setProperty('--card-w', '6in');
+        root.style.setProperty('--card-h', '4in');
+        btn4x6.classList.add('active');
+        btn3x5.classList.remove('active');
+    } else {
+        root.style.setProperty('--card-w', '5in');
+        root.style.setProperty('--card-h', '3in');
+        btn3x5.classList.add('active');
+        btn4x6.classList.remove('active');
+    }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>VA LOCATION LIST &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <div class="container">
+        <h1>Location List</h1>
+        <div style="margin-bottom:30px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span class='badge badge-db'>Database Connected</span>
+            <span style="font-size:12px; background:color-mix(in srgb,#10b981 15%,transparent); color:#10b981; border:1px solid #10b981; padding:2px 10px; border-radius:10px;">Updated 08/21/2026</span>
+        </div>
+
+        <h2>Module Purpose</h2>
+        <p>Provides a sortable, paginated, filterable summary of every asset location: total assets, unique CMR numbers, age-bucket breakdowns (0&ndash;3 mo through 13+ mo), percentage coverage, and last inventoried date. Drill into any location to see individual assets, or filter by age bucket across all locations.</p>
+
+        <h2>Source Architecture</h2>
+        <p>
+            Frontend: <code>va_location_list.aspx</code><br/>
+            Backend: <code>va_location_list.aspx.cs</code><br/>
+            SQL view: <code>dbo.v_asset</code> (ADO.NET inline)<br/>
+            Auth: <code>IsAdminAuthenticated</code> + tile access (<code>rpt_location_list</code> or <code>rpt_asset_master</code>)
+        </p>
+
+        <h2>Key Features</h2>
+        <ul>
+            <li>
+                <div style="color:#10b981;font-weight:bold;font-size:15px;">&#128200; KPI Dashboard Cards</div>
+                Five animated summary cards: Total Assets, Locations, CMR Coverage&nbsp;%, 0&ndash;3&nbsp;Month&nbsp;%, and 13+&nbsp;Month Overdue. Age distribution bar shows proportional color-coded segments for all 5 buckets.
+            </li>
+            <li>
+                <div style="color:#2ea8ff;font-weight:bold;font-size:15px;">&#128269; Age-Bucket Filter Pills</div>
+                0&ndash;3&nbsp;mo, 4&ndash;6&nbsp;mo, 7&ndash;9&nbsp;mo, 10&ndash;12&nbsp;mo, 13+&nbsp;mo, and Show All. Results load in the Filter Detail panel with inline column sort and col-search filter inputs (native JS &mdash; no DataTables dependency).
+            </li>
+            <li>
+                <div style="color:#a855f7;font-weight:bold;font-size:15px;">&#128203; Sortable Column Headers <span style="font-size:11px;background:color-mix(in srgb,#a855f7 15%,transparent);color:#a855f7;border:1px solid #a855f7;padding:2px 8px;border-radius:10px;margin-left:6px;">New 08/21</span></div>
+                All columns clickable. Numeric/date columns sort descending first (largest/newest first); text columns sort A&ndash;Z first. Active sort column highlights in accent color with a solid &#9650; or &#9660; arrow. Persists across paging and column filters.
+            </li>
+            <li>
+                <div style="color:#f59e0b;font-weight:bold;font-size:15px;">&#128196; Rows Per Page + Persistent Pager <span style="font-size:11px;background:color-mix(in srgb,#f59e0b 15%,transparent);color:#f59e0b;border:1px solid #f59e0b;padding:2px 8px;border-radius:10px;margin-left:6px;">New 08/21</span></div>
+                Choose 10, 20, 50, or 100 rows. Defaults to <strong>10</strong>. Choice saved in <code>localStorage</code> &mdash; survives postbacks, refreshes, and new sessions. Current page number is also restored after clicking a location and returning.
+            </li>
+            <li>
+                <div style="color:#ef4444;font-weight:bold;font-size:15px;">&#128269; Per-Column Filter Inputs</div>
+                Text inputs under each header filter rows live. Combined AND logic. Filtering resets to page 1 and re-applies the active sort.
+            </li>
+            <li>
+                <div style="color:#10b981;font-weight:bold;font-size:15px;">&#128279; Location Row Click &mdash; Asset Detail <span style="font-size:11px;background:color-mix(in srgb,#10b981 15%,transparent);color:#10b981;border:1px solid #10b981;padding:2px 8px;border-radius:10px;margin-left:6px;">Fixed 08/21</span></div>
+                Clicking a location name loads all assets at that location via server postback. Page auto-scrolls to the detail panel. The selected row is highlighted. A <strong>&#8593; Back to Locations</strong> button scrolls back to the grid smoothly.
+                <br/><em>Fix note:</em> Previously broken because DataTables was wrapping the summary grid and intercepting ASP.NET <code>__doPostBack</code> click events. Now uses a native JS filter+pager that leaves postback intact. DataTables has been <strong>removed entirely</strong> from this page &mdash; detail grids use the lightweight <code>initDetailFilter()</code> helper instead.
+            </li>
+            <li>
+                <div style="color:#8b5cf6;font-weight:bold;font-size:15px;">&#9888; Unique CMR Column <span style="font-size:11px;background:color-mix(in srgb,#8b5cf6 15%,transparent);color:#8b5cf6;border:1px solid #8b5cf6;padding:2px 8px;border-radius:10px;margin-left:6px;">New 08/21</span></div>
+                <code>COUNT(DISTINCT &hellip;)</code> of real CMR values per location. Excludes placeholders: <code>NULL</code>, <code>UNKNOWN</code>, <code>N/A</code>, <code>NA</code>, <code>NONE</code>, <code>TBD</code>, <code>?</code>. A location with 5 UNKNOWN + 2 real CMRs shows Unique CMR&nbsp;=&nbsp;2.
+            </li>
+            <li>
+                <div style="color:#3b82f6;font-weight:bold;font-size:15px;">&#128190; Export Excel</div>
+                Context-aware export: if a location is open, exports only that location&rsquo;s assets (file named <code>Assets_{Location}.csv</code>); if an age-bucket filter is active, exports that filtered set (<code>Assets_Age_Filter.csv</code>); otherwise exports the full location summary grid (<code>Location_Summary.csv</code>). Data is served from the server-side Session cache &mdash; no second query is issued, making export instant.
+            </li>
+        </ul>
+
+        <h2>Column Reference</h2>
+        <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left;padding:10px;color:var(--muted-docs);">Column</th>
+                <th style="text-align:left;padding:10px;color:var(--muted-docs);">Description</th>
+                <th style="text-align:left;padding:10px;color:var(--muted-docs);">Sort</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);"><td style="padding:10px;"><code>Location</code></td><td style="padding:10px;">Location name &mdash; click to view assets</td><td style="padding:10px;">A&ndash;Z text</td></tr>
+            <tr style="border-bottom:1px solid var(--line);"><td style="padding:10px;"><code>Total</code></td><td style="padding:10px;">Total assets at this location</td><td style="padding:10px;">Numeric</td></tr>
+            <tr style="border-bottom:1px solid var(--line);"><td style="padding:10px;"><code>Unique CMR</code></td><td style="padding:10px;">Distinct real CMR numbers (excludes NULL/UNKNOWN/N/A etc.)</td><td style="padding:10px;">Numeric</td></tr>
+            <tr style="border-bottom:1px solid var(--line);"><td style="padding:10px;"><code>0-3 mo</code> &ndash; <code>13+ mo</code></td><td style="padding:10px;">Assets whose last inventoried date falls in that age bucket</td><td style="padding:10px;">Numeric</td></tr>
+            <tr style="border-bottom:1px solid var(--line);"><td style="padding:10px;"><code>% 0-3</code></td><td style="padding:10px;">% inventoried within last 3 months</td><td style="padding:10px;">Decimal</td></tr>
+            <tr style="border-bottom:1px solid var(--line);"><td style="padding:10px;"><code>% &lt;12m</code></td><td style="padding:10px;">% inventoried within 12 months. Green &ge;80%, yellow &ge;50%, red &lt;50%.</td><td style="padding:10px;">Decimal</td></tr>
+            <tr style="border-bottom:1px solid var(--line);"><td style="padding:10px;"><code>Last Inventoried</code></td><td style="padding:10px;">Most recent scan at this location</td><td style="padding:10px;">Date</td></tr>
+        </table>
+
+        <h2>Navigation Flow</h2>
+        <ol style="line-height:2.2;">
+            <li>Select a <strong>Site</strong> (or All Sites) and optionally filter by CMR or location text.</li>
+            <li>Use <strong>age-bucket pills</strong> to filter by inventory freshness.</li>
+            <li>Click any <strong>column header</strong> to sort; click again to reverse.</li>
+            <li>Use <strong>per-column filter inputs</strong> to narrow the visible rows.</li>
+            <li>Choose <strong>rows per page</strong> (10/20/50/100) &mdash; your choice is remembered.</li>
+            <li>Click a <strong>location name</strong> &rarr; page scrolls to detail panel with all assets.</li>
+            <li>Click <strong>&#8593; Back to Locations</strong> to return to your position in the grid.</li>
+        </ol>
+
+        <h2>Deployment &amp; Portability</h2>
+        <p>No dependency on <code>UserManager.FilterCompanyDropdown</code> or other methods that may differ between iDash instances. Uses <code>UserManager.GetAllowedCompanyIds()</code> which is universally available. Safe to copy between systems.</p>
+        <p>Use <code>deploy_to_target.ps1</code> (iDash root) to push changed files to another system without a full robocopy traversal. This prevents the <em>"There can be only one 'page' directive"</em> parser error caused by file-append during copy.</p>
+
+        <h2>Technical Notes</h2>
+        <ul>
+            <li>Summary grid uses <strong>native JS pager + filter</strong> (not DataTables) to preserve <code>LinkButton</code> postback. Detail grids use the lightweight <code>initDetailFilter()</code> helper &mdash; DataTables is <strong>not used on this page</strong>.</li>
+            <li>Pager state stored in <code>localStorage</code>: <code>loc_page_size</code>, <code>loc_page_num</code>, <code>loc_selected</code>.</li>
+            <li>Unique CMR SQL: <code>COUNT(DISTINCT CASE WHEN UPPER(LTRIM(RTRIM(text8))) IN ('NULL','UNKNOWN','N/A','NA','NONE','TBD','?') THEN NULL ELSE LTRIM(RTRIM(text8)) END)</code></li>
+            <li>Tagged status uses <code>a.text18 = '1'</code> (not <code>rfidtag</code>).</li>
+        </ul>
+
+        <div style="margin-top:50px;padding-top:20px;border-top:1px solid var(--line);">
+            <a href="index.aspx" style="font-weight:600;">&larr; Back to Main Documentation</a>
+        </div>
+    </div>
+    <footer style="margin-top:40px;padding:20px;border-top:1px solid var(--line);font-family:'Segoe UI',Tahoma,sans-serif;font-size:12px;color:var(--muted-docs);display:flex;justify-content:space-between;align-items:center;background:var(--bg);max-width:1400px;margin-left:auto;margin-right:auto;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
+        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
+        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <span>&copy; 2026 ID Integration Inc.</span>
+            <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height:14px;opacity:0.9;">
+        </div>
+    </footer>
+</body>
+</html>

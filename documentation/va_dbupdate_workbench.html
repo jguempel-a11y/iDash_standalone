@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Import Workbench &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<div class="wrap">
+
+    <a href="index.aspx">&larr; Back to Documentation Hub</a>
+    <br/><br/>
+
+    <!-- ================================================================ -->
+    <!--  HERO CARD                                                        -->
+    <!-- ================================================================ -->
+    <div class="card" style="border-color: #a855f7;">
+        <h1 style="color:#a855f7;">&#128295; Import Workbench</h1>
+        <p style="font-size:16px;">
+            The Import Workbench (<code>va_dbupdate_workbench.aspx</code>) is a standalone tool that lets you
+            <strong>test, configure, and validate</strong> VA data imports before anything touches the database.
+            It supports configurable field separators, dynamic column header mapping, and a full dry-run preview workflow.
+        </p>
+        <div class="alert-green">
+            <strong>&#9989; Zero Risk Testing</strong><br/>
+            Every test run wraps the entire SQL execution in a database transaction and immediately rolls it back.
+            The database is left <em>exactly</em> as it was. You see the full import stats and affected records
+            without committing a single byte.
+        </div>
+    </div>
+
+
+    <!-- ================================================================ -->
+    <!--  WHY DOES THIS EXIST?                                             -->
+    <!-- ================================================================ -->
+    <div class="card">
+        <h2>&#129300; Why Does This Exist?</h2>
+
+        <p>
+            The VA is transitioning from <strong>tab-delimited</strong> data exports to <strong>pipe-delimited (<code>|</code>)</strong> exports.
+            This seems like a small change &mdash; just swap one character, right? &mdash; but it's actually a landmine that silently corrupts
+            your entire database if you get it wrong.
+        </p>
+
+        <h3>What Goes Wrong Without This Tool</h3>
+        <p>
+            The SQL import script (<code>va_dbupdate.sql</code>) uses <code>BULK INSERT</code> with a hardcoded
+            <code>FIELDTERMINATOR = '\t'</code>. If the VA sends you a pipe-delimited file and you run the standard
+            script without changing this:
+        </p>
+        <ul>
+            <li><strong>Every column shifts.</strong> SQL Server reads the entire row as one giant column because it never finds a tab character.</li>
+            <li><strong>Data goes into the wrong fields.</strong> The manufacturer ends up in the serial number field. The location goes into the CMR field. The equipment category overwrites the station number.</li>
+            <li><strong>You don't find out until someone notices</strong> that 40,000 asset records now have garbage data in half their fields.</li>
+            <li><strong>Recovery is painful.</strong> You'd need to restore from a database backup or run a targeted cleanup script on tens of thousands of records.</li>
+        </ul>
+
+        <p>
+            The same problem applies to <strong>header changes</strong>. If the VA renames a column
+            (e.g., <code>MFGR. EQUIPMENT NAME</code> becomes <code>EQUIPMENT DESCRIPTION</code>), the
+            <code>CREATE TABLE dbo.AssetFileRaw</code> definition in the SQL script won't match the file,
+            and the <code>INSERT INTO dbo.assettemp</code> mapping will reference columns that don't exist.
+        </p>
+
+        <div class="alert-red">
+            <strong>&#9888; This is exactly the kind of silent failure that ruins your weekend.</strong><br/>
+            The BULK INSERT succeeds. SQL Server doesn't throw an error. The data <em>looks</em> like it imported.
+            But every field is wrong. You won't know until someone pulls up an asset and sees "SOMATICS" where
+            the location should be.
+        </div>
+
+        <h3>How the Workbench Prevents This</h3>
+        <ol>
+            <li><strong>You pick your separator</strong> before anything runs. Tab, pipe, comma, or any custom character.</li>
+            <li><strong>You see the parsed data</strong> in a grid with the actual column headers. If columns are misaligned, you see it immediately.</li>
+            <li><strong>You map the headers</strong> if they don't match the standard VA column names. Auto-mapping handles exact matches.</li>
+            <li><strong>You test run</strong> against the real database with a transaction rollback. You see exactly how many records would be inserted, updated, and skipped.</li>
+            <li><strong>You commit only when you're confident</strong> the data is correct.</li>
+        </ol>
+    </div>
+
+
+    <!-- ================================================================ -->
+    <!--  WHEN TO USE THIS vs. REGULAR DB UPDATE                           -->
+    <!-- ================================================================ -->
+    <div class="card" style="border-color: #14b8a6;">
+        <h2 style="color:#14b8a6;">&#128204; When Do I Use This vs. the Regular Manual DB Update?</h2>
+
+        <table>
+            <tr>
+                <th>Scenario</th>
+                <th>Use This</th>
+                <th>Reasoning</th>
+            </tr>
+            <tr>
+                <td>Standard tab-delimited file with standard VA CDW headers</td>
+                <td><a href="../va_dbupdate.aspx">va_dbupdate.aspx</a> (Regular)</td>
+                <td>No configuration needed. The existing page handles this natively.</td>
+            </tr>
+            <tr>
+                <td><strong>Pipe-delimited file</strong> from the VA</td>
+                <td style="color:#a855f7; font-weight:bold;">&#128295; Import Workbench</td>
+                <td>You need to set the separator to <code>|</code> and verify the parse is correct.</td>
+            </tr>
+            <tr>
+                <td>File with <strong>different or reordered column headers</strong></td>
+                <td style="color:#a855f7; font-weight:bold;">&#128295; Import Workbench</td>
+                <td>The header mapping grid lets you remap columns without editing SQL.</td>
+            </tr>
+            <tr>
+                <td>First import at a <strong>brand new site</strong> where you want to verify everything</td>
+                <td style="color:#a855f7; font-weight:bold;">&#128295; Import Workbench</td>
+                <td>The parse preview and test run give you confidence before committing on an unknown system.</td>
+            </tr>
+            <tr>
+                <td>You want to <strong>test a new SQL script</strong> before putting it into production</td>
+                <td style="color:#a855f7; font-weight:bold;">&#128295; Import Workbench</td>
+                <td>The test run (dry run) with transaction rollback is safer than running untested SQL directly.</td>
+            </tr>
+            <tr>
+                <td>Routine automated imports via the autoload folder watcher</td>
+                <td><a href="../va_autodbupdate.aspx">va_autodbupdate.aspx</a></td>
+                <td>The automation pipeline handles scheduled imports. This tool is for manual ad-hoc work.</td>
+            </tr>
+        </table>
+
+        <div class="alert-blue">
+            <strong>&#8505; Quick Rule of Thumb</strong><br/>
+            If you're at all unsure whether the file format matches what the SQL script expects,
+            <strong>use the Workbench</strong>. It takes 30 seconds to parse and preview. It takes hours to
+            fix a botched import.
+        </div>
+    </div>
+
+
+    <!-- ================================================================ -->
+    <!--  STEP-BY-STEP WALKTHROUGH                                         -->
+    <!-- ================================================================ -->
+    <div class="card">
+        <h2>&#128218; Step-by-Step Walkthrough</h2>
+
+        <!-- STEP 1 -->
+        <div style="background:rgba(168,85,247,0.06); border:1px solid #a855f7; border-radius:10px; padding:20px; margin-bottom:20px;">
+            <h3 style="color:#a855f7; margin-top:0;">Step 1: Configure &amp; Parse</h3>
+            <ol style="line-height:2;">
+                <li>Open <code>va_dbupdate_workbench.aspx</code> from the iDash hub (&#128295; Import Workbench tile).</li>
+                <li><strong>Select your separator:</strong>
+                    <ul>
+                        <li><strong>Tab</strong> &mdash; Standard VA CDW format (the default).</li>
+                        <li><strong>Pipe (<code>|</code>)</strong> &mdash; The new VA format being rolled out.</li>
+                        <li><strong>Comma</strong> &mdash; Standard CSV files.</li>
+                        <li><strong>Custom</strong> &mdash; Any single character you type in the box.</li>
+                    </ul>
+                </li>
+                <li><strong>Select a data file</strong> from the dropdown (lists <code>.xlsx</code>, <code>.txt</code>, <code>.csv</code> files from the server). Or click "upload manually" to upload from your device.</li>
+                <li><strong>Select a SQL script</strong> from the dropdown (usually <code>va_dbupdate.sql</code> or <code>va_dbupdate_upsert_enrich.sql</code>).</li>
+                <li>Click <strong>&#128269; Parse &amp; Preview</strong>.</li>
+            </ol>
+
+            <div style="background:rgba(16,185,129,0.08); border-left:4px solid #10b981; padding:12px 16px; border-radius:6px; margin-top:10px; font-size:13px;">
+                <strong>&#9989; What to look for:</strong> The preview grid shows the first 25 rows of your data
+                with column headers at the top. Verify that the data in each column makes sense.
+                If you see garbled data or everything in one column, <strong>you picked the wrong separator</strong>.
+                Go back and change it, then re-parse.
+            </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div style="background:rgba(20,184,166,0.06); border:1px solid #14b8a6; border-radius:10px; padding:20px; margin-bottom:20px;">
+            <h3 style="color:#14b8a6; margin-top:0;">Step 2: Map Headers</h3>
+            <ol style="line-height:2;">
+                <li>After parsing, the <strong>Header Mapping</strong> section appears with a two-column grid.</li>
+                <li><strong>Left column:</strong> Shows each header found in your file (read-only).</li>
+                <li><strong>Right column:</strong> A dropdown with all 16 <code>AssetFileRaw</code> database columns plus a "— Skip —" option.</li>
+                <li>Columns that exactly match (case-insensitive) are <strong>auto-mapped</strong> and highlighted green.</li>
+                <li>Columns that didn't match are shown in amber. Use the dropdown to manually assign the correct mapping.</li>
+                <li>Use <strong>— Skip —</strong> for columns you don't want to import (they'll be loaded into dummy columns and ignored).</li>
+                <li>Click <strong>&#10004; Apply Mapping &amp; Generate SQL</strong>.</li>
+            </ol>
+
+            <div style="background:rgba(245,158,11,0.08); border-left:4px solid #f59e0b; padding:12px 16px; border-radius:6px; margin-top:10px; font-size:13px;">
+                <strong>&#9888; Important:</strong> The order matters. BULK INSERT reads columns positionally &mdash;
+                column 1 in the file goes into column 1 in the table. The workbench handles this automatically
+                by creating the <code>AssetFileRaw</code> table with columns in the same order as your file.
+                You just need to tell it <em>which</em> database column each file column maps to.
+            </div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div style="background:rgba(245,158,11,0.06); border:1px solid #f59e0b; border-radius:10px; padding:20px; margin-bottom:20px;">
+            <h3 style="color:#f59e0b; margin-top:0;">Step 3: Review Generated SQL &amp; Test Run</h3>
+            <ol style="line-height:2;">
+                <li>The <strong>Generated SQL</strong> panel shows the modified SQL script with:
+                    <ul>
+                        <li><code>FIELDTERMINATOR</code> set to your chosen separator</li>
+                        <li><code>CREATE TABLE dbo.AssetFileRaw</code> rewritten with columns matching your mapping</li>
+                        <li>A comment header noting the modification date and settings</li>
+                    </ul>
+                </li>
+                <li>Scroll through the SQL to verify it looks correct.</li>
+                <li>Click <strong>&#9888; Test Run (Dry Run)</strong> to execute the SQL inside a transaction.</li>
+                <li>The test run:
+                    <ul>
+                        <li>Executes every batch of the SQL script against the live database</li>
+                        <li>Collects import statistics (locations inserted, assets inserted/updated/skipped, errors)</li>
+                        <li>Collects the preview log (first 25 affected records, if the script supports <code>#PreviewLog</code>)</li>
+                        <li><strong>Immediately rolls back the entire transaction</strong> &mdash; nothing is permanently written</li>
+                    </ul>
+                </li>
+                <li>Review the results. If everything looks correct, proceed to Step 4.</li>
+            </ol>
+        </div>
+
+        <!-- STEP 4 -->
+        <div style="background:rgba(16,185,129,0.06); border:1px solid #10b981; border-radius:10px; padding:20px; margin-bottom:20px;">
+            <h3 style="color:#10b981; margin-top:0;">Step 4: Commit (or Save Profile for Later)</h3>
+            <ol style="line-height:2;">
+                <li>Click <strong>&#9989; Commit Import</strong> to run the same SQL for real (with a confirmation prompt).</li>
+                <li>Click <strong>&#128190; Save Configuration Profile</strong> to save your separator + mapping as a JSON file so you can reload it instantly next time.</li>
+                <li>Click <strong>Download Summary</strong> to get a text file with the import results.</li>
+            </ol>
+        </div>
+    </div>
+
+
+    <!-- ================================================================ -->
+    <!--  LOADING A SAVED PROFILE                                          -->
+    <!-- ================================================================ -->
+    <div class="card" style="border-color: #14b8a6;">
+        <h2 style="color:#14b8a6;">&#128190; Saved Configuration Profiles</h2>
+        <p>
+            Profiles save your separator choice and header mapping so you don't have to reconfigure them
+            every time the VA sends files in the same format.
+        </p>
+        <h3>How to Save a Profile</h3>
+        <ol>
+            <li>Complete Steps 1&ndash;3 (configure separator, parse file, map headers, generate SQL).</li>
+            <li>Click <strong>&#128190; Save Configuration Profile</strong> on the Step 3 panel.</li>
+            <li>The profile is saved as a JSON file in the <code>workbench_profiles/</code> directory on the server.</li>
+        </ol>
+
+        <h3>How to Load a Profile</h3>
+        <ol>
+            <li>Select a profile from the <strong>Load Profile</strong> dropdown at the top of Step 1.</li>
+            <li>Click <strong>Load</strong>. The separator radio button and header mapping are restored.</li>
+            <li>Select your data file and SQL script, then click <strong>Parse &amp; Preview</strong>. The auto-mapping will use your saved column assignments.</li>
+        </ol>
+
+        <div class="alert-blue">
+            <strong>&#8505; Profile Location</strong><br/>
+            Profiles are stored in <code>workbench_profiles/</code> under the iDash root directory.
+            They are plain JSON files. You can copy them between servers or delete them by removing the file.
+        </div>
+    </div>
+
+
+    <!-- ================================================================ -->
+    <!--  WHAT HAPPENS UNDER THE HOOD                                      -->
+    <!-- ================================================================ -->
+    <div class="card">
+        <h2>&#9881;&#65039; What Actually Happens Under the Hood</h2>
+
+        <h3>1. File Parsing</h3>
+        <ul>
+            <li>If the file is <code>.xlsx</code>, it's read via ClosedXML (MIT License) and converted to delimited text using your chosen separator. Scientific notation in numeric cells is preserved as plain integers.</li>
+            <li>If the file is <code>.txt</code> or <code>.csv</code>, it's read as-is with BOM auto-detection and re-encoded as clean UTF-8 without BOM.</li>
+            <li>The first row is treated as column headers. All subsequent rows are data.</li>
+        </ul>
+
+        <h3>2. SQL Rewriting</h3>
+        <p>Two targeted regex replacements are made to the selected SQL script:</p>
+        <table>
+            <tr><th>What</th><th>Before</th><th>After</th></tr>
+            <tr>
+                <td><code>FIELDTERMINATOR</code></td>
+                <td><code>FIELDTERMINATOR = '\t'</code></td>
+                <td><code>FIELDTERMINATOR = '|'</code> (or whatever you chose)</td>
+            </tr>
+            <tr>
+                <td><code>CREATE TABLE dbo.AssetFileRaw</code></td>
+                <td>16 hardcoded column definitions</td>
+                <td>Columns rewritten in file order, using your mapped names. Unmapped columns get dummy names (<code>_skip_N</code>) so BULK INSERT still has the right column count.</td>
+            </tr>
+        </table>
+        <p>
+            The rest of the SQL script is <strong>unchanged</strong>. The <code>INSERT INTO dbo.assettemp</code>
+            mapping, the normalization logic, the deduplication, the location sync &mdash; all of it runs exactly
+            as written. Only the landing zone (<code>AssetFileRaw</code>) and the separator are adjusted.
+        </p>
+
+        <h3>3. Transaction Isolation</h3>
+        <ul>
+            <li><strong>Test Run:</strong> The entire SQL execution is wrapped in <code>BEGIN TRAN ... ROLLBACK</code>. Every INSERT, UPDATE, and DELETE is undone.</li>
+            <li><strong>Commit:</strong> Same transaction wrapper, but <code>COMMIT</code> instead of <code>ROLLBACK</code>.</li>
+            <li>Both modes capture <code>#ImportStats</code> and <code>#PreviewLog</code> before the transaction ends.</li>
+        </ul>
+
+        <h3>4. Profile Persistence</h3>
+        <p>
+            Profiles are saved as plain JSON files in <code>workbench_profiles/</code>. No database tables,
+            no registry entries, no hidden state. Copy the file to another server and it works immediately.
+        </p>
+    </div>
+
+
+    <!-- ================================================================ -->
+    <!--  TROUBLESHOOTING FAQ                                              -->
+    <!-- ================================================================ -->
+    <div class="card" style="border-color: #f59e0b;">
+        <h2 style="color:#f59e0b;">&#128736; Troubleshooting FAQ</h2>
+
+        <h3>"My columns look shifted &mdash; data is in the wrong fields"</h3>
+        <div class="alert-red">
+            <strong>Cause:</strong> Wrong separator selected.<br/>
+            <strong>Fix:</strong> Check the actual file. Open it in Notepad and look for the delimiter character between columns.
+            If you see <code>|</code> between values, select <strong>Pipe</strong>. If values are separated by invisible
+            characters, it's probably <strong>Tab</strong>. Re-parse after changing the separator.
+        </div>
+
+        <h3>"I see blank/NULL in columns that should have data"</h3>
+        <div class="alert-blue">
+            <strong>Cause:</strong> Header mapping mismatch. The file column wasn't mapped to the correct database column, or was set to "— Skip —".<br/>
+            <strong>Fix:</strong> Go back to the Header Mapping section and verify each file column is mapped to the right <code>AssetFileRaw</code> column. Re-apply the mapping.
+        </div>
+
+        <h3>"The test shows zero inserts when I expected thousands"</h3>
+        <div class="alert-blue">
+            <strong>Cause:</strong> The data already exists in the database. Both <code>va_dbupdate.sql</code> and
+            <code>va_dbupdate_upsert_enrich.sql</code> skip assets that already exist (by name + company ID or by RFID tag).<br/>
+            <strong>Fix:</strong> This is expected behavior on a re-import. If you're importing to a fresh database, check that the company mapping resolved correctly (station number → company ID).
+        </div>
+
+        <h3>"BULK INSERT failed with a syntax or conversion error"</h3>
+        <div class="alert-red">
+            <strong>Common causes:</strong>
+            <ul>
+                <li><strong>Wrong row terminator:</strong> The SQL script uses <code>ROWTERMINATOR = '0x0a'</code> (Unix LF). If the file has Windows CRLF line endings, change it to <code>'0x0d0a'</code> in the SQL script.</li>
+                <li><strong>Encoding mismatch:</strong> The script uses <code>CODEPAGE = '65001'</code> (UTF-8). If the file is ANSI-encoded, remove the CODEPAGE parameter.</li>
+                <li><strong>Extra columns:</strong> The file has more columns than the <code>AssetFileRaw</code> table. Make sure every file column is either mapped or set to "— Skip —".</li>
+            </ul>
+        </div>
+
+        <h3>"I saved a profile but the dropdown is empty"</h3>
+        <div class="alert-blue">
+            <strong>Fix:</strong> Click <strong>Refresh File Lists</strong>. The profile dropdown only scans the <code>workbench_profiles/</code> directory on page load and manual refresh.
+        </div>
+
+        <h3>"Can I use this with the enrichment script?"</h3>
+        <div class="alert-green">
+            <strong>Yes.</strong> The workbench works with any <code>.sql</code> script &mdash; <code>va_dbupdate.sql</code>,
+            <code>va_dbupdate_upsert_enrich.sql</code>, <code>va_cmr_recovery.sql</code>, or any custom script you write.
+            As long as the script contains <code>FIELDTERMINATOR</code> and <code>CREATE TABLE dbo.AssetFileRaw</code>,
+            the workbench can rewrite both.
+        </div>
+    </div>
+
+
+    <!-- ================================================================ -->
+    <!--  RELATIONSHIP TO OTHER PAGES                                      -->
+    <!-- ================================================================ -->
+    <div class="card">
+        <h2>&#128279; How This Fits Into the Import Ecosystem</h2>
+
+        <table>
+            <tr><th>Page</th><th>Purpose</th><th>Automated?</th></tr>
+            <tr>
+                <td><code>va_dbupdate.aspx</code></td>
+                <td>Standard manual import. Tab-delimited files with standard headers. Quick and simple.</td>
+                <td>No (manual)</td>
+            </tr>
+            <tr>
+                <td><code>va_autodbupdate.aspx</code></td>
+                <td>Folder watcher automation. Detects files in the autoload directory and runs the SQL script automatically.</td>
+                <td>Yes (scheduled)</td>
+            </tr>
+            <tr>
+                <td style="color:#a855f7; font-weight:600;"><code>va_dbupdate_workbench.aspx</code></td>
+                <td>Configuration workbench. Custom separators, header remapping, parse preview, test run. For non-standard files or when you want extra safety.</td>
+                <td>No (manual)</td>
+            </tr>
+        </table>
+
+        <div class="alert-green">
+            <strong>&#9989; Independence Guarantee</strong><br/>
+            The workbench is <strong>completely independent</strong> from the standard import page and the automated pipeline.
+            Nothing you do on the workbench page affects either of those systems. They continue to work exactly
+            as they always have, using their own hardcoded tab separator and column definitions.
+        </div>
+    </div>
+
+
+    <!-- ================================================================ -->
+    <!--  THE 16 CANONICAL COLUMNS                                         -->
+    <!-- ================================================================ -->
+    <div class="card">
+        <h2>&#128202; Reference: The 16 Standard VA Data Columns</h2>
+        <p>
+            These are the column names expected by <code>dbo.AssetFileRaw</code> in the standard SQL scripts.
+            The workbench maps your file's headers to these columns.
+        </p>
+
+        <table>
+            <tr><th>#</th><th>Column Name</th><th>Maps To (assettemp)</th><th>Description</th></tr>
+            <tr><td>1</td><td><code>ENTRY NUMBER</code></td><td><code>name</code> (+ text12)</td><td>VA entry/equipment number. Becomes the asset name with station prefix.</td></tr>
+            <tr><td>2</td><td><code>MANUFACTURER</code></td><td><code>text1</code></td><td>Equipment manufacturer (e.g., PHILIPS, GE HEALTHCARE).</td></tr>
+            <tr><td>3</td><td><code>MFGR. EQUIPMENT NAME</code></td><td><code>description</code></td><td>Full equipment description from the manufacturer.</td></tr>
+            <tr><td>4</td><td><code>MODEL</code></td><td><code>text2</code></td><td>Equipment model number.</td></tr>
+            <tr><td>5</td><td><code>SERIAL #</code></td><td><code>text3</code></td><td>Equipment serial number.</td></tr>
+            <tr><td>6</td><td><code>EQUIPMENT CATEGORY</code></td><td><code>text4</code></td><td>VA equipment category classification.</td></tr>
+            <tr><td>7</td><td><code>USE STATUS</code></td><td><code>listvalue1</code></td><td>Current use status (IN USE, OUT OF SERVICE, etc.).</td></tr>
+            <tr><td>8</td><td><code>SERVICE POINTER</code></td><td><code>text5</code></td><td>VA service pointer (department/section).</td></tr>
+            <tr><td>9</td><td><code>LOCATION</code></td><td><code>text6</code>, <code>lastobservedlocation</code></td><td>Current physical location. Gets SP prefix during normalization.</td></tr>
+            <tr><td>10</td><td><code>PHYSICAL INVENTORY DATE</code></td><td><code>text10</code>, <code>lastinventoried</code></td><td>Date of last physical inventory.</td></tr>
+            <tr><td>11</td><td><code>PREVIOUS LOCATION</code></td><td><code>text11</code></td><td>Prior location before current assignment.</td></tr>
+            <tr><td>12</td><td><code>STATION NUMBER</code></td><td><code>text7</code></td><td>VA station number (e.g., 512, 613, 649). Drives company mapping.</td></tr>
+            <tr><td>13</td><td><code>CATEGORY STOCK NUMBER</code></td><td><code>assettype</code></td><td>VA category stock number.</td></tr>
+            <tr><td>14</td><td><code>CMR</code></td><td><code>text8</code></td><td>Capital Medical Equipment Report number.</td></tr>
+            <tr><td>15</td><td><code>PURCHASE ORDER #</code></td><td><code>text9</code></td><td>VA purchase order reference.</td></tr>
+            <tr><td>16</td><td><code>SUB STATION</code></td><td><code>text14</code></td><td>Sub-station or satellite facility number.</td></tr>
+        </table>
+    </div>
+
+
+    <!-- ================================================================ -->
+    <!--  CHANGELOG                                                        -->
+    <!-- ================================================================ -->
+    <div class="card" style="border-color: #a855f7;">
+        <h2 style="color:#a855f7;">&#128221; Changelog</h2>
+
+        <h3>July 11, 2026 &mdash; Initial Creation</h3>
+        <table>
+            <tr><th>File</th><th>Change</th></tr>
+            <tr>
+                <td><code>va_dbupdate_workbench.aspx</code></td>
+                <td>New page. Separator picker (tab/pipe/comma/custom), parse preview grid, header mapping grid,
+                    SQL viewer, test run and commit buttons, profile save/load, step progress indicator.</td>
+            </tr>
+            <tr>
+                <td><code>va_dbupdate_workbench.aspx.cs</code></td>
+                <td>New code-behind. File parsing with configurable separator, XLSX conversion with separator support,
+                    header auto-mapping engine, SQL rewriting (FIELDTERMINATOR + AssetFileRaw columns),
+                    test/commit execution with transaction rollback, profile save/load (JSON), downloadable summaries.</td>
+            </tr>
+            <tr>
+                <td><code>index.aspx</code></td>
+                <td>New &#128295; Import Workbench tile in Admin Tools section, gated by <code>admin_manualdb</code> permission.</td>
+            </tr>
+            <tr>
+                <td><code>workbench_profiles/</code></td>
+                <td>New directory for saved configuration profiles (JSON files).</td>
+            </tr>
+        </table>
+
+        <p><strong>Why:</strong> The VA is transitioning to pipe-delimited data exports. The existing import pipeline
+            uses a hardcoded tab separator and fixed column names. Editing the SQL script directly is risky and invisible
+            to other team members. The workbench provides a safe, visual, test-before-you-commit workflow for any
+            separator or header format change.</p>
+    </div>
+
+
+    <div style="text-align:center; color:var(--muted-docs); font-size:12px; margin-top:40px;">
+        VA Asset Intelligence Hub Documentation &copy; 2026<br/>
+        Authored by the iDash project lead.
+    </div>
+</div>
+</body>
+</html>

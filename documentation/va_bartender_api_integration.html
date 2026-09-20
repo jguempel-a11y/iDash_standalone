@@ -1,0 +1,445 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>BarTender Enterprise REST API &amp; Print Engine Integration &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin: 24px 0;
+            background: color-mix(in srgb, var(--card) 90%, transparent);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 24px;
+        }
+        .flow-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .flow-node {
+            flex: 1;
+            min-width: 170px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid var(--line);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .flow-arrow {
+            font-size: 22px;
+            color: var(--accent-docs);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .preview-mockup {
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            background: var(--chip);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+        .preview-img-box {
+            background: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            max-width: 320px;
+            text-align: center;
+        }
+        .preview-img-box img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            display: block;
+        }
+        .preview-details {
+            flex: 1;
+            min-width: 260px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .pill-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .endpoint-grid {
+            display: grid;
+            grid-template-columns: 100px 1fr 2fr;
+            gap: 8px;
+            font-size: 13px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 12px;
+            background: var(--chip);
+            margin: 12px 0;
+        }
+        .endpoint-method {
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-align: center;
+            align-self: flex-start;
+            font-size: 11px;
+        }
+        .method-get { background: rgba(16,185,129,0.2); color: #10b981; border: 1px solid #10b981; }
+        .method-post { background: rgba(59,130,246,0.2); color: #3b82f6; border: 1px solid #3b82f6; }
+        code.url { color: var(--accent-docs); font-weight: 600; font-family: monospace; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+
+    <a href="index.aspx" class="back-link">&#8592; Back to Documentation Hub</a>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         HEADER
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card" style="border-top:4px solid #0284c7;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+            <div>
+                <h1>&#127991;&#65039; BarTender Enterprise REST API &amp; Print Engine Integration</h1>
+                <div style="margin-bottom:14px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <span class="pill-badge" style="background:rgba(2,132,199,0.15); color:#0284c7; border:1px solid #0284c7;">Branch: Bartender_API_Inegration</span>
+                    <span class="pill-badge" style="background:rgba(16,185,129,0.15); color:#10b981; border:1px solid #10b981;">100% Stateless (Zero SQL DB)</span>
+                    <span class="pill-badge" style="background:rgba(139,92,246,0.15); color:#8B5CF6; border:1px solid #8B5CF6;">REST API (Port 5159)</span>
+                    <span class="pill-badge" style="background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid #f59e0b;">Live Visual Previews</span>
+                </div>
+            </div>
+            <a href="../va_tagteam_scan.aspx" class="btn" style="background:var(--accent-docs); color:#fff; text-decoration:none; padding:8px 16px; border-radius:8px; font-weight:600; font-size:13px;">Open Tag Team Scan &rarr;</a>
+        </div>
+        <p style="color:var(--muted-docs); font-size:14px; margin-bottom:8px;">
+            Complete technical guide to the in-browser visual label previews, real-time Zebra cart printer monitoring,
+            and stateless BarTender Print Engine integration designed specifically for VA enterprise security compliance.
+        </p>
+        <div style="margin-top:12px; font-size:13px; color:var(--muted-docs);">
+            Related documentation:
+            <a href="va_tagteam_scan.html">Tag Team Scan</a> &bull;
+            <a href="va_excel_print.html">Excel Print</a> &bull;
+            <a href="va_print_admin.html">Print Administration</a> &bull;
+            <a href="va_bartender_print_architecture.html">BarTender Architecture</a> &bull;
+            <a href="va_printing_guide.html">Printing Asset Labels</a>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         1. EXECUTIVE SUMMARY & VA COMPLIANCE
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>&#128737;&#65039; 1. Executive Summary &amp; VA Enterprise Constraints</h2>
+        <p>
+            In the Veterans Affairs (VA) national network environment, local SQL Server instances
+            (specifically the default BarTender System Database <code>MSSQL$BARTENDER</code>) are strictly restricted.
+            Past integration approaches that relied on the BarTender System Database suffered from connection failures,
+            ghost database queries, and <em>"Bartender Print Result Failure"</em> errors.
+        </p>
+        <div class="alert alert-ok" style="background:rgba(16,185,129,0.1); border-left:4px solid #10b981; padding:14px 18px; border-radius:8px; margin:14px 0;">
+            <strong style="color:#10b981;">&#10003; 100% Stateless &amp; Database-Free Operation</strong><br />
+            This integration communicates with BarTender purely in memory. By programmatically issuing
+            <code>doc.PrintSetup.UseDatabase = false;</code>, every label preview and direct print operation is completely
+            decoupled from SQL Server. All label fields (asset tag, serial number, description, CMR, and RFID EPC tag)
+            are injected directly as <strong>SubStrings (Named Data Sources)</strong>.
+        </div>
+        <p>
+            Furthermore, all development is isolated on git branch <strong><code>Bartender_API_Inegration</code></strong>.
+            Production branch <code>main</code> remains completely untouched and stable.
+        </p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         2. END-TO-END PRINTING & PREVIEW FLOW DIAGRAM
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>&#128256; 2. Complete Architecture &amp; Data Flow Diagram</h2>
+        <p>
+            The diagram below illustrates how client browsers, AJAX endpoints, the BarTender Print Engine,
+            and the physical Zebra RFID printers interact:
+        </p>
+
+        <div class="flow-container">
+            <div style="font-size:12px; font-weight:700; text-transform:uppercase; color:var(--muted-docs); letter-spacing:.5px; margin-bottom:4px;">
+                Layer 1: User Interfaces &amp; Scanning Workflows
+            </div>
+            <div class="flow-row">
+                <div class="flow-node" style="background:rgba(59,130,246,0.12); border-color:#3b82f6; color:#3b82f6;">
+                    &#127991;&#65039; Tag Team Scan<br>
+                    <code style="font-size:11px;">va_tagteam_scan.aspx</code>
+                </div>
+                <div class="flow-node" style="background:rgba(245,158,11,0.12); border-color:#f59e0b; color:#f59e0b;">
+                    &#128218; Excel Print<br>
+                    <code style="font-size:11px;">va_excel_print.aspx</code>
+                </div>
+                <div class="flow-node" style="background:rgba(139,92,246,0.12); border-color:#8B5CF6; color:#8B5CF6;">
+                    &#128424; Printer Admin<br>
+                    <code style="font-size:11px;">va_print_admin.aspx</code>
+                </div>
+            </div>
+
+            <div class="flow-row" style="justify-content:center;">
+                <div class="flow-arrow">&darr; &nbsp; <span style="font-size:12px; font-weight:600; color:var(--muted-docs);">AJAX (JSON Over HTTP POST/GET)</span> &nbsp; &darr;</div>
+            </div>
+
+            <div style="font-size:12px; font-weight:700; text-transform:uppercase; color:var(--muted-docs); letter-spacing:.5px; margin-bottom:4px;">
+                Layer 2: iDash Gateway &amp; Service Logic
+            </div>
+            <div class="flow-row">
+                <div class="flow-node" style="background:rgba(6,182,212,0.12); border-color:#06B6D4; color:#06B6D4;">
+                    &#9889; api/BarTenderHandler.ashx<br>
+                    <span style="font-size:11px; font-weight:400; color:var(--muted-docs);">Auth validation, payload serialization, actions dispatcher</span>
+                </div>
+                <div class="flow-arrow">&harr;</div>
+                <div class="flow-node" style="background:rgba(16,185,129,0.12); border-color:#10b981; color:#10b981;">
+                    &#129513; App_Code/BarTenderApiHelper.cs<br>
+                    <span style="font-size:11px; font-weight:400; color:var(--muted-docs);">Engine lifecycle, SubStrings injection, 200 DPI PNG exporter</span>
+                </div>
+            </div>
+
+            <div class="flow-row" style="justify-content:center;">
+                <div class="flow-arrow">&darr; &nbsp; <span style="font-size:12px; font-weight:600; color:var(--muted-docs);">In-Memory Automation / Port 5160 Sidecar / Port 5159 REST</span> &nbsp; &darr;</div>
+            </div>
+
+            <div style="font-size:12px; font-weight:700; text-transform:uppercase; color:var(--muted-docs); letter-spacing:.5px; margin-bottom:4px;">
+                Layer 3: BarTender Print Engine &amp; Hardware
+            </div>
+            <div class="flow-row">
+                <div class="flow-node" style="background:rgba(239,68,68,0.1); border-color:#ef4444; color:#ef4444;">
+                    &#128451;&#65039; Label Templates (*.btw)<br>
+                    <span style="font-size:11px; font-weight:400; color:var(--muted-docs);">C:\idash_prints\*.btw (Zero DB binding)</span>
+                </div>
+                <div class="flow-arrow">&rarr;</div>
+                <div class="flow-node" style="background:rgba(16,185,129,0.15); border-color:#10b981; color:#10b981;">
+                    &#128065; Browser Visual Preview<br>
+                    <span style="font-size:11px; font-weight:400; color:var(--muted-docs);">&lt;img src="data:image/png;base64,..."&gt;</span>
+                </div>
+                <div class="flow-arrow">&rarr;</div>
+                <div class="flow-node" style="background:rgba(59,130,246,0.15); border-color:#3b82f6; color:#3b82f6;">
+                    &#128424; Zebra ZD500R RFID Cart<br>
+                    <span style="font-size:11px; font-weight:400; color:var(--muted-docs);">Hardware print &amp; EPC RFID encoding</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         3. LIVE LABEL PREVIEW DEMONSTRATION
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>&#128065; 3. Visual Label Preview In Action</h2>
+        <p>
+            Below is an actual live label preview generated by the BarTender Print Engine from
+            <code>C:\idash_prints\AW_Std_Small.btw</code>. Notice how the 2D DataMatrix barcode,
+            the standard 1D linear barcode, the EPC RFID inlay icon, and all text fields are rendered with
+            crisp precision:
+        </p>
+
+        <div class="preview-mockup">
+            <div class="preview-img-box">
+                <img src="images/bartender_label_preview.png" alt="BarTender Live Label Preview" />
+                <div style="font-size:11px; color:#64748b; margin-top:8px; font-weight:600;">Live Rendered 200 DPI PNG Preview</div>
+            </div>
+            <div class="preview-details">
+                <h3 style="margin-top:0; color:var(--accent-docs);">&#127991;&#65039; Discovered Named Data Sources (SubStrings)</h3>
+                <p>When the <code>.btw</code> file is opened in memory, the engine automatically extracts all dynamic variables:</p>
+                <table class="grid" style="width:100%; border-collapse:collapse; margin-top:8px; font-size:12px;">
+                    <thead>
+                        <tr style="border-bottom:2px solid var(--line); text-align:left;">
+                            <th style="padding:6px;">SubString Name</th>
+                            <th style="padding:6px;">Asset Data Field</th>
+                            <th style="padding:6px;">Sample Rendered Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom:1px solid var(--line);">
+                            <td style="padding:6px;"><code>lblname</code></td>
+                            <td style="padding:6px;">Asset Barcode</td>
+                            <td style="padding:6px; font-weight:600;">517 EE99999</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--line);">
+                            <td style="padding:6px;"><code>lbldescription</code></td>
+                            <td style="padding:6px;">Equipment Description</td>
+                            <td style="padding:6px;">INFUSION PUMP, SMART</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--line);">
+                            <td style="padding:6px;"><code>lblsn</code></td>
+                            <td style="padding:6px;">Serial Number (text3)</td>
+                            <td style="padding:6px; font-family:monospace;">SN-99887766</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--line);">
+                            <td style="padding:6px;"><code>lbleil</code></td>
+                            <td style="padding:6px;">CMR / EIL (text8)</td>
+                            <td style="padding:6px;">138</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:6px;"><code>lblrfidtag</code></td>
+                            <td style="padding:6px;">RFID EPC Tag</td>
+                            <td style="padding:6px; font-family:monospace;">E28011902000216503837493</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         4. USER INTERFACE FEATURES
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>&#128187; 4. UI Integrations Across iDash</h2>
+
+        <h3>A. Tag Team Scan (<a href="../va_tagteam_scan.aspx">va_tagteam_scan.aspx</a>)</h3>
+        <p>The field tagging team has immediate visual feedback at their fingertips:</p>
+        <ul style="font-size:13px; line-height:1.7;">
+            <li>
+                <strong>Live Cart Printer Status:</strong> An automatic health badge appears in the scan toolbar
+                (e.g., <code><span class="status-dot" style="background:#10b981;"></span> BarTender: 7 Printers</code>). Hovering displays
+                all discovered printers and ports (e.g. <code>Std_Small (Zebra ZD500R on USB003)</code>).
+            </li>
+            <li>
+                <strong>Row-Level Preview (&#128065; Preview):</strong> A preview action on each item in the scanned asset grid
+                opens a modal rendering the tag with that exact asset's barcode, serial #, and CMR.
+            </li>
+            <li>
+                <strong>Batch Preview Tag:</strong> When selecting checkboxes for printing, clicking <strong>&#128065; Preview Tag</strong>
+                verifies the label layout before firing to the printer.
+            </li>
+            <li>
+                <strong>Print Tag From Modal:</strong> Users can inspect the preview and immediately click <strong>&#128424; Print Tag</strong>
+                directly inside the modal dialog.
+            </li>
+        </ul>
+
+        <h3>B. Printer Administration (<a href="../va_print_admin.aspx">va_print_admin.aspx</a>)</h3>
+        <ul style="font-size:13px; line-height:1.7;">
+            <li>
+                <strong>Template Diagnostic Preview:</strong> On Tab 2 (Templates), every template row now features an
+                <strong>&#128065; Preview</strong> button.
+            </li>
+            <li>
+                Clicking preview opens a modal that verifies the <code>.btw</code> file exists, renders the output with sample data,
+                and enumerates all discovered Named Data Sources. This allows admins to instantly detect broken templates or missing variables.
+            </li>
+        </ul>
+
+        <h3>C. Excel Equipment Import &amp; Print (<a href="../va_excel_print.aspx">va_excel_print.aspx</a>)</h3>
+        <ul style="font-size:13px; line-height:1.7;">
+            <li>
+                <strong>Batch Layout Verification:</strong> Technicians importing hundreds of equipment rows from <code>equipment.xlsx</code>
+                can click <strong>&#128065; Preview Label</strong> in the toolbar to inspect how the computed asset name, description,
+                and serial number will appear on physical media before starting a large batch print job.
+            </li>
+        </ul>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         5. API REFERENCE (api/BarTenderHandler.ashx)
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>&#128295; 5. AJAX API Endpoint Specification</h2>
+        <p>All client-side interactions query <code>api/BarTenderHandler.ashx</code>. Session authentication is required.</p>
+
+        <div class="endpoint-grid">
+            <div class="endpoint-method method-get">GET</div>
+            <div><code class="url">?action=printers</code></div>
+            <div>Enumerates all recognized Windows printers, status (Ready, Paused, Toner/Ink Low), and port assignments.</div>
+
+            <div class="endpoint-method method-get">GET</div>
+            <div><code class="url">?action=fields&amp;template=C:\...btw</code></div>
+            <div>Opens the specified <code>.btw</code> template and returns an array of all discovered Named Data Sources (SubStrings).</div>
+
+            <div class="endpoint-method method-post">POST</div>
+            <div><code class="url">?action=preview</code></div>
+            <div>Accepts template path + field dictionary, renders the 200 DPI PNG label, and returns <code>{ Success: true, ImageBase64: "...", DiscoveredFields: [...] }</code>.</div>
+
+            <div class="endpoint-method method-post">POST</div>
+            <div><code class="url">?action=print</code></div>
+            <div>Directly prints the template to a target printer with SubStrings injected, returning BarTender result code and engine error messages.</div>
+        </div>
+
+        <h3>Sample Preview Request Payload (JSON)</h3>
+        <pre style="background:var(--chip); border:1px solid var(--line); border-radius:8px; padding:12px; font-size:12px; overflow-x:auto;"><code>{
+  "template": "c:\\idash_prints\\AW_Std_Small.btw",
+  "fields": {
+    "lblname": "517 EE99999",
+    "lbldescription": "INFUSION PUMP, SMART",
+    "lblsn": "SN-99887766",
+    "lbleil": "138",
+    "lblrfidtag": "E28011902000216503837493"
+  }
+}</code></pre>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         6. COMPANION SERVICES & DEPLOYMENT
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>&#128640; 6. Companion Microservices &amp; Deployment Guide</h2>
+
+        <h3>The Desktop Heap Challenge &amp; Solution</h3>
+        <p>
+            By default in Windows, the IIS worker process (<code>w3wp.exe</code>) runs under a restricted non-interactive
+            Application Pool identity. When attempting to launch BarTender's GUI print engine (<code>bartend.exe</code>) inside IIS,
+            Windows blocks desktop heap allocation.
+        </p>
+        <p>We solved this by implementing a <strong>hybrid architecture</strong> with zero external software requirements:</p>
+        <ol style="font-size:13px; line-height:1.7;">
+            <li>
+                <strong>Preview Microservice (<a href="../printing/Run_Preview_Service.ps1">printing/Run_Preview_Service.ps1</a>):</strong>
+                A lightweight PowerShell microservice listening on <code>http://localhost:5160/preview/</code> that runs in the interactive
+                user session or as a Scheduled Task (using the same credentials as <code>Run_Bypass_Spooler.ps1</code>).
+                <code>BarTenderApiHelper.cs</code> queries this service seamlessly.
+            </li>
+            <li>
+                <strong>In-Process Engine Fallback:</strong> If the IIS Application Pool is configured to run under a user identity
+                (or <code>LocalSystem</code> with <em>Load User Profile = True</em>), <code>BarTenderApiHelper.cs</code> automatically
+                renders previews completely in-process.
+            </li>
+        </ol>
+
+        <div class="alert alert-info" style="background:rgba(2,132,199,0.1); border-left:4px solid #0284c7; padding:14px 18px; border-radius:8px; margin:14px 0;">
+            <strong>Starting the Companion Services on the Print Cart:</strong><br />
+            To run both the physical print spooler and live preview microservice on the cart PC:
+            <pre style="background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:10px; margin-top:8px; font-size:12px;"><code># Terminal 1: BarTender Bypass Print Spooler (polls printjob table)
+powershell -ExecutionPolicy Bypass -File C:\inetpub\wwwroot\iDash\printing\Run_Bypass_Spooler.ps1
+
+# Terminal 2: BarTender Preview Microservice (serves instant UI previews)
+powershell -ExecutionPolicy Bypass -File C:\inetpub\wwwroot\iDash\printing\Run_Preview_Service.ps1</code></pre>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

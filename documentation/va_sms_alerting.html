@@ -1,0 +1,376 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>iDash Alerts &amp; System Automations &mdash; Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .cover-band {
+            background: linear-gradient(135deg, color-mix(in srgb, var(--accent-docs) 20%, transparent), color-mix(in srgb, #f59e0b 12%, transparent));
+            border: 1px solid var(--line-docs);
+            border-radius: 20px;
+            padding: 44px 38px 32px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        .cover-band::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: radial-gradient(circle, color-mix(in srgb, var(--accent-docs) 14%, transparent), transparent 70%);
+        }
+        .cover-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        .pill-blue { background: color-mix(in srgb, #2ea8ff 18%, transparent); border: 1px solid #2ea8ff44; color: #2ea8ff; }
+        .pill-green { background: color-mix(in srgb, #10b981 18%, transparent); border: 1px solid #10b98144; color: #10b981; }
+        .pill-amber { background: color-mix(in srgb, #f59e0b 18%, transparent); border: 1px solid #f59e0b44; color: #f59e0b; }
+        .pill-purple { background: color-mix(in srgb, #a855f7 18%, transparent); border: 1px solid #a855f744; color: #a855f7; }
+        .pill-red { background: color-mix(in srgb, #ef4444 18%, transparent); border: 1px solid #ef444444; color: #ef4444; }
+        
+        .cover-meta {
+            display: flex;
+            gap: 26px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--line-docs);
+        }
+        .cover-meta .mi { font-size: 13px; color: var(--muted-docs); }
+        .cover-meta .mi strong { color: var(--text-docs); display: block; margin-bottom: 3px; }
+        
+        .box-danger {
+            background: color-mix(in srgb, #ef4444 10%, transparent);
+            border: 1px solid color-mix(in srgb, #ef4444 40%, transparent);
+            border-left: 5px solid #ef4444;
+            border-radius: 0 12px 12px 0;
+            padding: 16px 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 18px 0;
+        }
+        .box-info {
+            background: color-mix(in srgb, var(--accent-docs) 10%, transparent);
+            border: 1px solid color-mix(in srgb, var(--accent-docs) 40%, transparent);
+            border-left: 5px solid var(--accent-docs);
+            border-radius: 0 12px 12px 0;
+            padding: 16px 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 18px 0;
+        }
+        .box-green {
+            background: color-mix(in srgb, #10b981 10%, transparent);
+            border: 1px solid color-mix(in srgb, #10b981 40%, transparent);
+            border-left: 5px solid #10b981;
+            border-radius: 0 12px 12px 0;
+            padding: 16px 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 18px 0;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: var(--muted-docs);
+            text-decoration: none;
+        }
+        .back-link:hover { color: var(--accent-docs); }
+        
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        @media (max-width: 768px) {
+            .compare-grid { grid-template-columns: 1fr; }
+        }
+        .compare-col {
+            background: var(--card-docs);
+            border: 1px solid var(--line-docs);
+            border-radius: 14px;
+            padding: 22px;
+        }
+        
+        pre code {
+            font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            font-size: 13px;
+        }
+        
+        .badge-live {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: color-mix(in srgb, #ef4444 15%, transparent);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            animation: pulse-badge 2s infinite;
+        }
+        @keyframes pulse-badge {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+    </style>
+</head>
+<body>
+    <button id="themeToggleBtn" onclick="toggleIdashTheme()" title="Toggle Light / Dark Mode"
+        style="position:fixed;top:14px;right:18px;z-index:9999;background:var(--card);border:1px solid var(--line);
+        border-radius:10px;padding:6px 12px;cursor:pointer;font-size:18px;color:var(--text);transition:all 0.2s;
+        box-shadow:0 4px 14px rgba(0,0,0,.25);">&#127769;</button>
+
+    <div class="wrap">
+
+        <a href="index.aspx" class="back-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back to iDash Hub
+        </a>
+
+        <!-- COVER -->
+        <div class="cover-band">
+            <div style="margin-bottom:16px;">
+                <span class="cover-pill pill-blue">&#128276; iDash In-App Alerts</span>
+                <span class="cover-pill pill-green">&#128231; VA Internal SMTP Relay</span>
+                <span class="cover-pill pill-amber">&#9888; Carrier SMS Deprecated</span>
+                <span class="cover-pill pill-purple">&#128190; JSON Zero-Recycle Config</span>
+                <span class="cover-pill pill-red">&#128227; Event Triggers</span>
+            </div>
+            <h1 style="margin:0 0 10px;font-size:2.4rem;letter-spacing:-.02em;line-height:1.15;">
+                &#128276; iDash Alerts, Notifications &amp; System Automations
+            </h1>
+            <p style="font-size:1.05rem;color:var(--muted-docs);max-width:800px;line-height:1.65;margin:0;">
+                Comprehensive guide to the <strong>iDash Alerting Architecture</strong>. Explains the transition away from legacy cellular SMS gateways, the deployment of real-time in-app watch lists and visual mismatch detection, automated system failure alerts, and non-recycling JSON configuration.
+            </p>
+            <div class="cover-meta">
+                <div class="mi"><strong>Active Alerting Pages</strong><code>va_notifications.aspx</code> &bull; <code>va_automated_reports.aspx</code></div>
+                <div class="mi"><strong>Core Services</strong><code>App_Code/AlertingService.cs</code> &bull; <code>EmailHelper.cs</code></div>
+                <div class="mi"><strong>Configuration Storage</strong><code>config/email_recipients.json</code> &bull; <code>config/report_automation.json</code></div>
+                <div class="mi"><strong>Status &amp; Compliance</strong>SMS Gateway Deprecated &bull; NIST SP 800-53 AU-2/12 Compliant</div>
+            </div>
+        </div>
+
+        <!-- DEPRECATION RATIONALE -->
+        <div class="card" style="border-left: 5px solid #ef4444;">
+            <h2 style="margin-top:0;color:#ef4444;">&#9888; Deprecation Notice: Legacy Carrier SMS Gateways</h2>
+            <p style="font-size:15px;line-height:1.6;">
+                Early experimental prototypes attempted to route administrative alerts to mobile phones via public cellular SMTP-to-SMS email gateways (e.g. <code>5551234567@vtext.com</code>, <code>@mms.att.net</code>). 
+                <strong>In enterprise healthcare and VA environments, this mechanism is entirely unfeasible, non-compliant, and deprecated.</strong>
+            </p>
+
+            <div class="compare-grid">
+                <div class="compare-col" style="border-color:#ef444444;background:color-mix(in srgb,#ef4444 4%,transparent);">
+                    <h3 style="color:#ef4444;margin-top:0;">&#10060; Why Cellular SMS Gateways Failed</h3>
+                    <ul style="line-height:1.8;padding-left:20px;font-size:13px;color:var(--muted-docs);">
+                        <li><strong style="color:var(--text-docs);">A2P 10DLC Carrier Blocking:</strong> Major US mobile operators (Verizon, AT&amp;T, T-Mobile) have decommissioned or aggressively rate-limited unauthenticated email-to-SMS gateways to comply with FCC anti-spam mandates. Unauthenticated server alerts are dropped without delivery confirmation or bounce notices.</li>
+                        <li><strong style="color:var(--text-docs);">VA OIT Firewall &amp; Gateway Filtering:</strong> VA enterprise mail relays (IronPort, Cisco ESA, Exchange Online) prohibit relaying automated alerts to public carrier domains, flagging them as potential data exfiltration or spam risks.</li>
+                        <li><strong style="color:var(--text-docs);">Unencrypted Wireless Transmission:</strong> Carrier SMS messages travel over unencrypted cellular networks, violating federal standards for transmitting facility health metrics, database paths, and equipment identifiers.</li>
+                        <li><strong style="color:var(--text-docs);">IIS App Pool Recycling Bug:</strong> Early implementations attempted to save SMS phone numbers directly into <code>web.config</code>, triggering immediate IIS App Pool recycles that kicked all active users offline and disrupted mobile sweeps.</li>
+                    </ul>
+                </div>
+
+                <div class="compare-col" style="border-color:#10b98144;background:color-mix(in srgb,#10b981 4%,transparent);">
+                    <h3 style="color:#10b981;margin-top:0;">&#9989; Modern iDash Alerts Architecture</h3>
+                    <ul style="line-height:1.8;padding-left:20px;font-size:13px;color:var(--muted-docs);">
+                        <li><strong style="color:var(--text-docs);">In-App Visual Dashboards:</strong> Rich interactive status board on <code>va_notifications.aspx</code> with instant visual telemetry, color-coded status pills, and pulsing location mismatch indicators.</li>
+                        <li><strong style="color:var(--text-docs);">Asset Watch Lists:</strong> Clinical teams can monitor high-value, recalled, or missing assets by EE number or name, tracking when and where they are scanned during room sweeps.</li>
+                        <li><strong style="color:var(--text-docs);">Internal VA SMTP Relay:</strong> Administrative event alerts (SQL crash, missing autoload folders, print failures) route strictly through approved VA internal SMTP relays over TLS (ports 25/587) with authenticated deliverability.</li>
+                        <li><strong style="color:var(--text-docs);">Zero-Recycle JSON Storage:</strong> All recipient lists and trigger configs reside in isolated JSON files (<code>config/email_recipients.json</code>), preserving active user sessions and scanner connections.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULE 1: IN-APP ALERTS & WATCH LIST -->
+        <div class="card">
+            <h2 style="margin-top:0;">1. In-App Notifications &amp; Asset Watch List (<code>va_notifications.aspx</code>)</h2>
+            <p>
+                The <strong>iDash Notifications Hub</strong> provides a real-time, visual operations dashboard tailored for biomedical equipment technicians, supply chain supervisors, and facility administrators.
+            </p>
+
+            <table style="width:100%;margin:18px 0;border-collapse:collapse;">
+                <tr style="border-bottom:2px solid var(--line-docs);">
+                    <th style="text-align:left;padding:10px;">KPI Summary Card</th>
+                    <th style="text-align:left;padding:10px;">Visual Indicator</th>
+                    <th style="text-align:left;padding:10px;">Operational Role</th>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:10px;"><strong>Monitored Assets</strong></td>
+                    <td style="padding:10px;"><span class="badge" style="background:color-mix(in srgb,#3b82f6 15%,transparent);color:#3b82f6;border:1px solid #3b82f6;padding:2px 8px;border-radius:4px;font-weight:700;">Active List</span></td>
+                    <td style="padding:10px;">Total count of critical assets currently tracked on the facility watch list.</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:10px;"><strong>Scanned Today</strong></td>
+                    <td style="padding:10px;"><span class="badge" style="background:color-mix(in srgb,#10b981 15%,transparent);color:#10b981;border:1px solid #10b981;padding:2px 8px;border-radius:4px;font-weight:700;">Live Reads</span></td>
+                    <td style="padding:10px;">Watched assets successfully swept and verified within the last 24 hours.</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:10px;"><strong>Location Mismatches</strong></td>
+                    <td style="padding:10px;"><span class="badge-live">&#9888; Mismatch Alert</span></td>
+                    <td style="padding:10px;">Assets detected by Zebra handheld sweeps in a room <em>different</em> from their expected database location. Pulses visually to alert technicians immediately.</td>
+                </tr>
+                <tr>
+                    <td style="padding:10px;"><strong>Cold / Inactive Tags</strong></td>
+                    <td style="padding:10px;"><span class="badge" style="background:color-mix(in srgb,var(--muted-docs) 15%,transparent);color:var(--muted-docs);border:1px solid var(--line-docs);padding:2px 8px;border-radius:4px;font-weight:700;">Overdue</span></td>
+                    <td style="padding:10px;">Monitored assets not inventoried or detected within the past 30+ days.</td>
+                </tr>
+            </table>
+
+            <div class="box-info">
+                <strong>&#128269; Asset Watch List Input:</strong> Technicians can paste EE numbers, serial numbers, or asset tags directly into the sidebar textarea or click quick chips (e.g. <em>Dialysis, Infusion Pumps, Ventilators</em>) to monitor specific equipment categories. The grid updates reactively and links directly into the Asset Master detail flyout.
+            </div>
+        </div>
+
+        <!-- MODULE 2: SYSTEM AUTOMATIONS & EVENT ALERTS -->
+        <div class="card">
+            <h2 style="margin-top:0;">2. System Automations &amp; Event Triggers (<code>va_automated_reports.aspx</code>)</h2>
+            <p>
+                Administrative event alerts monitor background system health and dispatch structured alerts to technicians and system engineers when unexpected operational disruptions occur.
+            </p>
+
+            <table style="width:100%;margin:18px 0;border-collapse:collapse;">
+                <tr style="border-bottom:2px solid var(--line-docs);">
+                    <th style="text-align:left;padding:10px;">Event Trigger Key</th>
+                    <th style="text-align:left;padding:10px;">Monitored Component</th>
+                    <th style="text-align:left;padding:10px;">Trigger Condition &amp; Action</th>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:10px;"><code>Alert_DbFolderMissing</code></td>
+                    <td style="padding:10px;">Auto DB Update Processor</td>
+                    <td style="padding:10px;">Fires if the scheduled <code>va_autodbupdate.aspx</code> job starts but the configured <code>\autoload</code> network directory is inaccessible or missing.</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:10px;"><code>Alert_DbCrash</code></td>
+                    <td style="padding:10px;">Database MERGE Pipeline</td>
+                    <td style="padding:10px;">Fires if a SQL transaction fails, encounters a syntax deadlock, or aborts mid-import, preventing silent inventory data drops.</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:10px;"><code>Alert_PrintFailure</code></td>
+                    <td style="padding:10px;">Tag Team Scan Print Spooler</td>
+                    <td style="padding:10px;">Fires if the MQTT or REST print service encounters an HTTP 500 fatal internal server error when queuing RFID label print jobs.</td>
+                </tr>
+                <tr>
+                    <td style="padding:10px;"><code>Alert_TagAuditReport</code></td>
+                    <td style="padding:10px;">Diagnostic Test Trigger</td>
+                    <td style="padding:10px;">Fires whenever a user runs a Tag Audit Report export. Serves as a safe, non-destructive test to confirm end-to-end alert pipeline deliverability.</td>
+                </tr>
+            </table>
+
+            <div class="box-green">
+                <strong>&#128737; Master Kill-Switch &amp; Granular Overrides:</strong> Section 1 of <code>va_automated_reports.aspx</code> provides a global master toggle to pause all outgoing alerts instantly during scheduled maintenance. Individual triggers can either inherit from the global email recipient list or declare dedicated on-call distribution groups.
+            </div>
+        </div>
+
+        <!-- MODULE 3: NON-RECYCLING CONFIGURATION -->
+        <div class="card">
+            <h2 style="margin-top:0;">3. Resilient Non-Recycling Configuration Architecture</h2>
+            <p>
+                In standard ASP.NET applications, modifying settings via <code>WebConfigurationManager.Save()</code> triggers an immediate IIS Application Pool recycle. To prevent session drops and ensure uninterrupted RFID sweeps, iDash stores dynamic alert routing outside of <code>web.config</code>:
+            </p>
+
+            <table style="width:100%;margin:18px 0;border-collapse:collapse;">
+                <tr style="border-bottom:2px solid var(--line-docs);">
+                    <th style="text-align:left;padding:10px;">Storage File</th>
+                    <th style="text-align:left;padding:10px;">Format</th>
+                    <th style="text-align:left;padding:10px;">Architectural Purpose</th>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:10px;"><code>config/email_recipients.json</code></td>
+                    <td style="padding:10px;">JSON Array of email strings</td>
+                    <td style="padding:10px;">Stores distribution lists for automated reports and alerts. Updating recipients via the UI does <strong>not</strong> recycle IIS or log out field users. See <a href="va_email_recipient_storage.html">Email Recipient Storage Guide</a>.</td>
+                </tr>
+                <tr>
+                    <td style="padding:10px;"><code>config/report_automation.json</code></td>
+                    <td style="padding:10px;">Structured JSON Dictionary</td>
+                    <td style="padding:10px;">Persists per-site report schedules, recipient mappings, and trigger toggles cleanly on disk.</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- MODULE 4: DEVELOPER API -->
+        <div class="card">
+            <h2 style="margin-top:0;">4. Developer C# Alerting API (<code>App_Code/AlertingService.cs</code>)</h2>
+            <p>
+                The <code>AlertingService</code> class is JIT-compiled at runtime and accessible globally across all ASP.NET Web Forms, WebMethods, and scheduled batch handlers.
+            </p>
+
+            <pre style="background:var(--code-bg,#0b1329);color:var(--code-fg,#e2e8f0);padding:18px;border-radius:10px;border:1px solid #334155;overflow-x:auto;"><code><span style="color:#60a5fa;">// 1. Dispatching a Rich HTML System Alert (Recommended)</span>
+<span style="color:#f59e0b;">AlertingService</span>.SendSystemEmail(
+    subject: <span style="color:#86efac;">"AWX CRITICAL: SQL Import Exception on Station 613"</span>,
+    bodyHtml: <span style="color:#86efac;">"&lt;h3 style='color:red;'&gt;Import Failed&lt;/h3&gt;&lt;p&gt;Transaction rolled back at step 2.&lt;/p&gt;"</span>,
+    triggerKey: <span style="color:#86efac;">"Alert_DbCrash"</span>
+);
+
+<span style="color:#60a5fa;">// 2. Legacy Method (Redirects to internal SMTP relay with newline sanitization)</span>
+<span style="color:#f59e0b;">AlertingService</span>.SendAdminSms(
+    message: <span style="color:#86efac;">"Autoload ingest directory not found at C:\\autoload"</span>,
+    triggerKey: <span style="color:#86efac;">"Alert_DbFolderMissing"</span>
+);</code></pre>
+
+            <div class="box-info">
+                <strong>&#128273; Fail-Safe Exception Policy:</strong> The alerting dispatcher safely catches and logs transport exceptions during background triggers to guarantee that a network timeout communicating with an SMTP relay cannot crash the primary database transaction or interrupt an active RFID scan sweep.
+            </div>
+        </div>
+
+        <!-- FOOTER NAV -->
+        <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--line-docs);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+            <a href="index.aspx" style="font-weight:600;color:var(--accent-docs);">&larr; Back to iDash Hub</a>
+            <span style="color:var(--muted-docs);font-size:13px;">Related: <a href="va_email_recipient_storage.html" style="color:var(--accent-docs);">Email Recipient Storage</a> &bull; <a href="va_site_config.html" style="color:var(--accent-docs);">Component Manifest</a></span>
+        </div>
+
+    </div><!-- /wrap -->
+
+    <footer style="margin-top:40px;padding:20px;border-top:1px solid var(--line-docs);font-size:12px;
+        color:var(--muted-docs);display:flex;justify-content:space-between;align-items:center;
+        max-width:1000px;margin-left:auto;margin-right:auto;">
+        <span style="font-weight:600;font-size:14px;color:var(--text-docs);">iDash<span style="color:#2ea8ff;">!</span> iDash Documentation</span>
+        <span>&copy; 2026 ID Integration Inc. &mdash; Revised September 12, 2026</span>
+    </footer>
+
+    <script>
+        function toggleIdashTheme(){
+            var h=document.documentElement;
+            if(h.getAttribute('data-theme')==='light'){h.removeAttribute('data-theme');localStorage.removeItem('idash_theme');}
+            else{h.setAttribute('data-theme','light');localStorage.setItem('idash_theme','light');}
+            updateThemeIcon();
+        }
+        function updateThemeIcon(){
+            var b=document.getElementById('themeToggleBtn');if(!b)return;
+            var l=document.documentElement.getAttribute('data-theme')==='light';
+            b.innerHTML=l?'&#9728;':'&#127769;';
+            b.title=l?'Switch to Dark Mode':'Switch to Light Mode';
+        }
+        document.addEventListener('DOMContentLoaded',updateThemeIcon);
+    </script>
+</body>
+</html>

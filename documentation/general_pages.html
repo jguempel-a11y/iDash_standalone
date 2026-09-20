@@ -1,0 +1,420 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Module Overview &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .mod-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 16px 0; }
+        .mod-table th { background: rgba(0,0,0,0.2); text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--line-docs); font-weight: 600; text-transform: uppercase; font-size: 0.8rem; letter-spacing: .5px; }
+        .mod-table td { padding: 10px 14px; border-bottom: 1px solid var(--line-docs); vertical-align: top; }
+        .mod-table tr:hover td { background: rgba(99,102,241,0.06); }
+        .access { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+        .access-all { background: color-mix(in srgb, var(--accent2-docs), transparent 85%); color: var(--accent2-docs); border: 1px solid color-mix(in srgb, var(--accent2-docs), transparent 60%); }
+        .access-admin { background: color-mix(in srgb, var(--danger), transparent 85%); color: var(--danger); border: 1px solid color-mix(in srgb, var(--danger), transparent 60%); }
+        .access-login { background: color-mix(in srgb, #f59e0b, transparent 85%); color: #f59e0b; border: 1px solid color-mix(in srgb, #f59e0b, transparent 60%); }
+        .section-head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+        .section-head h2 { margin: 0; }
+        .section-desc { color: var(--muted-docs); margin-top: 0; margin-bottom: 16px; }
+        .file-ref { font-family: Consolas, monospace; font-size: 0.85em; color: var(--accent-docs); }
+        .note-box { background: color-mix(in srgb, var(--accent-docs), transparent 92%); border-left: 6px solid var(--accent-docs); padding: 14px 18px; border-radius: 0 10px 10px 0; margin: 16px 0; font-size: 0.9rem; }
+        .warn-box { background: color-mix(in srgb, #f59e0b, transparent 92%); border-left: 6px solid #f59e0b; padding: 14px 18px; border-radius: 0 10px 10px 0; margin: 16px 0; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <a href="index.aspx">&larr; Back to Documentation Hub</a><br/><br/>
+
+    <!-- ======================================================= -->
+    <!-- HEADER                                                  -->
+    <!-- ======================================================= -->
+    <div class="card" style="background: linear-gradient(135deg, var(--card), rgba(46, 168, 255, 0.05));">
+        <h1>&#128214; iDash Module Overview</h1>
+        <p style="color:var(--muted-docs); font-size:16px; line-height:1.6; max-width:800px;">
+            Quick-reference guide to every module in the iDash portal. Each entry lists the module name as it
+            appears on the dashboard, the source file, a short description, and the access level required.
+            For in-depth documentation on any module, see its dedicated doc page linked from the
+            <a href="index.aspx">Documentation Hub</a>.
+        </p>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:12px;">
+            <span class="access access-all">All Users</span> <span style="color:var(--muted-docs); font-size:0.85rem;">= Visible based on tile permissions</span>
+            <span class="access access-login">Login Required</span> <span style="color:var(--muted-docs); font-size:0.85rem;">= Requires admin authentication</span>
+            <span class="access access-admin">Admin Only</span> <span style="color:var(--muted-docs); font-size:0.85rem;">= Restricted to system administrators</span>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- REPORTS                                                 -->
+    <!-- ======================================================= -->
+    <div class="card" id="reports">
+        <div class="section-head">
+            <h2>&#128202; Reports</h2>
+        </div>
+        <p class="section-desc">Dashboards and data exports for management review, auditor submission, and operational visibility.</p>
+
+        <table class="mod-table">
+            <tr><th>Module</th><th>Source File</th><th>Description</th><th>Access</th></tr>
+            <tr>
+                <td><strong>Asset Overview &amp; Analytics</strong></td>
+                <td class="file-ref">va_asset_stats.aspx</td>
+                <td>Full asset dashboard &mdash; overview counts, data quality checks, items not in use, and site-wide analytics with chart visualizations. Four consolidated tabs: Overview, Data Quality, Not In Use, Analytics.</td>
+                <td><span class="access access-all">All Users</span></td>
+            </tr>
+            <tr>
+                <td><strong>Tagging Progress &amp; Activity</strong></td>
+                <td class="file-ref">va_tag_stats.aspx</td>
+                <td>Tagging progress by site and employee. KPI summaries, tag type breakdowns, and employee performance metrics with Excel export.</td>
+                <td><span class="access access-all">All Users</span></td>
+            </tr>
+            <tr>
+                <td><strong>Room &amp; Equipment List Progress</strong></td>
+                <td class="file-ref">va_cmr_stats.aspx</td>
+                <td>Total assigned assets and last inventory dates across all rooms (CMRs) and equipment lists (EILs). Includes CMR accountability tracking and multi-CMR filtering.</td>
+                <td><span class="access access-all">All Users</span></td>
+            </tr>
+            <tr>
+                <td><strong>Find Assets by Room</strong></td>
+                <td class="file-ref">va_assets_by_location.aspx</td>
+                <td>Assets grouped by last known room/location with time since last scan.</td>
+                <td><span class="access access-all">All Users</span></td>
+            </tr>
+            <tr>
+                <td><strong>Room Directory</strong></td>
+                <td class="file-ref">va_location_list.aspx</td>
+                <td>Browse all registered rooms and locations with current asset counts.</td>
+                <td><span class="access access-all">All Users</span></td>
+            </tr>
+            <tr>
+                <td><strong>Tagging Activity Summary</strong></td>
+                <td class="file-ref">va_tag_audit_report.aspx</td>
+                <td>Review tagging activity by date range and tag type. Filters on <code>DateModified</code> using ASP.NET GridView binding. Used by auditors and management for progress confirmation.</td>
+                <td><span class="access access-all">All Users</span></td>
+            </tr>
+            <tr>
+                <td><strong>Overdue Inventory Report</strong></td>
+                <td class="file-ref">va_report_inventoried.aspx</td>
+                <td>Assets not inventoried recently, grouped by overdue duration bands.</td>
+                <td><span class="access access-all">All Users</span></td>
+            </tr>
+            <tr>
+                <td><strong>Inventory Export Files (ENNX)</strong></td>
+                <td class="file-ref">va_ennx.aspx</td>
+                <td>Generate and download ENNX-format inventory export files for VA submission. Supports multi-day date ranges, site-specific filtering, and OIT/No-Data preview.</td>
+                <td><span class="access access-all">All Users</span></td>
+            </tr>
+            <tr>
+                <td><strong>Daily Report Automation</strong></td>
+                <td class="file-ref">va_report_automation.aspx</td>
+                <td>Configure the automated 7PM extraction of daily ENNX &amp; Excel reports for sites with new scanning activity.</td>
+                <td><span class="access access-all">All Users</span></td>
+            </tr>
+            <tr>
+                <td><strong>Past Inventory Sessions</strong></td>
+                <td class="file-ref">ennxhistory.aspx</td>
+                <td>Review previous inventory scan sessions by user and date. Download or email batch reports.</td>
+                <td><span class="access access-all">All Users</span></td>
+            </tr>
+            <tr>
+                <td><strong>Asset Values</strong></td>
+                <td class="file-ref">va_tag_stats.aspx</td>
+                <td>View and export asset valuations &mdash; tagged Not In Use value totals and full portfolio value by site. Accessible only after admin login.</td>
+                <td><span class="access access-login">Login Required</span></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- SEARCH                                                  -->
+    <!-- ======================================================= -->
+    <div class="card" id="search">
+        <div class="section-head">
+            <h2>&#128269; Search &amp; Lookup</h2>
+        </div>
+        <p class="section-desc">Research tools for locating specific assets, rooms, tags, and scan history.</p>
+
+        <table class="mod-table">
+            <tr><th>Module</th><th>Source File</th><th>Description</th><th>Access</th></tr>
+            <tr>
+                <td><strong>Search Assets &amp; Records</strong></td>
+                <td class="file-ref">va_data_research.aspx</td>
+                <td>Global search by asset name, location, EIL number, or tag type. Advanced querying system for viewing large datasets with filtering and export.</td>
+                <td><span class="access access-all">All Users</span></td>
+            </tr>
+            <tr>
+                <td><strong>Asset History Lookup</strong></td>
+                <td class="file-ref">va_previous_location.aspx</td>
+                <td>Look up an asset number or EIL to see its last scan location and full location history.</td>
+                <td><span class="access access-all">All Users</span></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- SCANNING & TOOLS                                        -->
+    <!-- ======================================================= -->
+    <div class="card" id="scanning">
+        <div class="section-head">
+            <h2>&#128241; Scanning &amp; Tools</h2>
+        </div>
+        <p class="section-desc">Live scanning dashboards, inventory tools, ENNX generation, and print template management.</p>
+
+        <table class="mod-table">
+            <tr><th>Module</th><th>Source File</th><th>Description</th><th>Access</th></tr>
+            <tr>
+                <td><strong>Site Location Maps</strong></td>
+                <td class="file-ref">va_site_maps.aspx</td>
+                <td>Track progress through facility maps to ensure no rooms are missed during tagging sweeps.</td>
+                <td><span class="access access-all">All Users</span></td>
+            </tr>
+            <tr>
+                <td><strong>Tag Team Scan</strong></td>
+                <td class="file-ref">va_tagteam_scan.aspx</td>
+                <td>Team scanning dashboard with ENNX integration and custom template printing. The primary field scanning interface.</td>
+                <td><span class="access access-all">All Users</span></td>
+            </tr>
+            <tr>
+                <td><strong>VA Site Inventory</strong></td>
+                <td class="file-ref">va_inventory.aspx</td>
+                <td>Rapid location sweep interface. Pre-loads room assets, verifies found items, and automatically moves misplaced assets to the current scanned location.</td>
+                <td><span class="access access-all">All Users</span></td>
+            </tr>
+            <tr>
+                <td><strong>ENNX Live Scan</strong></td>
+                <td class="file-ref">va_ennx_live_scan.aspx</td>
+                <td>Live asset scanning tool for generating ENNX data. Requires site selection and database connection. Sessions are saved to <code>EnnxLiveSession</code> table.</td>
+                <td><span class="access access-all">All Users</span></td>
+            </tr>
+            <tr>
+                <td><strong>Universal ENNX Creator</strong></td>
+                <td class="file-ref">va_universal_ennx.aspx</td>
+                <td>Build and download an ENNX file from any scanner &mdash; barcode, RFID, or both. No site selection or database required.</td>
+                <td><span class="access access-all">All Users</span></td>
+            </tr>
+            <tr>
+                <td><strong>EIL Live Scan &amp; Reconciliation</strong></td>
+                <td class="file-ref">va_eil_live_scan.aspx</td>
+                <td>Load an EIL parts list and reconcile against live scanning. Generates ENNX payloads during the scan.</td>
+                <td><span class="access access-all">All Users</span></td>
+            </tr>
+            <tr>
+                <td><strong>Print Template Mappings</strong></td>
+                <td class="file-ref">va_print_mapping.aspx</td>
+                <td>Bind device scanning Tag Types to custom iDash print templates for automatic label routing.</td>
+                <td><span class="access access-all">All Users</span></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- ADMIN TOOLS                                             -->
+    <!-- ======================================================= -->
+    <div class="card" id="admin">
+        <div class="section-head">
+            <h2>&#128274; Admin &amp; Database Tools</h2>
+        </div>
+        <p class="section-desc">Restricted tools for database maintenance, server configuration, data synchronization, and system monitoring. Requires admin login.</p>
+
+        <div class="warn-box">
+            <strong>&#9888; Access Restriction:</strong> All modules in this section require admin authentication via the Admin &amp; Database Tools login on the main iDash portal. Some tools perform destructive write operations.
+        </div>
+
+        <table class="mod-table">
+            <tr><th>Module</th><th>Source File</th><th>Description</th><th>Access</th></tr>
+            <tr>
+                <td><strong>Site Configuration</strong></td>
+                <td class="file-ref">va_site_config.aspx</td>
+                <td>New VISN server setup wizard. Update DB connection string, API credentials, SMTP / email settings (including recipients and report automation), and run the one-time company SQL &mdash; all from one page. Email configuration was consolidated here from the former standalone Email Config page.</td>
+                <td><span class="access access-login">Login Required</span></td>
+            </tr>
+            <tr>
+                <td><strong>Field Server Sync</strong></td>
+                <td class="file-ref">va_field_sync.aspx</td>
+                <td>Restore a field server <code>.bak</code> to staging, then merge updated asset data into the central database for executive reporting. Supports nightly automation.</td>
+                <td><span class="access access-login">Login Required</span></td>
+            </tr>
+            <tr>
+                <td><strong>Manual DB Update</strong></td>
+                <td class="file-ref">va_dbupdate.aspx</td>
+                <td>Upload data files (<code>.csv</code> / <code>.xlsx</code>) and SQL scripts to apply manual database updates. Executes <code>MERGE</code> and <code>UPDATE</code> batch scripts against the existing database.</td>
+                <td><span class="access access-login">Login Required</span></td>
+            </tr>
+            <tr>
+                <td><strong>Auto DB Update</strong></td>
+                <td class="file-ref">va_autodbupdate.aspx</td>
+                <td>Folder watcher and scheduled database update processor. Monitors the autoload folder for incoming data files and runs SQL update scripts automatically.</td>
+                <td><span class="access access-login">Login Required</span></td>
+            </tr>
+            <tr>
+                <td><strong>SQL Upload</strong></td>
+                <td class="file-ref">va_sql_upload.aspx</td>
+                <td>Upload and execute <code>.sql</code> scripts on the production database with multi-stage safety parsing and transactional rollback protection.</td>
+                <td><span class="access access-admin">Admin Only</span></td>
+            </tr>
+            <tr>
+                <td><strong>Site Data Export &amp; Import</strong></td>
+                <td class="file-ref">va_sitedata_export.aspx</td>
+                <td>Export or import a site&rsquo;s complete asset records using high-speed <code>SqlBulkCopy</code> staging table engine for data migration between iDash systems.</td>
+                <td><span class="access access-login">Login Required</span></td>
+            </tr>
+            <tr>
+                <td><strong>Excel Merge Tool</strong></td>
+                <td class="file-ref">va_excel.aspx</td>
+                <td>Merge equipment files with site master sheets for bulk data reconciliation.</td>
+                <td><span class="access access-login">Login Required</span></td>
+            </tr>
+            <tr>
+                <td><strong>System Automations</strong></td>
+                <td class="file-ref">va_automated_reports.aspx</td>
+                <td>Configure automated daily reporting emails, trigger testing, and event notifications.</td>
+                <td><span class="access access-login">Login Required</span></td>
+            </tr>
+            <tr>
+                <td><strong>System Logs &amp; Automation History</strong></td>
+                <td class="file-ref">va_autodbupdate.aspx?view=logs</td>
+                <td>View the DB update log, Field Sync log, and links to the full IIS &amp; App log analyzer. Consolidated log viewing interface.</td>
+                <td><span class="access access-login">Login Required</span></td>
+            </tr>
+            <tr>
+                <td><strong>IIS &amp; App Log Analyzer</strong></td>
+                <td class="file-ref">va_log_viewer.aspx</td>
+                <td>Advanced web server log analysis &mdash; filter IIS logs by IP, URI, and status code. Auto-diagnoses common iDash service errors from Serilog app logs.</td>
+                <td><span class="access access-login">Login Required</span></td>
+            </tr>
+            <tr>
+                <td><strong>Database Restore</strong></td>
+                <td class="file-ref">va_db_restore.aspx</td>
+                <td>Restore the iDash database from a <code>.bak</code> backup file. <strong>DANGER ZONE</strong> &mdash; overwrites the live production database.</td>
+                <td><span class="access access-admin">Admin Only</span></td>
+            </tr>
+            <tr>
+                <td><strong>Support Request</strong></td>
+                <td class="file-ref">index.aspx (modal)</td>
+                <td>Sends a support email directly to <strong>ID Integration Support</strong> (<code>varfid_support@id-integration.com</code>) with a CC to the submitter. The form collects the user&rsquo;s name, email, phone number, and issue description. Subject is auto-populated as <em>&ldquo;Support Request from [site]&rdquo;</em> using the user&rsquo;s assigned iDash site. Reply-To is set to the submitter so support can reply directly. Accessible via the <strong>Support Request</strong> pill in the user bar (upper-right, visible when logged in).</td>
+                <td><span class="access access-login">Login Required</span></td>
+            </tr>
+            <tr>
+                <td><strong>Supply Chain Bridge</strong></td>
+                <td class="file-ref">va_fhir_bridge.aspx</td>
+                <td>Push supply chain data (assets &amp; locations) from iDash to VA VistA via AEMS/MERS SQL sync. Includes ENNX session loading, parsing, and 7-step push pipeline.</td>
+                <td><span class="access access-login">Login Required</span></td>
+            </tr>
+            <tr>
+                <td><strong>User Management</strong></td>
+                <td class="file-ref">va_user_management.aspx</td>
+                <td>Create, edit, disable, and delete iDash portal user accounts. Control role-based access to tools, scanning, admin panel, and documentation.</td>
+                <td><span class="access access-admin">Admin Only</span></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- GUIDES & DOWNLOADS                                      -->
+    <!-- ======================================================= -->
+    <div class="card" id="docs">
+        <div class="section-head">
+            <h2>&#128218; Guides &amp; Downloads</h2>
+        </div>
+        <p class="section-desc">Documentation, procedures, and approved software downloads.</p>
+
+        <table class="mod-table">
+            <tr><th>Module</th><th>Source File</th><th>Description</th><th>Access</th></tr>
+            <tr>
+                <td><strong>Secure Downloads</strong></td>
+                <td class="file-ref">va_downloads.aspx</td>
+                <td>Approved software downloads, printer templates, drivers, reporting plugins, and licenses.</td>
+                <td><span class="access access-all">All Users</span></td>
+            </tr>
+            <tr>
+                <td><strong>iDash App Documentation</strong></td>
+                <td class="file-ref">documentation/index.aspx</td>
+                <td>Central registry and technical reference for all iDash modules, pages, APIs, scan filters, procedures, and architecture rationale.</td>
+                <td><span class="access access-all">All Users</span></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- PAGE COUNT SUMMARY                                      -->
+    <!-- ======================================================= -->
+    <div class="card" id="summary">
+        <div class="section-head">
+            <h2>&#128203; Summary</h2>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:16px; margin-top:12px;">
+            <div style="text-align:center; padding:16px; background:rgba(0,0,0,0.1); border-radius:10px;">
+                <div style="font-size:2rem; font-weight:800; color:var(--accent-docs);">11</div>
+                <div style="font-size:0.85rem; color:var(--muted-docs);">Report Modules</div>
+            </div>
+            <div style="text-align:center; padding:16px; background:rgba(0,0,0,0.1); border-radius:10px;">
+                <div style="font-size:2rem; font-weight:800; color:var(--accent-docs);">2</div>
+                <div style="font-size:0.85rem; color:var(--muted-docs);">Search Tools</div>
+            </div>
+            <div style="text-align:center; padding:16px; background:rgba(0,0,0,0.1); border-radius:10px;">
+                <div style="font-size:2rem; font-weight:800; color:var(--accent-docs);">7</div>
+                <div style="font-size:0.85rem; color:var(--muted-docs);">Scanning Tools</div>
+            </div>
+            <div style="text-align:center; padding:16px; background:rgba(0,0,0,0.1); border-radius:10px;">
+                <div style="font-size:2rem; font-weight:800; color:var(--accent-docs);">14</div>
+                <div style="font-size:0.85rem; color:var(--muted-docs);">Admin Tools</div>
+            </div>
+            <div style="text-align:center; padding:16px; background:rgba(0,0,0,0.1); border-radius:10px;">
+                <div style="font-size:2rem; font-weight:800; color:var(--accent-docs);">2</div>
+                <div style="font-size:0.85rem; color:var(--muted-docs);">Guides &amp; Downloads</div>
+            </div>
+        </div>
+
+        <div class="note-box" style="margin-top:20px;">
+            <strong>&#x2139; For Developers:</strong> Each module listed above has a corresponding <code>.aspx</code> markup file and <code>.aspx.cs</code> code-behind file in <code>C:\inetpub\wwwroot\iDash\</code>. Shared styles are in <code>theme.css</code> and theme initialization is handled by <code>theme-init.js</code>. All modules use the same SQL connection string configured in <code>web.config</code> or via the Site Configuration wizard.
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- REVISION HISTORY                                        -->
+    <!-- ======================================================= -->
+    <div class="card">
+        <h2>&#128221; Revision History</h2>
+        <table class="mod-table">
+            <tr><th>Date</th><th>Version</th><th>Change</th><th>Author</th></tr>
+            <tr>
+                <td>2026-07-28</td>
+                <td>2.5</td>
+                <td>
+                    Added Support Request pill and modal to the iDash Hub user bar. Consolidated
+                    email configuration (recipients, SMTP, report automation) into Site Configuration.
+                    Removed standalone Manage Email Config modal from Hub. Updated Site Config entry
+                    to reflect expanded email management scope.
+                </td>
+                <td>iDash Development</td>
+            </tr>
+            <tr>
+                <td>2026-07-09</td>
+                <td>2.0</td>
+                <td>
+                    Complete rewrite. Expanded from 6 modules to 36. Added all reporting,
+                    search, scanning, admin, and documentation modules. Added access level
+                    badges, source file references, and summary statistics. Updated Supply
+                    Chain Bridge naming (was FHIR Bridge).
+                </td>
+                <td>iDash Development</td>
+            </tr>
+            <tr>
+                <td>2026-06-01</td>
+                <td>1.0</td>
+                <td>Initial version covering Asset Stats, Tag Audit, Data Quality, DB Sync, SQL Upload, and Log Viewer.</td>
+                <td>iDash Development</td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="text-align:center; color:var(--muted-docs); font-size:12px; margin-top:40px;">
+        iDash Documentation v2.5.0 &middot; Build 2026-07-28 &middot; ID Integration Inc. &copy; 2026
+    </div>
+</div>
+</body>
+</html>

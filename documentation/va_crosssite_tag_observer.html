@@ -1,0 +1,511 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Cross-Site Tag Observer — Architecture &amp; Deployment Guide</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="../theme.css" />
+    <script src="../theme-init.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter','Segoe UI',sans-serif;line-height:1.7;}
+        .doc{max-width:960px;margin:0 auto;padding:40px 28px 80px;}
+        h1{font-size:28px;font-weight:700;margin-bottom:8px;background:linear-gradient(90deg,#10B981,#06B6D4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+        .subtitle{font-size:14px;color:var(--muted);margin-bottom:32px;border-bottom:1px solid var(--line);padding-bottom:16px;}
+        h2{font-size:20px;font-weight:700;margin:36px 0 14px;border-left:4px solid var(--accent);padding-left:14px;}
+        h3{font-size:16px;font-weight:600;margin:24px 0 10px;color:var(--accent);}
+        p,li{font-size:14px;}
+        ul,ol{padding-left:22px;}
+        li{margin-bottom:6px;}
+        pre{background:var(--chip);border:1px solid var(--line);border-radius:10px;padding:18px;font-size:13px;overflow-x:auto;line-height:1.6;margin:14px 0;}
+        code{font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:13px;}
+        .inline-code{background:var(--chip);padding:2px 7px;border-radius:4px;font-size:12px;border:1px solid var(--line);}
+        table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;}
+        th{background:var(--chip);text-align:left;padding:10px 14px;font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:.6px;color:var(--muted);border-bottom:2px solid var(--line);}
+        td{padding:10px 14px;border-bottom:1px solid var(--line);}
+        tr:hover td{background:var(--chip);}
+        .callout{border-radius:10px;padding:16px 20px;margin:18px 0;font-size:13px;}
+        .callout-info{background:color-mix(in srgb,#3B82F6 10%,transparent);border:1px solid color-mix(in srgb,#3B82F6 30%,transparent);color:var(--text);}
+        .callout-warn{background:color-mix(in srgb,#F59E0B 10%,transparent);border:1px solid color-mix(in srgb,#F59E0B 30%,transparent);color:var(--text);}
+        .callout-success{background:color-mix(in srgb,#10B981 10%,transparent);border:1px solid color-mix(in srgb,#10B981 30%,transparent);color:var(--text);}
+        .callout strong{display:block;margin-bottom:4px;}
+        .pill{display:inline-block;background:var(--chip);border:1px solid var(--line);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;margin-right:4px;}
+        .flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:8px;margin:20px 0;text-align:center;font-size:12px;}
+        .flow-box{background:var(--chip);border:1px solid var(--line);border-radius:10px;padding:14px;font-weight:600;}
+        .flow-arrow{color:var(--accent);font-size:20px;font-weight:700;}
+        .tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;}
+        .tag-green{background:#10B98122;color:#10B981;border:1px solid #10B98144;}
+        .tag-red{background:#EF444422;color:#EF4444;border:1px solid #EF444444;}
+        .tag-blue{background:#3B82F622;color:#3B82F6;border:1px solid #3B82F644;}
+        .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:20px;}
+        .back-link:hover{color:var(--text);}
+        .toc{background:var(--chip);border:1px solid var(--line);border-radius:10px;padding:18px 24px;margin:20px 0;}
+        .toc a{color:var(--accent);text-decoration:none;font-size:13px;display:block;padding:3px 0;}
+        .toc a:hover{text-decoration:underline;}
+    </style>
+</head>
+<body>
+<div class="doc">
+    <a href="../documentation/index.aspx" class="back-link">&#8592; Documentation Hub</a>
+
+    <h1>&#128225; Cross-Site Tag Observer</h1>
+    <div class="subtitle">
+        Architecture, implementation, and deployment guide for detecting RFID tags from other VA sites at your fixed reader location.<br>
+        <span class="pill">Version 1.0</span>
+        <span class="pill">August 2026</span>
+        <span class="pill">Status: Planned</span>
+    </div>
+
+    <div class="toc">
+        <strong style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;">Table of Contents</strong>
+        <a href="#problem">1. Problem Statement</a>
+        <a href="#why-api-cant">2. Why the iDash API Can't Do This</a>
+        <a href="#solution">3. Solution: Cross-Site Tag Observer</a>
+        <a href="#architecture">4. Architecture &amp; Data Flow</a>
+        <a href="#implementation">5. Implementation Details</a>
+        <a href="#config">6. Configuration</a>
+        <a href="#deployment">7. Deployment Steps</a>
+        <a href="#monitoring">8. Monitoring &amp; Troubleshooting</a>
+        <a href="#impact">9. Performance Impact Assessment</a>
+        <a href="#future">10. Future Enhancements</a>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="problem">1. Problem Statement</h2>
+
+    <p>VA sites (512 Baltimore, 517 Beckley, 540 Clarksburg, 581 Huntington, 613 Martinsburg) each have their own RFID-tagged assets. When a fixed reader at one site (e.g., 613 Martinsburg) detects a tag from another site (e.g., 512 Baltimore), the system needs to:</p>
+
+    <ol>
+        <li>Record the observation (when and where the tag was seen)</li>
+        <li>Alert operations that cross-site equipment has been detected</li>
+        <li>Enable reporting on cross-site asset movements</li>
+    </ol>
+
+    <div class="callout callout-warn">
+        <strong>&#9888; The Core Challenge</strong>
+        The iDash API fundamentally scopes all RFID tag matching to the reader's assigned company. A reader assigned to company 7 (613 Martinsburg) will ONLY match tags belonging to company 7. Tags from company 6 (512 Baltimore) are silently discarded by the API even though the reader hardware physically reads them.
+    </div>
+
+    <p><strong>Business value:</strong> Detecting cross-site assets is where the money is. Equipment that moves between sites without documentation creates inventory discrepancies, audit failures, and lost revenue. This system catches those anomalies automatically.</p>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="why-api-cant">2. Why the iDash API Can't Do This</h2>
+
+    <h3>The Tag Matching Pipeline</h3>
+
+    <div class="flow">
+        <div class="flow-box">&#128225; FX9600 Reader<br><span style="font-size:11px;color:var(--muted);">Reads ALL RFID tags</span></div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-box">&#128233; MQTT Broker<br><span style="font-size:11px;color:var(--muted);">gateway/data/FX9600_F78C85</span></div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-box">&#9881; iDash API<br><span style="font-size:11px;color:var(--muted);">WHERE rfidtag=@tag <span class="tag tag-red">AND companyid=7</span></span></div>
+    </div>
+
+    <p>The API lookup chain:</p>
+    <ol>
+        <li>Reader sends tag hex (e.g., <code class="inline-code">512EE575293FF</code>) via MQTT</li>
+        <li>API receives message, identifies reader as <code class="inline-code">FX9600_F78C85</code> (companyid=7)</li>
+        <li>API queries: <code class="inline-code">SELECT * FROM asset WHERE rfidtag = '512EE575293FF' AND companyid = 7</code></li>
+        <li><span class="tag tag-red">NO MATCH</span> — the asset belongs to companyid=6 (512 Baltimore)</li>
+        <li>Tag read is <strong>silently discarded</strong></li>
+    </ol>
+
+    <h3>What We Tried (and Why It Failed)</h3>
+    <table>
+        <tr><th>Approach</th><th>Result</th><th>Why</th></tr>
+        <tr>
+            <td>Duplicate reader entries per company</td>
+            <td><span class="tag tag-red">Failed</span></td>
+            <td>API matches MQTT messages to ONE reader entry by physicalid. Additional entries are ignored.</td>
+        </tr>
+        <tr>
+            <td>Modify iDash appsettings.json</td>
+            <td><span class="tag tag-red">N/A</span></td>
+            <td>No cross-company configuration option exists in the compiled API binary.</td>
+        </tr>
+        <tr>
+            <td>Change reader's companyid</td>
+            <td><span class="tag tag-red">Breaks 613</span></td>
+            <td>Would stop matching the reader's own site's tags.</td>
+        </tr>
+    </table>
+
+    <div class="callout callout-info">
+        <strong>&#128161; Key Insight</strong>
+        The API is a compiled binary we cannot modify. The solution must work <em>alongside</em> the API, not replace it. The API continues handling same-site tags normally; our listener handles cross-site tags that the API ignores.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="solution">3. Solution: Cross-Site Tag Observer</h2>
+
+    <p>A lightweight Windows Service that subscribes to the same MQTT topic as the iDash API and performs its own cross-company tag matching directly against the SQL database.</p>
+
+    <h3>Design Principles</h3>
+    <ul>
+        <li><strong>Passive listener</strong> — reads MQTT messages but never publishes. Zero impact on existing message flow.</li>
+        <li><strong>Complementary, not competing</strong> — only processes tags the API <em>already ignores</em>. Never touches same-site tags.</li>
+        <li><strong>Minimal SQL footprint</strong> — one indexed lookup + conditional update per tag read.</li>
+        <li><strong>Same proven pattern</strong> — identical architecture to the iDash Print Server (MQTT → SQL → Action).</li>
+    </ul>
+
+    <div class="flow">
+        <div class="flow-box">&#128225; FX9600 Reader<br><span style="font-size:11px;color:var(--muted);">Reads ALL tags</span></div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-box">&#128233; MQTT Broker<br><span style="font-size:11px;color:var(--muted);">Publishes once</span></div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-box" style="border-color:var(--accent);">
+            &#9881; iDash API <span class="tag tag-green">Same-site</span><br>
+            &#128269; Cross-Site Observer <span class="tag tag-blue">Other sites</span>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="architecture">4. Architecture &amp; Data Flow</h2>
+
+    <h3>Component Diagram</h3>
+    <pre>
+┌──────────────────────────────────────────────────────────────┐
+│  Zebra FX9600 Fixed Reader (192.168.4.47)                    │
+│  Reads ALL RFID tags within antenna range                    │
+│  Publishes to MQTT topic: gateway/data/FX9600_F78C85         │
+└────────────────────────────┬─────────────────────────────────┘
+                             │ MQTT (TLS port 8883)
+                             ▼
+┌──────────────────────────────────────────────────────────────┐
+│  Mosquitto MQTT Broker (localhost:8883)                       │
+│  Routes messages to ALL subscribers                          │
+│  Adding subscribers = zero additional broker load             │
+└────────┬──────────────────────────────┬──────────────────────┘
+         │                              │
+         ▼                              ▼
+┌─────────────────────┐   ┌─────────────────────────────────┐
+│  iDash API      │   │  Cross-Site Tag Observer         │
+│  (Existing)         │   │  (New Windows Service)           │
+│                     │   │                                   │
+│  Matches tags WHERE │   │  Matches tags WHERE               │
+│  companyid = 7      │   │  companyid != reader's company    │
+│  (reader's company) │   │  (all OTHER companies)            │
+│                     │   │                                   │
+│  Updates:           │   │  Updates:                         │
+│  • lastobservedtime │   │  • lastobservedtime               │
+│  • lastobservedloc  │   │  • lastobservedlocation           │
+│  • locationname     │   │  (does NOT change locationname)   │
+│    (if configured)  │   │                                   │
+└─────────────────────┘   └─────────────────────────────────┘
+         │                              │
+         ▼                              ▼
+┌──────────────────────────────────────────────────────────────┐
+│  SQL Server (.\SQLEXPRESS - iDash database)              │
+│  dbo.asset table                                             │
+│  • Same-site rows updated by API                             │
+│  • Cross-site rows updated by Observer                       │
+│  • NO OVERLAP — they update different rows                   │
+└──────────────────────────────────────────────────────────────┘
+    </pre>
+
+    <h3>MQTT Topic Structure</h3>
+    <table>
+        <tr><th>Topic</th><th>Direction</th><th>Purpose</th></tr>
+        <tr><td><code>gateway/data/FX9600_F78C85</code></td><td>Reader → Broker</td><td>Tag inventory data (EPC hex values)</td></tr>
+        <tr><td><code>gateway/cmd/FX9600_F78C85</code></td><td>API → Reader</td><td>Commands (start/stop inventory)</td></tr>
+        <tr><td><code>gateway/rsp/FX9600_F78C85</code></td><td>Reader → API</td><td>Command responses</td></tr>
+        <tr><td><code>gateway/msg/gateway/FX9600_F78C85</code></td><td>Reader → API</td><td>Status/heartbeat messages</td></tr>
+    </table>
+
+    <div class="callout callout-info">
+        <strong>&#128161; Our Observer subscribes to <code>gateway/data/#</code></strong>
+        The wildcard <code>#</code> means it receives tag data from ALL readers. If you add more fixed readers in the future, the Observer automatically covers them — no config changes needed.
+    </div>
+
+    <h3>Message Payload Format</h3>
+    <p>The FX9600 reader sends tag data as JSON. The Observer parses the tag EPC (hex) from each message:</p>
+    <pre>
+{
+  "readerName": "FX9600_F78C85",
+  "tagReads": [
+    {
+      "epc": "512EE575293FF",        ← RFID tag hex (= asset.rfidtag)
+      "antenna": 1,
+      "rssi": -45,
+      "timestamp": "2026-08-25T17:30:00Z"
+    },
+    {
+      "epc": "613EE12204FF",
+      "antenna": 2,
+      "rssi": -38,
+      "timestamp": "2026-08-25T17:30:01Z"
+    }
+  ]
+}
+    </pre>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="implementation">5. Implementation Details</h2>
+
+    <h3>Core Logic (Pseudocode)</h3>
+    <pre>
+ON MQTT MESSAGE RECEIVED (topic = "gateway/data/{readerName}"):
+
+  1. Parse readerName from topic
+  2. Look up reader's HOME company from DB:
+     SELECT companyid FROM reader WHERE physicalid = @readerName
+     → readerCompanyId = 7 (613 Martinsburg)
+
+  3. Parse tag list from JSON payload
+
+  4. FOR EACH tag in tagList:
+     a. Look up asset EXCLUDING reader's own company:
+        SELECT id, companyid, name
+        FROM asset
+        WHERE rfidtag = @tagHex
+          AND companyid != @readerCompanyId
+
+     b. IF match found (cross-site tag!):
+        UPDATE asset
+        SET lastobservedtime = GETDATE(),
+            lastobservedlocation = @readerLocationName
+        WHERE id = @assetId
+
+        LOG: "Cross-site tag detected: {assetName} (company {companyId})
+              seen at {readerLocation} (company {readerCompanyId})"
+
+     c. IF no match:
+        SKIP (either it's a same-site tag handled by the API,
+              or it's an unknown tag not in any company)
+    </pre>
+
+    <h3>Key Design Decisions</h3>
+    <table>
+        <tr><th>Decision</th><th>Rationale</th></tr>
+        <tr>
+            <td>Only update <code>lastobservedtime</code> + <code>lastobservedlocation</code></td>
+            <td>These are observation fields. We do NOT update <code>locationname</code> (the asset's assigned location) — that's a business decision for humans.</td>
+        </tr>
+        <tr>
+            <td>Exclude reader's own companyid from matching</td>
+            <td>The iDash API already handles same-site tags. We only fill the gap it leaves.</td>
+        </tr>
+        <tr>
+            <td>Use <code>gateway/data/#</code> wildcard subscription</td>
+            <td>Auto-covers new readers without config changes. One subscription, all readers.</td>
+        </tr>
+        <tr>
+            <td>Cache reader→company mapping</td>
+            <td>Avoid querying the reader table on every message. Refresh cache every 5 minutes.</td>
+        </tr>
+        <tr>
+            <td>Debounce: skip update if lastobservedtime &lt; 60 seconds old</td>
+            <td>Readers send tag data every few seconds. No need to UPDATE every time — once per minute is sufficient.</td>
+        </tr>
+    </table>
+
+    <h3>SQL Queries Used</h3>
+    <pre>
+-- 1. Get reader's home company (cached, refreshed every 5 min)
+SELECT r.physicalid, r.companyid, l.name AS locationName
+FROM dbo.reader r
+INNER JOIN dbo.location l ON r.locationid = l.id
+WHERE r.physicalid IS NOT NULL;
+
+-- 2. Cross-company tag lookup (per tag, per message)
+SELECT id, name, companyid, lastobservedtime
+FROM dbo.asset
+WHERE rfidtag = @tagHex
+  AND companyid != @readerCompanyId;
+
+-- 3. Update observation (only if debounce threshold passed)
+UPDATE dbo.asset
+SET lastobservedtime = GETDATE(),
+    lastobservedlocation = @readerLocation
+WHERE id = @assetId
+  AND (lastobservedtime IS NULL
+       OR DATEDIFF(SECOND, lastobservedtime, GETDATE()) > 60);
+    </pre>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="config">6. Configuration</h2>
+
+    <h3>appsettings.json</h3>
+    <pre>
+{
+  "CrossSiteObserver": {
+    "MqttServer": "localhost",
+    "MqttPort": 8883,
+    "MqttUsername": "CrossSiteObserver",
+    "MqttPassword": "V5MqttCrossSite2026!",
+    "MqttUseTls": true,
+    "TopicFilter": "gateway/data/#",
+    "DebounceSeconds": 60,
+    "ReaderCacheMinutes": 5,
+    "Enabled": true
+  },
+  "ConnectionStrings": {
+    "iDash": "Data Source=.\\sqlexpress;Database=iDash;
+                  User ID=idashadmin;Password=idashadmin;
+                  Encrypt=False;TrustServerCertificate=True;
+                  Connect Timeout=30"
+  },
+  "Serilog": {
+    "MinimumLevel": "Information",
+    "WriteTo": [
+      { "Name": "File", "Args": {
+          "path": "c:\\Logs\\CrossSiteObserver_log.txt",
+          "rollingInterval": "Day"
+      }}
+    ]
+  }
+}
+    </pre>
+
+    <h3>Configuration Reference</h3>
+    <table>
+        <tr><th>Setting</th><th>Default</th><th>Description</th></tr>
+        <tr><td><code>MqttServer</code></td><td>localhost</td><td>MQTT broker hostname (same as Print Server)</td></tr>
+        <tr><td><code>MqttPort</code></td><td>8883</td><td>MQTT broker port (TLS)</td></tr>
+        <tr><td><code>MqttUsername</code></td><td>CrossSiteObserver</td><td>MQTT client username (must be registered in broker)</td></tr>
+        <tr><td><code>TopicFilter</code></td><td>gateway/data/#</td><td>MQTT topic wildcard — covers all readers</td></tr>
+        <tr><td><code>DebounceSeconds</code></td><td>60</td><td>Minimum seconds between updates for same asset. Prevents rapid-fire SQL updates.</td></tr>
+        <tr><td><code>ReaderCacheMinutes</code></td><td>5</td><td>How often to refresh the reader→company mapping from DB</td></tr>
+        <tr><td><code>Enabled</code></td><td>true</td><td>Master kill switch. Set false to disable without uninstalling.</td></tr>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="deployment">7. Deployment Steps</h2>
+
+    <h3>Prerequisites</h3>
+    <ul>
+        <li>.NET 6.0+ Runtime installed on the server</li>
+        <li>Access to the iDash SQL Server database</li>
+        <li>MQTT broker (Mosquitto) running on port 8883</li>
+        <li>Same server as iDash (recommended) or network access to MQTT + SQL</li>
+    </ul>
+
+    <h3>Step-by-Step Installation</h3>
+    <ol>
+        <li><strong>Register MQTT user</strong> — Add <code>CrossSiteObserver</code> to the Mosquitto password file:
+            <pre>cd C:\mosquitto
+mosquitto_passwd -b passwordfile CrossSiteObserver V5MqttCrossSite2026!</pre>
+        </li>
+        <li><strong>Copy service files</strong> — Deploy to:
+            <pre>C:\Program Files (x86)\InfinID Technologies\CrossSite Tag Observer\</pre>
+        </li>
+        <li><strong>Edit appsettings.json</strong> — Update connection string and MQTT credentials for the target server.</li>
+        <li><strong>Install as Windows Service</strong>:
+            <pre>sc create "CrossSiteTagObserver" binPath="C:\Program Files (x86)\InfinID Technologies\CrossSite Tag Observer\CrossSiteTagObserver.exe" start=auto
+sc description "CrossSiteTagObserver" "Detects RFID tags from other VA sites at fixed reader locations"
+sc start CrossSiteTagObserver</pre>
+        </li>
+        <li><strong>Verify</strong> — Check the log file:
+            <pre>type C:\Logs\CrossSiteObserver_log.txt</pre>
+            You should see:
+            <pre>
+[INF] Cross-Site Tag Observer starting...
+[INF] MQTT connected to localhost:8883
+[INF] Subscribed to gateway/data/#
+[INF] Loaded 1 reader(s): FX9600_F78C85 → company 7 (SP1-117)
+[INF] Ready. Listening for cross-site tag reads...</pre>
+        </li>
+    </ol>
+
+    <h3>Replication Checklist (New Server)</h3>
+    <div class="callout callout-success">
+        <strong>&#9989; Copy-Paste Checklist for Server Deployment</strong>
+        <ol>
+            <li>&#9744; .NET Runtime installed</li>
+            <li>&#9744; Mosquitto MQTT broker running on port 8883</li>
+            <li>&#9744; MQTT user <code>CrossSiteObserver</code> registered in passwordfile</li>
+            <li>&#9744; Service files copied to Program Files</li>
+            <li>&#9744; <code>appsettings.json</code> updated with correct SQL connection string</li>
+            <li>&#9744; <code>appsettings.json</code> updated with correct MQTT credentials</li>
+            <li>&#9744; Windows Service installed via <code>sc create</code></li>
+            <li>&#9744; Service set to auto-start</li>
+            <li>&#9744; Log directory <code>C:\Logs</code> exists and is writable</li>
+            <li>&#9744; Test: hold a cross-site tag in front of reader, verify log entry appears</li>
+            <li>&#9744; Test: verify <code>lastobservedtime</code> updated in Asset Master for the cross-site asset</li>
+        </ol>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="monitoring">8. Monitoring &amp; Troubleshooting</h2>
+
+    <h3>Log File Location</h3>
+    <pre>C:\Logs\CrossSiteObserver_log.txt</pre>
+
+    <h3>What the Logs Tell You</h3>
+    <table>
+        <tr><th>Log Entry</th><th>Meaning</th></tr>
+        <tr><td><code>[INF] Cross-site: 512 EE575293 (company 6) seen at SP1-304 (company 7)</code></td><td>&#9989; Working. A 512 tag was detected at a 613 reader.</td></tr>
+        <tr><td><code>[DBG] Skipped tag 613EE12204FF — same company as reader (7)</code></td><td>Normal. API handles this tag.</td></tr>
+        <tr><td><code>[DBG] Debounced: 512 EE575293 updated 23s ago</code></td><td>Normal. Avoiding rapid updates.</td></tr>
+        <tr><td><code>[WRN] Unknown tag hex: ABC123DEF — not in any company</code></td><td>Tag not in database. May be external/unregistered.</td></tr>
+        <tr><td><code>[ERR] MQTT disconnected. Reconnecting in 5s...</code></td><td>Broker connection lost. Auto-reconnects.</td></tr>
+        <tr><td><code>[ERR] SQL connection failed</code></td><td>Database unreachable. Check SQL Server service.</td></tr>
+    </table>
+
+    <h3>Common Issues</h3>
+    <table>
+        <tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+        <tr><td>No log entries at all</td><td>Service not running</td><td><code>sc query CrossSiteTagObserver</code> — check status, start if stopped</td></tr>
+        <tr><td>MQTT connected but no tag messages</td><td>Reader not publishing</td><td>Check reader web UI (192.168.4.47) — verify inventory mode active</td></tr>
+        <tr><td>Tags detected but no DB updates</td><td>SQL connection issue</td><td>Check connection string in appsettings.json</td></tr>
+        <tr><td>Cross-site tags show but stale timestamps</td><td>Debounce too high</td><td>Lower <code>DebounceSeconds</code> in config</td></tr>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="impact">9. Performance Impact Assessment</h2>
+
+    <table>
+        <tr><th>Resource</th><th>Impact</th><th>Details</th></tr>
+        <tr><td>MQTT Broker</td><td><span class="tag tag-green">NONE</span></td><td>Pub/sub copies are free. Adding a subscriber doesn't increase message volume. The reader publishes once; broker copies to all subscribers.</td></tr>
+        <tr><td>Network</td><td><span class="tag tag-green">NONE</span></td><td>MQTT messages are already on the wire. Our subscriber is on localhost — no external traffic added.</td></tr>
+        <tr><td>SQL Server</td><td><span class="tag tag-green">NEGLIGIBLE</span></td><td>One indexed SELECT per tag per read cycle (~20 tags × every 5s = ~240 queries/min). Each query is sub-millisecond on an indexed <code>rfidtag</code> column. UPDATE only fires for cross-site tags (rare) with 60s debounce.</td></tr>
+        <tr><td>CPU</td><td><span class="tag tag-green">NEGLIGIBLE</span></td><td>JSON parsing + string comparison. No computation-heavy operations.</td></tr>
+        <tr><td>Memory</td><td><span class="tag tag-green">~20 MB</span></td><td>Reader cache (handful of entries) + MQTT client buffer. Tiny footprint.</td></tr>
+        <tr><td>Disk</td><td><span class="tag tag-green">MINIMAL</span></td><td>Log file only. Rolling daily, old logs can be purged.</td></tr>
+    </table>
+
+    <div class="callout callout-success">
+        <strong>&#9989; Bottom Line</strong>
+        This service is a passive MQTT listener doing indexed SQL lookups. It adds effectively zero load to the system. The iDash Print Server — which does more work (MQTT → BarTender → printer) — has been running on this same server without issues. The Observer does less work than the Print Server.
+    </div>
+
+    <h3>Conflict Analysis</h3>
+    <table>
+        <tr><th>Scenario</th><th>Risk</th><th>Explanation</th></tr>
+        <tr>
+            <td>Observer and API update same asset</td>
+            <td><span class="tag tag-green">IMPOSSIBLE</span></td>
+            <td>API only updates WHERE <code>companyid = reader's company</code>.<br>Observer only updates WHERE <code>companyid != reader's company</code>.<br>They are mutually exclusive by design.</td>
+        </tr>
+        <tr>
+            <td>Observer slows down API</td>
+            <td><span class="tag tag-green">IMPOSSIBLE</span></td>
+            <td>They share the MQTT broker (which handles pub/sub natively) and SQL Server (indexed queries). No locks, no contention.</td>
+        </tr>
+        <tr>
+            <td>Observer breaks existing data</td>
+            <td><span class="tag tag-green">IMPOSSIBLE</span></td>
+            <td>Observer only writes to <code>lastobservedtime</code> and <code>lastobservedlocation</code>. These are observation fields, not assignment fields. <code>locationname</code> (assigned location) is never modified.</td>
+        </tr>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <h2 id="future">10. Future Enhancements</h2>
+
+    <ul>
+        <li><strong>Cross-Site Alert Panel (re-enable)</strong> — Once the Observer is populating cross-site data, re-add the alert panel to the Fixed Reader Dashboard and CROSS-SITE badge to Asset Master. The UI code was built and tested but removed because the data source (this Observer) wasn't available yet.</li>
+        <li><strong>Email/SMS notifications</strong> — Trigger an alert when a high-value cross-site asset is detected (e.g., CMR match).</li>
+        <li><strong>Dwell-time location assignment</strong> — If a cross-site asset is seen for X consecutive minutes, optionally update its assigned location. User requested requirements gathering for this feature.</li>
+        <li><strong>Multi-reader support</strong> — The <code>gateway/data/#</code> wildcard already handles this. When new readers are deployed at other sites, the Observer automatically covers them.</li>
+        <li><strong>iDash Dashboard widget</strong> — Real-time cross-site tag count on the iDash home page.</li>
+    </ul>
+
+    <hr style="border:none;border-top:1px solid var(--line);margin:40px 0;">
+    <p style="font-size:12px;color:var(--muted);text-align:center;">
+        Cross-Site Tag Observer v1.0 &mdash; Architecture Document<br>
+        Created August 25, 2026 &mdash; iDash iDash Documentation
+    </p>
+</div>
+</body>
+</html>

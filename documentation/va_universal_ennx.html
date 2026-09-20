@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA UNIVERSAL ENNX (v2.0) &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .badge-none  { background: color-mix(in srgb, var(--accent-docs), transparent 85%); color: var(--accent-docs); border: 1px solid color-mix(in srgb, var(--accent-docs), transparent 70%); }
+        .badge-email { background: color-mix(in srgb, var(--accent2-docs), transparent 85%); color: var(--accent2-docs); border: 1px solid color-mix(in srgb, var(--accent2-docs), transparent 70%); }
+        .badge-new   { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); font-weight: 700; padding: 3px 8px; border-radius: 4px; font-size: 11px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div style="margin-bottom:18px;">
+        <a href="index.aspx">&larr; Back to Documentation Hub</a> &bull; 
+        <a href="va_universal_ennx_legacy.html" style="color:var(--muted-docs);">&rarr; View Archived Legacy Documentation (va_universal_ennx_legacy.aspx)</a>
+    </div>
+
+    <h1>&#128228; Universal ENNX Creator &mdash; Version 2.0</h1>
+
+    <div style="margin-bottom:28px;">
+        <span class="badge badge-new">Active Production v2.0</span>
+        <span class="badge badge-none">No Database Required</span>
+        <span class="badge badge-email">Direct Email Export</span>
+        <span class="badge" style="background:rgba(2,132,199,.15);color:#0284c7;border:1px solid rgba(2,132,199,.3);">Zebra TC53 / RFD40 Optimized</span>
+    </div>
+
+    <!-- OVERVIEW CARD -->
+    <div class="card" style="background:var(--card-docs);border:1px solid var(--line-docs);border-radius:16px;padding:32px;margin-bottom:30px;">
+        <h2>Overview &amp; Architecture</h2>
+        <p>
+            The <strong>Universal ENNX Creator (v2.0)</strong> is an enterprise, scanner-agnostic ENNX submission file builder designed for rapid physical inventory across any VA facility without requiring a direct database connection, site filter, or EIL configuration.
+        </p>
+        <p>
+            Operating natively on the <strong>Zebra TC53 / RFD40</strong> handhelds as well as desktop workstations, the v2.0 engine processes high-speed scan bursts (30&ndash;50 tags/sec) using an $O(1)$ memory engine, automatically partitions scans by room location barcodes (<code>SP...</code>), suppresses duplicate reads, presents a 4-color stream reconciliation table, and emails validated ENNX files directly to logistics teams.
+        </p>
+
+        <div class="alert alert-info" style="padding:16px 20px;border-radius:12px;margin:20px 0;border-left:6px solid var(--accent-docs);background:color-mix(in srgb, var(--accent-docs), transparent 90%);color:var(--text-docs);">
+            <strong>&#8505; Production Migration Notice:</strong> 
+            The previous postback and square-tile version has been archived as <strong><code>va_universal_ennx_legacy.aspx</code></strong>. The active production interface is now <strong><code>va_universal_ennx.aspx</code></strong>.
+            <br /><a href="va_universal_ennx_legacy.html" style="color:var(--accent-docs);font-weight:700;">&rarr; Review Archived Legacy Documentation (va_universal_ennx_legacy.html)</a>
+        </div>
+    </div>
+
+    <!-- V2.0 CHANGELOG -->
+    <div class="card" style="background:var(--card-docs);border:1px solid var(--line-docs);border-radius:16px;padding:32px;margin-bottom:30px;">
+        <h2>Changelog &amp; Modernization Highlights</h2>
+
+        <h3>September 2026 &mdash; Version 2.0 High-Speed Engine &amp; Visual Alignment</h3>
+        <table>
+            <thead>
+                <tr><th>Component</th><th>Improvement in v2.0</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Scanning Engine</strong></td>
+                    <td>Replaced sluggish DOM updates with an in-memory $O(1)$ set lookup engine capable of ingesting <strong>30&ndash;50 reads/sec</strong> with a 350ms trailing idle debounce.</td>
+                </tr>
+                <tr>
+                    <td><strong>Count &amp; Filter Bar</strong></td>
+                    <td>Replaced 4 tall square KPI tiles with a unified single-row filter bar matching <code>va_inventory.aspx</code>. Features interactive count badges (<code>All</code>, <code>Locations</code>, <code>Assets</code>, <code>Duplicates</code>), inline metrics, and <code>Undo</code> / <code>Clear All</code> actions.</td>
+                </tr>
+                <tr>
+                    <td><strong>Stream Reconciliation</strong></td>
+                    <td>4-color status rows: <strong>Green</strong> (Found Assets), <strong>Blue</strong> (Room Locations), <strong>Orange</strong> (Duplicate Reads), and <strong>Pink</strong> (Ignored EPC reads).</td>
+                </tr>
+                <tr>
+                    <td><strong>Mobile Form Ergonomics</strong></td>
+                    <td>Applied 8px rounded corners to manual inputs and buttons. Controls stack vertically on handheld screens with flush left alignment to prevent clipped buttons.</td>
+                </tr>
+                <tr>
+                    <td><strong>Streamlined Export</strong></td>
+                    <td>Removed deprecated WebSerial USB accordion and client-side blob downloads in favor of dedicated, one-click <strong>Email ENNX File</strong> submission.</td>
+                </tr>
+                <tr>
+                    <td><strong>Theme &amp; Contrast</strong></td>
+                    <td>Seamless toggle between Dark Mode and High-Contrast Light Mode with pure white surfaces, high-contrast borders (<code>#cbd5e1</code>), and dark slate typography (<code>#0f172a</code>).</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- CORE WORKFLOW -->
+    <div class="card" style="background:var(--card-docs);border:1px solid var(--line-docs);border-radius:16px;padding:32px;margin-bottom:30px;">
+        <h2>Operational Workflow</h2>
+        <ol>
+            <li>
+                <strong>Start Room Location:</strong> Scan any room location barcode starting with <code>SP</code> (e.g. <code>SP009-BD. 8A</code>) or click <em>Force Location</em> to mark the next scan as a location.
+            </li>
+            <li>
+                <strong>Pull RFID Trigger / Scan Assets:</strong> Sweep the room. All equipment barcodes (e.g. <code>517 EE35607</code>) are grouped under the active room block.
+            </li>
+            <li>
+                <strong>Switch Rooms Seamlessly:</strong> When moving to the next room, simply scan its <code>SP</code> barcode. The engine automatically closes the previous room block and opens the new location without losing data.
+            </li>
+            <li>
+                <strong>Filter &amp; Audit Scans:</strong> Tap <code>Duplicates</code>, <code>Locations</code>, or <code>Assets</code> on the single-row filter bar to inspect the session. Use <code>↩ Undo</code> to revert the last read.
+            </li>
+            <li>
+                <strong>Dispatch ENNX:</strong> Review the live preview panel and click <strong>✉ Email ENNX File</strong>. The system packages the submission and dispatches it to configured facility recipients.
+            </li>
+        </ol>
+    </div>
+
+    <!-- 4-COLOR STATUS LEGEND -->
+    <div class="card" style="background:var(--card-docs);border:1px solid var(--line-docs);border-radius:16px;padding:32px;margin-bottom:30px;">
+        <h2>4-Color Status Row Reference</h2>
+        <table>
+            <thead>
+                <tr><th>Status</th><th>Badge Color</th><th>Border / Highlight</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Asset</strong></td>
+                    <td><span class="badge" style="background:#059669;color:#fff;">Asset</span></td>
+                    <td>4px Green Left Border</td>
+                    <td>Valid equipment asset added to the current room location block.</td>
+                </tr>
+                <tr>
+                    <td><strong>Location</strong></td>
+                    <td><span class="badge" style="background:#0284c7;color:#fff;">Location</span></td>
+                    <td>4px Blue Left Border</td>
+                    <td>Room barcode (<code>SP...</code>) scanned; starts a new room section in the ENNX file.</td>
+                </tr>
+                <tr>
+                    <td><strong>Duplicate</strong></td>
+                    <td><span class="badge" style="background:#ea580c;color:#fff;">Duplicate</span></td>
+                    <td>4px Orange Left Border</td>
+                    <td>Asset already recorded in the active room; skipped to prevent duplicate ENNX entries.</td>
+                </tr>
+                <tr>
+                    <td><strong>Ignored</strong></td>
+                    <td><span class="badge" style="background:#db2777;color:#fff;">Ignored</span></td>
+                    <td>4px Pink Left Border</td>
+                    <td>Pure EPC hex reads or malformed strings; discarded to prevent data corruption.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ENNX FORMAT -->
+    <div class="card" style="background:var(--card-docs);border:1px solid var(--line-docs);border-radius:16px;padding:32px;margin-bottom:30px;">
+        <h2>Output Specification</h2>
+        <p>The system compiles standard VA-compliant ENNX plain-text format:</p>
+        <pre style="background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:14px;font-size:13px;color:#a7f3d0;overflow-x:auto;">ENNX
+ID
+SP009-BD. 8A
+517 EE35607
+517 EE31883
+SP015-BD. 8A
+517 EE45001
+***END***^5</pre>
+        <p>The trailer <code>***END***^N</code> calculates <em>N</em> as the exact count of locations and assets, ensuring rejection-free intake into Vista/AEMS-MERS.</p>
+    </div>
+
+    <div style="margin-top:48px;padding-top:20px;border-top:1px solid var(--line);">
+        <a href="index.aspx" style="font-weight:600;">&larr; Back to Documentation Hub</a> &bull;
+        <a href="va_universal_ennx_legacy.html" style="font-weight:600; color:var(--muted-docs);">&rarr; Review Archived Legacy Documentation</a>
+    </div>
+</div>
+
+<footer style="margin-top:40px;padding:20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted-docs);display:flex;justify-content:space-between;align-items:center;background:var(--bg);max-width:1400px;margin-left:auto;margin-right:auto;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
+        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
+        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+        <span>&copy; 2026 ID Integration Inc. &mdash; Updated September 2026</span>
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height:14px;opacity:.9;">
+    </div>
+</footer>
+</body>
+</html>

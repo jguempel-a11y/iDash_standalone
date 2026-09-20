@@ -1,0 +1,1371 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>IDI Mobile Connectivity Cookbook &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <script src="theme-init.js"></script>
+    <link rel="stylesheet" href="docs_theme.css" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        /* ============================
+           COOKBOOK-SPECIFIC STYLES
+           ============================ */
+        .cover-band {
+            background: linear-gradient(135deg,
+                color-mix(in srgb, var(--accent-docs) 18%, transparent),
+                color-mix(in srgb, #10b981 10%, transparent));
+            border: 1px solid var(--line-docs);
+            border-radius: 20px;
+            padding: 48px 40px 36px;
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+        .cover-band::before {
+            content: '';
+            position: absolute;
+            top: -40px; right: -40px;
+            width: 220px; height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle, color-mix(in srgb, var(--accent-docs) 12%, transparent), transparent 70%);
+        }
+        .cover-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+        .cover-brand-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .pill-idi   { background: color-mix(in srgb, #2ea8ff 18%, transparent); border: 1px solid #2ea8ff44; color: #2ea8ff; }
+        .pill-impres{ background: color-mix(in srgb, #10b981 18%, transparent); border: 1px solid #10b98144; color: #10b981; }
+        .pill-aw    { background: color-mix(in srgb, #a855f7 18%, transparent); border: 1px solid #a855f744; color: #a855f7; }
+
+        .cookbook-meta {
+            display: flex;
+            gap: 28px;
+            flex-wrap: wrap;
+            margin-top: 22px;
+            padding-top: 22px;
+            border-top: 1px solid var(--line-docs);
+        }
+        .meta-item { font-size: 13px; color: var(--muted-docs); }
+        .meta-item strong { color: var(--text-docs); display: block; margin-bottom: 3px; }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 10px 24px;
+        }
+        .toc-item {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            padding: 9px 0;
+            border-bottom: 1px dashed var(--line-docs);
+            text-decoration: none !important;
+            color: var(--muted-docs);
+            font-size: 14px;
+            font-weight: 400;
+            transition: color 0.15s;
+        }
+        .toc-item:hover { color: var(--accent-docs); text-decoration: none !important; }
+        .toc-item .toc-num {
+            width: 28px;
+            flex-shrink: 0;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--accent-docs);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .recipe-card {
+            background: var(--card-docs);
+            border: 1px solid var(--line-docs);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 28px;
+            scroll-margin-top: 24px;
+        }
+        .recipe-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+        .recipe-num {
+            flex-shrink: 0;
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 20px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+        }
+        .rn-blue  { background: var(--accent-docs); color: #fff; }
+        .rn-green { background: #10b981; color: #fff; }
+        .rn-amber { background: #f59e0b; color: #fff; }
+        .rn-purple{ background: #a855f7; color: #fff; }
+        .rn-red   { background: #ef4444; color: #fff; }
+
+        .recipe-title-block { flex: 1; }
+        .recipe-title-block h2 {
+            margin: 0 0 6px;
+            font-size: 1.35rem;
+            border: none;
+            padding: 0;
+        }
+        .recipe-subtitle {
+            font-size: 13px;
+            color: var(--muted-docs);
+            line-height: 1.5;
+        }
+
+        .ingredients-box {
+            background: rgba(0,0,0,0.12);
+            border: 1px solid var(--line-docs);
+            border-radius: 12px;
+            padding: 18px 22px;
+            margin: 18px 0;
+        }
+        .ingredients-box .ib-title {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent-docs);
+            margin-bottom: 10px;
+        }
+        .ingredients-box ul { margin: 0; padding-left: 20px; }
+        .ingredients-box ul li { font-size: 13px; color: var(--text-docs); margin-bottom: 4px; line-height: 1.5; }
+
+        .step-list { counter-reset: step; margin: 18px 0; }
+        .step-item {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 18px;
+            align-items: flex-start;
+        }
+        .step-item::before {
+            counter-increment: step;
+            content: counter(step);
+            flex-shrink: 0;
+            width: 30px; height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 13px;
+            background: var(--accent-docs);
+            color: #fff;
+            margin-top: 2px;
+        }
+        .step-item.green::before { background: #10b981; }
+        .step-item.amber::before { background: #f59e0b; }
+
+        .result-box {
+            background: color-mix(in srgb, #10b981 10%, transparent);
+            border: 1px solid color-mix(in srgb, #10b981 40%, transparent);
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 13px;
+            color: var(--text-docs);
+            margin-top: 18px;
+        }
+        .result-box strong { color: #10b981; }
+
+        .warn-recipe {
+            background: color-mix(in srgb, #f59e0b 10%, transparent);
+            border: 1px solid color-mix(in srgb, #f59e0b 40%, transparent);
+            border-left: 5px solid #f59e0b;
+            border-radius: 0 12px 12px 0;
+            padding: 14px 18px;
+            font-size: 13px;
+            margin: 14px 0;
+        }
+        .danger-recipe {
+            background: color-mix(in srgb, #ef4444 10%, transparent);
+            border: 1px solid color-mix(in srgb, #ef4444 40%, transparent);
+            border-left: 5px solid #ef4444;
+            border-radius: 0 12px 12px 0;
+            padding: 14px 18px;
+            font-size: 13px;
+            margin: 14px 0;
+        }
+        .info-recipe {
+            background: color-mix(in srgb, var(--accent-docs) 10%, transparent);
+            border: 1px solid color-mix(in srgb, var(--accent-docs) 40%, transparent);
+            border-left: 5px solid var(--accent-docs);
+            border-radius: 0 12px 12px 0;
+            padding: 14px 18px;
+            font-size: 13px;
+            margin: 14px 0;
+        }
+
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+        .mini-card {
+            background: rgba(0,0,0,0.12);
+            border: 1px solid var(--line-docs);
+            border-radius: 12px;
+            padding: 16px 18px;
+        }
+        .mini-card h4 { margin: 0 0 10px; font-size: 13px; color: var(--accent-docs); font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+        .mini-card p, .mini-card ul { margin: 0; font-size: 13px; color: var(--text-docs); }
+        .mini-card ul { padding-left: 18px; }
+        .mini-card ul li { margin-bottom: 4px; }
+
+        .troubleshoot-row {
+            background: rgba(0,0,0,0.1);
+            border: 1px solid var(--line-docs);
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-bottom: 14px;
+        }
+        .troubleshoot-row .symptom {
+            font-weight: 700;
+            color: #ef4444;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+        .troubleshoot-row .cause {
+            font-size: 13px;
+            color: var(--muted-docs);
+            margin-bottom: 6px;
+        }
+        .troubleshoot-row .fix {
+            font-size: 13px;
+            color: var(--text-docs);
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--line-docs);
+            font-size: 13px;
+        }
+        .checklist-item:last-child { border-bottom: none; }
+        .checklist-item .ci-box {
+            flex-shrink: 0;
+            width: 22px; height: 22px;
+            border: 2px solid var(--accent-docs);
+            border-radius: 6px;
+            margin-top: 1px;
+        }
+        .checklist-item .ci-label { color: var(--text-docs); }
+        .checklist-item .ci-team { color: var(--muted-docs); font-size: 12px; margin-top: 3px; }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 26px;
+            font-size: 14px;
+            color: var(--muted-docs);
+            text-decoration: none;
+            font-weight: 400;
+        }
+        .back-link:hover { color: var(--accent-docs); }
+
+        @media (max-width: 768px) {
+            .two-col { grid-template-columns: 1fr; }
+            .cover-band { padding: 28px 20px 24px; }
+            .recipe-card { padding: 20px 18px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Theme toggle -->
+    <button id="themeToggleBtn" onclick="toggleIdashTheme()" title="Toggle Light / Dark Mode"
+        style="position:fixed; top:14px; right:18px; z-index:9999;
+               background:var(--card); border:1px solid var(--line);
+               border-radius:10px; padding:6px 12px; cursor:pointer;
+               font-size:18px; color:var(--text); transition:all 0.2s;
+               box-shadow:0 4px 14px rgba(0,0,0,0.25);">&#127769;</button>
+
+    <div class="wrap">
+
+        <a href="../index.aspx" class="back-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back to iDash Hub
+        </a>
+
+        <!-- ================================================
+             COVER
+             ================================================ -->
+        <div class="cover-band">
+            <div class="cover-brand">
+                <span class="cover-brand-pill pill-idi">&#128241; ID Integration Inc.</span>
+                <span class="cover-brand-pill pill-impres">&#128279; Impres Technologies</span>
+                <span class="cover-brand-pill pill-aw">&#9889; iDash</span>
+            </div>
+
+            <h1 style="margin:0 0 10px; font-size:2.4rem; letter-spacing:-0.02em; line-height:1.15;">
+                Mobile Connectivity Cookbook
+            </h1>
+            <p style="font-size:1.05rem; color:var(--muted-docs); max-width:700px; line-height:1.65; margin:0;">
+                A practical field guide for network engineers, VA OIT teams, and deployment technicians
+                configuring mobile handheld scanners, WiFi infrastructure, and network connectivity
+                to support <strong style="color:var(--text-docs);">iDash</strong> by InfinID Technologies
+                on the VA network.
+            </p>
+
+            <div class="cookbook-meta">
+                <div class="meta-item">
+                    <strong>Vendor</strong>
+                    ID Integration Inc. &amp; Impres Technologies
+                </div>
+                <div class="meta-item">
+                    <strong>Application</strong>
+                    iDash by InfinID Technologies
+                </div>
+                <div class="meta-item">
+                    <strong>Platform</strong>
+                    VA Network / Windows Server / IIS / SQL Server
+                </div>
+                <div class="meta-item">
+                    <strong>Replaces</strong>
+                    McKesson Mobile Connectivity Cookbook (Legacy)
+                </div>
+                <div class="meta-item">
+                    <strong>Document</strong>
+                    iDash &mdash; idi_mobile_connectivity_cookbook.html
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================
+             INTRODUCTION
+             ================================================ -->
+        <div class="card">
+            <h2 style="margin-top:0;">&#128214; About This Cookbook</h2>
+            <p>
+                This document replaces the legacy McKesson Mobile Connectivity Cookbook and is fully
+                rewritten to reflect the <strong>iDash RFID Asset Tracking</strong> deployment by
+                <strong>ID Integration Inc.</strong> and <strong>Impres Technologies</strong> within the
+                VA healthcare network environment.
+            </p>
+            <p>
+                Each &ldquo;recipe&rdquo; in this cookbook addresses one discrete connectivity challenge &mdash;
+                from onboarding a new Zebra handheld scanner to diagnosing a lost WiFi connection or
+                configuring network ACLs for print server communication. Recipes are self-contained
+                and can be executed in any order based on the problem at hand.
+            </p>
+            <div class="info-recipe">
+                <strong>&#9432; Who Is This For?</strong><br>
+                VA OIT Network, Server, and Database teams; ID Integration / Impres deployment technicians;
+                and on-site biomedical or engineering staff responsible for maintaining iDash mobile
+                scanner infrastructure.
+            </div>
+            <div class="alert-amber" style="margin-top:20px;">
+                <strong>&#128196; ERA Reference</strong><br>
+                All port numbers, protocols, and network requirements in this document align with the approved
+                Enterprise Risk Assessment (ERA):
+                <a href="SPS_OT_RITM9079692_iDash Mod 1.2_POAM Req_Approved.pdf" style="font-size:14px;">
+                    &#128196; SPS_OT_RITM9079692 &mdash; InfinID Technologies iDash Mod 1.2 (Approved)
+                </a>
+            </div>
+        </div>
+
+        <!-- ================================================
+             TABLE OF CONTENTS
+             ================================================ -->
+        <div class="card">
+            <h2 style="margin-top:0;">&#128203; Table of Contents</h2>
+            <div class="toc-grid">
+                <a class="toc-item" href="#r1"><span class="toc-num">R1</span> System Architecture Overview</a>
+                <a class="toc-item" href="#r2"><span class="toc-num">R2</span> WiFi Network Configuration (mobile1md)</a>
+                <a class="toc-item" href="#r3"><span class="toc-num">R3</span> Onboarding a New Zebra TC53 Scanner</a>
+                <a class="toc-item" href="#r4"><span class="toc-num">R4</span> Connecting an RFD40 RFID Sled</a>
+                <a class="toc-item" href="#r5"><span class="toc-num">R5</span> Firewall &amp; ACL Requirements</a>
+                <a class="toc-item" href="#r6"><span class="toc-num">R6</span> Verifying Scanner-to-Server Connectivity</a>
+                <a class="toc-item" href="#r7"><span class="toc-num">R7</span> Label Printer Network Setup</a>
+                <a class="toc-item" href="#r8"><span class="toc-num">R8</span> VLAN Routing &amp; Inter-Segment Traffic</a>
+                <a class="toc-item" href="#r9"><span class="toc-num">R9</span> iDash Web Client URL Configuration</a>
+                <a class="toc-item" href="#r10"><span class="toc-num">R10</span> SSL Certificate &amp; HTTPS</a>
+                <a class="toc-item" href="#r11"><span class="toc-num">R11</span> Replacing or Adding a Scanner</a>
+                <a class="toc-item" href="#r12"><span class="toc-num">R12</span> Troubleshooting: Scanner Won&rsquo;t Connect</a>
+                <a class="toc-item" href="#r13"><span class="toc-num">R13</span> Troubleshooting: Print Jobs Not Printing</a>
+                <a class="toc-item" href="#r14"><span class="toc-num">R14</span> Troubleshooting: iDash Web Errors</a>
+                <a class="toc-item" href="#r15"><span class="toc-num">R15</span> Pre-Deployment Checklist</a>
+                <a class="toc-item" href="#r16"><span class="toc-num">R16</span> Contacts &amp; Responsible Parties</a>
+            </div>
+        </div>
+
+        <!-- ================================================
+             R1 — SYSTEM ARCHITECTURE
+             ================================================ -->
+        <div class="recipe-card" id="r1">
+            <div class="recipe-header">
+                <div class="recipe-num rn-blue">R1</div>
+                <div class="recipe-title-block">
+                    <h2>&#127959;&#65039; System Architecture Overview</h2>
+                    <div class="recipe-subtitle">Understand what connects to what before touching any settings.</div>
+                </div>
+            </div>
+
+            <p>The iDash RFID asset tracking system consists of four major physical and logical layers that must all communicate correctly for scanning and printing to work.</p>
+
+            <table>
+                <tr><th>Layer</th><th>Component</th><th>Role</th><th>Network</th></tr>
+                <tr>
+                    <td><strong>Mobile Scanners</strong></td>
+                    <td>Zebra TC53 + RFD40 RFID Sled</td>
+                    <td>Handheld asset scanning &amp; label printing trigger</td>
+                    <td>WiFi &mdash; <code>mobile1md</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Application Server</strong></td>
+                    <td>VA Windows Server (IIS + ASP.NET)</td>
+                    <td>Hosts iDash web client &amp; iDash management portal</td>
+                    <td>VA server VLAN &mdash; static IP</td>
+                </tr>
+                <tr>
+                    <td><strong>Database Server</strong></td>
+                    <td>VA SQL Server instance</td>
+                    <td>Stores all asset, location, print job, and user data</td>
+                    <td>VA data VLAN &mdash; port 1433</td>
+                </tr>
+                <tr>
+                    <td><strong>Label Printers</strong></td>
+                    <td>IQ350 / Large Metal / Standard Small</td>
+                    <td>Physical RFID label printing via BarTender</td>
+                    <td>Hardwired Ethernet &mdash; static IP &mdash; port 9100</td>
+                </tr>
+            </table>
+
+            <div class="info-recipe" style="margin-top:18px;">
+                <strong>&#128260; Data Flow Summary</strong><br>
+                <strong>Scan event:</strong> TC53 scanner &rarr; WiFi (mobile1md) &rarr; iDash server (HTTPS 443) &rarr; SQL Server (TCP 1433)<br>
+                <strong>Print event:</strong> TC53 triggers print &rarr; iDash server queues print job in SQL &rarr; PowerShell spooler dequeues job &rarr; BarTender &rarr; label printer (TCP 9100)<br>
+                <strong>Fixed reader:</strong> Zebra FX9600 &rarr; MQTT over TCP 1883 &rarr; iDash MQTT broker &rarr; SQL Server<br>
+                <strong>iDash portal:</strong> Any workstation/browser &rarr; HTTPS 443 &rarr; iDash server
+            </div>
+
+            <div class="two-col" style="margin-top:18px;">
+                <div class="mini-card">
+                    <h4>&#128241; Mobile Side</h4>
+                    <ul>
+                        <li>Zebra TC53 handheld (Android)</li>
+                        <li>Zebra RFD40 RFID sled (Bluetooth to TC53)</li>
+                        <li>iDash mobile app (browser-based over HTTPS)</li>
+                        <li>WiFi: <code>mobile1md</code> SSID</li>
+                    </ul>
+                </div>
+                <div class="mini-card">
+                    <h4>&#127968; Server Side</h4>
+                    <ul>
+                        <li>Windows Server &mdash; VA standard image</li>
+                        <li>IIS hosting iDash.WebClient + iDash</li>
+                        <li>BarTender Enterprise (Seagull Scientific)</li>
+                        <li>PowerShell print spooler (always running)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================
+             R2 — WiFi CONFIGURATION
+             ================================================ -->
+        <div class="recipe-card" id="r2">
+            <div class="recipe-header">
+                <div class="recipe-num rn-blue">R2</div>
+                <div class="recipe-title-block">
+                    <h2>&#128246; WiFi Network Configuration</h2>
+                    <div class="recipe-subtitle">Configure the <code>mobile1md</code> SSID for scanner access &mdash; for VA OIT Wireless team.</div>
+                </div>
+            </div>
+
+            <div class="ingredients-box">
+                <div class="ib-title">&#9881;&#65039; Requirements</div>
+                <ul>
+                    <li>VA OIT Wireless Engineer with WLAN controller access</li>
+                    <li>MAC addresses of all TC53 scanners (see Recipe R3)</li>
+                    <li>VLAN routing plan for the facility</li>
+                </ul>
+            </div>
+
+            <table>
+                <tr><th>Parameter</th><th>Value</th><th>Notes</th></tr>
+                <tr><td><strong>SSID</strong></td><td><code>mobile1md</code></td><td>Standard VA medical device WiFi network</td></tr>
+                <tr><td><strong>Security Protocol</strong></td><td>WPA2-Enterprise</td><td>802.1X EAP authentication per VA wireless policy</td></tr>
+                <tr><td><strong>Authentication</strong></td><td>MAC-based or certificate (per site policy)</td><td>Each device MAC must be pre-registered</td></tr>
+                <tr><td><strong>IP Assignment</strong></td><td>DHCP</td><td>Scanners receive a dynamic IP from the mobile VLAN DHCP scope</td></tr>
+                <tr><td><strong>DHCP Lease</strong></td><td>8 hours minimum recommended</td><td>Prevents mid-scan lease expiry</td></tr>
+                <tr><td><strong>Band</strong></td><td>5 GHz preferred; 6 GHz (Wi-Fi 6E) where available; 2.4 GHz fallback</td><td>TC53 supports 802.11 a/b/g/n/ac/ax (Wi-Fi 6E), 2x2 MU-MIMO</td></tr>
+                <tr><td><strong>Roaming</strong></td><td>Enable 802.11r Fast BSS Transition</td><td>Required for smooth handoff between APs during floor sweeps</td></tr>
+            </table>
+
+            <div class="info-recipe">
+                <strong>&#128246; WiFi Coverage &mdash; Preferred, Not Mandatory</strong><br>
+                Both <strong>iDash mobile</strong> and the <strong>iDash scanning pages</strong> (VA Site Inventory,
+                Tag Team Scan) support <strong>offline and batch mode</strong>. Scan data is queued locally on the device
+                and synced to the server when connectivity is restored &mdash; so RFID tags scanned in a dead zone
+                <em>are not lost</em>. WiFi coverage is still strongly recommended for real-time session status,
+                live print triggering, and immediate sync. Run a site survey before deployment and address any
+                significant coverage gaps, but an isolated dead zone will not cause data loss.
+            </div>
+
+            <h3>Firewall Rule Required on WLAN Controller</h3>
+            <p>The mobile VLAN must be able to reach the iDash server. Add the following outbound rule from the mobile1md VLAN:</p>
+            <table>
+                <tr><th>Source</th><th>Destination</th><th>Port</th><th>Protocol</th><th>Action</th></tr>
+                <tr><td>mobile1md VLAN</td><td>iDash server IP</td><td>443</td><td>TCP</td><td>PERMIT</td></tr>
+                <tr><td>mobile1md VLAN</td><td>iDash server IP</td><td>80</td><td>TCP</td><td>PERMIT (redirects to 443)</td></tr>
+                <tr><td>mobile1md VLAN</td><td>VA DNS server</td><td>53</td><td>UDP/TCP</td><td>PERMIT</td></tr>
+            </table>
+        </div>
+
+        <!-- ================================================
+             R3 — TC53 ONBOARDING
+             ================================================ -->
+        <div class="recipe-card" id="r3">
+            <div class="recipe-header">
+                <div class="recipe-num rn-green">R3</div>
+                <div class="recipe-title-block">
+                    <h2>&#128241; Onboarding a Zebra TC53 Scanner</h2>
+                    <div class="recipe-subtitle">Step-by-step process to register and connect a new TC53 to the VA network.</div>
+                </div>
+            </div>
+
+            <div class="ingredients-box">
+                <div class="ib-title">&#9881;&#65039; What You Need</div>
+                <ul>
+                    <li>Zebra TC53 handheld computer (fully charged)</li>
+                    <li>Zebra RFD40 RFID sled (paired via Bluetooth)</li>
+                    <li>OIT network ticket to register the MAC address on <code>mobile1md</code></li>
+                    <li>iDash server hostname or IP address</li>
+                    <li>Confirmation that MAC has been registered (from OIT)</li>
+                </ul>
+            </div>
+
+            <h3>Step 1 &mdash; Collect the MAC Address</h3>
+            <div class="step-list">
+                <div class="step-item">On the TC53, go to <strong>Settings &rarr; About phone &rarr; Status</strong></div>
+                <div class="step-item">Record the <strong>Wi-Fi MAC address</strong> (format: <code>XX:XX:XX:XX:XX:XX</code>)</div>
+                <div class="step-item">Also record the <strong>Serial Number</strong> from the same screen for asset records</div>
+                <div class="step-item">Label the physical device with its serial number using a permanent marker or label</div>
+            </div>
+
+            <h3>Step 2 &mdash; Submit MAC to VA OIT for Network Registration</h3>
+            <div class="step-list">
+                <div class="step-item">Open a standard VA OIT hardware approval ticket</div>
+                <div class="step-item">Include: Device model (<code>Zebra TC53</code>), Serial Number, WiFi MAC, SSID (<code>mobile1md</code>), facility building, and assigned team</div>
+                <div class="step-item">Wait for OIT confirmation that the MAC has been registered before attempting to connect</div>
+            </div>
+
+            <h3>Step 3 &mdash; Configure WiFi on the TC53</h3>
+            <div class="step-list">
+                <div class="step-item">Go to <strong>Settings &rarr; Network &amp; Internet &rarr; Wi-Fi</strong></div>
+                <div class="step-item">Tap <strong>Add network</strong> and enter SSID: <code>mobile1md</code></div>
+                <div class="step-item">Set Security to <strong>WPA2-Enterprise</strong> (or as directed by OIT for this SSID)</div>
+                <div class="step-item">Enter EAP credentials or select certificate per site-specific OIT instruction</div>
+                <div class="step-item">Tap <strong>Connect</strong> &mdash; device should obtain a DHCP address and show &ldquo;Connected&rdquo;</div>
+            </div>
+
+            <h3>Step 4 &mdash; Configure the iDash Server URL</h3>
+            <div class="step-list">
+                <div class="step-item">Open the TC53 browser (Chrome recommended)</div>
+                <div class="step-item">Navigate to: <code>https://[idashServerHostname]/</code></div>
+                <div class="step-item">Accept the VA SSL certificate if prompted (certificate must be VA-issued and trusted)</div>
+                <div class="step-item">Bookmark or set as the browser homepage for the user</div>
+            </div>
+
+            <div class="result-box">
+                <strong>&#9989; Success Criteria:</strong> The TC53 connects to <code>mobile1md</code> with a valid IP,
+                the iDash login screen loads over HTTPS, and scanning records appear in the iDash dashboard
+                after a test scan. Note: scanning in <strong>offline / batch mode</strong> will queue records locally
+                and sync when WiFi is restored &mdash; test both connected and reconnect scenarios.
+            </div>
+        </div>
+
+        <!-- ================================================
+             R4 — RFD40 SLED
+             ================================================ -->
+        <div class="recipe-card" id="r4">
+            <div class="recipe-header">
+                <div class="recipe-num rn-green">R4</div>
+                <div class="recipe-title-block">
+                    <h2>&#128279; Connecting an RFD40 RFID Sled</h2>
+                    <div class="recipe-subtitle">Pair the Zebra RFD40 RFID sled to the TC53 via Bluetooth for RFID scanning capability.</div>
+                </div>
+            </div>
+
+            <div class="info-recipe">
+                <strong>&#8505;&#65039; How it Works</strong><br>
+                The RFD40 is a Bluetooth-connected RFID sled that snaps onto or is held alongside the TC53. The TC53
+                runs the iDash web app in its browser; the RFD40 sends scanned RFID EPC strings to the TC53 as
+                keyboard/HID input, which the web app captures. <strong>No separate network registration is required
+                for the RFD40</strong> &mdash; only the TC53 needs to be on WiFi.
+            </div>
+
+            <div class="ingredients-box">
+                <div class="ib-title">&#9881;&#65039; What You Need</div>
+                <ul>
+                    <li>Zebra RFD40 RFID sled (charged)</li>
+                    <li>TC53 with Bluetooth enabled</li>
+                    <li>Zebra 123SCAN or Bluetooth settings on TC53</li>
+                </ul>
+            </div>
+
+            <div class="step-list">
+                <div class="step-item">Power on the RFD40 by pressing and holding the power button until the LED flashes blue</div>
+                <div class="step-item">On the TC53, go to <strong>Settings &rarr; Connected devices &rarr; Pair new device</strong></div>
+                <div class="step-item">Wait for the RFD40 to appear in the list (name: <code>RFD40-XXXXXX</code>)</div>
+                <div class="step-item">Tap the RFD40 to pair &mdash; accept the pairing request on both devices if prompted</div>
+                <div class="step-item">Open the Zebra <strong>123SCAN</strong> app (or <strong>DataWedge</strong>) and confirm the RFD40 shows as connected</div>
+                <div class="step-item">Configure the scan output profile to <strong>Keyboard Wedge / HID</strong> mode so scanned EPCs are sent as keystrokes to the active app</div>
+                <div class="step-item">Open the iDash browser session and tap the scan input field &mdash; trigger a scan; the EPC should populate the field</div>
+            </div>
+
+            <div class="warn-recipe">
+                <strong>&#9888;&#65039; Bluetooth Range</strong><br>
+                The RFD40 operates on Bluetooth, not WiFi. Effective range is approximately 10 meters line-of-sight.
+                Keep the TC53 holstered or in hand while scanning. If the Bluetooth connection drops, re-pair from
+                the TC53 Bluetooth settings.
+            </div>
+
+            <div class="result-box">
+                <strong>&#9989; Success Criteria:</strong> Triggering the RFD40 trigger button while the iDash scan
+                field is active populates the EPC tag value automatically.
+            </div>
+        </div>
+
+        <!-- ================================================
+             R5 — FIREWALL & ACL
+             ================================================ -->
+        <div class="recipe-card" id="r5">
+            <div class="recipe-header">
+                <div class="recipe-num rn-amber">R5</div>
+                <div class="recipe-title-block">
+                    <h2>&#128274; Firewall &amp; ACL Requirements</h2>
+                    <div class="recipe-subtitle">Complete port map for OIT Network and Firewall teams. All ports per approved ERA.</div>
+                </div>
+            </div>
+
+            <div class="alert-blue">
+                <strong>&#128196; ERA Reference</strong><br>
+                All port requirements below are derived from the approved ERA document.
+                Always cross-reference before submitting a firewall change request:
+                <a href="SPS_OT_RITM9079692_iDash Mod 1.2_POAM Req_Approved.pdf">
+                    SPS_OT_RITM9079692 &mdash; InfinID Technologies iDash Mod 1.2
+                </a>
+            </div>
+
+            <h3>Inbound to iDash Server</h3>
+            <table>
+                <tr><th>Port</th><th>Proto</th><th>Source</th><th>Purpose</th></tr>
+                <tr><td><strong>443</strong></td><td>TCP</td><td>mobile1md VLAN, workstation VLAN</td><td>HTTPS &mdash; iDash web client, iDash portal, scanner web app</td></tr>
+                <tr><td><strong>80</strong></td><td>TCP</td><td>mobile1md VLAN, workstation VLAN</td><td>HTTP &mdash; redirects to 443 (allow so redirect works)</td></tr>
+                <tr><td><strong>5985</strong></td><td>TCP</td><td>Admin workstation VLAN</td><td>WinRM / PowerShell remoting (server administration only)</td></tr>
+                <tr><td><strong>3389</strong></td><td>TCP</td><td>Admin workstation VLAN (if needed)</td><td>RDP &mdash; remote desktop for IT administration</td></tr>
+            </table>
+
+            <h3>Outbound from iDash Server</h3>
+            <table>
+                <tr><th>Port</th><th>Proto</th><th>Destination</th><th>Purpose</th></tr>
+                <tr><td><strong>1433</strong></td><td>TCP</td><td>VA SQL Server instance</td><td>SQL Server database connection</td></tr>
+                <tr><td><strong>9100</strong></td><td>TCP</td><td>Label printers (static IPs)</td><td>RAW print data &mdash; BarTender to IP network printers</td></tr>
+                <tr><td><strong>25 / 587</strong></td><td>TCP</td><td>VA SMTP relay</td><td>Automated report emails from iDash</td></tr>
+                <tr><td><strong>53</strong></td><td>UDP/TCP</td><td>VA DNS servers</td><td>DNS resolution</td></tr>
+                <tr><td><strong>443</strong></td><td>TCP</td><td>Windows Update / VA patch infrastructure</td><td>OS and software updates</td></tr>
+            </table>
+
+            <div class="warn-recipe">
+                <strong>&#9888;&#65039; Verify Against Current ERA</strong><br>
+                The ports listed above are representative based on the current ERA at time of writing. Always verify
+                against the <strong>current signed ERA</strong> before submitting change requests, as amendments
+                may add or modify entries.
+            </div>
+        </div>
+
+        <!-- ================================================
+             R6 — CONNECTIVITY VERIFICATION
+             ================================================ -->
+        <div class="recipe-card" id="r6">
+            <div class="recipe-header">
+                <div class="recipe-num rn-blue">R6</div>
+                <div class="recipe-title-block">
+                    <h2>&#128270; Verifying Scanner-to-Server Connectivity</h2>
+                    <div class="recipe-subtitle">Use these tests to confirm the TC53 can reach the iDash server before going live.</div>
+                </div>
+            </div>
+
+            <h3>Test 1 &mdash; WiFi IP Address Check (on TC53)</h3>
+            <div class="step-list">
+                <div class="step-item">On the TC53: <strong>Settings &rarr; Network &amp; Internet &rarr; Wi-Fi &rarr; tap the connected SSID</strong></div>
+                <div class="step-item">Confirm the IP address is in the expected mobile1md DHCP range (provided by OIT)</div>
+                <div class="step-item">Confirm DNS server addresses match VA DNS configuration</div>
+            </div>
+
+            <h3>Test 2 &mdash; HTTPS Connectivity (on TC53)</h3>
+            <div class="step-list">
+                <div class="step-item">Open Chrome on the TC53</div>
+                <div class="step-item">Navigate to: <code>https://[idashServerHostname]/</code></div>
+                <div class="step-item">&#9989; Expected: iDash login screen loads without certificate warnings or connection errors</div>
+                <div class="step-item">&#10060; If it times out: ACL or firewall is blocking port 443 from mobile1md VLAN to server VLAN</div>
+                <div class="step-item">&#10060; If certificate error: VA SSL cert is not trusted on the device, or the cert has expired</div>
+            </div>
+
+            <h3>Test 3 &mdash; Server-Side Connectivity Tests (from iDash server)</h3>
+            <p>Run from an elevated PowerShell session on the iDash server:</p>
+            <pre># Test SQL Server connectivity
+Test-NetConnection -ComputerName &lt;SQLServerHostname&gt; -Port 1433
+
+# Test printer reachability (repeat for each printer IP)
+Test-NetConnection -ComputerName &lt;PrinterIP&gt; -Port 9100
+
+# Verify IIS is listening
+netstat -ano | findstr :443
+netstat -ano | findstr :80
+
+# Confirm iDash app pool is running
+Get-WebConfiguration system.applicationHost/applicationPools/add |
+    Where-Object { $_.name -like '*iDash*' } | Select-Object name, state</pre>
+
+            <div class="result-box">
+                <strong>&#9989; All Tests Pass When:</strong> SQL connection returns <code>TcpTestSucceeded: True</code>,
+                all printer ports respond, IIS shows active listeners on 443/80, and the TC53 browser loads the
+                login page cleanly.
+            </div>
+        </div>
+
+        <!-- ================================================
+             R7 — PRINTER NETWORK SETUP
+             ================================================ -->
+        <div class="recipe-card" id="r7">
+            <div class="recipe-header">
+                <div class="recipe-num rn-green">R7</div>
+                <div class="recipe-title-block">
+                    <h2>&#128438; Label Printer Network Setup</h2>
+                    <div class="recipe-subtitle">Configure static IPs and Ethernet connectivity for all RFID label printers.</div>
+                </div>
+            </div>
+
+            <div class="ingredients-box">
+                <div class="ib-title">&#9881;&#65039; What You Need</div>
+                <ul>
+                    <li>Static IP address reserved by OIT for each printer</li>
+                    <li>Live Ethernet wall jack patched to the correct VLAN (must be routable to the iDash server)</li>
+                    <li>Subnet mask, default gateway, and DNS addresses from OIT</li>
+                    <li>Printer model: IQ350, Large Metal, or Standard Small RFID label printer</li>
+                </ul>
+            </div>
+
+            <h3>Configure a Static IP on the Printer</h3>
+            <div class="step-list">
+                <div class="step-item">Access the printer&rsquo;s network configuration menu (refer to printer-specific manual for menu navigation)</div>
+                <div class="step-item">Disable DHCP and switch to Static IP mode</div>
+                <div class="step-item">Enter the static IP, subnet mask, and default gateway provided by OIT</div>
+                <div class="step-item">Enter DNS server addresses</div>
+                <div class="step-item">Save and reboot the printer</div>
+                <div class="step-item">From the iDash server: <code>Test-NetConnection -ComputerName &lt;PrinterIP&gt; -Port 9100</code> &mdash; should return <code>TcpTestSucceeded: True</code></div>
+            </div>
+
+            <h3>Register the Printer in BarTender &amp; printer_routing.json</h3>
+            <div class="step-list">
+                <div class="step-item green">Install the BarTender-compatible printer driver on the iDash server for this printer model</div>
+                <div class="step-item green">Run <code>Get-Printer | Select-Object Name</code> and note the exact Windows printer name</div>
+                <div class="step-item green">Edit <code>C:\idash_prints\printer_routing.json</code> &mdash; add or update the entry mapping the <code>.btw</code> template filename to the Windows printer name:</div>
+            </div>
+
+            <pre>{
+  "AW_Std_Small.btw":   "Std_Small",
+  "AW_Metal_Large.btw": "Metal_Large",
+  "AW_Metal_IQ350.btw": "Metal_IQ350"
+}</pre>
+
+            <div class="warn-recipe">
+                <strong>&#9888;&#65039; Printer Name Must Be Exact</strong><br>
+                The printer name value in <code>printer_routing.json</code> must be character-for-character identical
+                to the Windows printer name, including capitalization, spaces, and any trailing characters.
+                Copy and paste from <code>Get-Printer | Select-Object Name</code> output.
+            </div>
+
+            <table>
+                <tr><th>Printer #</th><th>Model</th><th>Serial</th><th>Static IP</th><th>Windows Name</th><th>Building</th></tr>
+                <tr><td>1</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+                <tr><td>2</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+                <tr><td>3</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+            </table>
+        </div>
+
+        <!-- ================================================
+             R8 — VLAN ROUTING
+             ================================================ -->
+        <div class="recipe-card" id="r8">
+            <div class="recipe-header">
+                <div class="recipe-num rn-amber">R8</div>
+                <div class="recipe-title-block">
+                    <h2>&#128257; VLAN Routing &amp; Inter-Segment Traffic</h2>
+                    <div class="recipe-subtitle">Ensure routed connectivity between all three network segments.</div>
+                </div>
+            </div>
+
+            <p>The iDash deployment spans three distinct network segments that must be able to communicate. VA OIT Network team must configure inter-VLAN routing (Layer 3 switch or firewall) to permit the following flows:</p>
+
+            <table>
+                <tr><th>Source VLAN</th><th>Destination VLAN</th><th>Port(s)</th><th>Why Required</th></tr>
+                <tr>
+                    <td>mobile1md (scanners)</td>
+                    <td>Server VLAN</td>
+                    <td>443, 80</td>
+                    <td>Scanners access iDash web app</td>
+                </tr>
+                <tr>
+                    <td>Workstation VLAN</td>
+                    <td>Server VLAN</td>
+                    <td>443, 80</td>
+                    <td>Staff and admin access iDash portal</td>
+                </tr>
+                <tr>
+                    <td>Server VLAN</td>
+                    <td>Database VLAN</td>
+                    <td>1433</td>
+                    <td>iDash server reads/writes SQL database</td>
+                </tr>
+                <tr>
+                    <td>Server VLAN</td>
+                    <td>Printer VLAN (or same)</td>
+                    <td>9100</td>
+                    <td>BarTender sends print data to printers</td>
+                </tr>
+                <tr>
+                    <td>Server VLAN</td>
+                    <td>VA SMTP relay</td>
+                    <td>25 / 587</td>
+                    <td>iDash automated report emails</td>
+                </tr>
+            </table>
+
+            <div class="info-recipe">
+                <strong>&#8505;&#65039; Printer VLAN Note</strong><br>
+                Printers are typically placed on the same VLAN as the server or on a dedicated printer VLAN.
+                Either configuration works as long as the server can reach each printer on port 9100. Printers
+                do <strong>not</strong> need to reach the mobile VLAN or the database VLAN.
+            </div>
+        </div>
+
+        <!-- ================================================
+             R9 — URL CONFIGURATION
+             ================================================ -->
+        <div class="recipe-card" id="r9">
+            <div class="recipe-header">
+                <div class="recipe-num rn-blue">R9</div>
+                <div class="recipe-title-block">
+                    <h2>&#128279; iDash Web Client URL Configuration</h2>
+                    <div class="recipe-subtitle">Configure the correct server URL on mobile scanners and in the iDash web.config.</div>
+                </div>
+            </div>
+
+            <h3>URL Format</h3>
+            <pre>https://[idashServerHostname]/</pre>
+            <pre>https://[idashServerHostname]/iDash/</pre>
+
+            <p>The hostname must match the <strong>CN of the SSL certificate</strong> exactly to avoid certificate errors on mobile devices.</p>
+
+            <h3>web.config Key Settings</h3>
+            <table>
+                <tr><th>Setting</th><th>Value</th><th>Purpose</th></tr>
+                <tr><td><code>iDash_ApiBase</code></td><td><code>https://[hostname]</code></td><td>REST API base URL used by iDash &mdash; <strong>no trailing /api</strong>; the code appends the path automatically</td></tr>
+                <tr><td><code>iDash_TokenUrl</code></td><td><code>https://[hostname]/connect/token</code></td><td>OAuth token endpoint</td></tr>
+                <tr><td><code>iDash_ClientId</code></td><td>Assigned per site (e.g., <code>idash_512</code>)</td><td>OAuth client ID registered in iDash <code>clientapp</code> table</td></tr>
+                <tr><td><code>iDash_ClientSecret</code></td><td>Matching secret from <code>clientapp</code> table</td><td>OAuth client secret</td></tr>
+                <tr><td>Connection String</td><td><code>Data Source=[SQLHost]; Database=iDash; User ID=idashadmin; Password=[pw];</code></td><td>SQL Server connection (use <code>Data Source=.\sqlexpress</code> for local named instances)</td></tr>
+            </table>
+
+            <div class="warn-recipe">
+                <strong>&#9888;&#65039; HTTP vs HTTPS</strong><br>
+                Always use <code>https://</code> on mobile scanners. HTTP connections will fail on modern Android
+                devices when the iDash app performs secure operations. IIS should be configured to redirect
+                port 80 &rarr; 443 automatically.
+            </div>
+            <div class="info-recipe" style="margin-top:14px;">
+                <strong>&#9881; Manage via iDash</strong><br>
+                All <code>web.config</code> API / OAuth settings can be updated from the
+                <strong>System Configuration</strong> page in iDash (Admin panel &rarr; &#9881; System Configuration)
+                without editing the file directly. Use the <strong>Test OAuth + API Access</strong> button to
+                validate credentials after any change.
+            </div>
+        </div>
+
+        <!-- ================================================
+             R10 — SSL CERTIFICATE
+             ================================================ -->
+        <div class="recipe-card" id="r10">
+            <div class="recipe-header">
+                <div class="recipe-num rn-purple">R10</div>
+                <div class="recipe-title-block">
+                    <h2>&#128274; SSL Certificate &amp; HTTPS Configuration</h2>
+                    <div class="recipe-subtitle">Generate, bind, and deploy the VA SSL certificate for secure scanner connectivity. Includes TLS 1.3 fix and TC53 certificate installation.</div>
+                </div>
+            </div>
+
+            <div class="ingredients-box">
+                <div class="ib-title">&#9881;&#65039; Requirements</div>
+                <ul>
+                    <li>VA-issued SSL certificate for the server&rsquo;s <strong>FQDN</strong> (Fully Qualified Domain Name) &mdash; generated via the VA PKI certificate request process</li>
+                    <li>IIS Manager access on the iDash server</li>
+                    <li>DNS record for the FQDN pointing to the server&rsquo;s static IP</li>
+                    <li>Physical or remote access to each Zebra TC53 scanner</li>
+                </ul>
+            </div>
+
+            <!-- PART A: GENERATE THE CERT -->
+            <h3>Part A &mdash; Generate the SSL Certificate via VA Process</h3>
+            <div class="step-list">
+                <div class="step-item">Determine the server&rsquo;s <strong>FQDN</strong> (e.g., <code>VHABLTIDASH.v05.med.va.gov</code>). This is the full DNS hostname that scanners will use to reach the server.</div>
+                <div class="step-item">Submit a VA PKI certificate request through the standard VA process (typically via the VA Certificate Authority / PKI team). The <strong>Common Name (CN)</strong> and/or <strong>Subject Alternative Name (SAN)</strong> on the certificate must exactly match the server&rsquo;s FQDN.</div>
+                <div class="step-item">Once issued, download the certificate file (typically <code>.pfx</code> or <code>.cer</code> format) from the VA PKI system.</div>
+                <div class="step-item">Import the certificate into the Windows Certificate Store on the iDash server: open <strong>MMC &rarr; Certificates (Local Computer) &rarr; Personal &rarr; Certificates</strong> &rarr; right-click &rarr; <strong>All Tasks &rarr; Import</strong>.</div>
+            </div>
+
+            <div class="info-recipe">
+                <strong>&#8505;&#65039; Why FQDN Matters</strong><br>
+                The SSL certificate <strong>must</strong> be issued to the server&rsquo;s FQDN, not just a short hostname or IP address.
+                Mobile scanners (TC53) resolve the server via DNS and will reject the connection if the certificate CN/SAN
+                does not match the URL they are connecting to. Using an IP address or a mismatched hostname will cause
+                &ldquo;Your connection is not private&rdquo; errors on the scanner.
+            </div>
+
+            <!-- PART B: BIND IN IIS & DISABLE TLS 1.3 -->
+            <h3 style="margin-top:24px;">Part B &mdash; Bind Certificate in IIS &amp; Disable TLS 1.3</h3>
+            <div class="step-list">
+                <div class="step-item">Open <strong>IIS Manager</strong> on the iDash server.</div>
+                <div class="step-item">In the left panel, expand the server name &rarr; <strong>Sites</strong> &rarr; select the <strong>iDash</strong> website.</div>
+                <div class="step-item">Click <strong>Bindings...</strong> in the right-hand Actions panel.</div>
+                <div class="step-item">If an HTTPS binding on port 443 already exists, select it and click <strong>Edit</strong>. Otherwise click <strong>Add</strong> and set Type: <code>https</code>, Port: <code>443</code>.</div>
+                <div class="step-item">In the <strong>SSL certificate</strong> dropdown, select the VA-issued certificate you imported in Part A.</div>
+                <div class="step-item amber"><strong>CRITICAL &mdash; Disable TLS 1.3:</strong> In the binding dialog, locate the <strong>&ldquo;Disable TLS 1.3&rdquo;</strong> checkbox and <strong>check it</strong> (enable the disable). This is required because the Zebra TC53 Android browser has known compatibility issues with TLS 1.3 negotiation, causing connection failures or intermittent SSL errors.</div>
+                <div class="step-item">Click <strong>OK</strong> to save the binding, then close the Bindings dialog.</div>
+                <div class="step-item">Run <code>iisreset</code> from an elevated command prompt to apply the changes.</div>
+                <div class="step-item">Verify from a workstation: <code>Invoke-WebRequest https://[FQDN]/ -UseBasicParsing</code> &mdash; should return HTTP 200 with no SSL errors.</div>
+            </div>
+
+            <div class="danger-recipe">
+                <strong>&#9888;&#65039; TLS 1.3 Must Be Disabled</strong><br>
+                If TLS 1.3 is left enabled on the IIS 443 binding, Zebra TC53 scanners running Android may experience
+                intermittent or persistent SSL handshake failures. The scanners will display connection errors or refuse
+                to load the page entirely. <strong>Always check the &ldquo;Disable TLS 1.3&rdquo; checkbox</strong> in
+                the IIS site binding for port 443. TLS 1.2 remains fully secure and is the recommended protocol for
+                VA mobile device connectivity.
+            </div>
+
+            <!-- PART C: EXPORT CERTS FROM SERVER -->
+            <h3 style="margin-top:24px;">Part C &mdash; Export Certificates from the Server (Both Levels)</h3>
+            <p>The TC53 scanner needs to trust the <strong>entire certificate chain</strong>. You must export <strong>two certificates</strong> from the server:</p>
+
+            <table>
+                <tr><th>#</th><th>Certificate Level</th><th>What It Is</th></tr>
+                <tr>
+                    <td><strong>1</strong></td>
+                    <td><strong>Root CA Certificate</strong></td>
+                    <td>The top-level VA Certificate Authority that signs all intermediate CAs. This is the &ldquo;trust anchor&rdquo; for the entire chain.</td>
+                </tr>
+                <tr>
+                    <td><strong>2</strong></td>
+                    <td><strong>Intermediate CA Certificate</strong></td>
+                    <td>The subordinate CA that directly issued your server&rsquo;s SSL certificate. Without this, the chain is broken and the TC53 will not trust the server cert.</td>
+                </tr>
+            </table>
+
+            <h4 style="margin-top:16px;">How to Export Both Certificates</h4>
+            <div class="step-list">
+                <div class="step-item">On the iDash server, open <strong>MMC</strong> (press <code>Win + R</code>, type <code>mmc</code>, press Enter).</div>
+                <div class="step-item">Go to <strong>File &rarr; Add/Remove Snap-in &rarr; Certificates &rarr; Computer Account &rarr; Local Computer &rarr; Finish &rarr; OK</strong>.</div>
+                <div class="step-item">Navigate to <strong>Personal &rarr; Certificates</strong>. Find and double-click the iDash SSL certificate (the one bound to IIS).</div>
+                <div class="step-item">Go to the <strong>Certification Path</strong> tab. You will see the full chain, typically 2&ndash;3 levels:
+                    <br/>&bull; <strong>Top level</strong> = Root CA (e.g., <em>VA Internal Root CA</em>)
+                    <br/>&bull; <strong>Middle level</strong> = Intermediate CA (e.g., <em>VA Internal Issuing CA</em>)
+                    <br/>&bull; <strong>Bottom level</strong> = Your server certificate (the leaf cert)
+                </div>
+                <div class="step-item"><strong>Export the Root CA:</strong> Click the top-level entry in the chain &rarr; <strong>View Certificate</strong> &rarr; <strong>Details</strong> tab &rarr; <strong>Copy to File...</strong> &rarr; Next &rarr; Select <strong>DER encoded binary X.509 (.CER)</strong> &rarr; Save as <code>VA_Root_CA.cer</code>.</div>
+                <div class="step-item"><strong>Export the Intermediate CA:</strong> Click the middle-level entry in the chain &rarr; <strong>View Certificate</strong> &rarr; <strong>Details</strong> tab &rarr; <strong>Copy to File...</strong> &rarr; Next &rarr; Select <strong>DER encoded binary X.509 (.CER)</strong> &rarr; Save as <code>VA_Intermediate_CA.cer</code>.</div>
+                <div class="step-item">Copy both <code>.cer</code> files to a USB drive, shared network folder, or email them to the person configuring the TC53 scanners.</div>
+            </div>
+
+            <!-- PART D: INSTALL ON TC53 -->
+            <h3 style="margin-top:24px;">Part D &mdash; Install Both Certificates on Zebra TC53 Scanners</h3>
+            <p>Both the Root CA and Intermediate CA certificates must be installed on <strong>every TC53 scanner</strong> that will connect to iDash</p>
+
+            <div class="step-list">
+                <div class="step-item">Transfer the two <code>.cer</code> files (<code>VA_Root_CA.cer</code> and <code>VA_Intermediate_CA.cer</code>) to the TC53 &mdash; via USB cable, email attachment, or file share download.</div>
+                <div class="step-item">On the TC53, open <strong>Settings &rarr; Security &rarr; Encryption &amp; credentials &rarr; Install a certificate</strong>.</div>
+                <div class="step-item">Select <strong>CA certificate</strong> when prompted for certificate type.</div>
+                <div class="step-item">Browse to and select <code>VA_Root_CA.cer</code>. Tap <strong>Install</strong>. Accept any confirmation prompt.</div>
+                <div class="step-item">Repeat: Go to <strong>Install a certificate</strong> again. Select <code>VA_Intermediate_CA.cer</code>. Tap <strong>Install</strong>.</div>
+                <div class="step-item">Open Chrome on the TC53 and navigate to: <code>https://[ServerFQDN]/</code></div>
+                <div class="step-item green">Verify: The padlock icon should be <strong>green/locked</strong> with <strong>no certificate warnings</strong>. Tap the padlock to confirm the certificate chain shows the correct Root CA &rarr; Intermediate CA &rarr; server certificate.</div>
+            </div>
+
+            <div class="warn-recipe">
+                <strong>&#9888;&#65039; Both Certificates Are Required</strong><br>
+                If you only install the Root CA but skip the Intermediate CA (or vice versa), the TC53 will still show
+                certificate errors. The Android certificate store requires the <strong>full chain</strong> to be explicitly
+                trusted. Always install both levels.
+            </div>
+
+            <div class="result-box">
+                <strong>&#9989; Certificate is Correctly Configured When:</strong> Chrome on TC53 shows a green padlock with no
+                &ldquo;Your connection is not private&rdquo; warnings, the certificate details show the correct FQDN hostname
+                and a VA issuer, and the TLS connection negotiates using TLS 1.2 (not 1.3).
+            </div>
+        </div>
+
+        <!-- ================================================
+             R11 — REPLACING / ADDING A SCANNER
+             ================================================ -->
+        <div class="recipe-card" id="r11">
+            <div class="recipe-header">
+                <div class="recipe-num rn-green">R11</div>
+                <div class="recipe-title-block">
+                    <h2>&#128260; Replacing or Adding a Scanner</h2>
+                    <div class="recipe-subtitle">Process for adding a new device or swapping a failed scanner without disrupting operations.</div>
+                </div>
+            </div>
+
+            <div class="step-list">
+                <div class="step-item">Power on the new/replacement TC53 and collect its WiFi MAC address (see Recipe R3, Step 1)</div>
+                <div class="step-item">Submit an OIT ticket to register the new MAC on <code>mobile1md</code></div>
+                <div class="step-item">While waiting for OIT, configure the WiFi SSID on the device (it will fail to connect until the MAC is registered &mdash; this is expected)</div>
+                <div class="step-item">Once OIT confirms MAC registration, connect to <code>mobile1md</code> and verify IP is assigned</div>
+                <div class="step-item">Open the iDash URL in Chrome and bookmark it</div>
+                <div class="step-item">Pair the RFD40 sled if applicable (see Recipe R4)</div>
+                <div class="step-item">Update the device inventory spreadsheet with the new serial number, MAC, and assigned user</div>
+                <div class="step-item">If replacing a failed unit: deregister the old MAC from OIT&rsquo;s network access list to prevent orphaned registrations</div>
+            </div>
+
+            <div class="info-recipe">
+                <strong>&#8505;&#65039; No Software Installation Required</strong><br>
+                iDash runs as a web application in the Chrome browser. No software is installed on the scanner.
+                A replacement unit is fully operational as soon as it has WiFi access and the URL is bookmarked.
+            </div>
+        </div>
+
+        <!-- ================================================
+             R12 — SCANNER WON'T CONNECT
+             ================================================ -->
+        <div class="recipe-card" id="r12">
+            <div class="recipe-header">
+                <div class="recipe-num rn-red">R12</div>
+                <div class="recipe-title-block">
+                    <h2>&#128683; Troubleshooting: Scanner Won&rsquo;t Connect</h2>
+                    <div class="recipe-subtitle">Diagnose and resolve WiFi and HTTPS connectivity failures on TC53 scanners.</div>
+                </div>
+            </div>
+
+            <div class="troubleshoot-row">
+                <div class="symptom">&#10060; TC53 connects to WiFi but can&rsquo;t reach the iDash URL</div>
+                <div class="cause"><strong>Likely Cause:</strong> ACL blocking port 443 from mobile1md VLAN to server VLAN.</div>
+                <div class="fix"><strong>Fix:</strong> Contact OIT Network team. Verify ACL permits TCP 443 from the mobile1md VLAN range to the iDash server IP. Test: <code>Test-NetConnection -ComputerName [ServerIP] -Port 443</code> from a device on the same VLAN.</div>
+            </div>
+
+            <div class="troubleshoot-row">
+                <div class="symptom">&#10060; TC53 won&rsquo;t join the mobile1md SSID at all</div>
+                <div class="cause"><strong>Likely Cause:</strong> Device MAC address not registered by OIT, or incorrect WiFi credentials/certificate.</div>
+                <div class="fix"><strong>Fix:</strong> Confirm OIT has registered the device&rsquo;s WiFi MAC on the <code>mobile1md</code> SSID. Double-check MAC address from <strong>Settings &rarr; About &rarr; Status &rarr; Wi-Fi MAC address</strong> and resubmit to OIT if needed.</div>
+            </div>
+
+            <div class="troubleshoot-row">
+                <div class="symptom">&#10060; Certificate error / &ldquo;Your connection is not private&rdquo; in Chrome</div>
+                <div class="cause"><strong>Likely Cause:</strong> VA root CA and/or intermediate CA not trusted on the TC53, SSL certificate has expired, or TLS 1.3 is still enabled on the IIS binding.</div>
+                <div class="fix"><strong>Fix (cert not trusted):</strong> Install <strong>both</strong> the VA Root CA and Intermediate CA certificates on the TC53 (see Recipe R10, Parts C &amp; D). <br><strong>Fix (cert expired):</strong> Contact VA PKI / OIT to renew the certificate and rebind in IIS.<br><strong>Fix (TLS 1.3):</strong> Disable TLS 1.3 in the IIS 443 binding (see Recipe R10, Part B).</div>
+            </div>
+
+            <div class="troubleshoot-row">
+                <div class="symptom">&#10060; Scanner loses WiFi mid-scan / enters a dead zone</div>
+                <div class="cause"><strong>Note:</strong> iDash mobile and iDash scanning pages (VA Site Inventory, Tag Team Scan) support <strong>offline / batch mode</strong>. Scan data queues locally and syncs when WiFi reconnects &mdash; records are not lost.</div>
+                <div class="fix"><strong>Best Practice:</strong> Let the scan complete, return to a coverage area, and pull down to sync. For persistent coverage gaps: run a site survey, enable 802.11r fast roaming, and set DHCP lease to 8+ hours. Print jobs require connectivity at time of print trigger (not buffered offline).</div>
+            </div>
+
+            <div class="troubleshoot-row">
+                <div class="symptom">&#10060; iDash page loads but scan data doesn&rsquo;t save</div>
+                <div class="cause"><strong>Likely Cause:</strong> SQL Server connectivity failure on the server side (port 1433 blocked, SQL service down, or wrong credentials).</div>
+                <div class="fix"><strong>Fix (on server):</strong> <code>Test-NetConnection -ComputerName [SQLHost] -Port 1433</code>. Check Windows Event Viewer for SQL connection errors. Verify <code>web.config</code> connection string credentials.</div>
+            </div>
+        </div>
+
+        <!-- ================================================
+             R13 — PRINT JOBS NOT PRINTING
+             ================================================ -->
+        <div class="recipe-card" id="r13">
+            <div class="recipe-header">
+                <div class="recipe-num rn-red">R13</div>
+                <div class="recipe-title-block">
+                    <h2>&#128683; Troubleshooting: Print Jobs Not Printing</h2>
+                    <div class="recipe-subtitle">Diagnose print pipeline failures from scan trigger to physical label output.</div>
+                </div>
+            </div>
+
+            <div class="troubleshoot-row">
+                <div class="symptom">&#10060; Print triggered on scanner but nothing comes out of the printer</div>
+                <div class="cause"><strong>Likely Cause:</strong> Print spooler PowerShell script is not running on the server.</div>
+                <div class="fix"><strong>Fix:</strong> On the iDash server, open Task Manager or check Task Scheduler. Confirm <code>Run_Bypass_Spooler.ps1</code> is running. If not, start it in an elevated PowerShell window: <code>C:\idash_prints\Run_Bypass_Spooler.ps1</code> or restart the scheduled task.</div>
+            </div>
+
+            <div class="troubleshoot-row">
+                <div class="symptom">&#10060; All print jobs go to the wrong printer</div>
+                <div class="cause"><strong>Likely Cause A:</strong> Wrong <code>printer_routing.json</code> file is being read (multiple copies on server). <br><strong>Likely Cause B:</strong> Printer name in JSON doesn&rsquo;t match Windows printer name exactly.</div>
+                <div class="fix"><strong>Fix A:</strong> <code>Get-ChildItem C:\ -Filter "printer_routing.json" -Recurse</code> &mdash; find all copies and edit the one in the same folder as the running spooler script.<br><strong>Fix B:</strong> <code>Get-Printer | Select-Object Name</code> and copy-paste the exact name into the JSON value.</div>
+            </div>
+
+            <div class="troubleshoot-row">
+                <div class="symptom">&#10060; BarTender error: &ldquo;The document could not be opened&rdquo;</div>
+                <div class="cause"><strong>Likely Cause:</strong> The <code>template.filename</code> in the SQL database has an incorrect path, missing extension, or points to a file that doesn&rsquo;t exist.</div>
+                <div class="fix"><strong>Fix:</strong> Run in SQL:
+                    <code>SELECT id, name, filename, printmethod FROM template ORDER BY id;</code><br>
+                    Ensure <code>filename</code> is a full path with <code>.btw</code> extension (e.g., <code>C:\idash_prints\AW_Std_Small.btw</code>) and <code>printmethod = Bartender</code>.<br>
+                    Fix: <code>UPDATE template SET filename = 'C:\idash_prints\AW_Std_Small.btw', printmethod = 'Bartender' WHERE id = 1;</code>
+                </div>
+            </div>
+
+            <div class="troubleshoot-row">
+                <div class="symptom">&#10060; Printer is reachable but jobs queue without printing</div>
+                <div class="cause"><strong>Likely Cause:</strong> TCP port 9100 blocked between server and printer, or printer is offline/paused.</div>
+                <div class="fix"><strong>Fix:</strong> <code>Test-NetConnection -ComputerName [PrinterIP] -Port 9100</code>. If it fails, contact OIT Network to open port 9100 from the server VLAN to the printer. Also check the physical printer (paper, ribbon, power).</div>
+            </div>
+
+            <div class="troubleshoot-row">
+                <div class="symptom">&#10060; All scans print the same template regardless of tag type</div>
+                <div class="cause"><strong>Likely Cause:</strong> <code>template.name</code> in SQL doesn&rsquo;t match the tag type strings used by the mobile app, so all jobs fall back to template id=1.</div>
+                <div class="fix"><strong>Fix:</strong> Run <code>SELECT TOP 10 id, recordid, templateid FROM printjob ORDER BY id DESC</code>. If all rows show the same templateid, check <code>SELECT id, name, filename FROM template</code> and update name values to match the mobile app tag type strings exactly (e.g., <code>IQ350</code>, <code>Small_Standard</code>, <code>Large_Metal</code>).</div>
+            </div>
+        </div>
+
+        <!-- ================================================
+             R14 — IDASH! WEB ERRORS
+             ================================================ -->
+        <div class="recipe-card" id="r14">
+            <div class="recipe-header">
+                <div class="recipe-num rn-red">R14</div>
+                <div class="recipe-title-block">
+                    <h2>&#128683; Troubleshooting: iDash Web Errors</h2>
+                    <div class="recipe-subtitle">Resolve IIS and ASP.NET configuration errors on the server.</div>
+                </div>
+            </div>
+
+            <div class="troubleshoot-row">
+                <div class="symptom">&#10060; HTTP Error 500.19 &mdash; Error Code 0x80070021</div>
+                <div class="cause"><strong>Cause:</strong> Configuration sections locked &mdash; ASP.NET 4.8 or ISAPI features not installed in Windows Features.</div>
+                <div class="fix"><strong>Fix:</strong> Enable in Windows Features: <em>IIS &rarr; World Wide Web Services &rarr; Application Development Features</em> &rarr; ASP.NET 4.8, .NET Extensibility 4.8, ISAPI Extensions, ISAPI Filters. Then run <code>iisreset</code>.</div>
+            </div>
+
+            <div class="troubleshoot-row">
+                <div class="symptom">&#10060; HTTP Error 500.19 &mdash; 32-bit / 64-bit mismatch</div>
+                <div class="cause"><strong>Cause:</strong> Application Pool set to 32-bit while handler uses Framework64.</div>
+                <div class="fix"><strong>Fix:</strong> IIS Manager &rarr; Application Pools &rarr; select the iDash pool &rarr; Advanced Settings &rarr; set <strong>Enable 32-bit Applications = False</strong>.</div>
+            </div>
+
+            <div class="troubleshoot-row">
+                <div class="symptom">&#10060; Raw <code>web.config</code> XML shown in browser instead of the app</div>
+                <div class="cause"><strong>Cause:</strong> The iDash folder has not been converted to an IIS Application.</div>
+                <div class="fix"><strong>Fix:</strong> IIS Manager &rarr; expand the site &rarr; right-click <code>iDash</code> folder &rarr; <strong>Convert to Application</strong>. Assign the iDash App Pool.</div>
+            </div>
+
+            <div class="troubleshoot-row">
+                <div class="symptom">&#10060; &ldquo;Cannot connect to the database&rdquo; / iDash shows no data</div>
+                <div class="cause"><strong>Cause:</strong> SQL Server connectivity failure &mdash; wrong connection string, port 1433 blocked, or service account credentials.</div>
+                <div class="fix"><strong>Fix:</strong> From the server: <code>sqlcmd -S [SQLHost] -U idashadmin -P [password] -d idash -Q "SELECT TOP 1 * FROM asset"</code>. If it fails, check port 1433 ACL and credentials in <code>web.config</code>.</div>
+            </div>
+        </div>
+
+        <!-- ================================================
+             R15 — PRE-DEPLOYMENT CHECKLIST
+             ================================================ -->
+        <div class="recipe-card" id="r15">
+            <div class="recipe-header">
+                <div class="recipe-num rn-green">R15</div>
+                <div class="recipe-title-block">
+                    <h2>&#9989; Pre-Deployment Checklist</h2>
+                    <div class="recipe-subtitle">Complete every item before scheduling the on-site installation with ID Integration / Impres Technologies.</div>
+                </div>
+            </div>
+
+            <p style="color:var(--muted-docs); font-size:14px;">All items must be confirmed complete by VA OIT before the deployment team arrives on site. Incomplete items will delay or block the installation.</p>
+
+            <div>
+                <div class="checklist-item">
+                    <div class="ci-box"></div>
+                    <div><div class="ci-label"><strong>Server provisioned</strong> &mdash; Windows Server standard VA image, static IP assigned, local admin access granted</div><div class="ci-team">&#128100; Server Team</div></div>
+                </div>
+                <div class="checklist-item">
+                    <div class="ci-box"></div>
+                    <div><div class="ci-label"><strong>IIS installed</strong> with ASP.NET 4.8, .NET Extensibility, ISAPI Extensions, ISAPI Filters</div><div class="ci-team">&#128100; Server Team</div></div>
+                </div>
+                <div class="checklist-item">
+                    <div class="ci-box"></div>
+                    <div><div class="ci-label"><strong>VA SSL certificate</strong> bound to IIS on port 443 with hostname matching DNS entry</div><div class="ci-team">&#128100; Server / PKI Team</div></div>
+                </div>
+                <div class="checklist-item">
+                    <div class="ci-box"></div>
+                    <div><div class="ci-label"><strong>DNS record</strong> created for the server hostname resolving to its static IP</div><div class="ci-team">&#128100; Network / DNS Team</div></div>
+                </div>
+                <div class="checklist-item">
+                    <div class="ci-box"></div>
+                    <div><div class="ci-label"><strong>SQL database created</strong>: database <code>idash</code>, login <code>idashadmin</code> with <code>db_owner</code> + <code>sysadmin</code> + <code>bulkadmin</code></div><div class="ci-team">&#128100; DBA Team</div></div>
+                </div>
+                <div class="checklist-item">
+                    <div class="ci-box"></div>
+                    <div><div class="ci-label"><strong>Firewall ports opened</strong>: inbound 443/80, outbound 1433 to SQL, outbound 9100 to printers, outbound 25/587 to SMTP &mdash; all per ERA</div><div class="ci-team">&#128100; Network / Firewall Team</div></div>
+                </div>
+                <div class="checklist-item">
+                    <div class="ci-box"></div>
+                    <div><div class="ci-label"><strong>ACLs configured</strong>: mobile1md VLAN &rarr; server VLAN on 443; server VLAN &rarr; printer VLAN on 9100; server VLAN &rarr; database VLAN on 1433</div><div class="ci-team">&#128100; Network Team</div></div>
+                </div>
+                <div class="checklist-item">
+                    <div class="ci-box"></div>
+                    <div><div class="ci-label"><strong>Static IPs assigned</strong> to all label printers; wall jacks patched to correct VLAN</div><div class="ci-team">&#128100; Network Team</div></div>
+                </div>
+                <div class="checklist-item">
+                    <div class="ci-box"></div>
+                    <div><div class="ci-label"><strong>All scanner MACs registered</strong> on <code>mobile1md</code> SSID (collected and submitted before this checklist is due)</div><div class="ci-team">&#128100; Network / WiFi Team</div></div>
+                </div>
+                <div class="checklist-item">
+                    <div class="ci-box"></div>
+                    <div><div class="ci-label"><strong>WiFi coverage verified</strong> in all scanning areas &mdash; site survey completed if coverage is in question</div><div class="ci-team">&#128100; WiFi Team</div></div>
+                </div>
+                <div class="checklist-item">
+                    <div class="ci-box"></div>
+                    <div><div class="ci-label"><strong>SQL connectivity verified</strong> from server: <code>sqlcmd -S [SQLHost] -U idashadmin -P [pw] -d idash</code> connects successfully</div><div class="ci-team">&#128100; DBA / Server Team</div></div>
+                </div>
+                <div class="checklist-item">
+                    <div class="ci-box"></div>
+                    <div><div class="ci-label"><strong>Printer connectivity verified</strong>: <code>Test-NetConnection [PrinterIP] -Port 9100</code> returns TcpTestSucceeded: True for each printer</div><div class="ci-team">&#128100; Network Team</div></div>
+                </div>
+                <div class="checklist-item">
+                    <div class="ci-box"></div>
+                    <div><div class="ci-label"><strong>Credentials provided to IDI/Impres</strong>: server hostname/IP, SQL host, idashadmin password, local admin credentials</div><div class="ci-team">&#128100; Project Lead / COR</div></div>
+                </div>
+                <div class="checklist-item">
+                    <div class="ci-box"></div>
+                    <div><div class="ci-label"><strong>VA Root CA + Intermediate CA certificates</strong> deployed to all TC53 scanners via MDM or manual installation (see Recipe R10, Parts C &amp; D)</div><div class="ci-team">&#128100; MDM / Server Team</div></div>
+                </div>
+                <div class="checklist-item">
+                    <div class="ci-box"></div>
+                    <div><div class="ci-label"><strong>TLS 1.3 disabled</strong> on the IIS 443 binding &mdash; required for Zebra TC53 Android browser compatibility (see Recipe R10, Part B)</div><div class="ci-team">&#128100; Server Team</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================
+             R16 — CONTACTS
+             ================================================ -->
+        <div class="recipe-card" id="r16">
+            <div class="recipe-header">
+                <div class="recipe-num rn-purple">R16</div>
+                <div class="recipe-title-block">
+                    <h2>&#128100; Contacts &amp; Responsible Parties</h2>
+                    <div class="recipe-subtitle">Who to call for each type of issue.</div>
+                </div>
+            </div>
+
+            <div class="two-col">
+                <div class="mini-card" style="border-left: 3px solid #2ea8ff;">
+                    <h4 style="color:#2ea8ff;">&#128241; ID Integration Inc.</h4>
+                    <p>
+                        <strong>Role:</strong> iDash software installation, configuration, mobile scanner setup, BarTender configuration, iDash portal, print pipeline, and ongoing technical support.<br><br>
+                        <strong>Contact for:</strong> iDash application issues, print pipeline errors, iDash configuration, template and tag-type mapping problems.
+                    </p>
+                </div>
+                <div class="mini-card" style="border-left: 3px solid #10b981;">
+                    <h4 style="color:#10b981;">&#128279; Impres Technologies</h4>
+                    <p>
+                        <strong>Role:</strong> Hardware supply, Zebra TC53 and RFD40 provisioning, RFID label supply (IQ350, Standard Small, Large Metal), and hardware support.<br><br>
+                        <strong>Contact for:</strong> Scanner hardware issues, RFD40 sled problems, RFID label stock, replacement device procurement.
+                    </p>
+                </div>
+                <div class="mini-card" style="border-left: 3px solid #f59e0b;">
+                    <h4 style="color:#f59e0b;">&#127970; VA OIT &mdash; Network Team</h4>
+                    <p>
+                        <strong>Responsible for:</strong> WiFi SSID management, MAC registration on mobile1md, ACL and firewall rules, VLAN routing, static IP assignment for server and printers.
+                    </p>
+                </div>
+                <div class="mini-card" style="border-left: 3px solid #a855f7;">
+                    <h4 style="color:#a855f7;">&#128190; VA OIT &mdash; DBA / Server Team</h4>
+                    <p>
+                        <strong>Responsible for:</strong> SQL Server database creation (<code>idash</code>), login provisioning (<code>idashadmin</code>), IIS configuration, SSL certificate binding, server provisioning.
+                    </p>
+                </div>
+            </div>
+
+            <div class="info-recipe" style="margin-top:18px;">
+                <strong>&#8505;&#65039; ERA Document</strong><br>
+                All network decisions must align with the current signed ERA. Download from iDash:
+                <a href="SPS_OT_RITM9079692_iDash Mod 1.2_POAM Req_Approved.pdf">
+                    &#128196; SPS_OT_RITM9079692 &mdash; InfinID Technologies iDash Mod 1.2 (Approved)
+                </a>
+            </div>
+        </div>
+
+        <!-- Back nav -->
+        <div style="margin-top:20px; padding-top:20px; border-top:1px solid var(--line-docs);">
+            <a href="../index.aspx" style="font-weight:600; color:var(--accent-docs);">
+                &larr; Back to iDash Hub
+            </a>
+        </div>
+
+    </div><!-- /wrap -->
+
+    <footer style="margin-top:40px; padding:20px; border-top:1px solid var(--line-docs); font-size:12px;
+        color:var(--muted-docs); display:flex; justify-content:space-between; align-items:center;
+        max-width:1000px; margin-left:auto; margin-right:auto;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
+        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
+        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <span>&copy; 2026 ID Integration Inc. &amp; Impres Technologies</span>
+            <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height:14px; opacity:0.9;">
+        </div>
+    </footer>
+
+    <script>
+        function toggleIdashTheme() {
+            var html = document.documentElement;
+            var current = html.getAttribute('data-theme');
+            if (current === 'light') {
+                html.removeAttribute('data-theme');
+                localStorage.removeItem('idash_theme');
+            } else {
+                html.setAttribute('data-theme', 'light');
+                localStorage.setItem('idash_theme', 'light');
+            }
+            updateThemeIcon();
+        }
+        function updateThemeIcon() {
+            var btn = document.getElementById('themeToggleBtn');
+            if (!btn) return;
+            var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            btn.innerHTML = isLight ? '&#9728;' : '&#127769;';
+            btn.title = isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode';
+        }
+        document.addEventListener('DOMContentLoaded', updateThemeIcon);
+    </script>
+
+</body>
+</html>

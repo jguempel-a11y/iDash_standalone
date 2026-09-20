@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>SCAN SECURITY NOTES &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<div class="wrap">
+
+    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
+    <br/><br/>
+
+    <!-- &&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;- -->
+    <div class="card">
+        <h1>&#128241; Universal Scanner Architecture &amp; Security</h1>
+        <p style="font-size:16px;">
+            Technical specification and security review for the <code>universal_scan.aspx</code> module and its supporting backend API (<code>aw_scan_api.aspx</code>). 
+            This document details the data flow, access controls, and threat mitigation strategies implemented for remote handheld scanning.
+        </p>
+    </div>
+
+    <!-- &&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;- -->
+    <div class="card">
+        <h2>&#128203; 1. Purpose &amp; Use Case</h2>
+        <p>
+            The Universal Scanner module provides a responsive, hardware-agnostic web interface designed primarily for <strong>Zebra RFD40 handhelds</strong> utilizing DataWedge keyboard emulation. 
+            It enables warehouse staff and supply technicians to perform rapid, continuous "point-and-shoot" asset verification directly from the floor, without requiring native Android/iOS application deployments or direct database connectivity.
+        </p>
+    </div>
+
+    <!-- &&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;- -->
+    <div class="card">
+        <h2>&#9881; 2. Architecture &amp; Data Flow</h2>
+        <p>The system relies on a strict separation of concerns, ensuring the mobile device only handles rendering and input capture, while the server handles all database transactions securely.</p>
+        
+        <table>
+            <thead><tr><th>Component</th><th>Technology</th><th>Responsibility</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>Frontend UI</strong><br/><code>universal_scan.aspx</code></td>
+                    <td><span class="badge badge-blue">HTML/JS</span></td>
+                    <td>A lightweight client interface. It automatically traps and maintains focus on a hidden input field, capturing rapid keyboard-emulated hardware scans. It transmits the payload via asynchronous <code>fetch()</code> requests to prevent page reloads and UI blocking.</td>
+                </tr>
+                <tr>
+                    <td><strong>API Boundary</strong><br/><code>aw_scan_api.aspx</code></td>
+                    <td><span class="badge badge-purple">C# .NET</span></td>
+                    <td>The internal REST-like endpoint. It receives the raw EPC or Barcode string from the frontend, validates the payload, executes the database query, and returns a formatted JSON response.</td>
+                </tr>
+                <tr>
+                    <td><strong>Database Layer</strong><br/><code>iDash SQL</code></td>
+                    <td><span class="badge badge-green">T-SQL</span></td>
+                    <td>The central database holding the <code>dbo.v_asset</code> and <code>dbo.asset</code> tables. It processes the read-only lookup and returns the asset metadata.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- &&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;- -->
+    <div class="card">
+        <h2>&#128274; 3. Security &amp; Threat Mitigation</h2>
+        <p>Because these devices operate wirelessly on the floor, the scanning architecture implements several defensive layers to protect the central iDash database.</p>
+
+        <h3>SQL Injection Defense</h3>
+        <ul>
+            <li><strong>Implementation:</strong> The backend API endpoint strictly utilizes parameterized queries via the C# <code>SqlCommand</code> object.</li>
+            <li><strong>Impact:</strong> The user input (the scanned string) is bound as a safe <code>SqlParameter</code> and is <em>never</em> concatenated directly into the SQL command string. This completely neutralizes the risk of malicious barcode payloads attempting to execute arbitrary SQL commands.</li>
+        </ul>
+
+        <h3>Principle of Least Privilege</h3>
+        <ul>
+            <li><strong>Implementation:</strong> The <code>aw_scan_api.aspx</code> endpoint is hardcoded to perform only tightly constrained <code>SELECT TOP 1</code> read operations across a limited set of fields.</li>
+            <li><strong>Impact:</strong> The API code contains exactly zero <code>INSERT</code>, <code>UPDATE</code>, or <code>DELETE</code> statements. Even if the API is intentionally triggered via external tools (like Postman), it is physically incapable of mutating or deleting database records.</li>
+        </ul>
+
+        <h3>No Direct Database Exposure</h3>
+        <ul>
+            <li><strong>Implementation:</strong> The client device's browser communicates exclusively with the IIS Web Server over HTTP/HTTPS (Port 80/443).</li>
+            <li><strong>Impact:</strong> Mobile devices never connect directly to the SQL Server (Port 1433). The IIS server acts as a secure intermediary layer. Raw database connection strings and credentials remain safely stored server-side in the <code>web.config</code> and are never transmitted to the client.</li>
+        </ul>
+
+        <h3>Inherited Authentication Context</h3>
+        <ul>
+            <li><strong>Implementation:</strong> The system inherits the rigorous IIS Application Pool identity and Active Directory execution mechanisms already deployed on the host server.</li>
+            <li><strong>Impact:</strong> Internal network boundary protections, SSL certificates, and domain-level access controls apply organically to the scanner endpoints without requiring separate authentication layers for the basic lookup functionality.</li>
+        </ul>
+    </div>
+
+    <!-- WebSerial Security -->
+    <div class="card">
+        <h2>&#128268; 4. WebSerial API Security Model</h2>
+        <p>
+            As of 07/03/2026, four scanning modules (ENNX Live Scan, EIL Live Scan, Universal ENNX Creator, and VA Site Inventory)
+            support connecting USB RFID readers and serial devices directly through the browser via the <strong>WebSerial API</strong>.
+            This section documents the security characteristics of that integration.
+        </p>
+
+        <h3>Explicit User Consent Required</h3>
+        <ul>
+            <li><strong>Implementation:</strong> The WebSerial API requires a user-initiated gesture (button click) to trigger the browser's native serial port picker dialog. JavaScript cannot silently open or enumerate serial ports.</li>
+            <li><strong>Impact:</strong> No serial device is ever accessed without the user's explicit, per-session permission. Malicious scripts on the same page cannot hijack serial ports.</li>
+        </ul>
+
+        <h3>Non-Persistent Permissions</h3>
+        <ul>
+            <li><strong>Implementation:</strong> Serial port permissions are not persisted across browser sessions. Each time the user revisits the page, they must re-select their serial port via the browser dialog.</li>
+            <li><strong>Impact:</strong> Even if a workstation is shared, a previous user's serial port access does not carry over. This prevents unintended data capture from serial devices left connected.</li>
+        </ul>
+
+        <h3>HTTPS Enforcement</h3>
+        <ul>
+            <li><strong>Implementation:</strong> The WebSerial API is only available on pages served over <strong>HTTPS</strong> (or <code>localhost</code>). The iDash scanning pages detect this at load time and display a &quot;Not Available&quot; message if the prerequisite is not met.</li>
+            <li><strong>Impact:</strong> This enforces transport-layer encryption for all serial data flowing through the browser. On plain HTTP deployments, WebSerial is automatically disabled &mdash; keyboard/DataWedge scanning continues unaffected.</li>
+        </ul>
+
+        <h3>Browser Compatibility Boundary</h3>
+        <ul>
+            <li><strong>Implementation:</strong> WebSerial is supported only in Chromium-based browsers (Chrome, Edge). Firefox, Safari, and other browsers do not implement the API.</li>
+            <li><strong>Impact:</strong> All four scanning pages gracefully degrade: if <code>navigator.serial</code> is undefined, the WebSerial panel either hides or shows a clear &quot;Not Available&quot; notice. No errors are thrown, and all other scanning functionality operates normally.</li>
+        </ul>
+
+        <h3>Data Flow: Serial &rarr; Scan Pipeline</h3>
+        <ul>
+            <li><strong>Implementation:</strong> Serial data is read as raw bytes, decoded as UTF-8, buffered until a newline delimiter is received, then passed into the same <code>handleScan()</code> (or <code>__doPostBack</code>) function used by keyboard input. No serial data bypasses the existing scan validation pipeline.</li>
+            <li><strong>Impact:</strong> All existing security controls &mdash; EPC filtering, parameterized SQL, cross-site guards, format validation &mdash; apply identically to serial-sourced scans. WebSerial is an input method, not a bypass.</li>
+        </ul>
+    </div>
+
+    <div style="text-align:center; color:var(--muted-docs); font-size:12px; margin-top:40px;">
+        iDash &mdash; VA RFID Asset Intelligence &copy; 2026<br/>
+        Authored by the iDash project lead.
+    </div>
+</div>
+</body>
+</html>

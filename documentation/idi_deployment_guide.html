@@ -1,0 +1,330 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>IDI DEPLOYMENT GUIDE &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <div class="container">
+        <h1>IDI Tagging Team Toolkit Site Deployment Guide</h1>
+        <div style="margin-bottom: 30px; display: flex; align-items: center;">
+            <div style="margin-right: 15px; color:var(--muted-docs); font-size: 14px;">Documentation Type:</div>
+            <span class='badge badge-none'>System Admin / Infrastructure</span>
+        </div>
+        
+        <p><strong>Applies To:</strong> iDash Web Portal (ASP.NET WebForms, .NET Framework 4.8, IIS)</p>
+
+        <h2>1. Overview</h2>
+        <p>This document describes the steps required to deploy the Tagging Team iDash Web Portal application to a new Windows machine (server or workstation) using IIS and SQL Server. It is designed to prevent common configuration errors such as HTTP Error 500.19 (0x80070021) caused by missing IIS/ASP.NET features.</p>
+
+        <ul>
+            <li><strong>Framework:</strong> ASP.NET WebForms</li>
+            <li><strong>Runtime:</strong> .NET Framework 4.8</li>
+            <li><strong>Pipeline:</strong> Uses Classic pipeline with an ISAPI handler</li>
+            <li><strong>Database:</strong> Connects to a SQL Server (typically SQL Express) database named <code>idash</code></li>
+        </ul>
+
+        <h2>2. Prerequisites</h2>
+        <h3>2.1 Operating System</h3>
+        <p>Windows 10, Windows 11, or Windows Server with IIS support.</p>
+
+        <h3>2.2 Software</h3>
+        <ul>
+            <li>Internet Information Services (IIS)</li>
+            <li>.NET Framework 4.8 (included with modern Windows versions)</li>
+            <li>SQL Server or SQL Server Express</li>
+            <li>iDash Web Portal files (site folder)</li>
+            <li>iDash database backup or copy</li>
+        </ul>
+
+        <h2>3. Enable Required Windows Features</h2>
+        <p>Open <strong>Control Panel &larr;&rsquo; Programs and Features &larr;&rsquo; Turn Windows features on or off</strong>. Enable the following features:</p>
+
+        <div class="box">
+            <strong>Internet Information Services &larr;&rsquo; World Wide Web Services &larr;&rsquo; Application Development Features</strong>
+            <ul>
+                <li>ASP.NET 4.8</li>
+                <li>.NET Extensibility 4.8</li>
+                <li>ISAPI Extensions</li>
+                <li>ISAPI Filters</li>
+            </ul>
+
+            <strong>Internet Information Services &larr;&rsquo; Web Management Tools</strong>
+            <ul>
+                <li>IIS Management Console</li>
+                <li>IIS 6 Metabase Compatibility (recommended for classic mode)</li>
+            </ul>
+
+            <strong>Optional but recommended</strong>
+            <ul>
+                <li>Static Content</li>
+                <li>Default Document</li>
+                <li>Request Filtering</li>
+            </ul>
+        </div>
+
+        <p>Click OK and allow Windows to install the features. After installation, restart IIS using an elevated command prompt:</p>
+        <pre>iisreset</pre>
+
+        <h2>4. Deploy the Web Application</h2>
+        <p>Copy the iDash Web Portal folder to:</p>
+        <pre>C:\inetpub\wwwroot\iDash.WebClient</pre>
+        <p>Ensure the <code>iDash</code> subfolder and <code>web.config</code> are present at:</p>
+        <pre>C:\inetpub\wwwroot\iDash\web.config</pre>
+
+        <h2>5. Configure IIS Site and Application</h2>
+        <ol>
+            <li>Open IIS Manager.</li>
+            <li>Expand the server node and Sites.</li>
+            <li>Either use Default Web Site, or create a new site pointing to <code>C:\inetpub\wwwroot\iDash.WebClient</code>.</li>
+            <li>Right-click the <code>iDash</code> folder under the site and select <strong>Convert to Application</strong>.</li>
+            <li>Assign an Application Pool (see next section).</li>
+        </ol>
+
+        <h2>6. Configure the Application Pool</h2>
+        <p>The application uses a classic ISAPI handler and .NET Framework 4.x.</p>
+        <ol>
+            <li>In IIS Manager, go to Application Pools.</li>
+            <li>Create a new Application Pool, for example: <strong>idashapppool</strong>.</li>
+            <li>Set:
+                <ul>
+                    <li><strong>.NET CLR Version:</strong> v4.0</li>
+                    <li><strong>Managed Pipeline Mode:</strong> Classic</li>
+                    <li><strong>Start Mode:</strong> AlwaysRunning (optional)</li>
+                </ul>
+            </li>
+            <li>Right-click the App Pool &rarr; <strong>Advanced Settings</strong>:
+                <ul>
+                    <li><strong>Enable 32-bit Applications:</strong> False (because the handler uses Framework64)</li>
+                </ul>
+            </li>
+            <li>Assign this App Pool to the iDash application.</li>
+        </ol>
+
+        <h2>7. Verify Handler Mappings</h2>
+        <ol>
+            <li>In IIS Manager, select the <code>iDash</code> application.</li>
+            <li>Open <strong>Handler Mappings</strong>.</li>
+            <li>Confirm that ASP.NET 4.x handlers exist and are enabled, such as:
+                <ul>
+                    <li><code>PageHandlerFactory-ISAPI-4.0_64bit</code></li>
+                    <li><code>ASP.NET v4.0.30319</code></li>
+                    <li><code>ISAPI-dll</code></li>
+                </ul>
+            </li>
+        </ol>
+        <p style="color: #ef4444;"><em>If these are missing, ASP.NET 4.8 or ISAPI features are not installed correctly.</em></p>
+
+        <h2>8. Database Configuration</h2>
+        <p>The <code>web.config</code> connection string expects default routing configurations mappings like this:</p>
+        <pre>Server=localhost\sqlexpress; Database=iDash; User ID=idashadmin; Password=idashadmin;
+Encrypt=True; TrustServerCertificate=True; Connect Timeout=10;</pre>
+        <p style="color:var(--muted-docs);">Note: SQL Server Express is the most common installation. The instance name is typically <code>localhost\sqlexpress</code>. On a full SQL Server installation it is just <code>localhost</code>. Always verify with <code>sqlcmd -S localhost\sqlexpress -E -Q "SELECT @@VERSION"</code>.</p>
+        <ol>
+            <li>Install SQL Server or SQL Server Express.</li>
+            <li>Create or restore the <code>idash</code> database.</li>
+            <li>Create a SQL login with:
+                <ul>
+                    <li><strong>Login name:</strong> idashadmin</li>
+                    <li><strong>Password:</strong> idashadmin</li>
+                </ul>
+            </li>
+            <li>Map the login to the <code>idash</code> database and grant appropriate permissions (e.g., <code>db_owner</code>).</li>
+        </ol>
+
+        <h2>9. Application Settings (API and OAuth)</h2>
+        <p>In <code>web.config</code>, verify and adjust the following configurations as needed for the environment:</p>
+        <ul>
+            <li><code>iDash_ApiBase</code> (e.g., http://localhost/api)</li>
+            <li><code>iDash_TokenUrl</code> (e.g., http://localhost/connect/token)</li>
+            <li><code>iDash_ClientId</code> and <code>iDash_ClientSecret</code></li>
+            <li><code>EmailRecipients</code> list</li>
+        </ul>
+
+        <h2>10. Print Spooler Deployment</h2>
+        <p>The iDash print pipeline uses a PowerShell-based spooler (<code>Run_Bypass_Spooler.ps1</code>) instead of the iDash .NET Print Server service. This section is required on every server that will physically print labels.</p>
+
+        <h3>10.1 Install BarTender</h3>
+        <p>BarTender must be installed on the print server. The spooler uses the BarTender .NET SDK (<code>Seagull.BarTender.Print.dll</code>) which is placed in <code>C:\Program Files (x86)\InfinID Technologies\iDash Print Server\</code> by the iDash Print Server installer.</p>
+        <div class="box" style="border-left:4px solid #f59e0b; background:#fffbeb; padding:12px 16px; margin:12px 0; border-radius:4px;">
+            <strong style="color:#b45309;">&#9888; Note &mdash; BarTender DLLs &amp; Reboot Requirement:</strong>
+            <p style="margin:6px 0 0 0; color:#1e293b;">
+                The BarTender SDK DLLs (<code>Seagull.BarTender.Print.dll</code>, <code>Seagull.Interop.dll</code>, etc.) required for printing from iDash will <strong>not</strong> be present or accessible until:
+            </p>
+            <ol style="margin:6px 0 0 0; padding-left:20px; color:#1e293b; line-height:1.6;">
+                <li><strong>BarTender is installed</strong> (use 64-bit edition).</li>
+                <li><strong>iDash Print Server is installed</strong> (places the Seagull DLLs into <code>C:\Program Files (x86)\InfinID Technologies\iDash Print Server\</code>).</li>
+                <li><strong>The system is restarted (rebooted)</strong> to initialize BarTender system services, register native COM objects, and update system environment variables.</li>
+            </ol>
+        </div>
+        <ul>
+            <li>Run the iDash Print Server installer &mdash; even if you will not use the .NET service, the installer registers the BarTender SDK DLL the PS spooler depends on.</li>
+            <li>Verify BarTender can open the <code>.btw</code> template files manually before running the spooler.</li>
+        </ul>
+
+        <h3>10.2 Create the Print Directory and Copy Template Files</h3>
+        <pre>C:\idash_prints\</pre>
+        <p>Copy the following into that directory:</p>
+        <ul>
+            <li>All <code>*.btw</code> BarTender label template files</li>
+            <li><code>Run_Bypass_Spooler.ps1</code></li>
+            <li><code>Run_Bypass_Print_Once.ps1</code></li>
+            <li><code>printer_routing.json</code> (see section 10.4)</li>
+        </ul>
+        <div class="box" style="border-left:4px solid #f59e0b;">
+            <strong style="color:#f59e0b;">&#9888; Critical &mdash; printer_routing.json Location</strong>
+            <p>The spooler reads <code>printer_routing.json</code> from <strong><code>$PSScriptRoot</code></strong> &mdash; the folder where the <em>running</em> script lives. Some installations also have a copy under <code>C:\VA_RFID\iDash v2.2.2\iDash\printing\</code>. If there are multiple copies on the system, editing the wrong one has no effect.</p>
+            <p>Always find the active copy before editing:</p>
+            <pre>Get-ChildItem C:\ -Filter "printer_routing.json" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName</pre>
+            <p>Edit the copy in the <strong>same folder</strong> as the script that is actually running.</p>
+        </div>
+
+        <h3>10.3 Configure Windows Printers</h3>
+        <ul>
+            <li>Install the BarTender-compatible printer drivers for all physical label printers.</li>
+            <li>Note the exact Windows printer names (including capitalization and spacing) using:
+                <pre>Get-Printer | Select-Object Name | Sort-Object Name</pre>
+            </li>
+            <li>These names are used as values in <code>printer_routing.json</code> &mdash; they must be character-for-character identical.</li>
+        </ul>
+
+        <h3>10.4 Configure printer_routing.json</h3>
+        <p>This file maps the <code>.btw</code> filename (key) to the Windows printer name (value). Create or update it in the same folder as the running script:</p>
+        <pre>{
+  "AW_IQ350.btw":       "Metal_Small",
+  "AW_Metal_Large.btw": "Metal_Large",
+  "AW_Std_Small.btw":   "Std_Small"
+}</pre>
+        <p>The file is read fresh on every print job &mdash; no restart is required after changes.</p>
+
+        <h3>10.5 Configure the Template Table (SQL)</h3>
+        <p>After restoring the database, verify the <code>template</code> table is correctly configured. The <code>name</code> column must exactly match the RFID tag type strings used in the iDash mobile app. This is what enables the mobile app&rsquo;s &ldquo;auto-map&rdquo; feature to select the correct template for each tag type.</p>
+        <pre>SELECT id, name, templatetype, filename, printclientid FROM template ORDER BY id;</pre>
+        <p>Expected configuration:</p>
+        <ul>
+            <li><strong>name</strong> &mdash; must match the mobile app tag type exactly (e.g., <code>IQ350</code>, <code>Small_Standard</code>, <code>Large_Metal</code>). If this doesn&rsquo;t match, auto-map always falls back to template id=1.</li>
+            <li><strong>templatetype</strong> &mdash; set to match name for future compatibility.</li>
+            <li><strong>filename</strong> &mdash; full path including <code>.btw</code> extension (e.g., <code>C:\idash_prints\AW_IQ350.btw</code>).</li>
+            <li><strong>printclientid</strong> &mdash; set to <code>NULL</code> to allow all clients, or to a specific print client ID to restrict.</li>
+        </ul>
+        <p>Fix the default template (id=1) broken filename if needed:</p>
+        <pre>UPDATE template SET filename = 'C:\idash_prints\AW_IQ350.btw' WHERE id = 1;</pre>
+        <p>Rename templates to match tag types for auto-map:</p>
+        <pre>UPDATE template SET name = 'IQ350',          templatetype = 'IQ350'          WHERE id = 3;
+UPDATE template SET name = 'Small_Standard',  templatetype = 'Small_Standard'  WHERE id = 4;
+UPDATE template SET name = 'Large_Metal',     templatetype = 'Large_Metal'     WHERE id = 5;</pre>
+
+        <h3>10.6 Per-Server Printer Naming Differences</h3>
+        <p>Each physical server has its own Windows printer names. Do not copy <code>printer_routing.json</code> between servers without updating the values.</p>
+        <table style="width:100%; border-collapse:collapse; font-size:13px; margin:10px 0;">
+            <tr style="background:var(--chip);">
+                <th style="padding:10px; text-align:left; color:#2ea8ff; border-bottom:1px solid var(--line);">Server</th>
+                <th style="padding:10px; text-align:left; color:#2ea8ff; border-bottom:1px solid var(--line);">AW_IQ350.btw</th>
+                <th style="padding:10px; text-align:left; color:#2ea8ff; border-bottom:1px solid var(--line);">AW_Metal_Large.btw</th>
+                <th style="padding:10px; text-align:left; color:#2ea8ff; border-bottom:1px solid var(--line);">AW_Std_Small.btw</th>
+            </tr>
+            <tr>
+                <td style="padding:10px; color:var(--muted-docs); border-bottom:1px solid var(--line);">613 (Primary)</td>
+                <td style="padding:10px; color:#facc15;">AW_Metal_IQ350</td>
+                <td style="padding:10px; color:#facc15;">AW_Metal_Large</td>
+                <td style="padding:10px; color:#facc15;">AW_Std_Small</td>
+            </tr>
+            <tr>
+                <td style="padding:10px; color:var(--muted-docs);">Field Server</td>
+                <td style="padding:10px; color:#facc15;">Metal_Small</td>
+                <td style="padding:10px; color:#facc15;">Metal_Large</td>
+                <td style="padding:10px; color:#facc15;">Std_Small</td>
+            </tr>
+        </table>
+
+        <h3>10.7 Run / Schedule the Spooler</h3>
+        <ul>
+            <li>Open an elevated PowerShell window and run: <code>C:\idash_prints\Run_Bypass_Spooler.ps1</code></li>
+            <li>Or configure as a Windows Task Scheduler task set to run at startup under a local admin account.</li>
+            <li>The spooler polls the <code>printjob</code> SQL table every 3 seconds for <code>completed=0</code> rows and processes them automatically.</li>
+            <li>Editing <code>printer_routing.json</code> takes effect immediately on the next job &mdash; no restart required.</li>
+            <li>Editing the <code>.ps1</code> script requires restarting the PowerShell window or Task Scheduler task.</li>
+        </ul>
+
+        <h2>11. Common Errors and Resolutions</h2>
+        
+        <div class="box">
+            <strong style="color: #fca5a5;">HTTP Error 500.19 &ndash; Error Code 0x80070021</strong>
+            <p><strong>Cause:</strong> Sections are locked because ASP.NET / ISAPI features are not installed.</p>
+            <p><strong>Fix:</strong> Enable ASP.NET 4.8, .NET Extensibility 4.8, ISAPI Extensions, and ISAPI Filters locally in Windows Features.</p>
+        </div>
+
+        <div class="box">
+            <strong style="color: #fca5a5;">HTTP Error 500.19 &ndash; 32-bit/64-bit mismatch</strong>
+            <p><strong>Cause:</strong> App Pool set to 32-bit while handler uses Framework64.</p>
+            <p><strong>Fix:</strong> Set Enable 32-bit Applications = False in App Pool settings.</p>
+        </div>
+
+        <div class="box">
+            <strong style="color: #fca5a5;">Raw XML of web.config shown in browser</strong>
+            <p><strong>Cause:</strong> Folder not configured as an IIS Application or not served by IIS natively.</p>
+            <p><strong>Fix:</strong> Convert folder to Application and browse via <code>http://localhost/...</code></p>
+        </div>
+
+        <div class="box">
+            <strong style="color: #fca5a5;">All print jobs go to the same printer</strong>
+            <p><strong>Cause A:</strong> <code>printer_routing.json</code> is being read from a different path than the one you edited. Multiple copies may exist on the server.</p>
+            <p><strong>Fix:</strong> Run <code>Get-ChildItem C:\ -Filter "printer_routing.json" -Recurse</code> to find all copies. Edit the one in the same folder as the running script.</p>
+            <p><strong>Cause B:</strong> The printer name value in the JSON doesn&rsquo;t exactly match the Windows printer name.</p>
+            <p><strong>Fix:</strong> Run <code>Get-Printer | Select-Object Name</code> and copy/paste the exact name into the JSON.</p>
+        </div>
+
+        <div class="box">
+            <strong style="color: #fca5a5;">Auto-map always selects the same template (all same .btw)</strong>
+            <p><strong>Cause:</strong> The <code>template.name</code> field in SQL does not match the tag type string the mobile app sends.</p>
+            <p><strong>Fix:</strong> Run <code>SELECT TOP 10 id, recordid, templateid FROM printjob ORDER BY id DESC</code> &mdash; if all rows show the same templateid, fix with <code>UPDATE template SET name = 'IQ350' WHERE id = 3</code> etc., matching mobile app tag type strings exactly.</p>
+        </div>
+
+        <div class="box">
+            <strong style="color: #fca5a5;">BarTender document could not be opened</strong>
+            <p><strong>Cause:</strong> The <code>template.filename</code> column stores a bare name without extension or path (e.g., <code>asset</code> instead of <code>C:\idash_prints\AW_IQ350.btw</code>).</p>
+            <p><strong>Fix:</strong> <code>UPDATE template SET filename = 'C:\idash_prints\AW_IQ350.btw' WHERE id = 1;</code></p>
+        </div>
+
+        <h2>12. Final Verification</h2>
+        <p>To verify the application deployed and configured itself correctly:</p>
+        <ol>
+            <li>Restart IIS via Admin Powershell: <code>iisreset</code></li>
+            <li>Browse to: <code><a href="../../iDash/index.aspx">http://localhost/iDash/index.aspx</a></code></li>
+            <li>Confirm the application loads without HTTP 500.19 errors.</li>
+            <li>Verify print pipeline:
+                <ul>
+                    <li>Confirm <code>C:\idash_prints\</code> exists and contains <code>*.btw</code> files.</li>
+                    <li>Confirm <code>printer_routing.json</code> is in the same folder as the running spooler script.</li>
+                    <li>Submit a test print from the iDash mobile app using each tag type and confirm correct printer routing in the PS console output.</li>
+                    <li>Verify routing messages: <code>-&gt; Dynamically Re-Routing Label to Hardware Printer: [PrinterName]</code></li>
+                    <li>Confirm <code>template.name</code> matches tag type strings by checking recent print jobs: <code>SELECT TOP 5 id, recordid, templateid FROM printjob ORDER BY id DESC</code> &mdash; different tag types should produce different templateid values.</li>
+                </ul>
+            </li>
+        </ol>
+
+        <div style="margin-top: 50px; padding-top: 20px; border-top:1px solid var(--line);">
+            <a href="index.aspx" style="font-weight: 600;">&larr; Back to Main Documentation</a>
+        </div>
+    </div>
+    
+    <footer style="margin-top: 40px; padding: 20px; border-top:1px solid var(--line); font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 12px; color:var(--muted-docs); display: flex; justify-content: space-between; align-items: center; background:var(--bg); max-width: 1400px; margin-left: auto; margin-right: auto;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
+        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
+        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span>&copy; 2026 ID Integration Inc.</span>
+            <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 14px; opacity: 0.9;">
+        </div>
+    </footer>
+</body>
+</html>

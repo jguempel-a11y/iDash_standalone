@@ -1,0 +1,787 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>VA NETWORK SERVER INSTALL &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body>
+
+    <h1>Portable BCP Export Script &ndash; Deployment Documentation</h1>
+    <p>This page documents the portable BCP export script used to generate the
+        <em>LsvDataForIdash.txt</em> file for iDash. It includes the script,
+        instructions for moving it to a new machine, built&lsquo;in validation steps, and <strong>troubleshooting tips for
+            common errors</strong>.
+    </p>
+
+    <div class="section">
+        <h2>1. Security & Operational Overview</h2>
+        <p>This script is designed for review by Information Security Officers (ISO). It performs a
+            <strong>read-only</strong> extraction of asset inventory data.
+        </p>
+
+        <h3>Operational Steps</h3>
+        <ul>
+            <li><strong>Initialization:</strong> Sets configuration variables for Server, Database, and Output path.
+            </li>
+            <li><strong>Connectivity Check:</strong> Verifies network connectivity to the SQL Server using a benign
+                query (<code>SELECT TOP 1 GETDATE()</code>).</li>
+            <li><strong>Access Check:</strong> Verifies write permissions to the destination folder by briefly creating
+                and deleting a 0-byte test file.</li>
+            <li><strong>Data Export:</strong> Uses the Microsoft BCP (Bulk Copy Program) utility to query specific
+                tables and save the result to a text file.</li>
+        </ul>
+
+        <h3>Security & Permissions</h3>
+        <ul>
+            <li><strong>Authentication:</strong> Uses <strong>Windows Authentication</strong> (<code>-E</code> flag). No
+                usernames or passwords are stored in the script.</li>
+            <li><strong>Database Scope:</strong> Requires <strong>SELECT (Read)</strong> permissions only. No data is
+                modified, inserted, or deleted in the database.</li>
+            <li><strong>Network Ports:</strong> Requires outbound traffic on <strong>TCP 1433</strong> (SQL Server) and
+                SMB (File Share) to the output location.</li>
+            <li><strong>File System:</strong> Writes a single text file to the defined <code>OUTPUT</code> path. Does
+                not access system files.</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>2. Portable BCP Script (BCP_Export_LSV.cmd)</h2>
+        <p>Save this as <strong>BCP_Export_LSV.cmd</strong> on any machine. Only update the variables at the top.</p>
+
+        <pre><code>@echo off
+setlocal enabledelayedexpansion
+
+REM ============================================================
+REM  PORTABLE BCP EXPORT SCRIPT FOR IDASH
+REM  Only update the variables in this section when moving
+REM ============================================================
+
+REM --- SQL Server to connect to ---
+set SQLSERVER=VHACDWDWHSQL33.VHA.MED.VA.GOV
+
+REM --- Database name ---
+set DATABASE=LSV
+
+REM --- Output file location (UNC or local path) ---
+set OUTPUT=\\vhavanapprfidp\idashsqlcmd\VISN20_RFIDSQL\LsvDataForIdash.txt
+
+REM --- Station IDs (Comma separated) ---
+set STATIONS=512,540,517,581,613,688
+
+REM ============================================================
+REM  DO NOT EDIT BELOW THIS LINE
+REM ============================================================
+
+echo Running BCP export...
+echo Server: %SQLSERVER%
+echo Database: %DATABASE%
+echo Output: %OUTPUT%
+echo Stations: %STATIONS%
+echo.
+
+REM --- Test SQL connectivity ---
+echo Testing SQL connectivity...
+sqlcmd -S %SQLSERVER% -d %DATABASE% -E -Q "SELECT TOP 1 GETDATE()" >nul 2>&1
+IF ERRORLEVEL 1 (
+    echo ERROR: Unable to connect to SQL Server %SQLSERVER%.
+    echo Make sure you are on the correct network and have SQL permissions.
+    pause
+    exit /b 1
+)
+echo SQL connectivity OK.
+echo.
+
+REM --- Test write access to output folder ---
+echo Testing write access to output folder...
+echo Test > "%OUTPUT%.test" 2>nul
+IF ERRORLEVEL 1 (
+    echo ERROR: Cannot write to output path: %OUTPUT%
+    echo Check permissions or update the OUTPUT variable.
+    pause
+    exit /b 1
+)
+del "%OUTPUT%.test"
+echo Output path OK.
+echo.
+
+REM --- Run BCP export ---
+bcp "SET NOCOUNT ON 
+SELECT DISTINCT 
+    a.EntryNumber as EE, 
+    a.Manufacturer, 
+    a.MfgrEquipmentName as Description, 
+    a.Model, 
+    a.Serial, 
+    a.EquipmentCategory as Category, 
+    a.UseStatus as Status, 
+    b.ServiceSection as Service, 
+    a.Location, 
+    a.PhysicalInventoryDate, 
+    a.PreviousLocation, 
+    a.SecondPreviousLocation, 
+    a.ThirdPreviousLocation, 
+    a.Sta3n As Site, 
+    a.CSNName as CSN, 
+    a.CMR as EIL, 
+    a.purchaseorder as PO 
+FROM BISL_R1VX.R_Eng_EquipmentInventory AS a 
+LEFT JOIN Dim.ServiceSection AS b 
+    ON a.ServiceIEN = b.ServiceSectionIEN 
+    AND a.Sta3n = b.Sta3n 
+WHERE a.Sta3n IN (%STATIONS%) 
+  AND a.TypeOfEntry = 'NON-EXPENDABLE EQPT' 
+  AND vistaeditdate > (GETDATE() - 3)"
+queryout "%OUTPUT%" -S %SQLSERVER% -d %DATABASE% -E -T -c
+
+IF ERRORLEVEL 1 (
+    echo ERROR: BCP export failed.
+    pause
+    exit /b 1
+)
+
+echo Export completed successfully.
+pause</code></pre>
+    </div>
+
+    <div class="section">
+        <h2>2. Output Data Description</h2>
+        <p>The script generates a tab-delimited text file (<code>LsvDataForIdash.txt</code>) containing
+            <strong>Non-Expendable Equipment</strong> modified within the <strong>last 3 days</strong> for the specified
+            stations.
+        </p>
+        <p><strong>Columns included:</strong></p>
+        <ul>
+            <li><strong>EE</strong> (Entry Number)</li>
+            <li><strong>Manufacturer</strong></li>
+            <li><strong>Description</strong> (MfgrEquipmentName)</li>
+            <li><strong>Model</strong></li>
+            <li><strong>Serial</strong></li>
+            <li><strong>Category</strong> (EquipmentCategory)</li>
+            <li><strong>Status</strong> (UseStatus)</li>
+            <li><strong>Service</strong> (ServiceSection)</li>
+            <li><strong>Location</strong></li>
+            <li><strong>PhysicalInventoryDate</strong></li>
+            <li><strong>PreviousLocation</strong></li>
+            <li><strong>SecondPreviousLocation</strong></li>
+            <li><strong>ThirdPreviousLocation</strong></li>
+            <li><strong>Site</strong> (Sta3n)</li>
+            <li><strong>CSN</strong> (CSNName)</li>
+            <li><strong>EIL</strong> (CMR)</li>
+            <li><strong>PO</strong> (PurchaseOrder)</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>3. What to Update When Moving to a New Machine</h2>
+        <p>Only update these three variables:</p>
+
+        <pre><code>set SQLSERVER=VHACDWDWHSQL33.VHA.MED.VA.GOV
+set DATABASE=LSV
+set OUTPUT=\\vhavanapprfidp\idashsqlcmd\VISN20_RFIDSQL\LsvDataForIdash.txt
+set STATIONS=512,540,517,581,613,688
+</code></pre>
+
+        <h3>SQLSERVER</h3>
+        <ul>
+            <li>Must be reachable from the new machine</li>
+            <li>Must allow Windows authentication</li>
+        </ul>
+
+        <h3>DATABASE</h3>
+        <ul>
+            <li>Usually stays <strong>LSV</strong></li>
+        </ul>
+
+        <h3>OUTPUT</h3>
+        <ul>
+            <li>Must be writable</li>
+            <li>Can be UNC or local path</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>4. Built&lsquo;In Safety Checks</h2>
+        <p>The script automatically verifies:</p>
+        <ul>
+            <li><strong>SQL connectivity</strong> using sqlcmd</li>
+            <li><strong>Write access</strong> to the output folder</li>
+            <li><strong>BCP execution success</strong></li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>5. Troubleshooting Tips</h2>
+        <p>If the script fails, check the console output for specific error messages.</p>
+
+        <h3>Common Error Messages</h3>
+        <table border="1" style="border-collapse: collapse; width: 100%; margin-top: 10px; border: 1px solid #ddd;">
+            <thead>
+                <tr style="background: #eee; text-align: left;">
+                    <th style="padding: 10px;">Error Message</th>
+                    <th style="padding: 10px;">Likely Cause</th>
+                    <th style="padding: 10px;">Things to Try</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding: 10px; vertical-align: top;">
+                        <code>ERROR: Unable to connect to SQL Server...</code>
+                    </td>
+                    <td style="padding: 10px; vertical-align: top;">Network issue, Firewall, or wrong Server Name.</td>
+                    <td style="padding: 10px; vertical-align: top;">
+                        <ul>
+                            <li>Ping the server name to verify network visibility.</li>
+                            <li>Check if SQL Browser service is running on the server.</li>
+                            <li>Verify port 1433 is open and not blocked by firewall.</li>
+                            <li>Ensure your Windows account has login permissions on the SQL box.</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; vertical-align: top;"><code>ERROR: Cannot write to output path...</code>
+                    </td>
+                    <td style="padding: 10px; vertical-align: top;">Permissions or invalid path.</td>
+                    <td style="padding: 10px; vertical-align: top;">
+                        <ul>
+                            <li>Check if the shared folder path exists.</li>
+                            <li>Verify your user account has <strong>Write/Modify</strong> permissions to the share.
+                            </li>
+                            <li>Try changing <code>OUTPUT</code> to a local temporary folder (e.g., C:\Temp\test.txt) to
+                                rule out network permission issues.</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; vertical-align: top;"><code>ERROR: BCP export failed.</code></td>
+                    <td style="padding: 10px; vertical-align: top;">SQL query error or Database issue.</td>
+                    <td style="padding: 10px; vertical-align: top;">
+                        <ul>
+                            <li>Check if the 'LSV' database exists on the target server.</li>
+                            <li>Verify the user has <strong>SELECT</strong> permissions on the required tables
+                                (<code>R_Eng_EquipmentInventory</code>).</li>
+                            <li>Check for ODBC driver compatibility (install latest SQL Native Client).</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; vertical-align: top;"><em>'bcp' is not
+                            recognized...</em><br>or<br><em>'sqlcmd' is not recognized...</em></td>
+                    <td style="padding: 10px; vertical-align: top;">SQL Command Line Tools not installed.</td>
+                    <td style="padding: 10px; vertical-align: top;">
+                        Install <strong>Microsoft Command Line Utilities 15 for SQL Server</strong> (MsSqlCmdLnUtils) on
+                        the machine running the script.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>9. Server-Side Data Load Script (va_ntwksvr.sql)</h2>
+        <p>This SQL script imports the <code>LsvDataForIdash.txt</code> (generated by the BCP script above) into the
+            iDash database. It handles deduplication, normalization, and updating existing assets.</p>
+
+        <h3>One-Time Setup</h3>
+        <p>Save this as <strong>va_ntwksvr.sql</strong> on the SQL Server (or a machine with SSMS connected to it).</p>
+
+        <h3>Variable to Update</h3>
+        <p>Before running, you must update the file path in the <code>BULK INSERT</code> section (approx line 186):</p>
+        <pre><code>FROM 'C:\VA_RFID\Import\LsvDataForIdash.txt'</code></pre>
+
+        <h3>Full Script</h3>
+        <pre><code>/* ===============================
+   VA NETWORK SERVER IMPORT (va_ntwksvr.sql)
+   - Imports LsvDataForIdash.txt (17 columns)
+   - Deduplicates and updates Assets/Locations
+   =============================== */
+
+/* 0) PERMISSIONS FIX */
+USE master;
+GO
+ALTER SERVER ROLE [sysadmin] ADD MEMBER [idashadmin];
+GO
+
+USE [idash];
+GO
+
+/* 1) GLOBAL SETTINGS */
+SET NOCOUNT ON;
+SET XACT_ABORT ON;
+SET ANSI_NULLS ON;
+SET QUOTED_IDENTIFIER ON;
+SET ANSI_PADDING ON;
+GO
+
+/* 2) PERSISTENT METRICS STORAGE */
+IF OBJECT_ID('tempdb..#ImportStats') IS NOT NULL DROP TABLE #ImportStats;
+CREATE TABLE #ImportStats (
+    LocInserted INT DEFAULT 0,
+    AssetInserted INT DEFAULT 0,
+    AssetSkipped INT DEFAULT 0,
+    AssetUpdated INT DEFAULT 0,
+    Errors INT DEFAULT 0
+);
+INSERT INTO #ImportStats DEFAULT VALUES;
+GO
+
+/* 3) ENSURE STAGING TABLES EXIST */
+IF OBJECT_ID('dbo.locationtemp', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.locationtemp (
+        [name]            varchar(50)  NOT NULL,
+        [site]            varchar(100) NULL,
+        [building]        varchar(100) NULL,
+        [floor]           varchar(50)  NULL,
+        [room]            varchar(100) NULL,
+        [description]     varchar(500) NULL,
+        [rfidtag]         varchar(50)  NULL,
+        [lastmodifiedby]  varchar(50)  NULL,
+        [lastinventoried] datetimeoffset(7) NULL,
+        [companyid]       int NOT NULL DEFAULT (0)
+    );
+END;
+
+IF OBJECT_ID('dbo.assettemp', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.assettemp (
+        [name]                     varchar(50)       NOT NULL,
+        [description]              varchar(500)      NULL,
+        [rfidtag]                  varchar(50)       NULL,
+        [assettype]                varchar(50)       NULL,
+        [departmentcode]           varchar(50)       NULL,
+        [maxunseentime]            int               NULL,
+        [lastobservedlocation]     varchar(50)       NULL,
+        [lastobservedtime]         datetimeoffset(7) NULL,
+        [checkinstatus]            varchar(50)       NULL,
+        [checkedoutto]             varchar(50)       NULL,
+        [additionalinformation]    varchar(5000)     NULL,
+        [disposalstatus]           varchar(50)       NULL,
+        [disposalmethod]           varchar(50)       NULL,
+        [disposaldate]             datetimeoffset(7) NULL,
+        [disposaldestination]      varchar(50)       NULL,
+        [maintenancestartdate]     datetimeoffset(7) NULL,
+        [maintenancesingledate]    datetimeoffset(7) NULL,
+        [nextmaintenance]          datetimeoffset(7) NULL,
+        [date1]                    datetimeoffset(7) NULL,
+        [date2]                    datetimeoffset(7) NULL,
+        [date3]                    datetimeoffset(7) NULL,
+        [date4]                    datetimeoffset(7) NULL,
+        [date5]                    datetimeoffset(7) NULL,
+        [listvalue1]               varchar(100)      NULL,
+        [listvalue2]               varchar(100)      NULL,
+        [listvalue3]               varchar(100)      NULL,
+        [text1]                    varchar(500)      NULL,
+        [text2]                    varchar(500)      NULL,
+        [text3]                    varchar(500)      NULL,
+        [text4]                    varchar(500)      NULL,
+        [text5]                    varchar(500)      NULL,
+        [text6]                    varchar(500)      NULL,
+        [text7]                    varchar(500)      NULL,
+        [text8]                    varchar(500)      NULL,
+        [text9]                    varchar(500)      NULL,
+        [text10]                   varchar(500)      NULL,
+        [text11]                   varchar(500)      NULL,
+        [text12]                   varchar(500)      NULL,
+        [text13]                   varchar(500)      NULL,
+        [text14]                   varchar(500)      NULL,
+        [text15]                   varchar(500)      NULL,
+        [text16]                   varchar(500)      NULL,
+        [text17]                   varchar(500)      NULL,
+        [text18]                   varchar(500)      NULL,
+        [text19]                   varchar(500)      NULL,
+        [text20]                   varchar(500)      NULL,
+        [maintenancemethod]        varchar(50)       NULL,
+        [maintenanceintervalmonths] int              NULL,
+        [nearestfixed]             varchar(50)       NULL,
+        [lastmodified]             datetimeoffset(7) NULL,
+        [locationid]               int               NULL,
+        [sensorreadinghistoryid]   int               NULL,
+        [alertingactionid]         int               NULL,
+        [sensorstatshistoryid]     int               NULL,
+        [readerid]                 int               NULL,
+        [assetparentid]            int               NULL,
+        [assetchildcount]          int               NULL,
+        [vtagboxx]                 decimal(18,0)     NULL,
+        [vtagboxy]                 decimal(18,0)     NULL,
+        [vtagboxwidth]             decimal(18,0)     NULL,
+        [vtagboxheight]            decimal(18,0)     NULL,
+        [vtagx]                    decimal(18,5)     NULL,
+        [vtagy]                    decimal(18,5)     NULL,
+        [vtagaccelsensor]          bit               NULL,
+        [vtagpositiontype]         varchar(50)       NULL,
+        [vtagalgorithmtype]        varchar(50)       NULL,
+        [batterylevel]             decimal(18,2)     NULL,
+        [vtagid]                   varchar(50)       NULL,
+        [vtagz]                    int               NULL,
+        [vtaglastseen]             datetimeoffset(7) NULL,
+        [vtaglastmoved]            datetimeoffset(7) NULL,
+        [filedataid]               int               NULL,
+        [created]                  datetimeoffset(7) NULL,
+        [lastmodifiedby]           varchar(50)       NULL,
+        [latitude]                 decimal(18,7)     NULL,
+        [longitude]                decimal(18,7)     NULL,
+        [altitude]                 decimal(18,7)     NULL,
+        [numberofsatellites]       int               NULL,
+        [gpsaccuracy]              int               NULL,
+        [lastgpsfix]               datetimeoffset(7) NULL,
+        [vtagtype]                 varchar(50)       NULL,
+        [parentvtag]               varchar(50)       NULL,
+        [missedsatellitefixes]     int               NULL,
+        [lastinventoried]          datetimeoffset(7) NULL,
+        [vtaggpsdeviceid]          varchar(100)      NULL,
+        [vtaggpsappkey]            varchar(100)      NULL,
+        [deviceregistered]         bit               NULL,
+        [lastmaintenance]          datetimeoffset(7) NULL,
+        [companyid]                int               NOT NULL DEFAULT (0),
+        [unseennotified]           bit               NULL
+    );
+END;
+GO
+
+/* 4) CLEAR STAGING FOR THIS RUN */
+DELETE FROM dbo.locationtemp;
+DELETE FROM dbo.assettemp;
+GO
+
+/* 5) RAW FILE LANDING (1:1 with file) */
+IF OBJECT_ID('dbo.AssetFileRaw', 'U') IS NOT NULL
+    DROP TABLE dbo.AssetFileRaw;
+
+CREATE TABLE dbo.AssetFileRaw (
+    [ENTRY NUMBER]            nvarchar(500) NULL, -- 1
+    [MANUFACTURER]            nvarchar(500) NULL, -- 2
+    [MFGR. EQUIPMENT NAME]    nvarchar(500) NULL, -- 3
+    [MODEL]                   nvarchar(500) NULL, -- 4
+    [SERIAL #]                nvarchar(500) NULL, -- 5
+    [EQUIPMENT CATEGORY]      nvarchar(500) NULL, -- 6
+    [USE STATUS]              nvarchar(500) NULL, -- 7
+    [SERVICE POINTER]         nvarchar(500) NULL, -- 8
+    [LOCATION]                nvarchar(500) NULL, -- 9
+    [PHYSICAL INVENTORY DATE] nvarchar(500) NULL, -- 10
+    [PREVIOUS LOCATION]       nvarchar(500) NULL, -- 11
+    [SECOND PREV LOC]         nvarchar(500) NULL, -- 12
+    [THIRD PREV LOC]          nvarchar(500) NULL, -- 13
+    [STATION NUMBER]          nvarchar(500) NULL, -- 14
+    [CATEGORY STOCK NUMBER]   nvarchar(500) NULL, -- 15
+    [CMR]                     nvarchar(500) NULL, -- 16
+    [PURCHASE ORDER #]        nvarchar(500) NULL  -- 17
+);
+GO
+
+/* 6) BULK INSERT */
+BULK INSERT dbo.AssetFileRaw
+FROM 'C:\VA_RFID\Import\LsvDataForIdash.txt'
+WITH (
+    FIRSTROW = 1,
+    FIELDTERMINATOR = '\t',
+    ROWTERMINATOR   = '0x0a',
+    CODEPAGE        = '65001',
+    KEEPNULLS,
+    TABLOCK
+);
+GO
+
+/* 7) MAP RAW -> ASSETTEMP */
+INSERT INTO dbo.assettemp (
+    name, text1, [description], text2, text3, text4, disposalstatus, text5,
+    text6, text10, text11, text7, assettype, text8, text9, lastobservedlocation
+)
+SELECT
+    LTRIM(RTRIM(afr.[ENTRY NUMBER])),
+    LTRIM(RTRIM(afr.[MANUFACTURER])),
+    LTRIM(RTRIM(afr.[MFGR. EQUIPMENT NAME])),
+    LTRIM(RTRIM(afr.[MODEL])),
+    LTRIM(RTRIM(afr.[SERIAL #])),
+    LTRIM(RTRIM(afr.[EQUIPMENT CATEGORY])),
+    LTRIM(RTRIM(afr.[USE STATUS])),
+    LTRIM(RTRIM(afr.[SERVICE POINTER])),
+
+    CASE
+        WHEN NULLIF(LTRIM(RTRIM(afr.[LOCATION])), '') IS NULL THEN 'SPZZUNKNOWN'
+        WHEN LEFT(LTRIM(RTRIM(afr.[LOCATION])), 2) = 'SP'
+            THEN 'SP' + LTRIM(SUBSTRING(LTRIM(RTRIM(afr.[LOCATION])), 3, 500))
+        ELSE 'SP' + LTRIM(RTRIM(afr.[LOCATION]))
+    END,
+
+    NULLIF(LTRIM(RTRIM(afr.[PHYSICAL INVENTORY DATE])), ''),
+
+    CASE
+        WHEN NULLIF(LTRIM(RTRIM(afr.[PREVIOUS LOCATION])), '') IS NULL THEN 'SPZZUNKNOWN'
+        WHEN LEFT(LTRIM(RTRIM(afr.[PREVIOUS LOCATION])), 2) = 'SP'
+            THEN 'SP' + LTRIM(SUBSTRING(LTRIM(RTRIM(afr.[PREVIOUS LOCATION])), 3, 500))
+        ELSE 'SP' + LTRIM(RTRIM(afr.[PREVIOUS LOCATION]))
+    END,
+
+    LTRIM(RTRIM(afr.[STATION NUMBER])),
+    LTRIM(RTRIM(afr.[CATEGORY STOCK NUMBER])),
+    LTRIM(RTRIM(afr.[CMR])),
+    LTRIM(RTRIM(afr.[PURCHASE ORDER #])),
+
+    CASE
+        WHEN NULLIF(LTRIM(RTRIM(afr.[LOCATION])), '') IS NULL THEN 'SPZZUNKNOWN'
+        WHEN LEFT(LTRIM(RTRIM(afr.[LOCATION])), 2) = 'SP'
+            THEN 'SP' + LTRIM(SUBSTRING(LTRIM(RTRIM(afr.[LOCATION])), 3, 500))
+        ELSE 'SP' + LTRIM(RTRIM(afr.[LOCATION]))
+    END
+FROM dbo.AssetFileRaw AS afr;
+GO
+
+/* 8) COMPUTE FIELDS & NORMALIZE */
+UPDATE dbo.assettemp
+SET rfidtag = CONCAT(RTRIM(text7), 'EE', name, REPLICATE('F', 4 - ((5 + LEN(name)) % 4)));
+
+UPDATE dbo.assettemp
+SET name = CONCAT(RTRIM(text7), ' EE', name);
+
+UPDATE at
+SET at.companyid = c.id
+FROM dbo.assettemp at
+JOIN dbo.company c
+  ON SUBSTRING(at.name,1,3) = SUBSTRING(c.name,1,3);
+
+UPDATE dbo.assettemp SET text10 = '01/01/1900' WHERE text10 = 'NULL';
+
+UPDATE dbo.assettemp
+SET lastinventoried =
+    CASE 
+        WHEN ISDATE(text10) = 1
+            THEN CONCAT(
+                   FORMAT(CONVERT(datetime, text10, 101), 'yyyy-MM-dd'),
+                   ' 17:00:00.0000000 +00:00'
+                 )
+        ELSE '1900-01-01 17:00:00.0000000 +00:00'
+    END;
+
+UPDATE dbo.assettemp SET date1 = lastinventoried, date2 = lastinventoried;
+
+UPDATE t
+SET t.text6 = CASE
+                WHEN t.text6 IS NULL OR LTRIM(RTRIM(t.text6)) = '' THEN 'SPZZUNKNOWN'
+                WHEN LEFT(LTRIM(t.text6),2) = 'SP' THEN 'SP' + LTRIM(SUBSTRING(LTRIM(t.text6),3,500))
+                ELSE 'SP' + LTRIM(t.text6)
+              END,
+    t.text11 = CASE
+                WHEN t.text11 IS NULL OR LTRIM(RTRIM(t.text11)) = '' THEN 'SPZZUNKNOWN'
+                WHEN LEFT(LTRIM(t.text11),2) = 'SP' THEN 'SP' + LTRIM(SUBSTRING(LTRIM(t.text11),3,500))
+                ELSE 'SP' + LTRIM(t.text11)
+              END,
+    t.lastobservedlocation = CASE
+                WHEN t.lastobservedlocation IS NULL OR LTRIM(RTRIM(t.lastobservedlocation)) = '' THEN 'SPZZUNKNOWN'
+                WHEN LEFT(LTRIM(t.lastobservedlocation),2) = 'SP' THEN 'SP' + LTRIM(SUBSTRING(LTRIM(t.lastobservedlocation),3,500))
+                ELSE 'SP' + LTRIM(t.lastobservedlocation)
+              END
+FROM dbo.assettemp t;
+GO
+
+/* 9) STAGE LOCATIONS */
+INSERT INTO dbo.locationtemp (name, site, companyid)
+SELECT DISTINCT
+       LTRIM(SUBSTRING(text6, 3, 500)), 
+       text7,
+       companyid
+FROM dbo.assettemp;
+
+/* 10) INSERT NEW LOCATIONS */
+BEGIN TRY
+  BEGIN TRAN;
+  ;WITH src AS (
+      SELECT LTRIM(RTRIM(lt.name)) AS base_name, lt.site, lt.companyid
+      FROM dbo.locationtemp AS lt
+  ),
+  shaped AS (
+      SELECT
+          name_final = 'SP' + base_name,
+          site,
+          companyid,
+          rn = ROW_NUMBER() OVER (
+                  PARTITION BY 'SP' + base_name, companyid
+                  ORDER BY (SELECT 0)
+              )
+      FROM src
+  )
+  INSERT INTO dbo.location (name, site, companyid)
+  SELECT s.name_final, s.site, s.companyid
+  FROM shaped AS s
+  WHERE s.rn = 1
+    AND NOT EXISTS (
+        SELECT 1
+        FROM dbo.location WITH (UPDLOCK, HOLDLOCK)
+        WHERE name = s.name_final AND companyid = s.companyid
+    );
+  UPDATE #ImportStats SET LocInserted = @@ROWCOUNT;
+  COMMIT;
+END TRY
+BEGIN CATCH
+  IF XACT_STATE() <> 0 ROLLBACK;
+  UPDATE #ImportStats SET Errors = Errors + 1;
+  THROW;
+END CATCH;
+GO
+
+/* 11) PREPARE ASSETS */
+IF OBJECT_ID('tempdb..#new_assets') IS NOT NULL DROP TABLE #new_assets;
+IF OBJECT_ID('tempdb..#staged_assets') IS NOT NULL DROP TABLE #staged_assets;
+IF OBJECT_ID('tempdb..#asset_name_companyid_dupes') IS NOT NULL DROP TABLE #asset_name_companyid_dupes;
+
+SELECT
+    at.*,
+    rn = ROW_NUMBER() OVER (PARTITION BY at.name, at.companyid ORDER BY (SELECT 0))
+INTO #staged_assets
+FROM dbo.assettemp AS at;
+
+SELECT name, companyid, COUNT(*) AS dup_count
+INTO #asset_name_companyid_dupes
+FROM #staged_assets
+GROUP BY name, companyid
+HAVING COUNT(*) > 1;
+
+UPDATE #ImportStats
+SET AssetSkipped = (SELECT ISNULL(SUM(dup_count - 1), 0) FROM #asset_name_companyid_dupes);
+
+CREATE TABLE #new_assets (rfidtag varchar(50) NOT NULL PRIMARY KEY);
+GO
+
+/* 12) INSERT NEW ASSETS */
+INSERT INTO dbo.asset (
+    name, description, rfidtag, assettype, departmentcode, maxunseentime,
+    lastobservedlocation, lastobservedtime, checkinstatus, checkedoutto,
+    additionalinformation, disposalstatus, disposalmethod, disposaldate, disposaldestination,
+    maintenancestartdate, maintenancesingledate, nextmaintenance, date1, date2, date3, date4, date5,
+    listvalue1, listvalue2, listvalue3, listvalue4, listvalue5, text1, text2, text3, text4, text5,
+    text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, text16, text17, text18, text19, text20,
+    maintenancemethod, maintenanceintervalmonths, nearestfixed, lastmodified, locationid,
+    sensorreadinghistoryid, alertingactionid, sensorstatshistoryid, readerid,
+    assetparentid, assetchildcount, vtagboxx, vtagboxy, vtagboxwidth, vtagboxheight,
+    vtagx, vtagy, vtagaccelsensor, vtagpositiontype, vtagalgorithmtype, batterylevel,
+    vtagid, vtagz, vtaglastseen, vtaglastmoved, filedataid, created, lastmodifiedby,
+    latitude, longitude, altitude, numberofsatellites, gpsaccuracy, lastgpsfix,
+    vtagtype, parentvtag, missedsatellitefixes, lastinventoried, vtaggpsdeviceid, vtaggpsappkey,
+    deviceregistered, lastmaintenance, companyid, unseennotified
+)
+OUTPUT inserted.rfidtag INTO #new_assets(rfidtag)
+SELECT
+    sa.name, sa.description, sa.rfidtag, sa.assettype, sa.departmentcode, sa.maxunseentime,
+    sa.lastobservedlocation, sa.lastobservedtime, sa.checkinstatus, sa.checkedoutto,
+    sa.additionalinformation, sa.disposalstatus, sa.disposalmethod, sa.disposaldate, sa.disposaldestination,
+    sa.maintenancestartdate, sa.maintenancesingledate, sa.nextmaintenance,
+    sa.date1, sa.date2, sa.date3, sa.date4, sa.date5,
+    sa.listvalue1, sa.listvalue2, sa.listvalue3, sa.listvalue4, sa.listvalue5,
+    sa.text1, sa.text2, sa.text3, sa.text4, sa.text5, sa.text6, sa.text7, sa.text8, sa.text9, sa.text10,
+    sa.text11, sa.text12, sa.text13, sa.text14, sa.text15, sa.text16, sa.text17, sa.text18, sa.text19, sa.text20,
+    sa.maintenancemethod, sa.maintenanceintervalmonths, sa.nearestfixed, sa.lastmodified, sa.locationid,
+    sa.sensorreadinghistoryid, sa.alertingactionid, sa.sensorstatshistoryid, sa.readerid,
+    sa.assetparentid, sa.assetchildcount, sa.vtagboxx, sa.vtagboxy, sa.vtagboxwidth, sa.vtagboxheight,
+    sa.vtagx, sa.vtagy, sa.vtagaccelsensor, sa.vtagpositiontype, sa.vtagalgorithmtype,
+    sa.batterylevel, sa.vtagid, sa.vtagz, sa.vtaglastseen, sa.vtaglastmoved,
+    sa.filedataid, sa.created, sa.lastmodifiedby, sa.latitude, sa.longitude, sa.altitude,
+    sa.numberofsatellites, sa.gpsaccuracy, sa.lastgpsfix, sa.vtagtype, sa.parentvtag,
+    sa.missedsatellitefixes, sa.lastinventoried, sa.vtaggpsdeviceid, sa.vtaggpsappkey,
+    sa.deviceregistered, sa.lastmaintenance, sa.companyid, sa.unseennotified
+FROM #staged_assets AS sa
+WHERE sa.rn = 1
+  AND NOT EXISTS (SELECT 1 FROM dbo.asset AS a WITH (UPDLOCK, HOLDLOCK)
+                  WHERE a.name = sa.name AND a.companyid = sa.companyid)
+  AND NOT EXISTS (SELECT 1 FROM dbo.asset AS a WITH (UPDLOCK, HOLDLOCK)
+                  WHERE a.rfidtag = sa.rfidtag);
+
+UPDATE #ImportStats SET AssetInserted = @@ROWCOUNT;
+GO
+
+/* 13) CLEAN DATA & BACKFILL LEGACY */
+IF OBJECT_ID('tempdb..#new_assets') IS NOT NULL
+BEGIN
+    UPDATE a
+    SET a.[description] = LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(a.[description], '"',''), N' ',''), N' ','')))
+    FROM dbo.asset AS a
+    JOIN #new_assets AS na
+      ON na.rfidtag = a.rfidtag
+    WHERE a.[description] IS NOT NULL
+      AND (a.[description] LIKE '%"%' OR a.[description] LIKE N'% %' OR a.[description] LIKE N'% %');
+END
+
+-- Enforce SP prefix on legacy data (text6, text11, lastobservedlocation)
+UPDATE a
+SET a.text6 =
+    CASE
+        WHEN a.text6 IS NULL OR LTRIM(RTRIM(a.text6)) = '' THEN 'SPZZUNKNOWN'
+        WHEN LEFT(LTRIM(a.text6),2) = 'SP' THEN 'SP' + LTRIM(SUBSTRING(LTRIM(a.text6),3,500))
+        ELSE 'SP' + LTRIM(a.text6)
+    END,
+    a.text11 =
+    CASE
+        WHEN a.text11 IS NULL OR LTRIM(RTRIM(a.text11)) = '' THEN 'SPZZUNKNOWN'
+        WHEN LEFT(LTRIM(a.text11),2) = 'SP' THEN 'SP' + LTRIM(SUBSTRING(LTRIM(a.text11),3,500))
+        ELSE 'SP' + LTRIM(a.text11)
+    END,
+    a.lastobservedlocation =
+    CASE
+        WHEN a.lastobservedlocation IS NULL OR LTRIM(RTRIM(a.lastobservedlocation)) = '' THEN 'SPZZUNKNOWN'
+        WHEN LEFT(LTRIM(a.lastobservedlocation),2) = 'SP' THEN 'SP' + LTRIM(SUBSTRING(LTRIM(a.lastobservedlocation),3,500))
+        ELSE 'SP' + LTRIM(a.lastobservedlocation)
+    END
+FROM dbo.asset a
+WHERE a.text6 IS NULL OR LEFT(LTRIM(a.text6),2) <> 'SP'
+   OR a.text11 IS NULL OR LEFT(LTRIM(a.text11),2) <> 'SP'
+   OR a.lastobservedlocation IS NULL OR LEFT(LTRIM(a.lastobservedlocation),2) <> 'SP';
+GO
+
+/* 14) LINK LOCATION IDS */
+IF OBJECT_ID('tempdb..#new_assets') IS NOT NULL
+BEGIN
+    UPDATE a
+    SET a.locationid = l.id
+    FROM dbo.asset a
+    JOIN #new_assets na ON na.rfidtag = a.rfidtag
+    JOIN dbo.location l
+      ON l.name =
+          'SP' + LTRIM(
+                  CASE
+                    WHEN LEFT(LTRIM(a.text6),2) = 'SP' THEN SUBSTRING(LTRIM(a.text6),3,500)
+                    ELSE a.text6
+                  END
+                )
+      AND l.companyid = a.companyid
+    WHERE a.locationid IS NULL;
+END
+GO
+</code></pre>
+
+        <h3>Operational Overview</h3>
+        <ul>
+            <li><strong>Import:</strong> Bulk loads the text file into a staging table (<code>AssetFileRaw</code>).</li>
+            <li><strong>Normalize:</strong> Formats dates, ensures "SP" prefixes on locations, and generates RFID
+                tags/primary keys in <code>assettemp</code>.</li>
+            <li><strong>Location Sync:</strong> Inserts any new locations found in the import file into the
+                <code>location</code> table.</li>
+            <li><strong>Asset Sync:</strong> Inserts new assets into the <code>asset</code> table only if they don't
+                already exist. It does NOT overwrite existing assets to preserve history.</li>
+        </ul>
+
+        <h3>Troubleshooting</h3>
+        <ul>
+            <li><strong>"Bulk insert cannot find file":</strong> The SQL Server service account must have permission to
+                read the file path. Adjust the path to a local folder on the SQL Server (e.g., <code>C:\Temp</code>) if
+                network shares fail.</li>
+            <li><strong>"String truncation":</strong> Check if any column in the text file exceeds 500 characters.</li>
+            <li><strong>"Violation of PRIMARY KEY":</strong> The script handles duplicates, but if the source file
+                implies a new asset with an existing ID, it will be skipped.</li>
+        </ul>
+    </div>
+    <div class="section">
+        <h2>6. Notes</h2>
+        <p>This script is designed to be portable and easy to maintain. Update the variables at the top and the script
+            will validate the environment before running.</p>
+    </div>
+
+</body>
+
+</html>

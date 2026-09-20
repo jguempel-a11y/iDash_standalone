@@ -1,0 +1,332 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>iDash Software Licensing Guide &mdash; Architecture &amp; Deployment Reference</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .workflow-step {
+            background: var(--card-docs, #0f172a);
+            border: 1px solid var(--line-docs, #334155);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .workflow-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: #2563eb;
+            color: #ffffff;
+            border-radius: 50%;
+            font-weight: 800;
+            font-size: 14px;
+            margin-right: 12px;
+        }
+        .step-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .step-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-docs, #f8fafc);
+            margin: 0;
+        }
+        .code-box {
+            background: #090d16;
+            color: #e2e8f0;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.55;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin: 12px 0;
+            position: relative;
+        }
+        .code-comment { color: #64748b; font-style: italic; }
+        .code-keyword { color: #38bdf8; font-weight: bold; }
+        .code-string { color: #a7f3d0; }
+        .meta-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+        .meta-table th, .meta-table td { padding: 10px 14px; border: 1px solid var(--line-docs, #334155); text-align: left; }
+        .meta-table th { background: color-mix(in srgb, #2563eb 15%, transparent); color: #60a5fa; font-weight: 700; }
+        .badge-status { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+        .badge-active { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid #10b981; }
+        .badge-unlicensed { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid #ef4444; }
+        .badge-warning { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid #f59e0b; }
+        .nav-breadcrumb { font-size: 12px; color: var(--muted-docs, #94a3b8); margin-bottom: 16px; }
+        .nav-breadcrumb a { color: #38bdf8; text-decoration: none; }
+        .callout {
+            border-left: 4px solid #2563eb;
+            background: color-mix(in srgb, #2563eb 10%, transparent);
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            margin: 16px 0;
+            font-size: 13px;
+        }
+        .callout-title { font-weight: 700; color: #60a5fa; margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+<div class="docs-container">
+
+    <div class="nav-breadcrumb">
+        <a href="index.aspx">&larr; Documentation Hub</a> / <a href="../va_license_activation.aspx">License Activation</a> / iDash Software Licensing Guide
+    </div>
+
+    <h1>&#128273; iDash Software Licensing &amp; Activation Guide</h1>
+    <p class="docs-subtitle">
+        Architectural reference and step-by-step procedures for deploying, node-locking, and activating iDash on mobile RFID carts and regional VA servers.
+    </p>
+
+    <!-- SECTION: TWO LICENSING TIERS EXPLAINED -->
+    <h2>1. Understanding the Two Licensing Systems in iDash</h2>
+    <p>
+        iDash manages two distinct categories of licenses. It is important to understand which license controls which layer of the platform:
+    </p>
+
+    <table class="meta-table">
+        <thead>
+            <tr>
+                <th>License Type</th>
+                <th>Target Layer</th>
+                <th>Managed In</th>
+                <th>Enforcement Mechanism</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>iDash Software License</strong><br /><em>(This Guide)</em></td>
+                <td>The <strong>iDash Portal Web Application</strong> itself. Controls feature access, station authorization, multi-user limits, and installation node-locking.</td>
+                <td><a href="../va_license_activation.aspx"><code>va_license_activation.aspx</code></a></td>
+                <td>Native RSA-2048 Asymmetric Digital Signatures verified against Windows OS GUID &amp; Ethernet MAC. Zero database dependency for initial gate.</td>
+            </tr>
+            <tr>
+                <td><strong>iDash Cart &amp; Device License</strong></td>
+                <td>The underlying <strong>iDash RFID Hardware Engine</strong> (Fixed readers, handheld scanner users, server registration).</td>
+                <td><a href="../va_license_manager.aspx"><code>va_license_manager.aspx</code></a> &amp; <code>cart_licenses.aspx</code></td>
+                <td>Standard Base64 encrypted JSON keys stored in SQL Server table <code>tblLicense</code>.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="callout">
+        <div class="callout-title">&#128161; Dual-Tier Independence</div>
+        A cart can have a valid iDash database license for RFID readers while still requiring an <strong>iDash Software License</strong> to authorize the high-speed synchronization hub, reporting tools, and administrative dashboards.
+    </div>
+
+    <!-- SECTION: CRYPTOGRAPHIC DESIGN -->
+    <h2>2. Cryptographic Security &amp; Air-Gap Principles</h2>
+    <p>
+        Because VA mobile carts and facility servers frequently operate in isolated subnets with <strong>zero internet or external network access</strong>, the licensing engine is built with strict air-gapped security:
+    </p>
+    <ul>
+        <li><strong>Asymmetric RSA-2048 / SHA-256 Signatures:</strong>
+            Licenses are signed using a private RSA cryptographic key kept strictly on the vendor/lead administrator's secure workstation.
+            The corresponding <strong>Public Key</strong> is embedded inside <a href="../App_Code/LicenseManager.cs"><code>LicenseManager.cs</code></a>.
+            It is mathematically impossible to forge a valid license even if someone has full read access to the iDash source code or IIS server.
+        </li>
+        <li><strong>Deterministic Node-Locking (Installation ID):</strong>
+            Licenses are tied cryptographically to unique physical hardware identifiers (Primary Ethernet MAC address + Windows <code>MachineGuid</code>).
+            A license issued for Cart 1 cannot be copied or transferred to Cart 2.
+        </li>
+        <li><strong>Anti-Tampering &amp; Clock Rollback Protection:</strong>
+            The system continuously tracks a monotonic UTC timestamp in <code>App_Data/idash_clock_state.dat</code>.
+            If an operator attempts to bypass an expiration date by manually rolling back the Windows BIOS or OS clock, iDash detects the discrepancy and suspends access.
+        </li>
+        <li><strong>Dual-Persistence Redundancy:</strong>
+            Once applied, the validated license envelope is stored on disk in <code>App_Data/idash_license.json</code> and automatically synchronized to SQL Server (<code>dbo.idash_license</code>). If a cart's web folder is re-deployed, the license is restored automatically from the database.
+        </li>
+    </ul>
+
+    <!-- SECTION: STEP-BY-STEP CART IMPLEMENTATION -->
+    <h2>3. Step-by-Step Implementation: New Mobile RFID Cart (Air-Gapped)</h2>
+    <p>
+        Follow these steps when provisioning a brand-new VA mobile cart (e.g. Beckley Cart 3) that has no internet connection:
+    </p>
+
+    <!-- STEP 1 -->
+    <div class="workflow-step">
+        <div class="step-header">
+            <span class="workflow-number">1</span>
+            <h3 class="step-title">Deploy iDash Files &amp; Launch Activation Portal</h3>
+        </div>
+        <p>Deploy the standard iDash web client package to <code>C:\inetpub\wwwroot\iDash\iDash</code>. Open a web browser on the cart and navigate to:</p>
+        <div class="code-box">http://localhost/idash/va_license_activation.aspx</div>
+        <p>The page will display the current status as <span class="badge-status badge-unlicensed">&#9679; Not Licensed</span> and present the <strong>System Hardware Identity</strong> card.</p>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="workflow-step">
+        <div class="step-header">
+            <span class="workflow-number">2</span>
+            <h3 class="step-title">Retrieve the Cart's Installation ID</h3>
+        </div>
+        <p>Under the <strong>System Hardware Identity</strong> section, locate the <strong>Installation ID</strong> (e.g., <code>IDASH-517-0464-FAFE-80C6-A12B</code>). Click the <strong>&#128203; Copy ID</strong> button to copy it to the clipboard.</p>
+        <div class="code-box"><span class="code-comment"># Example Installation ID:</span>
+IDASH-517-0464-FAFE-80C6-A12B</div>
+        <p>Send this Installation ID to the software administrator or licensing authority via email, ticket, or encrypted USB.</p>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="workflow-step">
+        <div class="step-header">
+            <span class="workflow-number">3</span>
+            <h3 class="step-title">Generate Signed License Key on Admin Workstation</h3>
+        </div>
+        <p>On the secure administrator PC (where the private signing key resides in <code>tools/idash_keys/idash_private_key.xml</code>), open PowerShell in the <code>tools/</code> directory and execute <code>New-IdashLicense.ps1</code>:</p>
+        <div class="code-box"><span class="code-keyword">.\New-IdashLicense.ps1</span> `
+  -InstallationId <span class="code-string">"IDASH-517-0464-FAFE-80C6-A12B"</span> `
+  -Customer <span class="code-string">"Veterans Health Administration"</span> `
+  -SiteName <span class="code-string">"517 Beckley VAMC"</span> `
+  -StationNumber <span class="code-string">"517"</span> `
+  -Perpetual `
+  -OutputFile <span class="code-string">"beckley_cart3.idashlic"</span></div>
+        <p>This script outputs two formats:</p>
+        <ul>
+            <li><strong>A <code>.idashlic</code> file:</strong> Ready to transfer to the cart via USB or secure network share.</li>
+            <li><strong>A Base64 Key String:</strong> (e.g., <code>IDASH-LIC-v1-eyJhbGci...</code>) ready to copy/paste directly.</li>
+        </ul>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="workflow-step">
+        <div class="step-header">
+            <span class="workflow-number">4</span>
+            <h3 class="step-title">Apply the License on the Cart</h3>
+        </div>
+        <p>Choose either of the following methods to apply the license to the cart:</p>
+
+        <p><strong>Method A: Via the Web Activation Portal (Recommended for Clinicians/Admins):</strong></p>
+        <ul>
+            <li>Return to <code>http://localhost/idash/va_license_activation.aspx</code> on the cart.</li>
+            <li>Select the <strong>&#128190; Offline / Air-Gapped Key</strong> tab.</li>
+            <li>Either drag and drop the <code>beckley_cart3.idashlic</code> file into the file upload box, OR paste the <code>IDASH-LIC-v1-...</code> string into the text box.</li>
+            <li>Click <strong>&#128273; Apply License Key</strong>.</li>
+        </ul>
+
+        <p><strong>Method B: Automated CLI / Scripted Deployment (For IT Deployment Engineers):</strong></p>
+        <p>Run the automated silent installer script directly from an administrative PowerShell terminal:</p>
+        <div class="code-box"><span class="code-keyword">.\tools\Apply-IdashLicense.ps1</span> -LicenseFile <span class="code-string">".\tools\beckley_cart3.idashlic"</span></div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="workflow-step">
+        <div class="step-header">
+            <span class="workflow-number">5</span>
+            <h3 class="step-title">Verification &amp; Access Confirmation</h3>
+        </div>
+        <p>Once applied, the page immediately updates:</p>
+        <ul>
+            <li>Status badge turns to <span class="badge-status badge-active">&#10003; Active (Perpetual)</span>.</li>
+            <li>Facility Name, Station Number (<code>517</code>), and authorized modules are confirmed.</li>
+            <li>The license is cryptographically verified on every request with zero performance overhead (&lt; 2 milliseconds via in-memory caching).</li>
+            <li>Click <strong>&#8962; Launch iDash Hub</strong> to access all application features.</li>
+        </ul>
+    </div>
+
+    <!-- SECTION: SERVER IMPLEMENTATION -->
+    <h2>4. Step-by-Step Implementation: Regional &amp; Enterprise Dashboard Servers</h2>
+    <p>
+        For enterprise regional dashboard installations or central healthcare facility servers running under IIS (across any VISN or private healthcare institution):
+    </p>
+    <div class="workflow-step">
+        <div class="step-header">
+            <span class="workflow-number">A</span>
+            <h3 class="step-title">Enterprise Feature &amp; Seat Provisioning</h3>
+        </div>
+        <p>When generating licenses for central regional or facility servers, specify the multi-user concurrent limit and expiration window if using a yearly renewal contract:</p>
+        <div class="code-box"><span class="code-keyword">.\New-IdashLicense.ps1</span> `
+  -InstallationId <span class="code-string">"IDASH-ENTERPRISE-SERVER-GUID-xxxx"</span> `
+  -Customer <span class="code-string">"Veterans Health Administration"</span> `
+  -SiteName <span class="code-string">"Regional Healthcare Asset Hub"</span> `
+  -StationNumber <span class="code-string">"REGIONAL"</span> `
+  -ExpirationDate <span class="code-string">"2027-09-30"</span> `
+  -MaxUsers <span class="code-string">250</span> `
+  -OutputFile <span class="code-string">"enterprise_hub.idashlic"</span></div>
+    </div>
+
+    <div class="workflow-step">
+        <div class="step-header">
+            <span class="workflow-number">B</span>
+            <h3 class="step-title">Online Cloud / Intranet Product Key Activation</h3>
+        </div>
+        <p>If the central server has network access to an enterprise licensing endpoint:</p>
+        <ul>
+            <li>Go to the <strong>&#127760; Online Product Key</strong> tab on <code>va_license_activation.aspx</code>.</li>
+            <li>Enter the facility product key (e.g., <code>IDASH-ENT-2026-ACT1</code>).</li>
+            <li>Click <strong>Connect &amp; Activate Online</strong>.</li>
+            <li>The server connects to the licensing authority, securely exchanges the hardware fingerprint, downloads the signed token, and caches it locally. Even if the network later goes down, the server continues operating without interruption.</li>
+        </ul>
+    </div>
+
+    <!-- SECTION: ENFORCEMENT & GATE BEFORE USE -->
+    <h2>5. Gating-Before-Use: Enforcing Mandatory Pre-Activation Lockout</h2>
+    <p>
+        To ensure that nobody can use <em>any</em> feature of iDash until a license key has been successfully applied, iDash includes an integrated IIS HTTP module:
+    </p>
+    <div class="code-box"><span class="code-comment">&lt;!-- In web.config under &lt;system.webServer&gt;&lt;modules&gt; --&gt;</span>
+&lt;add name=<span class="code-string">"IdashLicenseModule"</span> type=<span class="code-string">"IdashLicenseModule"</span> /&gt;</div>
+    <p>When this module is active:</p>
+    <ul>
+        <li>Any user attempting to browse to <code>index.aspx</code>, <code>va_sitedata_export.aspx</code>, or any other page is automatically intercepted.</li>
+        <li>The request is immediately redirected to <code>va_license_activation.aspx?reason=unlicensed</code>.</li>
+        <li>Only the activation screen and core branding assets (CSS, images) can be viewed until a cryptographically valid license is submitted.</li>
+    </ul>
+
+    <!-- SECTION: TROUBLESHOOTING & FAQ -->
+    <h2>6. Frequently Asked Questions &amp; Troubleshooting</h2>
+    
+    <h3>What happens if a cart's motherboard or network card is replaced?</h3>
+    <p>
+        Because the license is node-locked to the hardware MAC and Windows Machine GUID, swapping a motherboard will trigger a <code>Machine Mismatch</code> warning.
+        Simply open <code>va_license_activation.aspx</code>, copy the new Installation ID, and issue an updated license key using the admin generator script.
+    </p>
+
+    <h3>What happens if the SQL database is backed up and restored to a different cart?</h3>
+    <p>
+        The licensing engine validates hardware integrity on every startup. If a database from Cart 1 is restored onto Cart 2, the engine detects that the hardware fingerprint does not match the database license, falls back to the local file, or prompts for Cart 2's specific license. This prevents unauthorized database duplication across non-licensed carts.
+    </p>
+
+    <h3>Where are license keys stored?</h3>
+    <table class="meta-table">
+        <thead>
+            <tr>
+                <th>Location</th>
+                <th>File / Table</th>
+                <th>Purpose</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Disk Storage</td>
+                <td><code>App_Data/idash_license.json</code></td>
+                <td>Primary high-speed local cache for air-gapped startup.</td>
+            </tr>
+            <tr>
+                <td>Database Backup</td>
+                <td>SQL Server <code>dbo.idash_license</code></td>
+                <td>Automatic secondary store that survives web directory re-installations.</td>
+            </tr>
+            <tr>
+                <td>Private Signing Key</td>
+                <td><code>tools/idash_keys/idash_private_key.xml</code></td>
+                <td><strong>STRICTLY VENDOR/ADMIN ONLY.</strong> Never deployed to carts or public servers.</td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+</body>
+</html>

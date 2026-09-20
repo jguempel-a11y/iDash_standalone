@@ -1,0 +1,762 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>RabbitMQ MQTT Broker Setup &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .cmd{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:14px 18px;font-family:'Cascadia Code','Fira Code',monospace;font-size:13px;color:#c9d1d9;overflow-x:auto;margin:10px 0 16px;white-space:pre-wrap;line-height:1.5;}
+        .cmd .comment{color:#8b949e;}
+        .cmd .ok{color:#3fb950;}
+        .cmd .warn{color:#d29922;}
+        .cmd .err{color:#f85149;}
+        .step-num{display:inline-block;background:var(--accent);color:#fff;font-weight:700;border-radius:50%;width:28px;height:28px;text-align:center;line-height:28px;font-size:13px;margin-right:8px;}
+        .timeline{border-left:3px solid var(--accent);padding-left:24px;margin-left:14px;}
+        .timeline .tl-item{margin-bottom:24px;position:relative;}
+        .timeline .tl-item::before{content:'';position:absolute;left:-31px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--accent);border:2px solid var(--card);}
+        .arch-box{display:inline-block;background:var(--chip);border:1px solid var(--line);border-radius:8px;padding:8px 14px;margin:4px;font-family:monospace;font-size:12px;}
+        .arch-arrow{display:inline-block;color:var(--accent);font-size:18px;margin:0 8px;vertical-align:middle;}
+        .version-badge{display:inline-block;background:var(--accent);color:#fff;border-radius:12px;padding:2px 10px;font-size:11px;font-weight:700;margin-left:6px;}
+        .config-table{width:100%;border-collapse:collapse;margin:12px 0;}
+        .config-table th{text-align:left;padding:8px 12px;background:var(--chip);border:1px solid var(--line);font-size:12px;font-weight:600;}
+        .config-table td{padding:8px 12px;border:1px solid var(--line);font-size:13px;}
+        .config-table td code{background:var(--bg);padding:2px 6px;border-radius:4px;font-size:12px;}
+        .diff-add{background:#1a3a2a;color:#3fb950;padding:2px 8px;display:block;font-family:monospace;font-size:12px;border-radius:4px;margin:2px 0;}
+        .diff-del{background:#3a1a1a;color:#f85149;padding:2px 8px;display:block;font-family:monospace;font-size:12px;border-radius:4px;margin:2px 0;}
+        .rationale-box{background:var(--chip);border:1px solid var(--accent);border-left:4px solid var(--accent);border-radius:8px;padding:16px 20px;margin:16px 0;}
+        .rationale-box .rationale-title{font-size:15px;font-weight:700;color:var(--accent);margin-bottom:6px;}
+
+        /* Light mode overrides */
+        [data-theme="light"] .cmd{background:#f6f8fa;border-color:#d0d7de;color:#24292f;}
+        [data-theme="light"] .cmd .comment{color:#6e7781;}
+        [data-theme="light"] .cmd .ok{color:#1a7f37;}
+        [data-theme="light"] .cmd .warn{color:#9a6700;}
+        [data-theme="light"] .cmd .err{color:#cf222e;}
+        [data-theme="light"] .diff-add{background:#dafbe1;color:#1a7f37;}
+        [data-theme="light"] .diff-del{background:#ffebe9;color:#cf222e;}
+    </style>
+</head>
+<body>
+<div class="wrap">
+
+    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
+    <br/><br/>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 1: EXECUTIVE SUMMARY                                  -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h1>&#128007; RabbitMQ MQTT Broker &mdash; Installation &amp; Configuration Guide</h1>
+        <p style="font-size:16px;">
+            Complete setup guide for deploying RabbitMQ as the enterprise MQTT broker for iDash fixed reader
+            tag observation routing. This replaces the defective iDash internal broker for fixed reader data
+            while preserving the existing print notification system.
+        </p>
+
+        <div class="rationale-box">
+            <div class="rationale-title">&#128161; Rationale</div>
+            <div>The vendor-embedded iDash MQTT broker does not currently route published messages to subscribers
+            (see Problem Statement below). Rather than incur an additional expense to have the vendor address
+            what is a defect in their shipped product, RabbitMQ &mdash; an industry-standard, VA-approved,
+            open-source message broker &mdash; was deployed as a reliable, well-supported alternative for
+            fixed reader tag observation routing.</div>
+        </div>
+
+        <table class="config-table">
+            <thead><tr><th>Detail</th><th>Value</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Server</strong></td><td>LingCod (192.168.4.48) &mdash; Windows 11 Pro</td></tr>
+                <tr><td><strong>Date Deployed</strong></td><td>August 31, 2026</td></tr>
+                <tr><td><strong>Deployed By</strong></td><td>John Guempel, ID Integration</td></tr>
+                <tr><td><strong>RabbitMQ Version</strong></td><td>4.3.5 <span class="version-badge">LATEST</span></td></tr>
+                <tr><td><strong>Erlang/OTP Version</strong></td><td>27.3.4</td></tr>
+                <tr><td><strong>Purpose</strong></td><td>MQTT broker for FX9600 fixed reader &rarr; iDash tag observation routing</td></tr>
+                <tr><td><strong>Scope</strong></td><td>Fixed readers only. Print system remains on iDash broker (port 8883).</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 2: PROBLEM STATEMENT                                  -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>&#128680; Problem Statement: The iDash Broker Defect</h2>
+        <p>
+            The iDash web application (<code>iDash.Web.exe</code>) includes an internal MQTTnet-based broker
+            that was sold as the MQTT infrastructure for both label printing and fixed reader tag observation routing.
+            Extensive diagnostic testing confirmed:
+        </p>
+        <ul>
+            <li><strong>CONNECT</strong> &mdash; works. Clients authenticate and receive CONNACK(0).</li>
+            <li><strong>SUBSCRIBE</strong> &mdash; works. Subscribers receive SUBACK.</li>
+            <li><strong>PUBLISH &rarr; subscriber delivery</strong> &mdash; <span style="color:var(--danger);font-weight:700;">BROKEN</span>.
+                Messages published to the broker are <em>never routed to subscribers</em>.</li>
+        </ul>
+        <p>
+            This was tested with 4+ credential sets, self-publish tests (publisher = subscriber on same client),
+            and TCP packet analysis. The broker accepts everything but routes nothing. The <code>dbo.mqttclient</code>
+            table in the iDash database contains explicit ACL columns (<code>publishtopic</code>,
+            <code>subscribetopic</code>) proving this feature was designed and sold &mdash; it simply doesn't work.
+        </p>
+        <div class="alert-yellow">
+            <strong>&#9888; Note:</strong> This routing capability was included in the original product scope.
+            The vendor has been notified of the defect. Until a vendor-side fix is delivered, RabbitMQ
+            provides a production-grade workaround that does not depend on the vendor&rsquo;s internal broker
+            for fixed reader traffic.
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 3: SOLUTION ARCHITECTURE                              -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>&#127959; Solution Architecture</h2>
+        <p>Deploy RabbitMQ alongside the existing iDash broker. Each handles its own traffic:</p>
+
+        <h3>Before (Broken)</h3>
+        <div style="text-align:center;margin:16px 0;">
+            <span class="arch-box">FX9600 Reader</span>
+            <span class="arch-arrow">&rarr; MQTT &rarr;</span>
+            <span class="arch-box" style="border-color:var(--danger);">iDash Broker<br/>:8883 (TLS)<br/><em style="color:var(--danger);">&#10006; No routing</em></span>
+            <span class="arch-arrow" style="color:var(--danger);">&#10006;</span>
+            <span class="arch-box" style="opacity:0.5;">iDash Subscriber</span>
+        </div>
+
+        <h3>After (Working)</h3>
+        <div style="text-align:center;margin:16px 0;">
+            <span class="arch-box" style="border-color:var(--accent);">FX9600 Reader</span>
+            <span class="arch-arrow">&rarr; MQTT &rarr;</span>
+            <span class="arch-box" style="border-color:#3fb950;background:#1a3a2a;">RabbitMQ 4.3.5<br/>:1883 (TCP)<br/><em style="color:#3fb950;">&#10004; Routes messages</em></span>
+            <span class="arch-arrow" style="color:#3fb950;">&rarr;</span>
+            <span class="arch-box" style="border-color:#3fb950;">iDash Subscriber</span>
+        </div>
+
+        <table class="config-table">
+            <thead><tr><th>Service</th><th>Broker</th><th>Port</th><th>Status</th></tr></thead>
+            <tbody>
+                <tr><td>Label Printing (<code>awrx/print/*</code>)</td><td>iDash (MQTTnet)</td><td>8883 (TLS)</td><td>&#9989; Unchanged</td></tr>
+                <tr><td>Fixed Reader Tags (<code>reader/#</code>)</td><td><strong>RabbitMQ</strong></td><td><strong>1883 (TCP)</strong></td><td>&#9989; New &mdash; Working</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 4: PREREQUISITES                                      -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>&#9989; Prerequisites</h2>
+        <table class="config-table">
+            <thead><tr><th>Item</th><th>Requirement</th><th>Status at Deploy Time</th></tr></thead>
+            <tbody>
+                <tr><td>Windows OS</td><td>Windows 10/11 Pro or Server 2019+</td><td>&#9989; Windows 11 Pro</td></tr>
+                <tr><td>Admin access</td><td>Local admin or elevated PowerShell</td><td>&#9989; Available</td></tr>
+                <tr><td>Port 1883</td><td>Available (MQTT plain TCP)</td><td>&#9989; Available</td></tr>
+                <tr><td>Port 5672</td><td>Available (AMQP)</td><td>&#9989; Available</td></tr>
+                <tr><td>Port 15672</td><td>Available (Management UI)</td><td>&#9989; Available</td></tr>
+                <tr><td>Port 25672</td><td>Available (Erlang clustering)</td><td>&#9989; Available</td></tr>
+                <tr><td>Port 8883</td><td>In use by iDash &mdash; do NOT touch</td><td>&#9989; Left alone</td></tr>
+                <tr><td>Internet access</td><td>For downloading installers from GitHub (see Offline Deployment below if unavailable)</td><td>&#9989; Available (or use sneakernet)</td></tr>
+            </tbody>
+        </table>
+
+        <h3 style="margin-top:24px;">&#128274; Firewall / ACL Requirements</h3>
+        <p>
+            The following ports must be open in the Windows Firewall and any network ACLs between the
+            FX9600 reader(s) and the iDash server. Submit these to the VA network team for firewall
+            change requests.
+        </p>
+
+        <table class="config-table">
+            <thead>
+                <tr>
+                    <th>Port</th>
+                    <th>Protocol</th>
+                    <th>Direction</th>
+                    <th>Source</th>
+                    <th>Destination</th>
+                    <th>Purpose</th>
+                    <th>Required</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>1883</code></td>
+                    <td>TCP</td>
+                    <td>Inbound</td>
+                    <td>FX9600 Reader IP(s)<br/><span style="font-size:11px;color:var(--muted);">e.g. 192.168.4.47</span></td>
+                    <td>iDash Server<br/><span style="font-size:11px;color:var(--muted);">e.g. 192.168.4.48</span></td>
+                    <td>MQTT &mdash; reader publishes tag observations to RabbitMQ broker</td>
+                    <td><strong>Yes</strong></td>
+                </tr>
+                <tr>
+                    <td><code>1883</code></td>
+                    <td>TCP</td>
+                    <td>Loopback</td>
+                    <td>localhost (127.0.0.1)</td>
+                    <td>localhost (127.0.0.1)</td>
+                    <td>MQTT &mdash; iDash subscriber connects to local RabbitMQ</td>
+                    <td>Auto<br/><span style="font-size:11px;color:var(--muted);">Loopback always allowed</span></td>
+                </tr>
+                <tr>
+                    <td><code>5672</code></td>
+                    <td>TCP</td>
+                    <td>Loopback</td>
+                    <td>localhost</td>
+                    <td>localhost</td>
+                    <td>AMQP &mdash; internal RabbitMQ protocol (used by plugins)</td>
+                    <td>Auto<br/><span style="font-size:11px;color:var(--muted);">Loopback only</span></td>
+                </tr>
+                <tr>
+                    <td><code>15672</code></td>
+                    <td>TCP</td>
+                    <td>Loopback</td>
+                    <td>localhost</td>
+                    <td>localhost</td>
+                    <td>HTTP &mdash; RabbitMQ Management UI and API (used by iDash Site Config panel)</td>
+                    <td>Auto<br/><span style="font-size:11px;color:var(--muted);">Loopback only</span></td>
+                </tr>
+                <tr>
+                    <td><code>25672</code></td>
+                    <td>TCP</td>
+                    <td>Loopback</td>
+                    <td>localhost</td>
+                    <td>localhost</td>
+                    <td>Erlang distribution &mdash; inter-node clustering (single-node: loopback only)</td>
+                    <td>Auto<br/><span style="font-size:11px;color:var(--muted);">Loopback only</span></td>
+                </tr>
+                <tr style="background:var(--chip);">
+                    <td><code>8883</code></td>
+                    <td>TCP</td>
+                    <td>N/A</td>
+                    <td colspan="2" style="text-align:center;"><em>No change &mdash; existing iDash broker</em></td>
+                    <td>TLS MQTT for label printing. Already open. Do NOT modify.</td>
+                    <td>Existing</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="alert-green">
+            <strong>&#9989; Key point for the ACL request:</strong> Only <strong>port 1883 inbound from the
+            reader subnet</strong> requires a new firewall rule. All other RabbitMQ ports (5672, 15672, 25672)
+            are localhost-only and do not need external network access. This minimizes the security footprint.
+        </div>
+
+        <h3>Windows Firewall Commands</h3>
+        <p>Run in an elevated (Admin) PowerShell on the iDash server:</p>
+        <div class="cmd"><span class="comment"># Allow inbound MQTT from reader subnet (adjust -RemoteAddress for your network)</span>
+New-NetFirewallRule `
+    -DisplayName "RabbitMQ MQTT (Port 1883)" `
+    -Direction Inbound `
+    -LocalPort 1883 `
+    -Protocol TCP `
+    -Action Allow `
+    -RemoteAddress 192.168.4.0/24 `
+    -Description "FX9600 fixed reader MQTT tag publish to RabbitMQ"
+
+<span class="comment"># Verify the rule was created</span>
+Get-NetFirewallRule -DisplayName "RabbitMQ MQTT*" | Format-Table DisplayName, Enabled, Direction, Action
+<span class="ok"># Expected: Enabled=True, Direction=Inbound, Action=Allow</span>
+
+<span class="comment"># Optional: verify port is listening</span>
+Get-NetTCPConnection -LocalPort 1883 -State Listen
+<span class="ok"># Expected: LocalAddress=0.0.0.0, LocalPort=1883, State=Listen</span></div>
+
+        <div class="alert-yellow">
+            <strong>&#9888; Scope the rule:</strong> Use <code>-RemoteAddress</code> to limit access to only
+            the reader subnet or specific reader IP(s). Do NOT leave it open to <code>Any</code> unless
+            your network policy permits it. For multiple readers on different subnets, create separate rules
+            or use a comma-separated list: <code>-RemoteAddress 192.168.4.0/24, 10.1.2.0/24</code>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 4b: OFFLINE / AIR-GAPPED DEPLOYMENT                   -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>&#128230; Offline / Air-Gapped Deployment</h2>
+        <p>
+            Most VA production servers do not have direct internet access. Download the two installers
+            on an internet-connected workstation, transfer them via the <strong>iDash Downloads &amp; Uploads</strong>
+            portal, USB, or other approved file transfer method, then follow the normal installation steps.
+        </p>
+
+        <h3>Required Files</h3>
+        <table class="config-table">
+            <thead><tr><th>File</th><th>Version</th><th>Size</th><th>Download URL</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><code>otp_win64_27.3.4.exe</code></td>
+                    <td>Erlang/OTP 27.3.4</td>
+                    <td>~133 MB</td>
+                    <td><a href="https://github.com/erlang/otp/releases/download/OTP-27.3.4/otp_win64_27.3.4.exe" target="_blank" style="word-break:break-all;">github.com/erlang/otp/releases/&hellip;/otp_win64_27.3.4.exe</a></td>
+                </tr>
+                <tr>
+                    <td><code>rabbitmq-server-windows-4.3.5.zip</code></td>
+                    <td>RabbitMQ 4.3.5</td>
+                    <td>~67 MB</td>
+                    <td><a href="https://github.com/rabbitmq/rabbitmq-server/releases/download/v4.3.5/rabbitmq-server-windows-4.3.5.zip" target="_blank" style="word-break:break-all;">github.com/rabbitmq/rabbitmq-server/releases/&hellip;/rabbitmq-server-windows-4.3.5.zip</a></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="alert-yellow">
+            <strong>&#9888; Version Lock:</strong> These exact versions are tested and verified together.
+            Do NOT substitute a different Erlang or RabbitMQ version without checking the
+            <a href="#sec-compat">compatibility matrix</a> at the bottom of this document.
+        </div>
+
+        <div class="alert-blue" style="background:#e8f4fd;border-left:4px solid #0078d4;padding:12px 16px;margin:14px 0;border-radius:4px;">
+            <strong>&#128190; Note &mdash; Download Destination:</strong> Download and save all installation files to <code>c:\va_rfid\software</code> on the target server. Create the directory first if needed:
+            <div class="cmd" style="margin-top:6px;">New-Item -ItemType Directory -Path "c:\va_rfid\software" -Force</div>
+        </div>
+
+        <h3>Transfer via iDash Downloads</h3>
+        <ol>
+            <li>On an internet-connected workstation, download both files from the URLs above.</li>
+            <li>Open iDash on the connected workstation &rarr; <strong>Downloads &amp; Uploads</strong> page.</li>
+            <li>Upload both files to the <code>Software</code> category folder (or use &ldquo;Send Files to iDash&rdquo;).</li>
+            <li>On the target VA server, open iDash &rarr; <strong>Downloads &amp; Uploads</strong> &rarr; <code>Software</code>.</li>
+            <li>Download both files to <code>c:\va_rfid\software\</code> on the target server.</li>
+            <li>Continue with <strong>Step 1</strong> below using <code>c:\va_rfid\software\</code>.</li>
+        </ol>
+
+        <h3>Alternative: USB / Network Share Transfer</h3>
+        <div class="cmd"><span class="comment"># Copy from USB drive (example: E:\) into c:\va_rfid\software\</span>
+Copy-Item "E:\otp_win64_27.3.4.exe" "c:\va_rfid\software\" -Force
+Copy-Item "E:\rabbitmq-server-windows-4.3.5.zip" "c:\va_rfid\software\" -Force
+
+<span class="comment"># Verify files arrived intact (check sizes)</span>
+Get-ChildItem "c:\va_rfid\software\otp_win64_27.3.4.exe","c:\va_rfid\software\rabbitmq-server-windows-4.3.5.zip" |
+    Format-Table Name, @{N='Size (MB)';E={[math]::Round($_.Length/1MB,1)}}
+
+<span class="ok"># Expected:
+# otp_win64_27.3.4.exe             ~132.7 MB
+# rabbitmq-server-windows-4.3.5.zip ~67.2 MB</span></div>
+
+        <h3>SHA256 Verification (Optional)</h3>
+        <p>If your security policy requires hash verification, compute SHA256 on both the source
+        workstation and the target server and compare:</p>
+        <div class="cmd"><span class="comment"># Run on both source and target, compare output</span>
+Get-FileHash "c:\va_rfid\software\otp_win64_27.3.4.exe" -Algorithm SHA256
+Get-FileHash "c:\va_rfid\software\rabbitmq-server-windows-4.3.5.zip" -Algorithm SHA256</div>
+
+        <h3>Full Download Reference</h3>
+        <table class="config-table">
+            <thead><tr><th>Component</th><th>Releases Page</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>Erlang/OTP</td>
+                    <td><a href="https://github.com/erlang/otp/releases" target="_blank">github.com/erlang/otp/releases</a><br/>
+                    <span style="font-size:11px;color:var(--muted);">Look for <code>OTP-27.x.x</code> &mdash; download the <code>otp_win64_27.x.x.exe</code> asset</span></td>
+                </tr>
+                <tr>
+                    <td>RabbitMQ</td>
+                    <td><a href="https://github.com/rabbitmq/rabbitmq-server/releases" target="_blank">github.com/rabbitmq/rabbitmq-server/releases</a><br/>
+                    <span style="font-size:11px;color:var(--muted);">Look for <code>v4.x.x</code> &mdash; download <code>rabbitmq-server-windows-4.x.x.zip</code></span></td>
+                </tr>
+                <tr>
+                    <td>Compatibility Matrix</td>
+                    <td><a href="https://www.rabbitmq.com/docs/which-erlang" target="_blank">rabbitmq.com/docs/which-erlang</a><br/>
+                    <span style="font-size:11px;color:var(--muted);">Official page listing which Erlang versions work with which RabbitMQ versions</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 5: STEP 1 - ERLANG                                    -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2><span class="step-num">1</span> Install Erlang/OTP 27.3.4</h2>
+        <p>RabbitMQ requires Erlang. <strong>Version compatibility is critical</strong> &mdash;
+        RabbitMQ 4.x requires Erlang 27.x. Do NOT use Erlang 28+ or 26.x.</p>
+
+        <div class="alert-yellow">
+            <strong>&#9888; Version Warning:</strong> The Erlang download page may default to the latest version
+            (OTP 29.x as of Aug 2026). RabbitMQ 4.3.5 is NOT compatible with OTP 29. You must specifically
+            download <strong>OTP 27.3.4</strong>.
+        </div>
+
+        <h3>Download</h3>
+        <div class="cmd"><span class="comment"># Download URL (GitHub Releases) &mdash; save to c:\va_rfid\software\</span>
+https://github.com/erlang/otp/releases/download/OTP-27.3.4/otp_win64_27.3.4.exe
+
+<span class="comment"># File size: ~133 MB</span>
+<span class="comment"># Destination: c:\va_rfid\software\otp_win64_27.3.4.exe</span></div>
+
+        <h3>Install (Admin PowerShell)</h3>
+        <div class="cmd"><span class="comment"># Silent install from c:\va_rfid\software (or double-click the .exe for GUI)</span>
+& "c:\va_rfid\software\otp_win64_27.3.4.exe" /S
+
+<span class="comment"># Wait ~30 seconds for installation</span>
+
+<span class="comment"># Set ERLANG_HOME environment variable</span>
+[System.Environment]::SetEnvironmentVariable("ERLANG_HOME", "C:\Program Files\Erlang OTP", "Machine")
+$env:ERLANG_HOME = "C:\Program Files\Erlang OTP"</div>
+
+        <h3>Verify</h3>
+        <div class="cmd"><span class="comment"># Confirm installation</span>
+Test-Path "C:\Program Files\Erlang OTP\bin\erl.exe"
+<span class="ok"># Expected: True</span>
+
+<span class="comment"># Check ERTS version directory</span>
+Get-ChildItem "C:\Program Files\Erlang OTP" -Filter "erts-*" -Directory
+<span class="ok"># Expected: erts-15.x.x (ERTS 15.x = OTP 27.x)</span></div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 6: STEP 2 - RABBITMQ                                  -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2><span class="step-num">2</span> Install RabbitMQ 4.3.5</h2>
+        <p>RabbitMQ 4.x ships as a ZIP archive for Windows (no .exe installer for 4.x).</p>
+
+        <h3>Download</h3>
+        <div class="cmd"><span class="comment"># Download URL (GitHub Releases) &mdash; save to c:\va_rfid\software\</span>
+https://github.com/rabbitmq/rabbitmq-server/releases/download/v4.3.5/rabbitmq-server-windows-4.3.5.zip
+
+<span class="comment"># File size: ~67 MB</span>
+<span class="comment"># Destination: c:\va_rfid\software\rabbitmq-server-windows-4.3.5.zip</span></div>
+
+        <h3>Extract &amp; Install Service (Admin PowerShell)</h3>
+        <div class="cmd"><span class="comment"># Extract to Program Files</span>
+Expand-Archive "c:\va_rfid\software\rabbitmq-server-windows-4.3.5.zip" "C:\Program Files\RabbitMQ Server\" -Force
+
+<span class="comment"># Set ERLANG_HOME (required for service registration)</span>
+$env:ERLANG_HOME = "C:\Program Files\Erlang OTP"
+
+<span class="comment"># Install as Windows service</span>
+& "C:\Program Files\RabbitMQ Server\rabbitmq_server-4.3.5\sbin\rabbitmq-service.bat" install
+
+<span class="comment"># Start the service</span>
+& "C:\Program Files\RabbitMQ Server\rabbitmq_server-4.3.5\sbin\rabbitmq-service.bat" start
+<span class="ok"># Or: net start RabbitMQ</span></div>
+
+        <h3>Verify</h3>
+        <div class="cmd"><span class="comment"># Service status</span>
+Get-Service RabbitMQ
+<span class="ok"># Expected: Status=Running, StartType=Automatic</span>
+
+<span class="comment"># Port check</span>
+Get-NetTCPConnection -LocalPort 5672 -State Listen
+<span class="ok"># Expected: AMQP port listening</span></div>
+
+        <div class="alert-yellow">
+            <strong>&#9888; Erlang Cookie Fix:</strong> If <code>rabbitmqctl</code> commands fail with
+            "CLI tool fails to authenticate", copy the system cookie to your user profile:
+            <div class="cmd">Copy-Item "C:\Windows\System32\config\systemprofile\.erlang.cookie" "$env:USERPROFILE\.erlang.cookie" -Force</div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 7: STEP 3 - PLUGINS                                   -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2><span class="step-num">3</span> Enable Plugins</h2>
+        <p>Two plugins required: MQTT protocol support and Management UI for monitoring.</p>
+
+        <div class="cmd"><span class="comment"># Enable MQTT plugin + Management UI (Admin PowerShell)</span>
+$sbin = "C:\Program Files\RabbitMQ Server\rabbitmq_server-4.3.5\sbin"
+& "$sbin\rabbitmq-plugins.bat" enable rabbitmq_management rabbitmq_mqtt</div>
+
+        <h3>Verify</h3>
+        <div class="cmd"><span class="comment"># Check ports</span>
+Get-NetTCPConnection -LocalPort 1883  -State Listen  <span class="ok"># MQTT</span>
+Get-NetTCPConnection -LocalPort 15672 -State Listen  <span class="ok"># Management UI</span>
+Get-NetTCPConnection -LocalPort 5672  -State Listen  <span class="ok"># AMQP</span>
+
+<span class="comment"># Open Management UI in browser</span>
+<span class="ok"># http://localhost:15672  (login: guest / guest)</span></div>
+
+        <table class="config-table">
+            <thead><tr><th>Port</th><th>Protocol</th><th>Plugin</th></tr></thead>
+            <tbody>
+                <tr><td><code>1883</code></td><td>MQTT (plain TCP)</td><td><code>rabbitmq_mqtt</code></td></tr>
+                <tr><td><code>5672</code></td><td>AMQP</td><td>Core (always on)</td></tr>
+                <tr><td><code>15672</code></td><td>HTTP Management UI</td><td><code>rabbitmq_management</code></td></tr>
+                <tr><td><code>25672</code></td><td>Erlang Clustering</td><td>Core (always on)</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 8: STEP 4 - USERS                                     -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2><span class="step-num">4</span> Create Users &amp; Permissions</h2>
+        <p>Two dedicated accounts: one for the FX9600 reader (publisher), one for iDash (subscriber).</p>
+
+        <div class="cmd"><span class="comment"># Set sbin path</span>
+$sbin = "C:\Program Files\RabbitMQ Server\rabbitmq_server-4.3.5\sbin"
+
+<span class="comment"># Create FX9600 reader user (publisher)</span>
+& "$sbin\rabbitmqctl.bat" add_user fx9600_f78c85 "FX9600mqtt2026!"
+& "$sbin\rabbitmqctl.bat" set_permissions -p / fx9600_f78c85 ".*" ".*" ".*"
+
+<span class="comment"># Create iDash subscriber user</span>
+& "$sbin\rabbitmqctl.bat" add_user idash_antenna "AntennaSvc2026!"
+& "$sbin\rabbitmqctl.bat" set_permissions -p / idash_antenna ".*" ".*" ".*"
+
+<span class="comment"># Verify</span>
+& "$sbin\rabbitmqctl.bat" list_users</div>
+
+        <table class="config-table">
+            <thead><tr><th>Username</th><th>Password</th><th>Role</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td><code>fx9600_f78c85</code></td><td><code>FX9600mqtt2026!</code></td><td>Publisher</td><td>FX9600 reader publishes tag observations</td></tr>
+                <tr><td><code>idash_antenna</code></td><td><code>AntennaSvc2026!</code></td><td>Subscriber</td><td>iDash AntennaLocationService subscribes to tag data</td></tr>
+                <tr><td><code>guest</code></td><td><code>guest</code></td><td>Admin</td><td>Management UI access (localhost only)</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 9: STEP 5 - FX9600                                    -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2><span class="step-num">5</span> Configure FX9600 Reader</h2>
+        <p>On the FX9600 web UI (<code>http://&lt;reader-ip&gt;</code>), navigate to
+        <strong>Communication &rarr; Zebra IoT Connector &rarr; Configuration</strong>.</p>
+
+        <h3>Endpoint Configuration: <code>MQTT_Broker</code></h3>
+        <table class="config-table">
+            <thead><tr><th>Setting</th><th>Value</th></tr></thead>
+            <tbody>
+                <tr><td>Endpoint Type</td><td><code>MQTT</code></td></tr>
+                <tr><td>Endpoint Name</td><td><code>MQTT_Broker</code></td></tr>
+                <tr><td>Server</td><td><code>192.168.4.48</code> (LingCod IP)</td></tr>
+                <tr><td>Port</td><td><code>1883</code></td></tr>
+                <tr><td><strong>Protocol</strong></td><td><strong><code>TCP</code></strong> (NOT TLS)</td></tr>
+                <tr><td>BASIC Authentication</td><td>&#9745; Checked</td></tr>
+                <tr><td>User Name</td><td><code>fx9600_f78c85</code></td></tr>
+                <tr><td>Password</td><td><code>FX9600mqtt2026!</code></td></tr>
+                <tr><td>Keep Alive</td><td><code>60</code></td></tr>
+            </tbody>
+        </table>
+
+        <h3>Interface Configuration</h3>
+        <table class="config-table">
+            <thead><tr><th>Interface</th><th>Value</th><th>Notes</th></tr></thead>
+            <tbody>
+                <tr><td>Management Interface</td><td><code>None</code></td><td>Prevents <code>gateway/cmd/*</code> subscription errors</td></tr>
+                <tr><td>Control Interface</td><td><code>None</code></td><td>Same reason as above</td></tr>
+                <tr><td><strong>Tag Data Interface1</strong></td><td><strong><code>MQTT_Broker</code></strong></td><td>Tag reads published via RabbitMQ</td></tr>
+                <tr><td>Tag Data Interface2</td><td><code>None</code></td><td>Optional: keep <code>iDash_HTTP</code> as fallback</td></tr>
+                <tr><td>Management Events Interface1</td><td><code>MQTT_Broker</code></td><td>Optional &mdash; can set to None for cleaner logs</td></tr>
+            </tbody>
+        </table>
+
+        <div class="alert-red">
+            <strong>&#9888; Critical:</strong> Protocol MUST be <strong>TCP</strong>, not TLS.
+            RabbitMQ on port 1883 is plain MQTT. If you need TLS, configure RabbitMQ on port 8884 with
+            SSL certificates (see Troubleshooting section).
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 10: STEP 6 - IDASH CODE CHANGES                      -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2><span class="step-num">6</span> iDash Code Changes</h2>
+        <p>Four changes were made to <code>AntennaLocationService.cs</code> and one to <code>Web.config</code>.</p>
+
+        <h3>6a. <code>Web.config</code> &mdash; Port Change</h3>
+        <div class="diff-del">- &lt;add key="AntennaService_MqttPort" value="8883" /&gt;</div>
+        <div class="diff-add">+ &lt;add key="AntennaService_MqttPort" value="1883" /&gt;</div>
+
+        <h3>6b. <code>AntennaLocationService.cs</code> &mdash; TLS/TCP Toggle</h3>
+        <p>Added <code>AntennaService_UseTls</code> config option. Defaults to <code>true</code> for port 8883,
+        <code>false</code> for port 1883. When false, uses plain <code>NetworkStream</code> instead of <code>SslStream</code>.</p>
+        <div class="diff-add">+ bool useTls = Setting("AntennaService_UseTls", port == 8883 ? "true" : "false")
++     .Equals("true", StringComparison.OrdinalIgnoreCase);</div>
+
+        <h3>6c. <code>AntennaLocationService.cs</code> &mdash; SslStream &rarr; Stream</h3>
+        <p>Changed all 7 MQTT helper method signatures from <code>SslStream</code> to <code>Stream</code>
+        (the base class that both <code>SslStream</code> and <code>NetworkStream</code> implement).
+        Also fixed <code>Stream.Write(byte[])</code> calls to use the 3-parameter overload
+        <code>Write(byte[], offset, count)</code>.</p>
+        <div class="diff-del">- private static void SendMqttConnect(SslStream ssl, ...)</div>
+        <div class="diff-add">+ private static void SendMqttConnect(Stream ssl, ...)</div>
+        <p style="font-size:12px;color:var(--muted);">Applied to: <code>SendMqttConnect</code>,
+        <code>ReadMqttConnAck</code>, <code>SendMqttSubscribe</code>, <code>SendMqttPingReq</code>,
+        <code>ReadMqttSubAck</code>, <code>ReadMqttPacket</code>, <code>WriteMqttPacket</code></p>
+
+        <h3>6d. <code>AntennaLocationService.cs</code> &mdash; hostName Parsing (camelCase)</h3>
+        <p>FX9600 MQTT payloads use <code>data.hostName</code> (capital N), not <code>data.hostname</code>.
+        Added <code>hostName</code> to both top-level and nested field lookups.</p>
+
+        <h3>6e. <code>AntennaLocationService.cs</code> &mdash; Fuzzy Reader Name Matching</h3>
+        <p>MQTT payload sends <code>FX9600F78C85</code> (no underscore) but the database stores
+        <code>FX9600_F78C85</code> (with underscore). Added fuzzy matching that strips
+        underscores/hyphens when the exact lookup fails.</p>
+
+        <h3>6f. <code>AntennaLocationService.cs</code> &mdash; Format 4 Tag Parser</h3>
+        <p>Added parser for the FX9600 single-tag MQTT format:</p>
+        <div class="cmd"><span class="comment">// FX9600 MQTT payload format (one tag per message):</span>
+{
+  "data": {
+    "antenna": 2,
+    "eventNum": 572,
+    "format": "epc",
+    "hostName": "FX9600F78C85",
+    "idHex": "613ee13440ff",
+    "peakRssi": -69,
+    "reads": 2
+  },
+  "timestamp": "2026-08-31T13:19:40.143-0700",
+  "type": "INVENTORY"
+}</div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 11: VERIFICATION                                      -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2><span class="step-num">7</span> Verification &amp; Testing</h2>
+
+        <h3>7a. RabbitMQ Service Running</h3>
+        <div class="cmd">Get-Service RabbitMQ
+<span class="ok"># Status: Running, StartType: Automatic</span></div>
+
+        <h3>7b. All Ports Listening</h3>
+        <div class="cmd">@(1883, 5672, 15672, 25672) | ForEach-Object {
+    $l = Get-NetTCPConnection -LocalPort $_ -State Listen -ErrorAction SilentlyContinue
+    if ($l) { Write-Host "  Port $_ : LISTENING" }
+}
+<span class="ok"># All four ports should show LISTENING</span></div>
+
+        <h3>7c. Connections via Management API</h3>
+        <div class="cmd">curl.exe -s -u guest:guest "http://localhost:15672/api/connections"
+<span class="ok"># Should show 2 connections:
+#   user: "idash_antenna" (subscriber)
+#   user: "fx9600_f78c85" (or reader connecting as fx9600_f78c85)</span></div>
+
+        <h3>7d. iDash Status API</h3>
+        <div class="cmd">curl.exe -s "http://localhost/idash/va_fixed_reader_live.aspx?api=status"
+<span class="ok"># {"serviceRunning":true,"messagesReceived":511,"subscribedTopic":"reader/#",
+#  "liveSeq":45,"rawMessages":46}</span></div>
+
+        <h3>7e. iDash Log Confirmation</h3>
+        <div class="cmd">Get-Content "C:\Logs\iDash_AntennaService.log" -Tail 10
+<span class="ok"># Expected lines:
+# MQTT connected to 127.0.0.1:1883
+# Subscribed to reader/# -- ready for tag reads (1 readers, 2 antennas)
+# Fuzzy matched reader: MQTT 'FX9600F78C85' -> DB 'FX9600_F78C85'
+# Processing 1 tag(s) from reader FX9600F78C85
+# Tag 512EE10542FF on antenna port 2 -> SP1-219
+# Tag 512EE1752FFF on antenna port 1 -> SP1-117</span></div>
+
+        <h3>7f. RabbitMQ Management UI</h3>
+        <p>Open <code>http://localhost:15672</code> in a browser. Login: <code>guest</code> / <code>guest</code>.</p>
+        <p>Navigate to <strong>Connections</strong> tab &mdash; should show 2 active MQTT connections.
+        Navigate to <strong>Queues</strong> tab &mdash; should show the subscription queue:
+        <code>mqtt-subscription-iDashAntenna_LINGCOD_*qos0</code>.</p>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 12: TROUBLESHOOTING                                   -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>&#128295; Troubleshooting</h2>
+
+        <h3>Issue: RabbitMQ service won't start</h3>
+        <ul>
+            <li>Check Erlang version: <code>Get-ChildItem "C:\Program Files\Erlang OTP" -Filter "erts-*"</code></li>
+            <li>ERTS 15.x = OTP 27 (correct). ERTS 17.x = OTP 29 (incompatible).</li>
+            <li>Clear stale database: <code>Remove-Item "$env:APPDATA\RabbitMQ\db" -Recurse -Force</code></li>
+            <li>Check log: <code>Get-Content "$env:APPDATA\RabbitMQ\log\rabbit@*.log" -Tail 20</code></li>
+        </ul>
+
+        <h3>Issue: <code>rabbitmqctl</code> says "unable to perform operation"</h3>
+        <ul>
+            <li>Erlang cookie mismatch. Service runs as SYSTEM, CLI runs as your user.</li>
+            <li>Fix: <code>Copy-Item "C:\Windows\System32\config\systemprofile\.erlang.cookie" "$env:USERPROFILE\.erlang.cookie" -Force</code></li>
+        </ul>
+
+        <h3>Issue: <code>{unknown_instruction, {line, ...}}</code> in logs</h3>
+        <ul>
+            <li>Erlang version too new for RabbitMQ version.</li>
+            <li>RabbitMQ 4.3.5 requires Erlang 27.x. If you have OTP 28 or 29, downgrade to 27.3.4.</li>
+        </ul>
+
+        <h3>Issue: "Unknown reader: FX9600F78C85"</h3>
+        <ul>
+            <li>Reader physicalId in database doesn't match MQTT hostName exactly.</li>
+            <li>The fuzzy match (added in this deployment) handles underscore differences automatically.</li>
+            <li>If using a different reader, ensure <code>dbo.reader.physicalId</code> matches the <code>data.hostName</code> from the MQTT payload.</li>
+        </ul>
+
+        <h3>Issue: FX9600 won't connect to RabbitMQ</h3>
+        <ul>
+            <li>Verify protocol is <strong>TCP</strong>, not TLS.</li>
+            <li>Verify port is <strong>1883</strong>.</li>
+            <li>Verify credentials match the user created in RabbitMQ.</li>
+            <li>Check Windows Firewall: <code>New-NetFirewallRule -DisplayName "RabbitMQ MQTT" -Direction Inbound -LocalPort 1883 -Protocol TCP -Action Allow</code></li>
+        </ul>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 13: VERSION MATRIX                                    -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>&#128218; Version Compatibility Matrix</h2>
+        <p>Reference for future upgrades. Always check
+        <a href="https://www.rabbitmq.com/docs/install-erlang" target="_blank">rabbitmq.com/docs/install-erlang</a>
+        before upgrading either component.</p>
+
+        <table class="config-table">
+            <thead><tr><th>RabbitMQ</th><th>Min Erlang</th><th>Max Erlang</th><th>Notes</th></tr></thead>
+            <tbody>
+                <tr style="background:var(--chip);"><td><strong>4.3.5</strong> (deployed)</td><td><strong>27.0</strong></td><td><strong>27.x</strong></td><td>Current deployment</td></tr>
+                <tr><td>4.x</td><td>27.0</td><td>27.x</td><td>Erlang 28+ NOT supported for upgrades</td></tr>
+                <tr><td>3.13.x</td><td>26.0</td><td>26.x</td><td>Legacy &mdash; do not mix with OTP 27+</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 14: FILE INVENTORY                                    -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>&#128193; File Inventory</h2>
+        <table class="config-table">
+            <thead><tr><th>File</th><th>Change</th></tr></thead>
+            <tbody>
+                <tr><td><code>C:\Program Files\Erlang OTP\</code></td><td>Erlang/OTP 27.3.4 installation</td></tr>
+                <tr><td><code>C:\Program Files\RabbitMQ Server\rabbitmq_server-4.3.5\</code></td><td>RabbitMQ 4.3.5 installation</td></tr>
+                <tr><td><code>iDash\Web.config</code></td><td>Port 8883 &rarr; 1883</td></tr>
+                <tr><td><code>iDash\App_Code\AntennaLocationService.cs</code></td><td>TLS toggle, Stream type, hostName parse, fuzzy match, Format 4</td></tr>
+                <tr><td><code>iDash\documentation\va_rabbitmq_setup.html</code></td><td>This document (new)</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 15: OPERATIONAL NOTES                                 -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>&#128221; Operational Notes</h2>
+        <ul>
+            <li><strong>RabbitMQ starts automatically</strong> with Windows (service StartType = Automatic).</li>
+            <li><strong>Management UI</strong> is always available at <code>http://localhost:15672</code> (guest/guest).</li>
+            <li><strong>Log location:</strong> <code>%APPDATA%\RabbitMQ\log\rabbit@LingCod.log</code></li>
+            <li><strong>iDash log:</strong> <code>C:\Logs\iDash_AntennaService.log</code></li>
+            <li><strong>Restart RabbitMQ:</strong> <code>net stop RabbitMQ && net start RabbitMQ</code> (Admin PS)</li>
+            <li><strong>The iDash broker on port 8883 is completely untouched.</strong> Print notifications continue to use it.</li>
+        </ul>
+
+        <div class="alert-green">
+            <strong>&#9989; Deployment Verified:</strong> 511+ MQTT messages routed successfully through RabbitMQ
+            on August 31, 2026. Both antenna ports (SP1-117 and SP1-219) confirmed processing tag observations
+            in real-time. RabbitMQ provides a reliable, enterprise-grade MQTT routing solution that
+            does not depend on the vendor's internal broker.
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,185 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Post-Scan: ENNX Export &mdash; VA Asset Intelligence Hub</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <style>
+        .step-card { background: color-mix(in srgb, var(--text,#e2e8f0), transparent 97%); border: 1px solid var(--line,#2a3441); border-radius: 14px; padding: 28px; margin-bottom: 28px; }
+        .step-title { font-size: 19px; font-weight: 700; display: flex; align-items: center; margin-bottom: 10px; }
+        .step-num { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: var(--accent,#3b82f6); color: #fff; font-weight: 800; font-size: 15px; margin-right: 12px; flex-shrink: 0; }
+        .step-desc { color: var(--muted-docs,#8b95a5); font-size: 14px; line-height: 1.8; margin-bottom: 10px; }
+        .tip-box  { background: color-mix(in srgb,#10b981,transparent 88%); border: 1px solid rgba(16,185,129,.3); border-left: 4px solid #10b981; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #10b981; }
+        .warn-box { background: color-mix(in srgb,#f59e0b,transparent 88%); border: 1px solid rgba(245,158,11,.3); border-left: 4px solid #f59e0b; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #f59e0b; }
+        .info-box { background: color-mix(in srgb,#3b82f6,transparent 88%); border: 1px solid rgba(59,130,246,.3); border-left: 4px solid #3b82f6; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #3b82f6; }
+        .success-box { background: color-mix(in srgb,#10b981,transparent 88%); border: 1px solid rgba(16,185,129,.4); border-left: 4px solid #10b981; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #10b981; }
+        .section-divider { border: none; border-top: 2px solid var(--line,#2a3441); margin: 36px 0; }
+        .phase-header { font-size: 17px; font-weight: 800; margin: 28px 0 10px; padding: 10px 16px; border-radius: 10px; display: flex; align-items: center; gap: 10px; }
+        .ph-blue  { background: color-mix(in srgb,#3b82f6,transparent 88%); border: 1px solid rgba(59,130,246,.3); color: #3b82f6; }
+        .ph-green { background: color-mix(in srgb,#10b981,transparent 88%); border: 1px solid rgba(16,185,129,.3); color: #10b981; }
+        .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 14px 0; }
+        @media (max-width: 640px) { .field-grid { grid-template-columns: 1fr; } }
+        .field-card { background: color-mix(in srgb, var(--text,#e2e8f0), transparent 94%); border: 1px solid var(--line,#2a3441); border-radius: 10px; padding: 14px 18px; }
+        .field-card h4 { margin: 0 0 6px; font-size: 13px; font-weight: 800; color: var(--accent,#3b82f6); }
+        .field-card p { margin: 0; font-size: 13px; color: var(--muted-docs,#8b95a5); line-height: 1.65; }
+        code.nav { background: color-mix(in srgb,#3b82f6,transparent 85%); color: #3b82f6; padding: 2px 9px; border-radius: 6px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+        code.url { background: color-mix(in srgb,#10b981,transparent 85%); color: #10b981; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-family: monospace; word-break: break-all; }
+        .btn-demo { display: inline-block; padding: 5px 16px; border-radius: 6px; font-size: 13px; font-weight: 700; margin: 2px; }
+        .btn-blue { background: color-mix(in srgb,#1e3a5f,transparent 30%); border: 1px solid #1e3a5f; color: #60a5fa; }
+        .btn-outline { background: transparent; border: 2px solid color-mix(in srgb,#60a5fa,transparent 40%); color: #60a5fa; }
+        .btn-link { background: transparent; border: none; color: #10b981; text-decoration: underline; }
+        .ss { display: block; width: 100%; max-width: 960px; border-radius: 10px; border: 1px solid var(--line,#2a3441); box-shadow: 0 4px 20px rgba(0,0,0,.14); margin: 12px 0 4px; }
+        .ss-port { display: block; max-width: 320px; border-radius: 10px; border: 1px solid var(--line,#2a3441); box-shadow: 0 4px 20px rgba(0,0,0,.14); margin: 12px 0 4px; }
+        .ss-cap { font-size: .77rem; color: var(--muted-docs,#8b95a5); margin: 0 0 12px; font-style: italic; }
+        .ss-row { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; margin: 12px 0; }
+        .ss-col { display: flex; flex-direction: column; }
+        .callout-check { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 8px; background: color-mix(in srgb,#10b981,transparent 88%); border: 1px solid rgba(16,185,129,.3); font-size: 14px; color: var(--text,#e2e8f0); margin: 8px 0; }
+        .callout-check input[type="checkbox"] { width: 18px; height: 18px; accent-color: #10b981; flex-shrink: 0; }
+    </style>
+</head>
+<body>
+<a href="index.aspx" class="back-link">&larr; Documentation Hub</a>
+<div class="doc-container">
+    <h1>&#128203; Post-Scan: ENNX Export &amp; Email</h1>
+    <p class="doc-subtitle">After returning from the field, generate and email the <strong>Equipment Not in Expected Location (ENNX)</strong> report for the day&rsquo;s scan session using the VA Asset Intelligence Hub.</p>
+
+    <div class="callout callout-info">
+        <strong>When to use this guide.</strong> Follow these steps immediately after completing your room inventory scans and syncing the scanner app at the Scanning PC. This sends the daily ENNX report to the configured email recipients.
+        <div style="margin-top:8px;">
+            &#128196; <strong>Printable Pocket Card:</strong> Need a laminated cheat-sheet at the Scanning PC? See the <a href="va_guide_scanner_reference_card.html" style="color:var(--accent,#3b82f6); font-weight:700; text-decoration:underline;">Scanner &amp; ENNX Quick Reference Card (Side B)</a>.
+        </div>
+    </div>
+
+    <div class="step-card" style="padding:20px 28px;">
+        <div class="step-title" style="margin-bottom:4px;">&#128196; Steps at a Glance</div>
+        <table class="doc-table">
+            <thead><tr><th style="width:5%">#</th><th>Action</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td>Go to Scanning PC &rarr; open <strong>Microsoft Edge</strong></td></tr>
+                <tr><td>2</td><td>Open <strong>VA Intelligence Hub</strong> (bookmarked)</td></tr>
+                <tr><td>3</td><td>Sign in with your VA credentials</td></tr>
+                <tr><td>4</td><td>Click <strong>ENNX Export &amp; History</strong></td></tr>
+                <tr><td>5</td><td>Enter <strong>Date</strong> (date of today&rsquo;s scan)</td></tr>
+                <tr><td>6</td><td>Select <strong>Site: 613</strong></td></tr>
+                <tr><td>7</td><td>Select your <strong>User</strong> from the dropdown</td></tr>
+                <tr><td>8</td><td>Check <strong>Tagged Items Only</strong></td></tr>
+                <tr><td>9</td><td>Click <strong>Build ENNX</strong></td></tr>
+                <tr><td>10</td><td>Click <strong>Email ENNX + Excel</strong></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <hr class="section-divider" />
+    <div class="phase-header ph-blue">&#128187; Phase 1: Access the Hub</div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">1</span> Go to the Scanning PC &amp; Open Edge</div>
+        <div class="step-desc">Return to the Scanning PC &mdash; the same computer where you synced the scanner before heading out. Open <strong>Microsoft Edge</strong>.</div>
+        <div class="warn-box"><strong>&#9888; Must be done at the Scanning PC.</strong> The ENNX tool reads scan data that was uploaded when you synced the scanner. Use the same PC that was used for the pre-scan sync.</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">2</span> Open the VA Intelligence Hub</div>
+        <div class="step-desc">Click the <strong>VA Intelligence Hub</strong> bookmark in Edge, or navigate directly to the URL below.</div>
+        <div class="info-box">
+            <strong>&#128279; Bookmarked URL:</strong><br />
+            <code class="url">http://visn5-8.tail03df01.ts.net/idash/va_ennx.aspx</code>
+        </div>
+        <div class="tip-box"><strong>&#128161; Shortcut:</strong> The VA Intelligence Hub link is already saved in Edge Favorites on the Scanning PC. Look for it in the Favorites Bar or press <strong>Ctrl+Shift+B</strong> to show the Favorites Bar.</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">3</span> Sign In</div>
+        <div class="step-desc">Enter your username and password. <strong>These are the same credentials you use to log in to the iDash scanner app.</strong></div>
+        <img class="ss-port" src="img/access/login_idash.png" alt="VA Asset Intelligence Hub login screen with Username and Password fields" />
+        <p class="ss-cap">iDash login screen &mdash; use the same VA username and password as the scanner app.</p>
+    </div>
+
+    <hr class="section-divider" />
+    <div class="phase-header ph-green">&#128202; Phase 2: Build &amp; Send the ENNX Report</div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">4</span> Click &ldquo;ENNX Export &amp; History&rdquo;</div>
+        <div class="step-desc">After logging in you will land on the Hub dashboard. Click the <strong>ENNX Export &amp; History</strong> tile or navigate directly to the ENNX page. The ENNX Export tool will open with date and filter controls.</div>
+        <img class="ss" src="img/ennx/ennx_main.png" alt="ENNX Export page showing From Date, To Date, Time Period, Site, User, Tagged Items Only checkbox, Build ENNX and Email ENNX + Excel buttons" />
+        <p class="ss-cap">ENNX Export page &mdash; you will set the Date, Site, User, and Tagged Items Only checkbox in the next steps before clicking Build ENNX.</p>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">5&ndash;8</span> Set the Report Filters</div>
+        <div class="step-desc">Fill in the four filter fields as shown. All four are required for an accurate daily ENNX report.</div>
+
+        <div class="field-grid">
+            <div class="field-card">
+                <h4>&#128197; Step 5 &mdash; From Date</h4>
+                <p>Enter <strong>today&rsquo;s date</strong> (the date the room scans were performed). The format is <strong>mm/dd/yyyy</strong>. Leave <em>To Date</em> blank to cover the full day.</p>
+            </div>
+            <div class="field-card">
+                <h4>&#127970; Step 6 &mdash; Site</h4>
+                <p>Select <strong>613</strong> from the Site dropdown. This filters results to your facility&rsquo;s assets only.</p>
+            </div>
+            <div class="field-card">
+                <h4>&#128100; Step 7 &mdash; User</h4>
+                <p>Select your username from the <strong>User</strong> dropdown. <em>Only users who have scan sessions for the selected date will appear in this list.</em> If your name is missing, verify the scanner sync was completed.</p>
+            </div>
+            <div class="field-card">
+                <h4>&#9989; Step 8 &mdash; Tagged Items Only</h4>
+                <p>Check the <strong>Tagged Items Only</strong> checkbox. This limits the export to assets that have RFID tags applied, which is the standard for daily inventory reports.</p>
+            </div>
+        </div>
+
+        <img class="ss" src="img/ennx/ennx_email_success.png" alt="ENNX Export page with From Date 07/30/2026, Site 613, User dennis selected, Email sent successfully to 1 recipients banner at top" />
+        <p class="ss-cap">Example of correctly filled-in filters: From Date = scan date, Site = 613, User = your username, Tagged Items Only checked. The green banner at the top confirms the email was sent (Step 10).</p>
+
+        <div class="warn-box"><strong>&#9888; User not in dropdown?</strong> If your username does not appear in the User list, the scanner sync did not complete successfully. Return to the scanner, go to <strong>MORE &rarr; Sync App</strong>, wait for confirmation, then reload this page.</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">9</span> Click &ldquo;Build ENNX&rdquo;</div>
+        <div class="step-desc">Click the <span class="btn-demo btn-blue">Build ENNX</span> button. The tool will query the database and populate the <strong>ENNX Text Preview</strong> box and the <strong>Data Details</strong> grid below it.</div>
+        <img class="ss" src="img/ennx/ennx_view_data.png" alt="ENNX Export page after building showing ENNX text preview with room and asset IDs, and Data Details table with asset Name, Location, EIL, Description, Tag Date, Previous Location columns" />
+        <p class="ss-cap">After clicking Build ENNX &mdash; the ENNX Text Preview fills in with location and asset IDs, and the Data Details table shows each asset with its current and previous location. Review to confirm the data looks correct.</p>
+        <div class="tip-box"><strong>&#128161; Review the data before emailing.</strong> Scan the Data Details grid to confirm assets and locations look as expected for today&rsquo;s scan session. If something looks wrong, check your filter settings.</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">10</span> Click &ldquo;Email ENNX + Excel&rdquo;</div>
+        <div class="step-desc">Click <span class="btn-demo btn-link">Email ENNX + Excel</span> to send the report. Email recipients are pre-configured &mdash; you do not need to enter any email addresses.</div>
+        <img class="ss" src="img/ennx/ennx_email_success.png" alt="ENNX Export page with green Email sent successfully to 1 recipients banner at the top of the page" />
+        <p class="ss-cap">Success &mdash; the green banner &ldquo;<strong>Email sent successfully to 1 recipients.</strong>&rdquo; confirms the ENNX report and Excel file have been delivered. Your post-scan workflow is complete.</p>
+        <div class="success-box"><strong>&#10003; Done!</strong> The ENNX report and Excel export have been emailed to the configured recipients. No further action is needed for today&rsquo;s scan session.</div>
+    </div>
+
+    <hr class="section-divider" />
+    <h2><span class="section-num">&#128203;</span> Quick Reference</h2>
+    <table class="doc-table">
+        <thead><tr><th style="width:5%">#</th><th>Step</th><th>Value / Setting</th></tr></thead>
+        <tbody>
+            <tr><td>1</td><td>Computer</td><td>Scanning PC &mdash; Microsoft Edge</td></tr>
+            <tr><td>2</td><td>URL</td><td><code class="url">http://visn5-8.tail03df01.ts.net/idash/va_ennx.aspx</code> (bookmarked)</td></tr>
+            <tr><td>3</td><td>Credentials</td><td>Same username &amp; password as the scanner app</td></tr>
+            <tr><td>4</td><td>Navigate to</td><td>ENNX Export &amp; History</td></tr>
+            <tr><td>5</td><td>From Date</td><td>Today&rsquo;s date (date of the scan)</td></tr>
+            <tr><td>6</td><td>Site</td><td><strong>613</strong></td></tr>
+            <tr><td>7</td><td>User</td><td>Your username (only users with scans appear)</td></tr>
+            <tr><td>8</td><td>Tagged Items Only</td><td>&#9989; <strong>Checked</strong></td></tr>
+            <tr><td>9</td><td>Action</td><td>Click <strong>Build ENNX</strong>, review the data</td></tr>
+            <tr><td>10</td><td>Action</td><td>Click <strong>Email ENNX + Excel</strong> &mdash; recipients are pre-set</td></tr>
+        </tbody>
+    </table>
+
+    <h2 style="margin-top:32px;"><span class="section-num">&#128295;</span> Troubleshooting</h2>
+    <table class="doc-table">
+        <thead><tr><th style="width:34%">Problem</th><th>Cause</th><th>Fix</th></tr></thead>
+        <tbody>
+            <tr><td>My username is not in the User dropdown</td><td>Scanner sync did not complete</td><td>On scanner: <strong>MORE &rarr; Sync App</strong> at the Scanning PC, then reload the ENNX page.</td></tr>
+            <tr><td>ENNX builds but shows no data</td><td>Date, Site, or User filter is wrong</td><td>Confirm the From Date matches the scan date and Site = 613.</td></tr>
+            <tr><td>Email not received by recipients</td><td>SMTP issue or wrong recipients configured</td><td>Contact the iDash administrator to verify email configuration.</td></tr>
+            <tr><td>Build ENNX is slow</td><td>Large scan session with many assets</td><td>Normal behavior &mdash; wait for the page to finish loading before clicking Email.</td></tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA UNIVERSAL ENNX (LEGACY / ARCHIVED) &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .badge-retired { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); font-weight: 700; padding: 3px 8px; border-radius: 4px; font-size: 11px; }
+        .badge-none  { background: color-mix(in srgb, var(--accent-docs), transparent 85%); color: var(--accent-docs); border: 1px solid color-mix(in srgb, var(--accent-docs), transparent 70%); }
+        .badge-email { background: color-mix(in srgb, var(--accent2-docs), transparent 85%); color: var(--accent2-docs); border: 1px solid color-mix(in srgb, var(--accent2-docs), transparent 70%); }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div style="margin-bottom:18px;">
+        <a href="index.aspx">&larr; Back to Documentation Hub</a> &bull; 
+        <a href="va_universal_ennx.html" style="color:#10b981; font-weight:bold;">&rarr; View Current (v2.0) Universal ENNX Documentation</a>
+    </div>
+
+    <div class="alert alert-warn" style="border-left: 5px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 14px 18px; margin-bottom: 24px; border-radius:12px;">
+        <strong style="color:#ef4444; font-size: 14px;">&#9888; ARCHIVED / RETIRED COMPONENT DOCUMENTATION:</strong><br />
+        This document describes the original, legacy implementation of <code>va_universal_ennx_legacy.aspx</code> (formerly <code>va_universal_ennx.aspx</code>).<br />
+        This version featured square KPI tiles, tethered WebSerial USB port controls, and client-side blob downloads.<br />
+        The active production version is now the streamlined, high-speed <strong><a href="va_universal_ennx.html" style="color:var(--accent-docs); font-weight:bold;">va_universal_ennx.aspx (v2.0)</a></strong> featuring an $O(1)$ memory engine (30&ndash;50 tags/sec), unified single-row count &amp; filter toolbar matching <code>va_inventory.aspx</code>, 4-color status rows, and direct email dispatch.
+    </div>
+
+    <h1>&#128228; Universal ENNX Creator &mdash; Legacy Version</h1>
+
+    <div style="margin-bottom:24px;">
+        <span class="badge badge-retired">Archived as va_universal_ennx_legacy.aspx</span>
+        <span class="badge badge-none">No Database Required</span>
+        <span class="badge badge-email">Email &amp; Blob Download</span>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="card" style="background:var(--card-docs);border:1px solid var(--line-docs);border-radius:16px;padding:28px;margin-bottom:28px;">
+        <h2>Component Metadata</h2>
+        <p><strong>File:</strong> <code>va_universal_ennx_legacy.aspx</code> / <code>va_universal_ennx_legacy.aspx.cs</code></p>
+        <p><strong>Status:</strong> <span class="badge-retired">RETIRED &amp; ARCHIVED (September 2026)</span> &mdash; Preserved for audit &amp; fallback.</p>
+        <p><strong>Target Hardware:</strong> PC browsers, USB tethered serial readers, and legacy barcode scanners.</p>
+        <p><strong>Original Purpose:</strong> Self-contained ENNX generation without site selection, EIL filtering, or SQL Server connection.</p>
+    </div>
+
+    <!-- LEGACY FEATURES -->
+    <div class="card" style="background:var(--card-docs);border:1px solid var(--line-docs);border-radius:16px;padding:28px;margin-bottom:28px;">
+        <h2>Legacy Interface Features</h2>
+        
+        <h3>1. Square KPI Cards</h3>
+        <p>The legacy screen occupied four separate square KPI summary tiles at the top of the interface:</p>
+        <ul>
+            <li><strong>Locations (#kLoc):</strong> Total distinct room blocks encountered.</li>
+            <li><strong>Assets (#kAssets):</strong> Total equipment barcode entries added.</li>
+            <li><strong>Duplicates Skipped (#kDupes):</strong> Assets scanned twice in the same room.</li>
+            <li><strong>Mode (#kMode):</strong> Status indicator showing current scan mode.</li>
+        </ul>
+
+        <h3>2. WebSerial API Support (Tethered USB)</h3>
+        <p>
+            The legacy interface included a collapsible <code>&lt;details&gt;</code> panel with serial port controls allowing tethered USB readers to be connected directly to the browser (115200 baud, 8N1, hardware flow control). 
+            <em>Note: This was retired in v2.0 in favor of wireless operation on Zebra TC53 / RFD40 handhelds.</em>
+        </p>
+
+        <h3>3. Client-Side Blob File Download</h3>
+        <p>
+            The legacy interface offered a &quot;Download ENNX&quot; button that constructed a client-side <code>Blob</code> and generated a transient <code>&lt;a download=&quot;...&quot;&gt;</code> click event to download <code>.txt</code> files directly to local storage.
+        </p>
+
+        <h3>4. Legacy Session Auto-Recovery</h3>
+        <p>
+            Persisted scan blocks to <code>localStorage</code> under <code>UniversalEnnx_SessionBlocks</code>.
+        </p>
+    </div>
+
+    <!-- DIFFERENCES SUMMARY -->
+    <div class="card" style="background:var(--card-docs);border:1px solid var(--line-docs);border-radius:16px;padding:28px;margin-bottom:28px;">
+        <h2>Comparison: Legacy vs. Current (v2.0)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Capability</th>
+                    <th>Legacy (va_universal_ennx_legacy.aspx)</th>
+                    <th>Current (va_universal_ennx.aspx)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Scan Engine Performance</strong></td>
+                    <td>Standard DOM-driven updates (~3&ndash;5 scans/sec)</td>
+                    <td>High-speed $O(1)$ memory engine (30&ndash;50 tags/sec)</td>
+                </tr>
+                <tr>
+                    <td><strong>Metrics / Filter Bar</strong></td>
+                    <td>4 tall square KPI tiles</td>
+                    <td>Single-row filter bar with real-time badges (matching <code>va_inventory.aspx</code>)</td>
+                </tr>
+                <tr>
+                    <td><strong>Status Visuals</strong></td>
+                    <td>Simple plain text log list</td>
+                    <td>4-color stream rows (Green, Blue, Orange, Pink)</td>
+                </tr>
+                <tr>
+                    <td><strong>Form Styling</strong></td>
+                    <td>Browser default square inputs</td>
+                    <td>Modern 8px rounded inputs, left-aligned, mobile-optimized</td>
+                </tr>
+                <tr>
+                    <td><strong>WebSerial (Tethered USB)</strong></td>
+                    <td>Included (collapsible panel)</td>
+                    <td>Removed (streamlined for mobile handhelds)</td>
+                </tr>
+                <tr>
+                    <td><strong>Export Workflow</strong></td>
+                    <td>Download + Email buttons</td>
+                    <td>One-click primary Email ENNX dispatch</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-top:40px;padding-top:20px;border-top:1px solid var(--line);">
+        <a href="index.aspx" style="font-weight:600;">&larr; Back to Documentation Index</a> &bull;
+        <a href="va_universal_ennx.html" style="font-weight:600; color:var(--accent-docs);">&rarr; Go to Current Universal ENNX Documentation</a>
+    </div>
+</div>
+
+<footer style="margin-top:40px;padding:20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted-docs);display:flex;justify-content:space-between;align-items:center;background:var(--bg);max-width:1400px;margin-left:auto;margin-right:auto;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
+        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
+        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+        <span>&copy; 2026 ID Integration Inc. &mdash; Archived Legacy Documentation</span>
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height:14px;opacity:.9;">
+    </div>
+</footer>
+</body>
+</html>

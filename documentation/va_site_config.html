@@ -1,0 +1,772 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>iDash Installation &amp; Component Manifest &mdash; OIT Security Review</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+    .sec-nav { position:sticky; top:0; background:var(--bg); z-index:10; padding:12px 0; border-bottom:1px solid var(--line); margin-bottom:30px; display:flex; flex-wrap:wrap; gap:6px; }
+    .sec-nav a { display:inline-block; padding:5px 12px; border:1px solid var(--line); border-radius:20px; font-size:12px; font-weight:600; color:var(--muted-docs); text-decoration:none; }
+    .sec-nav a:hover { background:var(--accent); color:#fff; border-color:var(--accent); }
+    .manifest-tbl { width:100%; border-collapse:collapse; font-size:13px; margin:12px 0 20px; }
+    .manifest-tbl th { text-align:left; padding:8px 10px; background:var(--chip); border-bottom:2px solid var(--line); font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted-docs); }
+    .manifest-tbl td { padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+    .manifest-tbl tr:hover td { background:color-mix(in srgb, var(--accent) 5%, transparent); }
+    .manifest-tbl code { font-size:12px; }
+    .cat { display:inline-block; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:700; }
+    .cat-core { background:color-mix(in srgb, #2ea8ff 15%, transparent); color:#2ea8ff; border:1px solid #2ea8ff; }
+    .cat-scan { background:color-mix(in srgb, #10b981 15%, transparent); color:#10b981; border:1px solid #10b981; }
+    .cat-rpt { background:color-mix(in srgb, #8b5cf6 15%, transparent); color:#8b5cf6; border:1px solid #8b5cf6; }
+    .cat-admin { background:color-mix(in srgb, #f59e0b 15%, transparent); color:#f59e0b; border:1px solid #f59e0b; }
+    .cat-api { background:color-mix(in srgb, #ec4899 15%, transparent); color:#ec4899; border:1px solid #ec4899; }
+    .cat-doc { background:color-mix(in srgb, #64748b 15%, transparent); color:#94a3b8; border:1px solid #64748b; }
+    .req-badge { display:inline-block; padding:2px 7px; border-radius:10px; font-size:10px; font-weight:700; }
+    .req-y { background:color-mix(in srgb, #ef4444 15%, transparent); color:#ef4444; border:1px solid #ef4444; }
+    .req-n { background:color-mix(in srgb, #10b981 15%, transparent); color:#10b981; border:1px solid #10b981; }
+    .dir-tree { font-family:Consolas,monospace; font-size:13px; line-height:1.8; padding:16px 20px; background:var(--chip); border:1px solid var(--line); border-radius:10px; margin:12px 0; }
+    .dir-tree .folder { color:#f59e0b; font-weight:700; }
+    .dir-tree .file { color:var(--muted-docs); }
+    .dir-tree .desc { color:var(--accent); font-size:12px; margin-left:8px; }
+    .flow-step { display:flex; gap:14px; align-items:flex-start; margin:10px 0; }
+    .flow-num { flex-shrink:0; width:28px; height:28px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; }
+    .flow-body { flex:1; font-size:14px; }
+    .port-tbl td:first-child { font-family:Consolas,monospace; font-weight:600; }
+    h2 { margin-top:40px; }
+    .security-note { background:color-mix(in srgb, #ef4444 8%, transparent); border:1px solid #ef4444; border-radius:8px; padding:14px 18px; margin:14px 0; font-size:13px; color:var(--text); }
+    .security-note strong { color:#ef4444; }
+    .info-note { background:color-mix(in srgb, #2ea8ff 8%, transparent); border:1px solid #2ea8ff; border-radius:8px; padding:14px 18px; margin:14px 0; font-size:13px; }
+    .info-note strong { color:#2ea8ff; }
+</style>
+</head>
+<body>
+    <div style="display:flex; gap:8px; padding:12px 32px; background:var(--card); border-bottom:1px solid var(--line); flex-wrap:wrap; font-size:13px;">
+        <a href="../index.aspx" style="color:var(--accent); text-decoration:none; font-weight:600;">&#8962; Hub</a>
+        <span style="color:var(--muted);">&bull;</span>
+        <a href="index.aspx" style="color:var(--accent); text-decoration:none; font-weight:600;">&#128196; All Docs</a>
+    </div>
+<div class="container" style="max-width:1100px;">
+
+    <!-- HEADER -->
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div>
+            <h1 style="margin-bottom:4px;">iDash &mdash; Installation &amp; Component Manifest</h1>
+            <p style="color:var(--muted-docs); margin:0; font-size:14px;">
+                VA Asset Intelligence Hub &bull; Technical Reference for OIT Security Review
+            </p>
+        </div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <span class='badge badge-db'>Database Connected</span>
+            <span class='badge' style='background:#7c3aed;color:#ede9fe;border:1px solid #a78bfa;'>Rev. 2026-07-25</span>
+            <span class='badge' style='background:color-mix(in srgb, #ef4444 15%, transparent);color:#ef4444;border:1px solid #ef4444;'>Security Review</span>
+        </div>
+    </div>
+
+    <!-- SECTION NAV -->
+    <nav class="sec-nav">
+        <a href="#sec-overview">Overview</a>
+        <a href="#sec-prereqs">Prerequisites</a>
+        <a href="#sec-dir">Directory Structure</a>
+        <a href="#sec-dlls">DLL Dependencies</a>
+        <a href="#sec-pages">ASPX Pages</a>
+        <a href="#sec-appcode">Shared Services</a>
+        <a href="#sec-api">API Endpoints</a>
+        <a href="#sec-sql">SQL Scripts</a>
+        <a href="#sec-config">Configuration</a>
+        <a href="#sec-network">Network &amp; Ports</a>
+        <a href="#sec-security">Security Model</a>
+        <a href="#sec-dataflow">Data Flow</a>
+        <a href="#sec-printing">Printing Subsystem</a>
+    </nav>
+
+    <!-- ============================================================ -->
+    <!-- 1. OVERVIEW -->
+    <!-- ============================================================ -->
+    <div class="card" id="sec-overview">
+        <h2 style="margin-top:0;">1. System Overview</h2>
+        <table class="manifest-tbl" style="max-width:600px;">
+            <tr><td style="width:200px; font-weight:600;">Application Name</td><td>iDash (VA Asset Intelligence Hub)</td></tr>
+            <tr><td style="font-weight:600;">Publisher</td><td>ID Integration Inc.</td></tr>
+            <tr><td style="font-weight:600;">Runtime</td><td>ASP.NET Web Forms &mdash; .NET Framework 4.8</td></tr>
+            <tr><td style="font-weight:600;">Hosting Model</td><td>IIS 10+ Application Pool (Integrated Pipeline)</td></tr>
+            <tr><td style="font-weight:600;">Database</td><td>Microsoft SQL Server Express (local instance)</td></tr>
+            <tr><td style="font-weight:600;">Installation Path</td><td><code>C:\inetpub\wwwroot\iDash\</code></td></tr>
+            <tr><td style="font-weight:600;">Runs As</td><td>IIS App Pool identity (typically <code>ApplicationPoolIdentity</code>)</td></tr>
+            <tr><td style="font-weight:600;">Compilation</td><td>Source-deployed (no pre-compiled assemblies &mdash; ASP.NET JIT compiles <code>.aspx.cs</code> and <code>App_Code/</code> at runtime)</td></tr>
+            <tr><td style="font-weight:600;">External Calls</td><td>Direct SQL (localhost only) &bull; SMTP outbound (email notifications)</td></tr>
+        </table>
+        <p style="font-size:14px;">
+            iDash is a web-based asset management dashboard deployed to VA VISN servers alongside the
+            iDash inventory system. It provides barcode scanning, ENNX government reporting,
+            data import/enrichment, automated alerts, and label printing capabilities.
+            <strong>All database and API communication is local to the server</strong> &mdash;
+            no external cloud services are contacted for core functionality.
+        </p>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 2. PREREQUISITES -->
+    <!-- ============================================================ -->
+    <div class="card" id="sec-prereqs">
+        <h2 style="margin-top:0;">2. Server Prerequisites</h2>
+        <table class="manifest-tbl">
+            <tr><th>Component</th><th>Minimum Version</th><th>Purpose</th><th>Required</th></tr>
+            <tr>
+                <td><strong>Windows Server</strong></td>
+                <td>2016 or later</td>
+                <td>Operating system</td>
+                <td><span class="req-badge req-y">Required</span></td>
+            </tr>
+            <tr>
+                <td><strong>IIS (Internet Information Services)</strong></td>
+                <td>10.0</td>
+                <td>Web server hosting</td>
+                <td><span class="req-badge req-y">Required</span></td>
+            </tr>
+            <tr>
+                <td><strong>.NET Framework</strong></td>
+                <td>4.8</td>
+                <td>ASP.NET runtime (Web Forms)</td>
+                <td><span class="req-badge req-y">Required</span></td>
+            </tr>
+            <tr>
+                <td><strong>ASP.NET 4.8 (IIS Role)</strong></td>
+                <td>4.8</td>
+                <td>IIS handler mappings for <code>.aspx</code>, <code>.ashx</code>, <code>.ascx</code></td>
+                <td><span class="req-badge req-y">Required</span></td>
+            </tr>
+            <tr>
+                <td><strong>SQL Server Express</strong></td>
+                <td>2016+</td>
+                <td>Local database engine (instance: <code>.\sqlexpress</code>)</td>
+                <td><span class="req-badge req-y">Required</span></td>
+            </tr>
+            <tr>
+                <td><strong>iDash Server</strong></td>
+                <td>Current</td>
+                <td>Provides the <code>idash</code> database (direct SQL connection)</td>
+                <td><span class="req-badge req-y">Required</span></td>
+            </tr>
+            <tr>
+                <td><strong>BarTender (Seagull Scientific)</strong></td>
+                <td>2019+</td>
+                <td>Label printing templates (<code>.btw</code> files)</td>
+                <td><span class="req-badge req-n">Optional</span></td>
+            </tr>
+        </table>
+        <div class="info-note">
+            <strong>&#8505; IIS Features Required:</strong> Web Server &rarr; Application Development &rarr;
+            ASP.NET 4.8, ISAPI Extensions, ISAPI Filters. Also: Security &rarr; Windows Authentication
+            (if using integrated auth for admin pages).
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 3. DIRECTORY STRUCTURE -->
+    <!-- ============================================================ -->
+    <div class="card" id="sec-dir">
+        <h2 style="margin-top:0;">3. Directory Structure</h2>
+        <p>Complete directory layout of the iDash web application root:</p>
+        <div class="dir-tree">
+<span class="folder">iDash/</span> <span class="desc">&larr; IIS Application Root</span>
+├── <span class="folder">api/</span> <span class="desc">HTTP handlers for AJAX/scanner API endpoints</span>
+│   ├── <span class="file">LiveScanHandler.ashx</span> <span class="desc">WebSocket-like live scan relay</span>
+│   └── <span class="file">v_asset.ashx</span> <span class="desc">Asset lookup API for barcode scanners</span>
+├── <span class="folder">App_Code/</span> <span class="desc">Shared C# classes (JIT compiled at runtime)</span>
+│   ├── <span class="file">AlertingService.cs</span> <span class="desc">Email notification &amp; alert engine</span>
+│   ├── <span class="file">EmailHelper.cs</span> <span class="desc">SMTP mail composition &amp; delivery</span>
+│   ├── <span class="file">LiveScanService.cs</span> <span class="desc">Multi-station live scan coordination</span>
+│   ├── <span class="file">RecompileTrigger.cs</span> <span class="desc">Forces ASP.NET recompile on deploy</span>
+│   ├── <span class="file">UserManager.cs</span> <span class="desc">Role-based access control &amp; session management</span>
+│   └── <span class="file">VAssetData.cs</span> <span class="desc">Asset data helper models</span>
+├── <span class="folder">App_Data/</span> <span class="desc">Application data (role configs, user stores)</span>
+├── <span class="folder">Assets/</span>
+│   └── <span class="folder">branding/</span> <span class="desc">Logo images (rfid.png, IDIntegration.jpg)</span>
+├── <span class="folder">bin/</span> <span class="desc">Third-party DLL dependencies (see Section 4)</span>
+├── <span class="folder">config/</span>
+│   └── <span class="file">report_automation.json</span> <span class="desc">Scheduled report definitions</span>
+├── <span class="folder">controls/</span>
+│   └── <span class="file">idashfooter.ascx</span> <span class="desc">Shared footer user control</span>
+├── <span class="folder">dashboard/</span> <span class="desc">Legacy dashboard UI (Alpine.js + Chart.js SPA)</span>
+│   ├── <span class="folder">css/</span> <span class="desc">Dashboard stylesheets</span>
+│   ├── <span class="folder">dat/</span> <span class="desc">Dashboard data files</span>
+│   └── <span class="folder">js/</span> <span class="desc">Client-side JS libraries &amp; app logic</span>
+├── <span class="folder">documentation/</span> <span class="desc">&larr; Technical documentation hub (70 files)</span>
+├── <span class="folder">downloads/</span>
+│   └── <span class="folder">Scripts/</span> <span class="desc">SQL scripts for data import &amp; maintenance</span>
+├── <span class="folder">logs/</span> <span class="desc">Runtime application logs</span>
+├── <span class="folder">printing/</span> <span class="desc">BarTender templates, spooler scripts, routing config</span>
+├── <span class="folder">site_maps/</span> <span class="desc">VA facility floor plan images (104 files)</span>
+├── <span class="folder">temp/</span> <span class="desc">Temporary upload staging</span>
+├── <span class="file">web.config</span> <span class="desc">IIS/ASP.NET configuration (connection strings, app settings)</span>
+├── <span class="file">theme.css</span> <span class="desc">Global CSS design system (dark/light theme)</span>
+├── <span class="file">theme-init.js</span> <span class="desc">Theme preference loader</span>
+├── <span class="file">sw.js</span> <span class="desc">Service worker for offline caching</span>
+├── <span class="file">manifest.json</span> <span class="desc">PWA manifest for mobile install</span>
+├── <span class="file">*.aspx / *.aspx.cs</span> <span class="desc">59 web form pages (see Section 5)</span>
+├── <span class="file">*.sql</span> <span class="desc">SQL scripts duplicated to root for runtime access</span>
+└── <span class="file">*.json</span> <span class="desc">Header mappings, print config, training modules</span>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 4. DLL DEPENDENCIES -->
+    <!-- ============================================================ -->
+    <div class="card" id="sec-dlls">
+        <h2 style="margin-top:0;">4. DLL Dependencies (<code>bin/</code>)</h2>
+        <p>All third-party libraries deployed in the <code>bin/</code> directory. These are the <strong>only</strong>
+           non-framework assemblies required. No NuGet package restore or build step is needed at deployment.</p>
+        <table class="manifest-tbl">
+            <tr>
+                <th>Assembly</th>
+                <th>Size</th>
+                <th>Purpose</th>
+                <th>License</th>
+                <th>Network Access</th>
+            </tr>
+            <tr>
+                <td><strong><code>ClosedXML.dll</code></strong></td>
+                <td>1,157 KB</td>
+                <td>Excel spreadsheet generation &amp; parsing (.xlsx). Used by data import (<code>va_dbupdate</code>, <code>va_dbupdate_workbench</code>), Excel export, site maps, and report generators. Replaced EPPlus (09/2026).</td>
+                <td>MIT</td>
+                <td><span class="req-badge req-n">None</span></td>
+            </tr>
+            <tr>
+                <td><strong><code>ExcelNumberFormat.dll</code></strong></td>
+                <td>28 KB</td>
+                <td>ECMA-376 number format parsing library supporting ClosedXML numeric and date conversions.</td>
+                <td>MIT</td>
+                <td><span class="req-badge req-n">None</span></td>
+            </tr>
+            <tr>
+                <td><strong><code>DocumentFormat.OpenXml.dll</code></strong></td>
+                <td>5,969 KB</td>
+                <td>Microsoft Open XML SDK &mdash; low-level OOXML document manipulation. Underlying foundation for ClosedXML.</td>
+                <td>MIT (Microsoft)</td>
+                <td><span class="req-badge req-n">None</span></td>
+            </tr>
+            <tr>
+                <td><strong><code>Microsoft.IO.RecyclableMemoryStream.dll</code></strong></td>
+                <td>37 KB</td>
+                <td>Memory-efficient stream pooling library for high-throughput stream processing without GC pressure.</td>
+                <td>MIT (Microsoft)</td>
+                <td><span class="req-badge req-n">None</span></td>
+            </tr>
+            <tr>
+                <td><strong><code>MQTTnet.dll</code></strong></td>
+                <td>296 KB</td>
+                <td>High-performance managed MQTT reader client library for real-time RFID message telemetry.</td>
+                <td>MIT</td>
+                <td><span class="req-badge req-n">None</span></td>
+            </tr>
+            <tr>
+                <td><strong><code>WindowsBase.dll</code></strong></td>
+                <td>1,274 KB</td>
+                <td>.NET Framework base library for packaging (ZIP/OPC). Required by Open XML SDK for .xlsx package operations.</td>
+                <td>Microsoft .NET Framework EULA</td>
+                <td><span class="req-badge req-n">None</span></td>
+            </tr>
+        </table>
+        <div class="security-note">
+            <strong>&#128274; Security Note:</strong> No DLL in the <code>bin/</code> directory makes outbound network
+            connections. All libraries operate strictly on in-memory or local file data.
+            No code signing or GAC registration is required &mdash; ASP.NET loads assemblies from the
+            application's <code>bin/</code> directory via standard shadow copy.
+        </div>
+
+        <h3>Framework Dependencies (provided by .NET 4.8, not deployed)</h3>
+        <table class="manifest-tbl">
+            <tr><th>Namespace</th><th>Used For</th></tr>
+            <tr><td><code>System.Data.SqlClient</code></td><td>ADO.NET database access to SQL Server</td></tr>
+            <tr><td><code>System.Net.Mail</code></td><td>SMTP email delivery</td></tr>
+            <tr><td><code>System.Net.Http</code></td><td>REST API calls to local iDash API</td></tr>
+            <tr><td><code>System.Web</code></td><td>ASP.NET Web Forms infrastructure</td></tr>
+            <tr><td><code>System.Web.Script.Serialization</code></td><td>JSON serialization for AJAX responses</td></tr>
+            <tr><td><code>System.Configuration</code></td><td>web.config reader</td></tr>
+            <tr><td><code>System.IO</code></td><td>File I/O for uploads, logs, and temp files</td></tr>
+        </table>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 5. ASPX PAGES -->
+    <!-- ============================================================ -->
+    <div class="card" id="sec-pages">
+        <h2 style="margin-top:0;">5. Application Pages (59 ASPX Web Forms)</h2>
+        <p>Every <code>.aspx</code> page has a corresponding <code>.aspx.cs</code> code-behind file.
+           Pages are categorized by functional area below.</p>
+
+        <h3>Core / Navigation</h3>
+        <table class="manifest-tbl">
+            <tr><th>Page</th><th>Purpose</th><th>Category</th></tr>
+            <tr><td><code>index.aspx</code></td><td>Main hub dashboard &mdash; navigation, system status, connection health</td><td><span class="cat cat-core">Core</span></td></tr>
+            <tr><td><code>va_site_config.aspx</code></td><td>New VISN deployment setup wizard &mdash; writes to <code>web.config</code></td><td><span class="cat cat-admin">Admin</span></td></tr>
+            <tr><td><code>va_user_management.aspx</code></td><td>Role-based user access control panel</td><td><span class="cat cat-admin">Admin</span></td></tr>
+            <tr><td><code>va_training.aspx</code></td><td>Interactive training modules for field technicians</td><td><span class="cat cat-core">Core</span></td></tr>
+            <tr><td><code>va_downloads.aspx</code></td><td>File download portal (scripts, templates, documentation)</td><td><span class="cat cat-core">Core</span></td></tr>
+        </table>
+
+        <h3>Scanning &amp; Inventory</h3>
+        <table class="manifest-tbl">
+            <tr><th>Page</th><th>Purpose</th><th>Category</th></tr>
+            <tr><td><code>va_tagteam_scan.aspx</code></td><td>Primary barcode scanning &mdash; real-time DB writes, tag/untag, multi-user</td><td><span class="cat cat-scan">Scan</span></td></tr>
+            <tr><td><code>universal_scan.aspx</code></td><td>Universal barcode scanner (cross-site compatible)</td><td><span class="cat cat-scan">Scan</span></td></tr>
+            <tr><td><code>ennx_live_scan.aspx</code></td><td>Live scan with real-time ENNX generation</td><td><span class="cat cat-scan">Scan</span></td></tr>
+            <tr><td><code>va_eil_live_scan.aspx</code></td><td>EIL parts list live scan with ENNX output</td><td><span class="cat cat-scan">Scan</span></td></tr>
+            <tr><td><code>va_ennx_live_scan.aspx</code></td><td>ENNX-focused live scan interface</td><td><span class="cat cat-scan">Scan</span></td></tr>
+            <tr><td><code>va_inventory.aspx</code></td><td><strong>Mobile Sweep &amp; Physical Inventory (09/2026)</strong> &mdash; High-throughput handheld scanning engine for Zebra TC53/TC530e with RFD40/RFD90 sleds. Zero-lag continuous trigger-held sweeps (30&ndash;50 tags/sec) using in-memory <code>_manifestMap</code> indexing. Location barcode auto-detection (<code>SP*</code>), EE tag normalization (F-padding strip), 4-color status feedback, dual-tone Web Audio beeper, batch atomic commit (<code>CommitInventory</code>), 16 toggleable columns, and ClosedXML Excel export.</td><td><span class="cat cat-scan">Scan</span></td></tr>
+            <tr><td><code>va_notifications.aspx</code></td><td><strong>iDash Notifications &amp; Asset Watch List</strong> &mdash; In-app visual operations dashboard for tracking critical equipment, live room sweep detections, and real-time location mismatch alerts.</td><td><span class="cat cat-scan">Scan</span></td></tr>
+            <tr><td><code>va_zebra_browser_test.aspx</code></td><td><strong>Zebra Enterprise Browser Diagnostic</strong> &mdash; Hardware test harness for Zebra mobile computers. Validates Enterprise Browser JavaScript APIs (<code>EB.Barcode</code>, <code>EB.RFID</code>), trigger handlers, and scanner subsystem status.</td><td><span class="cat cat-scan">Scan</span></td></tr>
+            <tr><td><code>va_rfid_locator.aspx</code></td><td><strong>RFID Asset Locator (07/24/2026)</strong> &mdash; Dedicated missing-asset hunting tool. Pre-load target assets, scan with Zebra handheld, geiger counter-style proximity meter, audio feedback, WebSerial USB support. 3-tier tag matching: exact, substring, EE-number fuzzy (after F-padding strip). Raw read debug log. LookupAssets WebMethod with space-agnostic SQL normalization. Tile key: <code>scan_inventory</code>.</td><td><span class="cat cat-scan">Scan</span></td></tr>
+            <tr><td><code>va_reader_config.aspx</code></td><td><strong>Fixed Reader Configuration (07/24/2026)</strong> &mdash; Manages fixed infrastructure RFID reader registrations. Add/edit/delete readers, configure antenna ports and power levels, discover hardware on network, live online/offline status. Communicates via direct SQL queries. Per-site location filtering via <code>UserManager.BuildSiteFilter()</code>. Tile key: <code>admin_readers</code>.</td><td><span class="cat cat-api">API</span></td></tr>
+            <tr><td><code>loc_check3.aspx</code></td><td>Location verification scanner</td><td><span class="cat cat-scan">Scan</span></td></tr>
+            <tr><td><code>aw_scan_api.aspx</code></td><td>Scanner API bridge page</td><td><span class="cat cat-api">API</span></td></tr>
+        </table>
+
+        <h3>ENNX Reporting</h3>
+        <table class="manifest-tbl">
+            <tr><th>Page</th><th>Purpose</th><th>Category</th></tr>
+            <tr><td><code>va_ennx.aspx</code></td><td>ENNX Export Dashboard &mdash; generate, preview, download, email ENNX files</td><td><span class="cat cat-rpt">Report</span></td></tr>
+            <tr><td><code>va_ennx_mobile.aspx</code></td><td>Mobile-optimized ENNX interface</td><td><span class="cat cat-rpt">Report</span></td></tr>
+            <tr><td><code>va_ennx_test.aspx</code></td><td>ENNX diagnostic and testing page</td><td><span class="cat cat-rpt">Report</span></td></tr>
+            <tr><td><code>va_universal_ennx.aspx</code></td><td>Cross-site universal ENNX generation</td><td><span class="cat cat-rpt">Report</span></td></tr>
+            <tr><td><code>ennx_batch.aspx</code></td><td>Batch ENNX diagnostics &mdash; multi-day review with anomaly detection</td><td><span class="cat cat-rpt">Report</span></td></tr>
+            <tr><td><code>ennxhistory.aspx</code></td><td>ENNX submission history viewer</td><td><span class="cat cat-rpt">Report</span></td></tr>
+        </table>
+
+        <h3>Data Management &amp; Import</h3>
+        <table class="manifest-tbl">
+            <tr><th>Page</th><th>Purpose</th><th>Category</th></tr>
+            <tr><td><code>va_dbupdate.aspx</code></td><td>Manual database update &mdash; upload VA data files, execute SQL import scripts</td><td><span class="cat cat-admin">Admin</span></td></tr>
+            <tr><td><code>va_autodbupdate.aspx</code></td><td>Automated scheduled DB update runner</td><td><span class="cat cat-admin">Admin</span></td></tr>
+            <tr><td><code>va_sql_upload.aspx</code></td><td>Direct SQL script upload and execution</td><td><span class="cat cat-admin">Admin</span></td></tr>
+            <tr><td><code>va_db_restore.aspx</code></td><td>Database backup/restore management</td><td><span class="cat cat-admin">Admin</span></td></tr>
+            <tr><td><code>va_field_sync.aspx</code></td><td>Field data synchronization between systems</td><td><span class="cat cat-admin">Admin</span></td></tr>
+            <tr><td><code>va_excel.aspx</code></td><td>Excel-based data processing interface</td><td><span class="cat cat-admin">Admin</span></td></tr>
+            <tr><td><code>va_data_quality.aspx</code></td><td>Data quality analysis and duplicate detection</td><td><span class="cat cat-admin">Admin</span></td></tr>
+            <tr><td><code>va_data_research.aspx</code></td><td>Ad-hoc data research and querying</td><td><span class="cat cat-admin">Admin</span></td></tr>
+            <tr><td><code>va_sitedata_export.aspx</code></td><td>Full site data export for backup or migration</td><td><span class="cat cat-admin">Admin</span></td></tr>
+            <tr><td><code>va_convert_maps.aspx</code></td><td>Location map conversion utility</td><td><span class="cat cat-admin">Admin</span></td></tr>
+        </table>
+
+        <h3>Reports &amp; Analytics</h3>
+        <table class="manifest-tbl">
+            <tr><th>Page</th><th>Purpose</th><th>Category</th></tr>
+            <tr><td><code>va_asset_stats.aspx</code></td><td>Asset statistics and count breakdowns</td><td><span class="cat cat-rpt">Report</span></td></tr>
+            <tr><td><code>va_cmr_stats.aspx</code></td><td>CMR/EIL field statistics and coverage</td><td><span class="cat cat-rpt">Report</span></td></tr>
+            <tr><td><code>va_tag_stats.aspx</code></td><td>Tagging progress statistics</td><td><span class="cat cat-rpt">Report</span></td></tr>
+            <tr><td><code>va_tag_audit_report.aspx</code></td><td>Tag audit trail report</td><td><span class="cat cat-rpt">Report</span></td></tr>
+            <tr><td><code>va_idi_tagging_reports.aspx</code></td><td>IDI contractor tagging reports</td><td><span class="cat cat-rpt">Report</span></td></tr>
+            <tr><td><code>report_inventoried.aspx</code></td><td>Inventoried assets report</td><td><span class="cat cat-rpt">Report</span></td></tr>
+            <tr><td><code>va_report_inventoried.aspx</code></td><td>VA-specific inventoried assets report</td><td><span class="cat cat-rpt">Report</span></td></tr>
+            <tr><td><code>va_not_in_use.aspx</code></td><td>Assets not in use / disposal candidates</td><td><span class="cat cat-rpt">Report</span></td></tr>
+            <tr><td><code>va_assets_by_location.aspx</code></td><td>Asset inventory grouped by physical location</td><td><span class="cat cat-rpt">Report</span></td></tr>
+            <tr><td><code>va_previous_location.aspx</code></td><td>Location change history tracking</td><td><span class="cat cat-rpt">Report</span></td></tr>
+            <tr><td><code>va_location_list.aspx</code></td><td>Master location directory</td><td><span class="cat cat-rpt">Report</span></td></tr>
+            <tr><td><code>va_log_viewer.aspx</code></td><td>Application log viewer</td><td><span class="cat cat-admin">Admin</span></td></tr>
+        </table>
+
+        <h3>Automation &amp; Scheduling</h3>
+        <table class="manifest-tbl">
+            <tr><th>Page</th><th>Purpose</th><th>Category</th></tr>
+            <tr><td><code>va_automated_reports.aspx</code></td><td>System Automations &mdash; SMTP, per-site email routing, alert triggers, daily report scheduler. <strong>Accessed via System Configuration.</strong></td><td><span class="cat cat-admin">Admin</span></td></tr>
+            <tr><td><code>va_report_automator_runner.aspx</code></td><td>Cron-triggered report execution endpoint (Task Scheduler target)</td><td><span class="cat cat-api">API</span></td></tr>
+        </table>
+
+        <h3>Printing &amp; Mapping</h3>
+        <table class="manifest-tbl">
+            <tr><th>Page</th><th>Purpose</th><th>Category</th></tr>
+            <tr><td><code>va_tag_type.aspx</code></td><td>Tag type management and label selection</td><td><span class="cat cat-core">Core</span></td></tr>
+            <tr><td><code>va_print_mapping.aspx</code></td><td>Map barcode types to print templates</td><td><span class="cat cat-admin">Admin</span></td></tr>
+            <tr><td><code>va_printer_routing.aspx</code></td><td>Printer routing by location/station</td><td><span class="cat cat-admin">Admin</span></td></tr>
+            <tr><td><code>va_site_maps.aspx</code></td><td>Interactive facility floor plans</td><td><span class="cat cat-core">Core</span></td></tr>
+        </table>
+
+        <h3>API Pages</h3>
+        <table class="manifest-tbl">
+            <tr><th>Page</th><th>Purpose</th><th>Category</th></tr>
+            <tr><td><code>va_asset_api.aspx</code></td><td>Asset data API bridge for external integrations</td><td><span class="cat cat-api">API</span></td></tr>
+        </table>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 6. APP_CODE SHARED SERVICES -->
+    <!-- ============================================================ -->
+    <div class="card" id="sec-appcode">
+        <h2 style="margin-top:0;">6. Shared Services (<code>App_Code/</code>)</h2>
+        <p>These C# classes are JIT-compiled by ASP.NET at runtime and shared across all pages.
+           No pre-compilation or build step is required.</p>
+        <table class="manifest-tbl">
+            <tr><th>File</th><th>Size</th><th>Responsibility</th><th>External Calls</th></tr>
+            <tr>
+                <td><strong><code>UserManager.cs</code></strong></td>
+                <td>21.5 KB</td>
+                <td>Role-based access control, session management, login/logout, page permission checks (<code>CanSee()</code>, <code>CanSeeAny()</code>). Stores user roles in <code>App_Data/</code>.</td>
+                <td>None &mdash; local file I/O only</td>
+            </tr>
+            <tr>
+                <td><strong><code>AlertingService.cs</code></strong></td>
+                <td>7.2 KB</td>
+                <td>Alert engine &mdash; monitors asset conditions and dispatches notifications via SMTP email.</td>
+                <td>SMTP (outbound port 587)</td>
+            </tr>
+            <tr>
+                <td><strong><code>EmailHelper.cs</code></strong></td>
+                <td>5.9 KB</td>
+                <td>SMTP mail composition and delivery. Reads <code>web.config</code> for SMTP host/port/credentials. Used by ENNX email, automated reports, and alerts.</td>
+                <td>SMTP (outbound port 587)</td>
+            </tr>
+            <tr>
+                <td><strong><code>LiveScanService.cs</code></strong></td>
+                <td>5.1 KB</td>
+                <td>Multi-station live scan coordination. Manages concurrent scan sessions and real-time data relay between the scanner handler and web UI.</td>
+                <td>None &mdash; in-memory state only</td>
+            </tr>
+            <tr>
+                <td><strong><code>VAssetData.cs</code></strong></td>
+                <td>0.6 KB</td>
+                <td>Lightweight data model class for asset lookup results.</td>
+                <td>None</td>
+            </tr>
+            <tr>
+                <td><strong><code>RecompileTrigger.cs</code></strong></td>
+                <td>0.2 KB</td>
+                <td>Utility to force ASP.NET App_Code recompilation on deployment.</td>
+                <td>None</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 7. API ENDPOINTS -->
+    <!-- ============================================================ -->
+    <div class="card" id="sec-api">
+        <h2 style="margin-top:0;">7. API Endpoints (<code>api/</code>)</h2>
+        <table class="manifest-tbl">
+            <tr><th>Endpoint</th><th>Type</th><th>Purpose</th><th>Auth</th></tr>
+            <tr>
+                <td><code>/iDash/api/v_asset.ashx</code></td>
+                <td>HTTP GET (ASHX handler)</td>
+                <td>Asset lookup by barcode/name. Returns JSON. Called by scanner pages via AJAX.</td>
+                <td>Session-based (requires login)</td>
+            </tr>
+            <tr>
+                <td><code>/iDash/api/LiveScanHandler.ashx</code></td>
+                <td>HTTP (long-poll ASHX handler)</td>
+                <td>Real-time scan relay. Receives scan events from mobile devices and pushes to listening web clients.</td>
+                <td>Session-based (requires login)</td>
+            </tr>
+            <tr>
+                <td><code>/iDash/api/va_remote_import.ashx</code></td>
+                <td>HTTP POST (ASHX handler)</td>
+                <td>Remote database bulk staging and upsert pipeline (PowerShell / SqlBulkCopy). Enforces tenant company ID boundary.</td>
+                <td>Fail-closed <code>X-Api-Key</code> header or admin session (NIST SP 800-53 Rev. 5 AC-3, SC-7)</td>
+            </tr>
+        </table>
+        <div class="info-note">
+            <strong>&#8505; Secure Endpoint Architecture:</strong> All endpoints enforce fail-closed authorization. Browser AJAX endpoints require active session authentication, while remote headless automated ingestion requires cryptographically verified <code>X-Api-Key</code> tokens with facility multi-tenant isolation.
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 8. SQL SCRIPTS -->
+    <!-- ============================================================ -->
+    <div class="card" id="sec-sql">
+        <h2 style="margin-top:0;">8. SQL Scripts</h2>
+        <p>SQL scripts are stored in two locations: the site root (for runtime access by <code>va_dbupdate.aspx</code>)
+           and <code>downloads/Scripts/</code> (for download via the portal). Complete inventory:</p>
+        <table class="manifest-tbl">
+            <tr><th>Script</th><th>Size</th><th>Purpose</th><th>When Used</th></tr>
+            <tr>
+                <td><strong><code>va_dbupdate.sql</code></strong></td>
+                <td>25.3 KB</td>
+                <td>Primary asset import &mdash; MERGE upsert from staging table to <code>dbo.asset</code>. VISN-agnostic (auto-detects station via 3-digit prefix match).</td>
+                <td>Each data import (Pass 2)</td>
+            </tr>
+            <tr>
+                <td><strong><code>va_dbupdate_upsert_enrich.sql</code></strong></td>
+                <td>26.1 KB</td>
+                <td>Enrichment pass &mdash; inserts new assets and fills blank fields on existing records without overwriting populated data.</td>
+                <td>Each data import (Pass 1)</td>
+            </tr>
+            <tr>
+                <td><strong><code>va_dbupdate_dryrun.sql</code></strong></td>
+                <td>13.4 KB</td>
+                <td>Dry-run preview &mdash; loads data into staging tables and outputs it for review. <strong>Does NOT insert or update</strong> any live asset/location tables.</td>
+                <td>Pre-import verification</td>
+            </tr>
+            <tr>
+                <td><strong><code>va_cmr_recovery.sql</code></strong></td>
+                <td>5.1 KB</td>
+                <td>Recovers CMR/EIL values from historical backup data for assets where the field was accidentally cleared.</td>
+                <td>One-time recovery</td>
+            </tr>
+            <tr>
+                <td><strong><code>va_field_sync_merge.sql</code></strong></td>
+                <td>12.4 KB</td>
+                <td>Synchronizes field data between source systems.</td>
+                <td>On-demand</td>
+            </tr>
+            <tr>
+                <td><strong><code>va_ntwksvr.sql</code></strong></td>
+                <td>20.1 KB</td>
+                <td>Network server asset import script for NTWKSVR-type records.</td>
+                <td>NTWKSVR data loads</td>
+            </tr>
+            <tr>
+                <td><strong><code>va_ennx_location_update.sql</code></strong></td>
+                <td>6.2 KB</td>
+                <td>Bulk updates location fields for ENNX alignment.</td>
+                <td>Location remediation</td>
+            </tr>
+            <tr>
+                <td><strong><code>company_cleanup.sql</code></strong></td>
+                <td>2.8 KB</td>
+                <td>Removes orphaned company records and consolidates duplicates.</td>
+                <td>Post-import cleanup</td>
+            </tr>
+            <tr>
+                <td><strong><code>excel_asset_import.sql</code></strong></td>
+                <td>5.4 KB</td>
+                <td>Excel-based asset import for non-standard data sources.</td>
+                <td>On-demand</td>
+            </tr>
+            <tr>
+                <td><strong><code>fix_duplicate_locations.sql</code></strong></td>
+                <td>3.4 KB</td>
+                <td>Identifies and deduplicates location entries that share the same name and company.</td>
+                <td>Post-import cleanup</td>
+            </tr>
+            <tr>
+                <td><strong><code>delete_null_assets.sql</code></strong></td>
+                <td>0.8 KB</td>
+                <td>Removes orphaned asset records with NULL name or key fields.</td>
+                <td>Post-import cleanup</td>
+            </tr>
+            <tr>
+                <td><strong><code>update_ee_cmr.sql</code></strong></td>
+                <td>1.4 KB</td>
+                <td>Corrects EE-prefixed CMR values on assets that were improperly tagged.</td>
+                <td>One-time correction</td>
+            </tr>
+            <tr>
+                <td><strong><code>va_ennx_test_diag.sql</code></strong></td>
+                <td>1.5 KB</td>
+                <td>Diagnostic query for ENNX export troubleshooting &mdash; checks counts and field completeness.</td>
+                <td>Troubleshooting</td>
+            </tr>
+            <tr>
+                <td><strong><code>Prescott_DB_Update.sql</code></strong></td>
+                <td>23 KB</td>
+                <td>Prescott (Station 649) site-specific import variant with custom field mappings.</td>
+                <td>Prescott data loads</td>
+            </tr>
+        </table>
+        <div class="security-note">
+            <strong>&#128274; SQL Execution Security:</strong> Import scripts (<code>va_dbupdate.sql</code>, <code>va_dbupdate_upsert_enrich.sql</code>) are loaded
+            as raw SQL text and executed via <code>SqlCommand</code> using the configured SQL authentication credentials.
+            The company setup SQL on <code>va_site_config.aspx</code> uses parameterized <code>@station</code> and <code>@companyName</code> parameters
+            to prevent SQL injection.
+            Scripts use <code>IF NOT EXISTS</code> guards and <code>MERGE</code> statements to prevent data loss.
+            No <code>xp_cmdshell</code>, <code>OPENROWSET</code>, or dynamic SQL with user input is used.
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 9. CONFIGURATION -->
+    <!-- ============================================================ -->
+    <div class="card" id="sec-config">
+        <h2 style="margin-top:0;">9. Configuration Reference (<code>web.config</code>)</h2>
+        <p>All site-specific settings live in <code>web.config</code>. The <code>va_site_config.aspx</code> page
+           provides a GUI to modify these without editing the file directly.</p>
+
+        <h3><code>&lt;connectionStrings&gt;</code></h3>
+        <table class="manifest-tbl">
+            <tr><th>Key</th><th>Description</th><th>Required</th></tr>
+            <tr>
+                <td><code>iDash</code></td>
+                <td>Full SQL connection string: <code>Data Source=.\sqlexpress; Database=iDash; User ID=...; Password=...</code></td>
+                <td><span class="req-badge req-y">Required</span></td>
+            </tr>
+        </table>
+
+        <h3><code>&lt;appSettings&gt;</code></h3>
+        <table class="manifest-tbl">
+            <tr><th>Key</th><th>Description</th><th>Required</th></tr>
+            <tr><td><code>SMTP_Host</code></td><td>Outbound mail server (e.g., <code>smtp.office365.com</code>)</td><td><span class="req-badge req-y">Required</span></td></tr>
+            <tr><td><code>SMTP_Port</code></td><td>SMTP port (typically <code>587</code> for TLS)</td><td><span class="req-badge req-y">Required</span></td></tr>
+            <tr><td><code>SMTP_User</code></td><td>SMTP authentication username</td><td><span class="req-badge req-y">Required</span></td></tr>
+            <tr><td><code>SMTP_Password</code></td><td>SMTP authentication password</td><td><span class="req-badge req-y">Required</span></td></tr>
+            <tr><td><code>SMTP_FromEmail</code></td><td>Sender email address displayed on outbound messages</td><td><span class="req-badge req-y">Required</span></td></tr>
+            <tr><td><code>SMTP_FromName</code></td><td>Sender display name (e.g., <code>iDash VISN 8 Reports</code>)</td><td><span class="req-badge req-y">Required</span></td></tr>
+            <tr><td><code>Default_EmailSubject</code></td><td>Global default subject line for automated emails (leave blank for dynamic subjects)</td><td><span class="req-badge req-n">Optional</span></td></tr>
+            <tr><td><code>EmailRecipients</code></td><td>Comma-separated admin alert recipients</td><td><span class="req-badge req-y">Required</span></td></tr>
+            <tr><td><code>SmsAlertsEnabled</code></td><td><code>true</code>/<code>false</code> &mdash; global kill-switch for all email notifications</td><td><span class="req-badge req-n">Optional</span></td></tr>
+            <tr><td><code>Alert_DbFolderMissing</code></td><td><code>true</code>/<code>false</code> &mdash; alert when the DB backup folder is missing</td><td><span class="req-badge req-n">Optional</span></td></tr>
+            <tr><td><code>Alert_DbCrash</code></td><td><code>true</code>/<code>false</code> &mdash; alert on database connection failure</td><td><span class="req-badge req-n">Optional</span></td></tr>
+            <tr><td><code>Alert_PrintFailure</code></td><td><code>true</code>/<code>false</code> &mdash; alert on print job failure</td><td><span class="req-badge req-n">Optional</span></td></tr>
+            <tr><td><code>Alert_TagAuditReport</code></td><td><code>true</code>/<code>false</code> &mdash; enable daily tag audit report</td><td><span class="req-badge req-n">Optional</span></td></tr>
+            <tr><td><code>Report_Ennx</code></td><td><code>true</code>/<code>false</code> &mdash; enables daily automated ENNX report</td><td><span class="req-badge req-n">Optional</span></td></tr>
+            <tr><td><code>Report_Stats</code></td><td><code>true</code>/<code>false</code> &mdash; enables daily automated stats report</td><td><span class="req-badge req-n">Optional</span></td></tr>
+            <tr><td><code>SmsRecipients_Report_Ennx</code></td><td>ENNX report delivery targets (email or Teams webhook)</td><td><span class="req-badge req-n">Optional</span></td></tr>
+            <tr><td><code>SmsRecipients_Report_Stats</code></td><td>Stats report delivery targets (email or Teams webhook)</td><td><span class="req-badge req-n">Optional</span></td></tr>
+        </table>
+
+        <h3><code>&lt;system.web&gt;</code> Runtime Settings</h3>
+        <table class="manifest-tbl">
+            <tr><th>Setting</th><th>Value</th><th>Purpose</th></tr>
+            <tr><td><code>httpRuntime maxRequestLength</code></td><td>1,048,576 KB (1 GB)</td><td>Allows large VA data file uploads</td></tr>
+            <tr><td><code>httpRuntime executionTimeout</code></td><td>Extended</td><td>Prevents timeout during long SQL import operations</td></tr>
+            <tr><td><code>compilation targetFramework</code></td><td>4.8</td><td>.NET Framework compilation target</td></tr>
+            <tr><td><code>compilation debug</code></td><td>true</td><td>Debug mode (should be <code>false</code> in production for performance)</td></tr>
+        </table>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 10. NETWORK & PORTS -->
+    <!-- ============================================================ -->
+    <div class="card" id="sec-network">
+        <h2 style="margin-top:0;">10. Network Communication &amp; Ports</h2>
+        <table class="manifest-tbl port-tbl">
+            <tr><th>Port</th><th>Direction</th><th>Protocol</th><th>Destination</th><th>Purpose</th></tr>
+            <tr>
+                <td>80 / 443</td>
+                <td>Inbound</td>
+                <td>HTTP / HTTPS</td>
+                <td>IIS (iDash)</td>
+                <td>Web application access for users</td>
+            </tr>
+            <tr>
+                <td>8181</td>
+                <td>Inbound</td>
+                <td>HTTP</td>
+                <td>IIS (iDash Standalone)</td>
+                <td>Alternative root site listening port during platform rollout</td>
+            </tr>
+            <tr>
+                <td>1433</td>
+                <td>Localhost only</td>
+                <td>TDS (SQL Server)</td>
+                <td><code>.\sqlexpress</code></td>
+                <td>Database queries (ADO.NET <code>SqlConnection</code>)</td>
+            </tr>
+            <tr>
+                <td>587</td>
+                <td>Outbound</td>
+                <td>SMTP + TLS</td>
+                <td>Configured SMTP server</td>
+                <td>Email delivery (reports, alerts)</td>
+            </tr>
+        </table>
+        <div class="info-note">
+            <strong>&#127760; Configurable Listening Ports &amp; Automated Rollout:</strong> Administrators can change the active listening port (e.g. 80, 443, 8181) directly from the <strong>Server Protocol &amp; Listening Port</strong> section on <code>va_site_config.aspx</code>.
+            Saving automatically synchronizes <code>web.config</code>, the automated report runner (<code>AutoReportRunner.ps1</code>), remote database update scripts (<code>remote_db_update.ps1</code>), report automation configuration (<code>report_automation.json</code>), and BarTender print server authentication (<code>printserver_appsettings.json</code>).
+            Administrators can download or execute the generated <code>apply_server_port.ps1</code> PowerShell script with elevation to automatically bind the target port in IIS and configure the Windows Firewall rule.
+        </div>
+        <div class="security-note">
+            <strong>&#128274; Firewall Summary:</strong> The only outbound connection is SMTP (port 587) for
+            email delivery. All database and API traffic is localhost-only. Inbound web access requires only the configured IIS listening port (typically 443 for HTTPS, 80 for HTTP, or 8181 for root-level deployment).
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 11. SECURITY MODEL -->
+    <!-- ============================================================ -->
+    <div class="card" id="sec-security">
+        <h2 style="margin-top:0;">11. Security Model</h2>
+
+        <h3>Authentication</h3>
+        <ul>
+            <li><strong>Application-level login:</strong> <code>UserManager.cs</code> manages session-based authentication.
+                Users log in through the hub page with credentials stored locally in <code>App_Data/</code>.</li>
+            <li><strong>Role-based access:</strong> Each page checks <code>CanSee("permission_key")</code> at load.
+                Pages are grouped into permission tiers (admin, reports, scanning, etc.).</li>
+            <li><strong>Password fields:</strong> Sensitive fields (SQL password, SMTP password)
+                are cleared on page load &mdash; values are never displayed back to the user.</li>
+        </ul>
+
+        <h3>Data Protection</h3>
+        <ul>
+            <li><strong>SQL Injection Prevention:</strong> All database operations use parameterized
+                <code>SqlParameter</code> objects. No string concatenation of user input into SQL.</li>
+            <li><strong>XSS Prevention:</strong> Output encoding via <code>HttpUtility.HtmlEncode()</code> on all
+                user-supplied values rendered to the page.</li>
+            <li><strong>File Upload:</strong> Uploaded data files are saved to <code>temp/</code> with generated names.
+                Only <code>.xlsx</code>, <code>.txt</code>, <code>.csv</code>, and <code>.sql</code> extensions are processed.</li>
+            <li><strong>web.config Protection:</strong> IIS blocks direct HTTP access to <code>web.config</code> by default.
+                The site config page writes to it server-side only via authenticated admin action.</li>
+        </ul>
+
+    <!-- ============================================================ -->
+    <!-- 12. DATA FLOW -->
+    <!-- ============================================================ -->
+    <div class="card" id="sec-dataflow">
+        <h2 style="margin-top:0;">12. Data Flow Architecture</h2>
+        <p>End-to-end data flow for the three primary operations:</p>
+
+        <h3>A. Asset Data Import</h3>
+        <div class="flow-step"><div class="flow-num">1</div><div class="flow-body">Admin uploads VA data file (.xlsx/.txt) via <code>va_dbupdate.aspx</code></div></div>
+        <div class="flow-step"><div class="flow-num">2</div><div class="flow-body">File saved to <code>temp/</code> &rarr; parsed by ClosedXML (Excel, MIT License) or <code>StreamReader</code> (text) into staging <code>DataTable</code></div></div>
+        <div class="flow-step"><div class="flow-num">3</div><div class="flow-body">SQL script loaded from site root &rarr; executed against <code>dbo.asset</code> via <code>SqlCommand</code></div></div>
+        <div class="flow-step"><div class="flow-num">4</div><div class="flow-body">Results displayed in grid &mdash; insert/update/skip counts shown</div></div>
+
+        <h3>B. Barcode Scanning (TagTeam Scan)</h3>
+        <div class="flow-step"><div class="flow-num">1</div><div class="flow-body">Technician scans barcode &rarr; AJAX call to <code>api/v_asset.ashx</code> for asset lookup</div></div>
+        <div class="flow-step"><div class="flow-num">2</div><div class="flow-body">Asset data returned as JSON &rarr; displayed in scan grid</div></div>
+        <div class="flow-step"><div class="flow-num">3</div><div class="flow-body">Asset written to <code>dbo.asset</code> immediately via <code>SaveScanToDb()</code> with <code>lastinventoried = SYSDATETIMEOFFSET()</code></div></div>
+        <div class="flow-step"><div class="flow-num">4</div><div class="flow-body">Optional: auto-print label via BarTender spooler</div></div>
+
+        <h3>C. ENNX Report Generation</h3>
+        <div class="flow-step"><div class="flow-num">1</div><div class="flow-body">User selects date range, site, user filters on <code>va_ennx.aspx</code></div></div>
+        <div class="flow-step"><div class="flow-num">2</div><div class="flow-body">Parameterized SQL query against <code>dbo.asset LEFT JOIN dbo.location</code></div></div>
+        <div class="flow-step"><div class="flow-num">3</div><div class="flow-body">Results rendered in grid + ENNX text format preview</div></div>
+        <div class="flow-step"><div class="flow-num">4</div><div class="flow-body">Download as <code>.txt</code> (ENNX format) or <code>.xls</code> (Excel HTML) or email via SMTP</div></div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 13. PRINTING SUBSYSTEM -->
+    <!-- ============================================================ -->
+    <div class="card" id="sec-printing">
+        <h2 style="margin-top:0;">13. Printing Subsystem (<code>printing/</code>)</h2>
+        <table class="manifest-tbl">
+            <tr><th>File</th><th>Type</th><th>Purpose</th></tr>
+            <tr><td><code>AW_PRINT_Template.btw</code></td><td>BarTender template</td><td>Standard asset label template</td></tr>
+            <tr><td><code>AW_Std_Small.btw</code></td><td>BarTender template</td><td>Small-format standard label</td></tr>
+            <tr><td><code>AW_Metal_Large.btw</code></td><td>BarTender template</td><td>Large metal tag label</td></tr>
+            <tr><td><code>AW_Metal_IQ350.btw</code></td><td>BarTender template</td><td>IQ350 metal tag label</td></tr>
+            <tr><td><code>printer_routing.json</code></td><td>JSON config</td><td>Maps stations/locations to physical printers</td></tr>
+            <tr><td><code>idashprintspooler.xml</code></td><td>Task config</td><td>Windows Task Scheduler definition for print spooler</td></tr>
+            <tr><td><code>Install_SpoolerTask.ps1</code></td><td>PowerShell</td><td>Installs the print spooler as a Windows Scheduled Task</td></tr>
+            <tr><td><code>Run_Bypass_Spooler.ps1</code></td><td>PowerShell</td><td>Direct-print bypass for testing</td></tr>
+        </table>
+        <div class="info-note">
+            <strong>&#8505; BarTender is optional.</strong> The printing subsystem requires Seagull Scientific
+            BarTender installed on the server. If BarTender is not present, all other iDash functionality
+            operates normally &mdash; only label printing is unavailable.
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="margin-top: 50px; padding-top: 20px; border-top:1px solid var(--line);">
+        <a href="index.aspx" style="font-weight: 600;">&larr; Back to Documentation Hub</a>
+    </div>
+</div>
+<footer style="margin-top: 40px; padding: 20px; border-top:1px solid var(--line); font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 12px; color:var(--muted-docs); display: flex; justify-content: space-between; align-items: center; background:var(--bg); max-width: 1400px; margin-left: auto; margin-right: auto;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
+        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
+        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <span>&copy; 2026 ID Integration Inc.</span>
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 14px; opacity: 0.9;">
+    </div>
+</footer>
+</body>
+</html>
+
+

@@ -1,0 +1,162 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA ASSET API &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<div class="wrap">
+    <a href="index.aspx">&larr; Back to Documentation Hub</a><br/><br/>
+
+    <div class="card">
+        <h1>&#128064; VA Asset Explorer</h1>
+        <div style="margin-bottom:12px;">
+            <span class="badge badge-db">Database Connected</span>
+            <span class="badge badge-api">Dynamic Grid Rendering</span>
+        </div>
+        <p style="font-size:16px;margin:0;">
+            The <strong>VA Asset Explorer</strong> (<code>va_asset_api.aspx</code>) is a fast, focused asset lookup tool
+            designed for rapid single-record investigation. While the <a href="va_data_research.html">Data Research Portal</a>
+            is optimized for bulk querying and spreadsheet analysis, the Asset Explorer is streamlined for quickly finding
+            one or more specific assets by barcode, description, or RFID tag and immediately viewing all key fields
+            in a scannable, column-toggled grid &mdash; ideal for field leads and administrators verifying individual records.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>Asset Explorer vs. Data Research Portal</h2>
+        <table>
+            <tr><th>Feature</th><th>Asset Explorer</th><th>Data Research Portal</th></tr>
+            <tr><td>Primary use</td><td>Quick single-asset lookup by barcode/RFID</td><td>Bulk data browsing, spreadsheet review, ad-hoc queries</td></tr>
+            <tr><td>Data sources</td><td>Live SQL only</td><td>Live SQL + uploaded Excel/CSV files</td></tr>
+            <tr><td>Default load</td><td>Latest 200 assets on page open</td><td>Latest 200 assets on page open</td></tr>
+            <tr><td>Max results</td><td>500 per search</td><td>500 per search (SQL); full file for flat-file mode</td></tr>
+            <tr><td>Column chooser</td><td>Yes &mdash; toggle any DB column</td><td>Yes &mdash; with per-column filter row</td></tr>
+            <tr><td>Site filtering</td><td>No site dropdown (global search)</td><td>Optional site dropdown filter</td></tr>
+            <tr><td>Export</td><td>Grid copy / print</td><td>Grid copy / print + CSV download</td></tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>How to Use</h2>
+        <h3>On Page Load</h3>
+        <p>
+            The page immediately queries and displays the <strong>200 most recently modified asset records</strong>
+            from <code>dbo.asset</code> ordered by <code>lastmodified DESC</code>. This gives instant visibility
+            into recent activity without needing to enter a search term.
+        </p>
+
+        <h3>Searching for Assets</h3>
+        <p>
+            Enter any of the following in the search box and click <strong>Load</strong> (or press Enter):
+        </p>
+        <ul>
+            <li><strong>EE Barcode</strong> (e.g., <code>512 EE12345</code>) &mdash; matched against <code>name</code></li>
+            <li><strong>Description keyword</strong> (e.g., <code>wheelchair</code>) &mdash; matched against <code>description</code></li>
+            <li><strong>RFID EPC tag</strong> (e.g., <code>E28068940000400158AB1234</code>) &mdash; matched against <code>rfidtag</code></li>
+            <li><strong>Partial string</strong> &mdash; all three fields are searched with <code>LIKE '%term%'</code> simultaneously</li>
+        </ul>
+
+        <div class="info">
+            <strong>&#8505; Tip:</strong> Searching a partial barcode like <code>EE123</code> will match any asset whose
+            barcode contains that string. This is useful when you only have a partial scan or a hand-written number.
+        </div>
+
+        <h3>Column Chooser</h3>
+        <p>
+            Click the <strong>Columns</strong> button to open the column chooser panel. All database columns from the
+            <code>dbo.asset</code> view are listed. Toggle any column on or off to show exactly the fields you need.
+            The default visible set includes the most commonly referenced fields:
+        </p>
+        <pre>id &bull; name &bull; description &bull; lastobservedlocation &bull; lastobservedtime
+listvalue1 &bull; text6 &bull; text8 &bull; text16 &bull; text19
+lastmodified &bull; lastmodifiedby &bull; lastinventoried &bull; companyid &bull; locationname</pre>
+
+        <h3>Clearing Results</h3>
+        <p>
+            The <strong>Clear</strong> button resets the search box and reloads the default 200 most-recent assets,
+            returning the grid to its baseline state.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>Technical Architecture</h2>
+        <p>
+            The Asset Explorer uses a fully server-rendered grid approach. On each search or page load, the C# backend
+            executes a parameterized SQL query, loads the result into a <code>DataTable</code>, and dynamically generates
+            the full HTML table including column headers, data rows, and the column chooser checkbox list. Client-side
+            JavaScript handles column toggle visibility, debounced filter input, and chooser search &mdash; all without
+            additional server round-trips after the initial render.
+        </p>
+
+        <table>
+            <tr><th>Component</th><th>File</th><th>Role</th></tr>
+            <tr><td>Frontend UI</td><td><code>va_asset_api.aspx</code></td><td>Search box, column chooser, dynamic grid display</td></tr>
+            <tr><td>Backend Logic</td><td><code>va_asset_api.aspx.cs</code></td><td>SQL query execution, DataTable rendering, column config</td></tr>
+            <tr><td>Primary Query</td><td><code>LoadFromSql(topN, search)</code></td><td>Parameterized search against <code>dbo.asset</code></td></tr>
+            <tr><td>Grid Renderer</td><td><code>RenderGrid(dt, statusMsg)</code></td><td>Generates full HTML table + JavaScript column controls</td></tr>
+            <tr><td>Column Defaults</td><td>Constant in code-behind</td><td>Pre-defined set of visible columns on load</td></tr>
+        </table>
+
+        <h3>SQL Query Executed on Search</h3>
+        <pre>SELECT TOP (@top) *
+FROM dbo.asset
+WHERE description LIKE @like
+   OR name         LIKE @like
+   OR rfidtag      LIKE @like
+ORDER BY lastmodified DESC</pre>
+
+        <h3>Key Asset Fields Reference</h3>
+        <table>
+            <tr><th>Column</th><th>Label / Meaning</th><th>Notes</th></tr>
+            <tr><td><code>name</code></td><td>EE Barcode</td><td>Primary asset identifier; format: <code>512 EE12345</code></td></tr>
+            <tr><td><code>description</code></td><td>Asset Description</td><td>Human-readable equipment name from iDash</td></tr>
+            <tr><td><code>rfidtag</code></td><td>RFID EPC</td><td>24-character hex string for RFID-tagged assets</td></tr>
+            <tr><td><code>text6</code></td><td>Current Location</td><td>SP barcode of last known physical location</td></tr>
+            <tr><td><code>text8</code></td><td>CMR Number</td><td>Government accountability grouping identifier</td></tr>
+            <tr><td><code>text16</code></td><td>Location Tagged</td><td>SP code where the tag was physically applied</td></tr>
+            <tr><td><code>text17</code></td><td>Tag Date</td><td>Date the RFID tag was physically applied</td></tr>
+            <tr><td><code>text18</code></td><td>Tagged Flag</td><td><code>1</code> = physically tagged; <code>0</code> = not yet tagged</td></tr>
+            <tr><td><code>text19</code></td><td>Tag Type</td><td>IQ350, Large_Metal, Small_Metal, Small_Standard</td></tr>
+            <tr><td><code>text13</code></td><td>Employee ID</td><td>Technician who last tagged or modified the record</td></tr>
+            <tr><td><code>lastmodified</code></td><td>Last Modified (UTC)</td><td>Timestamp of last any-field change in iDash</td></tr>
+            <tr><td><code>lastobservedtime</code></td><td>Last RFID Read</td><td>Timestamp of most recent RFID reader detection</td></tr>
+            <tr><td><code>companyid</code></td><td>Site ID</td><td>Foreign key to <code>dbo.company</code>; identifies facility</td></tr>
+            <tr><td><code>locationname</code></td><td>Location Name</td><td>Human-readable room/area name from <code>dbo.location</code></td></tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Access &amp; Security</h2>
+        <div class="ok">
+            Access is controlled via the iDash tile-key model. Users must have the <code>asset_api</code> tile key
+            in their <code>TileAccess</code> profile. Typically granted to field leads and administrators.
+            See <a href="va_user_management.html">User Management</a> for details.
+        </div>
+        <p>
+            All queries use <code>SqlParameter</code> for full SQL injection prevention. The search term is passed
+            as <code>@q</code> (exact) and <code>@like</code> (wildcard) parameters &mdash; never interpolated into
+            the SQL string directly. No raw database errors are surfaced to the browser.
+        </p>
+        <div class="warn">
+            <strong>&#9888; Read-Only:</strong> The Asset Explorer is a <em>display-only</em> tool. It does not allow editing,
+            deleting, or creating asset records. For record modifications use the iDash desktop application or
+            the appropriate iDash scanning workflow.
+        </div>
+    </div>
+
+    <div style="margin-top:20px;"><a href="index.aspx">&larr; Back to Documentation Hub</a></div>
+    <footer>
+        <span>&copy; 2026 ID Integration Inc. &mdash; iDash Documentation</span>
+        <span>iDash VA Asset Explorer</span>
+    </footer>
+</div>
+</body>
+</html>

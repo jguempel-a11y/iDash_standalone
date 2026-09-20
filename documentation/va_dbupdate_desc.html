@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA DBUPDATE DESC &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <div class="container">
+        <h1><code>va_dbupdate.sql</code> - Security and Operations Documentation</h1>
+        
+        <h2>Overview</h2>
+        <p>The <code>va_dbupdate.sql</code> script is designed to securely and efficiently import VA asset data from a flat-file extract into the iDash SQL database.</p>
+        
+        <div class="alert alert-important">
+            <strong>&#9888; Idempotent Execution (Safe for Multiple Runs)</strong>
+            <p>This script is designed to be completely safe to run multiple times. If run repeatedly against the same data file, <strong>it will ONLY insert new assets and locations</strong>. It relies on robust existence checks (e.g., checking RFID Tag, Asset Name, and Company ID combinations) before inserting any records into the production tables, ensuring no duplicate entries are ever created.</p>
+        </div>
+
+        <h2>Step-by-Step Execution Breakdown</h2>
+
+        <h3>Phase 1: Environment & Security Setup</h3>
+        <ul>
+            <li><strong>1. Permissions Adjustment:</strong> Grants the <code>idashadmin</code> service account <code>sysadmin</code> server-level privileges. This ensures the automated account has the elevated permissions required to perform bulk imports and database modifications.</li>
+            <li><strong>2. Global Session Settings:</strong> Configures execution settings (such as <code>XACT_ABORT</code> and <code>NOCOUNT</code>) to ensure that if any severe error occurs during execution, the entire transaction is rolled back safely without leaving partial data.</li>
+            <li><strong>3. Metrics Storage:</strong> Creates a temporary in-memory table (<code>#ImportStats</code>) to accurately track the number of new insertions, skipped records, and any errors encountered during the import run.</li>
+        </ul>
+
+        <h3>Phase 2: Staging Area Preparation</h3>
+        <ul>
+            <li><strong>4. Staging Tables Creation:</strong> Ensures the persistent staging tables (<code>dbo.locationtemp</code> and <code>dbo.assettemp</code>) exist in the database. These tables hold the data temporarily while transformations are applied.</li>
+            <li><strong>5. Clear Previous Staging Data:</strong> Purges any residual data left over in <code>dbo.locationtemp</code> and <code>dbo.assettemp</code> from previous runs to ensure a clean slate.</li>
+            <li><strong>6. Raw File Landing Table:</strong> Drops and recreates a raw landing table (<code>dbo.AssetFileRaw</code>) tailored exactly to the column headers expected in the source data file.</li>
+        </ul>
+
+        <h3>Phase 3: Data Ingestion</h3>
+        <ul>
+            <li><strong>7. Bulk Insert (File Ingestion):</strong> Reads the contents of the target text file (<code>C:\VA_RFID\VA On Network\allsitedata\ALLV5SITEdata.txt</code>) directly into the <code>dbo.AssetFileRaw</code> landing table utilizing SQL Server's high-speed bulk import capability.</li>
+            <li><strong>8. Mapping Raw Data to Staging:</strong> Transfers the data from the raw landing table into <code>dbo.assettemp</code>. During this transfer, initial cleansing is performed: leading/trailing spaces are trimmed off text fields, random unique identifiers are generated if entry numbers are missing, and Service Pointer ('SP') prefixes are standardized.</li>
+        </ul>
+
+        <h3>Phase 4: Data Transformation & Normalization</h3>
+        <ul>
+            <li><strong>9. Compute Identifiers & Relationships:</strong>
+                <ul>
+                    <li>Analyzes asset names to standardizes their formatting and generates a matching EPC (Electronic Product Code) <code>rfidtag</code>.</li>
+                    <li>Determines the appropriate <code>CompanyID</code> (e.g., specific facilities like Clarksburg or Beckley) based on naming conventions and Station Codes.</li>
+                    <li>Validates and standardizes date representations.</li>
+                </ul>
+            </li>
+            <li><strong>10. Stage Unique Locations:</strong> Extracts a distinct list of facility locations from the asset data and places them into the <code>dbo.locationtemp</code> table.</li>
+        </ul>
+
+        <h3>Phase 5: Production Ingestion (Safe Inserts Only)</h3>
+        <ul>
+            <li><strong>11. Insert New Locations (Transaction Safe):</strong> Checks the existing <code>dbo.location</code> table. It safely inserts locations from staging <em>only</em> if they do not already exist for that specific company.</li>
+            <li><strong>12. Prepare Assets (Deduplication Check):</strong> Scans the locally staged assets and filters out duplicate records within the import file itself.</li>
+        </ul>
+        
+        <div class="alert alert-info">
+            <strong>&#8505; 13. Insert New Assets</strong>
+            <p>This is the core idempotent step. The script joins the staged assets against the live <code>dbo.asset</code> table. <strong>It will only insert an asset if neither its Name (within its respective CompanyID) nor its rfidtag already exist in the database.</strong> Any pre-existing assets are safely ignored and skipped.</p>
+        </div>
+
+        <h3>Phase 6: Integrity & Linking</h3>
+        <ul>
+            <li><strong>14. Clean Legacy Data:</strong> Runs a pass over all existing assets in the system to ensure legacy data complies with the "SP" prefix standardization for Service Pointers and validates that their <code>CompanyID</code> assignments match their Station format.</li>
+            <li><strong>15. Link Location IDs:</strong> Assigns the proper internal SQL database <code>locationid</code> to the newly inserted subset of assets based on their text-based location properties.</li>
+            <li><strong>16. System Helpers:</strong> Performs minor system maintenance, ensuring required Company records and standardized dropdown values (e.g., Asset Use Statuses like "IN USE" or "LOANED OUT") exist in the system tables.</li>
+        </ul>
+
+        <h3>Phase 7: Completion</h3>
+        <ul>
+            <li><strong>17. Final Report Checkout:</strong> Prints an operational summary to the SQL console outlining exactly what happened during the run, including the metric counts for new assets inserted and assets intentionally skipped. Cleans up remaining temporary tables.</li>
+        </ul>
+    </div>
+</body>
+</html>

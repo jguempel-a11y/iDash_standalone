@@ -1,0 +1,772 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA TAGTEAM SCAN &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <div class="wrap">
+        <a href="index.aspx">&larr; Back to Documentation Hub</a>
+        <br/><br/>
+        <div class="card">
+            <h1>Tag Team Scan <code>va_tagteam_scan.aspx</code></h1>
+            <p style="color:var(--muted-docs); font-size:16px;">
+                The <strong style="color:var(--text-docs);">Tag Team Scan</strong> module is a high-speed, mobile-friendly interface designed for rapid 
+                physical asset scanning, location tracking, and real-time physical tag printing.
+            </p>
+            <p style="font-size:13px; color:var(--muted-docs);">
+                <strong>Last Updated:</strong> 2026-06-30 &mdash;
+                <strong>Files:</strong> <code>va_tagteam_scan.aspx</code> + <code>va_tagteam_scan.aspx.cs</code> + <code>sw.js</code>
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>High-Level Overview</h2>
+            <p>
+                During an inventory sweep, technicians use this page to walk through a room, scan the room's barcode, and then rapidly scan 
+                all equipment (EE Tags) found inside that room. The page automatically groups these assets under the last scanned location.
+                <br/><br/>
+                Once assets are scanned, the system performs the following in real-time:
+                <ul>
+                    <li><strong>Autocommit to SQL:</strong> Every scan is instantly written to the database. No manual "Save" button is required to persist data.</li>
+                    <li><strong>Status Flagging:</strong> The system automatically flags assets marked as "Not In Use" (Turned In, Lost, etc.) with a distinct orange badge.</li>
+                    <li><strong>Site Validation:</strong> Assets belonging to a different site (Site Mismatch) are flagged with a "Wrong Site" warning.</li>
+                    <li><strong>Auto Print:</strong> If enabled, scanning an asset instantly triggers a physical tag print.</li>
+                    <li><strong>Bulk Tagging:</strong> Users can mark entire rooms as "Tagged" with a single click, which instantly updates the database records.</li>
+                    <li><strong>OIT / 78 CMR Filtering:</strong> Assets with CMR/EIL (text8) starting with "78" can be excluded from ENNX reporting and database updates via a checkbox.</li>
+                    <li><strong>No-Data Asset Tracking:</strong> Assets not found in the database are tracked separately and excluded from ENNX output.</li>
+                </ul>
+                <br/>
+                <em>Note: To prevent data entry errors, the system enforces strict validation. You must select a Site and a Default User before scanning. Spurious locations or locations belonging to a different site will be automatically rejected.</em>
+            </p>
+        </div>
+
+        <!-- â€”â€”â€”& PAGE LAYOUT: CONFIGURATION PANEL â€”â€”â€”& -->
+        <div class="card">
+            <h2>Configuration Panel (Top Row)</h2>
+            <p>The configuration panel contains the primary controls for setting context before scanning. All fields must be configured before scanning begins.</p>
+
+            <h3>Row 1 &mdash; Context Controls</h3>
+            <table style="width:100%; border-collapse:collapse; margin:10px 0;">
+                <thead><tr style="border-bottom:2px solid var(--line-docs); text-align:left;">
+                    <th style="padding:8px;">Control</th><th style="padding:8px;">ID</th><th style="padding:8px;">Purpose</th>
+                </tr></thead>
+                <tbody>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Site Filter</strong></td>
+                        <td style="padding:8px;"><code>DdlCompany</code></td>
+                        <td style="padding:8px;">Filters scans and location validation to a specific VISN site/station. Must be selected before scanning.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Operator</strong></td>
+                        <td style="padding:8px;"><code>DdlEmpl</code></td>
+                        <td style="padding:8px;">Selects the current user/technician. Used for <code>lastmodifiedby</code> field in the database and for Load Scans history.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>1. Scan Location</strong></td>
+                        <td style="padding:8px;"><code>TxtLocationScan</code></td>
+                        <td style="padding:8px;">Barcode scan input for room/location. Validates against DB and sets the "Current Location" for all subsequent asset scans.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Tag Date</strong></td>
+                        <td style="padding:8px;"><code>TxtCurrentDate</code></td>
+                        <td style="padding:8px;">Sets the tagging date applied to scanned assets. Defaults to today. Stored in <code>text17</code>.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Current Location</strong></td>
+                        <td style="padding:8px;"><code>LblCurrentLocation</code></td>
+                        <td style="padding:8px;">Read-only display showing the currently active location (large green text). All scanned assets will be assigned to this location.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Row 2 &mdash; Load Scans &amp; Date Range <span class="badge badge-full">Updated 2026-06-23</span></h3>
+            <table style="width:100%; border-collapse:collapse; margin:10px 0;">
+                <thead><tr style="border-bottom:2px solid var(--line-docs); text-align:left;">
+                    <th style="padding:8px;">Control</th><th style="padding:8px;">ID</th><th style="padding:8px;">Purpose</th>
+                </tr></thead>
+                <tbody>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Load Scans</strong></td>
+                        <td style="padding:8px;"><code>BtnHistory</code></td>
+                        <td style="padding:8px;">Loads up to 250 recent scans from the database for the selected Operator. Respects date range filter and Untagged Only checkbox.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>From / To Date</strong></td>
+                        <td style="padding:8px;"><code>TxtDateFrom</code> / <code>TxtDateTo</code></td>
+                        <td style="padding:8px;">
+                            Filters loaded scans by <strong>Tag Date</strong> (<code>text17</code>).<br/>
+                            &bull; <strong>Single date:</strong> Set only "From" (or only "To") &mdash; shows only that day's scans.<br/>
+                            &bull; <strong>Date range:</strong> Set both "From" and "To" &mdash; shows scans within the range (inclusive).<br/>
+                            &bull; <strong>Empty:</strong> No date filter applied; loads all recent scans.
+                        </td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Untagged Only</strong></td>
+                        <td style="padding:8px;"><code>ChkUntaggedOnly</code></td>
+                        <td style="padding:8px;">When checked, Load Scans only returns assets where Tagged is not set (<code>text18</code> is null/empty/0/false).</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Scan Count Badge</strong></td>
+                        <td style="padding:8px;"><code>LblUserScanTotal</code></td>
+                        <td style="padding:8px;">Shows the total number of scans loaded (e.g., "4 Scans"). Appears after a successful Load Scans.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="alert alert-ok">
+                <strong>Technical Note (Date Filtering):</strong> The SQL query uses <code>TRY_CONVERT(DATE, text17)</code> to safely 
+                cast the tag date string to a SQL <code>DATE</code> type for comparison. This handles all stored date formats 
+                (<code>yyyy-MM-dd</code>, <code>MM/dd/yyyy</code>, etc.) reliably.
+            </div>
+        </div>
+
+        <!-- â€”â€”â€”& ASSET SCANNING â€”â€”â€”& -->
+        <div class="card">
+            <h2>2. Asset Scanning Panel</h2>
+            <table style="width:100%; border-collapse:collapse; margin:10px 0;">
+                <thead><tr style="border-bottom:2px solid var(--line-docs); text-align:left;">
+                    <th style="padding:8px;">Control</th><th style="padding:8px;">ID</th><th style="padding:8px;">Purpose</th>
+                </tr></thead>
+                <tbody>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Scan Asset Barcode</strong></td>
+                        <td style="padding:8px;"><code>TxtAssetScan</code></td>
+                        <td style="padding:8px;">Primary input field. Scan or type an EE barcode. Triggers <code>BtnAddAsset_Click</code> on postback, which looks up the asset in the database, populates the grid row, and auto-saves to DB.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Tag Type</strong></td>
+                        <td style="padding:8px;"><code>DdlDefaultTagType</code></td>
+                        <td style="padding:8px;">Dropdown to set the default tag type for scans. Streamlined strictly to 4 standardized options: <code>IQ350</code>, <code>Large_Metal</code>, <code>Small_Standard</code>, and <code>Small_Metal</code>. Stored in <code>text19</code>. Legacy synonyms (e.g. <code>Metal_Large</code>, <code>Std_Small</code>) are automatically normalized.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Default Notes</strong></td>
+                        <td style="padding:8px;"><code>TxtDefaultNotes</code></td>
+                        <td style="padding:8px;">Optional notes applied to each scanned asset (e.g., "Relocated"). Stored in <code>text20</code>.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Auto Print</strong></td>
+                        <td style="padding:8px;"><code>ChkAutoPrint</code></td>
+                        <td style="padding:8px;">When checked, every successful scan automatically triggers a physical tag print via the MQTT print subsystem.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- â€”â€”â€”& PROCESS FLOW â€”â€”â€”& -->
+        <div class="card">
+            <h2>Detailed User Process Flow</h2>
+            <ol style="line-height: 1.8;">
+                <li><strong>Select the Context:</strong> Choose the Site from the dropdown, the current "Operator", and the "Tag Date". These metadata fields will apply to everything you scan. <em>A Site and Operator must be selected before you can proceed.</em></li>
+                <li><strong>Using "Load Scans" (Loading History):</strong> If you want to see what someone has been working on recently, pick their name from the Operator dropdown, optionally set a date range (From/To), and hit the <strong>Load Scans</strong> button. The system will fetch up to the last 250 assets matching the selected user and date range at your currently selected site. Use the <em>Untagged Only</em> checkbox if you just want to find things they scanned but forgot to finish tagging.</li>
+                <li><strong>Scan the Location First:</strong> Place your cursor in the "Scan Location" box and trigger your barcode scanner. The system will query the database to ensure the location exists and belongs to your selected Site. If valid, the page will immediately update the "Current Location" text. <em>You cannot scan assets until a valid location is set, and cross-site location scanning is automatically blocked.</em></li>
+                <li><strong>Scan Your Assets:</strong> Place your cursor in the "Scan Asset Barcode" box. Scan as many equipment tags as you find in the room. They will appear instantly in the grid below and are <strong>automatically saved to the database</strong> as you scan.</li>
+                <li><strong>Review Status Badges:</strong> Watch the "Scan Status" column. A green <code>Saved</code> badge confirms persistence. An orange <code>Not In Use</code> badge appears if the asset is logically retired in SQL. A yellow <code>Wrong Site</code> badge appears if the asset belongs to a different station.</li>
+                <li><strong>Auto Print Mode (Optional):</strong> Check the "Auto Print" box. With this enabled, every scan triggers an immediate physical tag print.</li>
+                <li><strong>Offline Mode Support:</strong> If you lose Wi-Fi connection, the system <strong>automatically detects</strong> the outage via real-time connectivity probing (XHR HEAD requests every 3 seconds). A red <strong>"OFFLINE"</strong> indicator appears in the status bar, an animated toast banner slides up from the bottom, and all scanning seamlessly switches to local mode. Scans are queued to <code>localStorage</code> with full metadata (barcode, location, operator, tag type, notes, date). When connectivity returns, a green <strong>"Sync Now"</strong> toast appears &mdash; tap it or use the <strong>Sync Now</strong> button in the Offline Queue card to upload the backlog. <em>No data is ever lost.</em></li>
+                <li><strong>Mark Assets as Tagged (Bulk):</strong> Use the bulk tagging buttons (Mark All/Selected) to update the <code>Tagged = YES</code> status for the room. These changes are also saved instantly.</li>
+                <li><strong>Finalize / Retry:</strong> Use the green button at the bottom to re-try any scans that failed due to temporary network errors (marked with a red <code>Error</code> badge).</li>
+                <li><strong>Preview ENNX:</strong> Click "Preview ENNX File" to generate the ENNX output. Review the content and use it for reporting.</li>
+                <li><strong>Review Excluded Assets:</strong> Click "Show No Data Assets" or "Show OIT Assets Scanned" to see assets excluded from ENNX and understand why.</li>
+                <li><strong>Use Grid Filters:</strong> Type in the filter boxes below each column header to instantly narrow the grid to matching rows. Use the <strong>&#9776; Columns</strong> button to show/hide columns as needed.</li>
+                <li><strong>Hide/Show the Config Panel:</strong> Click the <strong>&#9881; Hide Config</strong> button in the header to collapse the Site/Operator/Location panel when scanning, giving more screen space to the scan grid. The state is remembered across page loads.</li>
+            </ol>
+        </div>
+
+        <!-- â€”â€”â€”& MARK AS TAGGED â€”â€”â€”& -->
+        <div class="card" style="border-color: var(--accent2-docs);">
+            <h2>&#10003; Mark as Tagged &mdash; Added 2026-04-24</h2>
+            <p>
+                Previously, marking an asset as <strong>Tagged = YES</strong> required opening each row into edit mode,
+                checking the Tagged checkbox, saving, and repeating for every row &mdash; a slow, error-prone process
+                during large sweeps. Two new buttons eliminate this entirely:
+            </p>
+
+            <h3>&#10003; Mark All as Tagged <span class="badge badge-full">Always Visible</span></h3>
+            <ul>
+                <li>Located in the action bar at the bottom of the scan list, next to <em>Commit Changes to DB</em>.</li>
+                <li>Clicking it shows a confirmation dialog: <em>&ldquo;Mark ALL items in current list as Tagged = YES?&rdquo;</em></li>
+                <li>On confirm: every item in the session list is set to <code>Tagged = true</code>.</li>
+                <li>If any item has no <strong>Tag Date</strong> set, today&rsquo;s date is automatically filled in (required for commit validation).</li>
+                <li>A green confirmation bar shows the count: <em>&ldquo;&#10003; Marked and saved all 47 item(s) as Tagged.&rdquo;</em></li>
+                <li><strong>78 CMR Handling:</strong> When "Ignore 78 EIL/CMR" is checked, items with CMR starting with "78" are skipped. The message reports how many were skipped.</li>
+            </ul>
+
+            <h3 style="margin-top:16px;">&#10003; Mark Selected as Tagged <span class="badge badge-ennx">Appears When Rows Are Checked</span></h3>
+            <ul>
+                <li>The first column checkbox on each grid row doubles as a selection control.</li>
+                <li>Check the <strong>header checkbox</strong> to select all rows at once, or check individual rows.</li>
+                <li>As soon as at least one row is checked, a purple <em>&ldquo;&#10003; Mark Selected (N) as Tagged&rdquo;</em> button appears dynamically in the action bar.</li>
+                <li>Only the checked rows are marked <code>Tagged = true</code>; unchecked rows are left unchanged.</li>
+                <li>Tag Date is auto-filled today on any checked row that has no date set.</li>
+                <li><strong>78 CMR Handling:</strong> When "Ignore 78 EIL/CMR" is checked, selected items with CMR starting with "78" are skipped.</li>
+            </ul>
+
+            <div class="alert alert-ok">
+                <strong>Autocommit Enabled:</strong> These buttons now automatically write to the SQL database immediately.
+                There is no need for a secondary "Save" step. If a write fails, the item status will change to a red <strong>Error</strong> badge;
+                in this case, use the <strong>Finalize / Retry Failed</strong> button at the bottom to resync.
+            </div>
+        </div>
+
+        <!-- â€”â€”â€”& NEW: ENNX, OIT, NO DATA, 78 CMR â€”â€”â€”& -->
+        <div class="card" style="border-color: var(--accent2-docs);">
+            <h2>ENNX Preview, OIT, No-Data, &amp; 78 CMR Filtering &mdash; Added 2026-06-23</h2>
+            <p>The bottom section of the page provides tools for previewing ENNX output and reviewing assets excluded from reporting.</p>
+
+            <h3>Preview ENNX File <code>BtnPreviewEnnx</code></h3>
+            <ul>
+                <li>Generates the ENNX file format in a read-only monospace preview box.</li>
+                <li>Groups assets by location (<code>text16 / LocTagged</code>) and lists each barcode under its location header.</li>
+                <li>Deduplicates barcodes &mdash; if the same EE was scanned twice, only the most recent scan is included.</li>
+                <li><strong>Exclusions:</strong>
+                    <ul>
+                        <li>Flagged items (wrong site) are always excluded.</li>
+                        <li><strong>No-data assets</strong> (Not Found in DB / New Asset Found / AssetId = 0) are always excluded.</li>
+                        <li><strong>78 CMR items</strong> are excluded when the "Ignore 78 EIL/CMR" checkbox is checked.</li>
+                    </ul>
+                </li>
+                <li>A footer line shows exclusion counts: <code>--- Excluded: 3 with 78 CMR, 1 with no DB data ---</code></li>
+            </ul>
+
+            <h3 style="margin-top:16px;">Ignore 78 EIL/CMR <code>ChkIgnore78Cmr</code> <span class="badge badge-ennx">Checkbox</span></h3>
+            <ul>
+                <li>Located to the right of the ENNX/OIT buttons.</li>
+                <li>When <strong>checked</strong>, any asset where the CMR/EIL field (<code>text8</code>) starts with <strong>"78"</strong> will be:
+                    <ul>
+                        <li>Excluded from the ENNX preview output.</li>
+                        <li>Skipped during database updates (Save on scan, Commit, Mark All Tagged, Mark Selected Tagged).</li>
+                        <li>A message reports: <em>"Skipped DB update for EE123456 &mdash; CMR/EIL starts with 78 (ignored)."</em></li>
+                    </ul>
+                </li>
+                <li>When <strong>unchecked</strong> (default): all items are processed normally.</li>
+                <li><strong>Use case:</strong> OIT (Office of Information Technology) assets typically have CMR/EIL values starting with "78". We do not tag OIT equipment; checking this box prevents them from polluting your site's ENNX report and from being incorrectly updated in the database.</li>
+            </ul>
+
+            <h3 style="margin-top:16px;">Show No Data Assets <code>BtnShowNoData</code> <span class="badge badge-full" style="background:rgba(239,68,68,0.15); color:#ef4444; border-color:#ef4444;">Red Border</span></h3>
+            <ul>
+                <li>Displays assets that were scanned but <strong>not found in the database</strong>.</li>
+                <li>Appears in a red-bordered monospace preview box below the ENNX preview.</li>
+                <li><strong>What qualifies as "No Data":</strong>
+                    <ul>
+                        <li><code>AssetId == 0</code> (no matching database record)</li>
+                        <li>Status is <code>"Not Found"</code></li>
+                        <li>Description is <code>"(Not Found in DB)"</code> or <code>"New Asset Found (Offline Sync)"</code></li>
+                    </ul>
+                </li>
+                <li><strong>Output format:</strong> <code>EE123456  --  (Not Found in DB)  |  Loc: SPGB103-500  |  Scanned: 2026-06-23</code></li>
+                <li>These assets are <strong>always excluded from ENNX output</strong> regardless of any checkbox settings.</li>
+            </ul>
+
+            <h3 style="margin-top:16px;">Show OIT Assets Scanned <code>BtnShowOit</code> <span class="badge badge-full" style="background:rgba(245,158,11,0.15); color:#f59e0b; border-color:#f59e0b;">Orange Border</span></h3>
+            <ul>
+                <li>Displays assets where the CMR/EIL field (<code>text8</code>) starts with <strong>"78"</strong>.</li>
+                <li>Appears in an orange-bordered monospace preview box below the No Data preview.</li>
+                <li><strong>Output format:</strong> <code>EE123456  --  INFUSION PUMP  |  Loc: SPGB103-500  |  CMR: 78012345  |  Scanned: 2026-06-23</code></li>
+                <li><strong>Use case:</strong> Quickly review and report on OIT (Office of Information Technology) assets found during a sweep so OIT knows their equipment was scanned.</li>
+                <li>This button works independently of the "Ignore 78" checkbox &mdash; it always shows 78-CMR assets if any exist in the scan list.</li>
+            </ul>
+        </div>
+
+        <!-- â€”â€”â€”& BARCODE VALIDATION â€”â€”â€”& -->
+        <div class="card" style="border-color: var(--accent2-docs);">
+            <h2>&#128737; Barcode Format Validation &mdash; Added 2026-06-24</h2>
+            <p>To prevent invalid data from entering the database and polluting ENNX reports, all scanned barcodes are validated <strong>before</strong> any database lookup or save occurs.</p>
+
+            <h3>Expected Format</h3>
+            <p>Every physical asset barcode across all VA sites begins with a <strong>3-digit station prefix</strong> (e.g., <code>512</code>, <code>517</code>, <code>540</code>, <code>581</code>, <code>613</code>), followed by a <strong>space</strong>, <strong>EE</strong>, and the asset identifier (including optional alphanumeric suffixes):</p>
+            <ul>
+                <li><code>613 EE123456</code> &mdash; &#9989; Valid (Martinsburg)</li>
+                <li><code>512 EE789012</code> &mdash; &#9989; Valid (Baltimore &mdash; all physical tags use <code>512</code>)</li>
+                <li><code>517 EE10244</code> &mdash; &#9989; Valid (Beckley)</li>
+                <li><code>540 EE9999</code> &mdash; &#9989; Valid (Clarksburg)</li>
+                <li><code>581 EE5555</code> &mdash; &#9989; Valid (Huntington)</li>
+                <li><code>613 EE12345A</code> &mdash; &#9989; Valid (Alphanumeric asset suffix)</li>
+                <li><code>61 3EE123456</code> &mdash; &#10060; Invalid (Malformed station prefix)</li>
+                <li><code>613EE123456</code> &mdash; &#10060; Invalid (No space after station prefix)</li>
+                <li><code>613 E123456</code> &mdash; &#10060; Invalid (Single 'E' instead of 'EE')</li>
+                <li><code>613 ES41881</code> &mdash; &#10060; Invalid ('ES' instead of 'EE')</li>
+                <li><code>SP102-519</code> &mdash; &#10060; Invalid (Location tag scanned into asset box)</li>
+            </ul>
+            <div class="alert alert-info" style="margin:10px 0; padding:10px 14px; background:rgba(46,168,255,0.08); border-left:3px solid var(--accent); font-size:12px;">
+                <strong>Substation Identification:</strong> Physical barcodes never contain substation division codes (e.g. <code>512A4</code> or <code>512A5</code>). All physical tags use the 3-digit station prefix (<code>512</code>). Substation association is resolved via automated database lookup of the asset record and location codes.
+            </div>
+
+            <h3>What Happens on Rejection</h3>
+            <table style="width:100%; border-collapse:collapse; margin:10px 0;">
+                <thead><tr style="border-bottom:2px solid var(--line-docs); text-align:left;">
+                    <th style="padding:8px;">Scenario</th><th style="padding:8px;">Behavior</th>
+                </tr></thead>
+                <tbody>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Online scan</strong></td>
+                        <td style="padding:8px;">Red error banner displays the bad barcode and the expected format. <strong>Nothing is saved to the database</strong>. Nothing is added to the scan list. The input field is cleared and re-focused so the operator can immediately re-scan.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Offline sync</strong></td>
+                        <td style="padding:8px;">Invalid barcodes are skipped entirely (not saved to DB). They appear in the grid with an <code>Error</code> status and description <strong>"INVALID FORMAT"</strong> so the user can see which scans were rejected.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Load Scans</strong></td>
+                        <td style="padding:8px;">Any previously saved barcodes in the database that do not match the valid format are <strong>silently filtered out</strong> and will not appear in the loaded results.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="alert alert-ok">
+                <strong>Why This Matters:</strong> Before this validation, a mis-scanned barcode (e.g., "61 3EE...") would be committed
+                to the database immediately. Even if the operator clicked the X to remove it from their grid, the bad data persisted in the
+                database and would keep appearing in ENNX reports for all users. This validation ensures bad data never reaches the database.
+            </div>
+        </div>
+
+        <!-- â€”â€”â€”& X DELETE BEHAVIOR â€”â€”â€”& -->
+        <div class="card" style="border-color: var(--accent2-docs);">
+            <h2>&#10006; Remove Row (X Button) &mdash; Updated 2026-06-24</h2>
+            <p>Each row in the scan grid has an <strong>X</strong> button that removes the asset from the list.</p>
+
+            <h3>Previous Behavior (Before 2026-06-24)</h3>
+            <ul>
+                <li>The X button only removed the item from the <strong>in-memory session list</strong>.</li>
+                <li>The database record was <strong>not modified</strong> &mdash; the scan data persisted.</li>
+                <li>The removed item would <strong>reappear</strong> whenever anyone loaded scans or generated ENNX reports.</li>
+            </ul>
+
+            <h3>Current Behavior</h3>
+            <ul>
+                <li>The X button removes the item from the session list <strong>and clears all scan-related fields in the database</strong>.</li>
+                <li>Fields cleared: <code>text13</code> (operator), <code>text16</code> (location tagged), <code>text17</code> (tag date), <code>text18</code> (tagged flag), <code>text19</code> (tag type), <code>text20</code> (notes).</li>
+                <li>The asset record itself is <strong>preserved</strong> (not deleted) &mdash; only the tagging data is cleared, as if the asset was never scanned.</li>
+                <li>A green confirmation message shows: <em>"Removed EE123456 and cleared scan data from database."</em></li>
+                <li>The item will <strong>no longer appear</strong> in future Load Scans queries or ENNX reports.</li>
+            </ul>
+
+            <div class="alert alert-warn">
+                <strong>&#9888; This action is immediate and permanent.</strong> Once you click X, the scan data for that asset is
+                cleared from the database. If you need to re-scan the asset, simply scan it again normally.
+            </div>
+        </div>
+
+        <!-- â€”â€”â€” NEW: OFFLINE SCANNING ARCHITECTURE â€”â€”â€” -->
+        <div class="card" style="border-color: var(--accent2-docs);">
+            <h2>&#128225; Offline Scanning Architecture &mdash; Updated 2026-06-26 <span class="badge badge-full">Major</span></h2>
+            <p>
+                The Tag Team Scan page is a <strong>fully offline-capable Progressive Web App</strong>. Technicians can continue scanning assets
+                even when network connectivity is lost &mdash; in basements, server rooms, or buildings with poor Wi-Fi. The offline system operates
+                through multiple redundant safety layers that guarantee <strong>zero data loss</strong>.
+            </p>
+
+            <h3>How It Works &mdash; Layered Defense</h3>
+            <table style="width:100%; border-collapse:collapse; margin:10px 0;">
+                <thead><tr style="border-bottom:2px solid var(--line-docs); text-align:left;">
+                    <th style="padding:8px;">Layer</th><th style="padding:8px;">Technology</th><th style="padding:8px;">What It Does</th>
+                </tr></thead>
+                <tbody>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>1. Connectivity Probe</strong></td>
+                        <td style="padding:8px;"><code>XMLHttpRequest</code> HEAD</td>
+                        <td style="padding:8px;">Every 4 seconds, an XHR HEAD request probes the server (bypasses Service Worker). Validates both IIS web server and SQL database connectivity. Updates the <code>_isOnline</code> flag and status bar indicator in real time.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>2. <code>__doPostBack</code> Intercept</strong></td>
+                        <td style="padding:8px;">JavaScript override</td>
+                        <td style="padding:8px;">Overrides ASP.NET's <code>__doPostBack()</code> function. Before every postback, performs a 2-second XHR probe. If the server is unreachable, the barcode is queued locally instead of submitted.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>3. <code>form.submit()</code> Override & Enter Key Capture</strong></td>
+                        <td style="padding:8px;">Monkey-patch <code>HTMLFormElement.prototype.submit</code> &amp; <code>keydown</code> listener</td>
+                        <td style="padding:8px;">Blocks all form submissions when offline. Direct <code>keydown</code> (Enter/13) listeners on <code>TxtAssetScan</code> and <code>TxtLocationScan</code> halt offline browser reloads immediately and process scans locally.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>4. Submit Event Listener</strong></td>
+                        <td style="padding:8px;"><code>window.addEventListener('submit')</code></td>
+                        <td style="padding:8px;">Redundant capture-phase listener that blocks any submit event when offline. Stashes in-flight barcodes in <code>localStorage</code> before submission.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>5. Service Worker v11</strong></td>
+                        <td style="padding:8px;"><code>sw.js</code> (<code>idash-scanners-v11</code>)</td>
+                        <td style="padding:8px;">Intercepts failed POSTs and returns the cached page shell so the browser never shows "This site can't be reached." Caches ASPX shells (network-first, 7s timeout) and static assets (cache-first) for instant offline load.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>6. Pending Barcode Recovery</strong></td>
+                        <td style="padding:8px;"><code>localStorage: TagTeam_PendingBarcode</code></td>
+                        <td style="padding:8px;">If a barcode is in-flight when a POST fails (race condition / network drop), it is recovered automatically on next page load and added to the offline queue.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Offline Queue &amp; State Persistence</h3>
+            <ul>
+                <li>Scans are stored as JSON objects in <code>localStorage</code> under the key <code>TagTeam_OfflineQueue</code>. Re-scanning an existing barcode updates the item in place (deduplication).</li>
+                <li>Each queued item includes: <code>Barcode</code>, <code>Location</code>, <code>LocTagged</code>, <code>CompanyId</code>, <code>EmplId</code>, <code>TagType</code>, <code>Notes</code>, <code>TagDate</code>, <code>Tagged</code>, and <code>Status</code>.</li>
+                <li>Users can <strong>edit tag types</strong> on queued items via inline dropdowns (streamlined to the 4 standard types), and <strong>remove items</strong> with the X button &mdash; all before syncing.</li>
+                <li><strong>Barcode validation is enforced</strong> even while offline (client-side regex matches the server rule). Invalid barcodes are rejected with an alert and never queued.</li>
+                <li><strong>State persistence:</strong> Current Location (<code>TagTeam_CurrentLocation</code>), Selected Site (<code>TagTeam_SelectedSite</code>), and Operator (<code>TagTeam_SelectedOperator</code>) are all persisted in <code>localStorage</code> and restored automatically on page load.</li>
+            </ul>
+
+            <h3>Sync Process (<code>?action=sync</code> Endpoint)</h3>
+            <ol>
+                <li>When connectivity returns, the user taps the green <strong>"&#9729; Sync Now"</strong> button (or the toast banner).</li>
+                <li>The client POSTs the entire <code>TagTeam_OfflineQueue</code> JSON array to <code>va_tagteam_scan.aspx?action=sync</code>.</li>
+                <li>The server processes each item: looks up the asset in DB, performs barcode validation, resolves company/site from location, flags wrong-site items, and calls <code>SaveScanToDb()</code>.</li>
+                <li>Invalid barcodes are marked with <code>Status = "Error"</code> and <code>Description = "INVALID FORMAT"</code> &mdash; they appear in the grid so the user can see which scans were rejected.</li>
+                <li>On success, <code>localStorage</code> is cleared and the page reloads with all synced items visible in the grid.</li>
+            </ol>
+
+            <h3>UI Indicators</h3>
+            <table style="width:100%; border-collapse:collapse; margin:10px 0;">
+                <thead><tr style="border-bottom:2px solid var(--line-docs); text-align:left;">
+                    <th style="padding:8px;">Element</th><th style="padding:8px;">ID</th><th style="padding:8px;">Behavior</th>
+                </tr></thead>
+                <tbody>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Connection Indicator</strong></td>
+                        <td style="padding:8px;"><code>connection-indicator</code></td>
+                        <td style="padding:8px;">Top-right status bar. Shows green <strong>"&bull; CONNECTED"</strong> when online, red <strong>"&bull; OFFLINE &mdash; Scans queuing locally (N queued)"</strong> when offline.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Offline Toast</strong></td>
+                        <td style="padding:8px;"><code>offline-toast</code></td>
+                        <td style="padding:8px;">Fixed-position red banner at the bottom of the screen. Animated slide-up. Shows "&#128683; OFFLINE &mdash; Scans are being saved locally".</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Sync Toast</strong></td>
+                        <td style="padding:8px;"><code>sync-toast</code></td>
+                        <td style="padding:8px;">Fixed-position green banner. Appears when connectivity returns and offline items exist. Clickable &mdash; triggers <code>syncScans()</code>.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Offline Queue Card</strong></td>
+                        <td style="padding:8px;"><code>pnlOffline</code></td>
+                        <td style="padding:8px;">Red-bordered card listing all locally queued scans with edit/remove controls. Shows barcode, location, date, tag type dropdown, and X remove button for each item.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="alert alert-ok">
+                <strong>Why This Matters for the Team:</strong> Before this system, if a technician lost Wi-Fi during a sweep, the browser would
+                show a dead page ("This site can't be reached") and all scanning stopped. The technician had to wait for Wi-Fi to come back,
+                re-navigate to the page, and re-scan everything. Now, scanning <strong>never stops</strong> &mdash; barcodes queue locally and sync
+                automatically when connectivity returns. This is especially critical in basements, stairwells, and buildings where VA Wi-Fi coverage
+                is unreliable. Estimated time savings: <strong>15&ndash;30 minutes per technician per building</strong> in areas with spotty connectivity.
+            </div>
+        </div>
+
+        <!-- â€”â€”â€” TAG DATE STALE GUARD â€”â€”â€” -->
+        <div class="card" style="border-color: var(--accent2-docs);">
+            <h2>&#128197; Tag Date Stale Guard &mdash; Added 2026-06-26 <span class="badge badge-full">New</span></h2>
+            <p>
+                Prevents technicians from accidentally scanning with a stale (previous day's) tag date &mdash; a common source of data
+                errors when resuming work from a previous day's browser session.
+            </p>
+
+            <h3>Behavior</h3>
+            <ul>
+                <li>On every page load, the system compares the <strong>Tag Date</strong> (<code>TxtCurrentDate</code>) to today's date.</li>
+                <li>If the date is <strong>not today</strong>, the date input is highlighted with a <strong>red border and glow</strong>, a warning banner displays the stale date, and a green <strong>"OK &ndash; Confirm Date"</strong> button appears.</li>
+                <li><strong>Scanning is blocked</strong> until the user either updates the date to today or explicitly confirms they intend to use the old date by clicking the confirm button.</li>
+                <li>Both online and offline scan paths enforce this check.</li>
+                <li>Non-scan actions (Load Scans, etc.) are <strong>not blocked</strong> &mdash; only asset barcode scans.</li>
+            </ul>
+
+            <div class="alert alert-ok">
+                <strong>Why This Matters:</strong> Previously, if a technician opened the scan page on Monday and resumed scanning on
+                Tuesday without refreshing the page, all Tuesday scans would be recorded with Monday's date. This made reporting inaccurate
+                and required manual SQL corrections. The stale guard makes this impossible without explicit user confirmation.
+            </div>
+        </div>
+
+        <!-- â€”â€”â€” BARCODE PREFIX-SITE VALIDATION â€”â€”â€” -->
+        <div class="card" style="border-color: var(--accent2-docs);">
+            <h2>&#9888; Barcode Prefix &harr; Site Validation &mdash; Added 2026-06-26 <span class="badge badge-full">New</span></h2>
+            <p>
+                Warns the operator when the 3-digit barcode prefix doesn't match the selected site. This catches the most common
+                cross-site scanning mistake: <em>having the wrong site selected in the dropdown while scanning.</em>
+            </p>
+
+            <h3>How It Works</h3>
+            <ul>
+                <li>The first 3 characters of the selected site name (e.g., <strong>"613"</strong> from "613 Durham") are compared to the first 3 characters of the scanned barcode (e.g., <strong>"613"</strong> from "613 EE123456").</li>
+                <li>If both are numeric and they <strong>don't match</strong>, a warning banner is displayed: <em>"Prefix Mismatch: Scanned prefix '512' does not match selected site '613 Durham' (expected prefix 613)."</em></li>
+                <li>Validation runs on <strong>both client-side</strong> (JavaScript, including offline mode) <strong>and server-side</strong> (C# code-behind) for defense in depth.</li>
+                <li>The scan is <strong>not rejected</strong> &mdash; it proceeds with a warning. This is intentional because technicians legitimately encounter assets from other sites (OIT equipment).</li>
+            </ul>
+
+            <div class="alert alert-ok">
+                <strong>Why This Matters:</strong> A technician scanning 200 assets with the wrong site selected means all 200 assets get
+                flagged as "Wrong Site" and must be re-scanned. The prefix warning catches this <strong>on the very first scan</strong>
+                instead of discovering the mistake 200 scans later.
+            </div>
+        </div>
+
+        <!-- â€”â€”â€” GRID ENHANCEMENTS â€”â€”â€” -->
+        <div class="card" style="border-color: var(--accent2-docs);">
+            <h2>&#128269; Grid Enhancements &mdash; Added 2026-06-26 <span class="badge badge-full">New</span></h2>
+
+            <h3>Inline Column Filters</h3>
+            <ul>
+                <li>Every data column header now includes a <strong>text filter input</strong> box directly below the header text.</li>
+                <li>Typing in a filter box instantly hides grid rows that don't match the filter text (case-insensitive substring match).</li>
+                <li>Multiple filters can be active simultaneously (AND logic) &mdash; e.g., filter by "EE12" in the Asset Tag column and "IQ350" in the Tag Type column.</li>
+                <li>Filters work on both displayed text and input values in editable cells.</li>
+                <li>Control columns (checkbox, Edit, Remove) are excluded from filtering.</li>
+            </ul>
+
+            <h3>Column Visibility Toggle <code>&#9776; Columns</code></h3>
+            <ul>
+                <li>A <strong>&#9776; Columns</strong> button appears above the grid. Clicking it reveals a toggleable panel of checkboxes for each column.</li>
+                <li>Uncheck a column to hide it; check it to restore it. Core columns (checkbox, Status, Edit, empty headers) cannot be hidden.</li>
+                <li>Visibility preferences are <strong>persisted in <code>localStorage</code></strong> (<code>aw_tagteam_hidden_cols</code>) and survive page reloads.</li>
+                <li>Column hiding is implemented via injected CSS rules (<code>nth-child</code> selectors) so it handles sorting and editing seamlessly.</li>
+            </ul>
+
+            <div class="alert alert-ok">
+                <strong>Why This Matters:</strong> On mobile scanners (Zebra TC53 with 5" screen), the grid was too wide and required
+                horizontal scrolling. Hiding unnecessary columns (e.g., Serial #, CMR, Notes) lets the team see the critical fields
+                (Asset Tag, Status, Location, Tagged) without scrolling. Filters eliminate the need to visually scan hundreds of rows
+                to find a specific asset.
+            </div>
+        </div>
+
+        <!-- â€”â€”â€” COLLAPSIBLE CONFIG PANEL â€”â€”â€” -->
+        <div class="card" style="border-color: var(--accent2-docs);">
+            <h2>&#9881; Collapsible Config Panel &mdash; Added 2026-06-26 <span class="badge badge-full">New</span></h2>
+            <ul>
+                <li>The entire configuration panel (Site, Operator, Location, Date, Load Scans) can be collapsed by clicking the <strong>&#9881; Hide Config</strong> button in the header.</li>
+                <li>When collapsed, the button text changes to <strong>&#9881; Show Config</strong>.</li>
+                <li>The collapsed/expanded state is <strong>persisted in <code>localStorage</code></strong> (<code>aw_tagteam_config_hidden</code>) and restored on every page load.</li>
+                <li>The scan input (barcode field) and grid remain visible regardless of the config panel state.</li>
+            </ul>
+
+            <div class="alert alert-ok">
+                <strong>Why This Matters:</strong> Once a technician has set their site, operator, and location, they rarely need the
+                config panel again until they move to a new room. Collapsing it frees up screen space on mobile devices, reducing
+                scrolling and keeping the scan input and grid visible at all times.
+            </div>
+        </div>
+
+        <!-- â€”â€”â€”& ACTION BAR BUTTONS â€”â€”â€”& -->
+        <div class="card">
+            <h2>Action Bar Buttons Reference</h2>
+            <p>The bottom action bar contains the following controls:</p>
+
+            <table style="width:100%; border-collapse:collapse; margin:10px 0;">
+                <thead><tr style="border-bottom:2px solid var(--line-docs); text-align:left;">
+                    <th style="padding:8px;">Button</th><th style="padding:8px;">ID</th><th style="padding:8px;">Behavior</th>
+                </tr></thead>
+                <tbody>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Show Flagged Items</strong></td>
+                        <td style="padding:8px;"><code>ChkShowFlagged</code></td>
+                        <td style="padding:8px;">Toggle checkbox. When checked, includes flagged (wrong site) items in the grid view. When unchecked, they are hidden from the grid but remain in the session.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Clear All</strong></td>
+                        <td style="padding:8px;"><code>BtnClear</code></td>
+                        <td style="padding:8px;">Clears the entire scan list from the session. Does NOT delete anything from the database &mdash; only clears the in-memory grid.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Server Print (#)</strong></td>
+                        <td style="padding:8px;"><code>BtnPrintChecked</code></td>
+                        <td style="padding:8px;">Prints physical tags for all checked rows via the MQTT print subsystem. Appears when rows are selected.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>&#10003; Mark Selected as Tagged</strong></td>
+                        <td style="padding:8px;"><code>BtnMarkSelectedTagged</code></td>
+                        <td style="padding:8px;">Marks only checked rows as Tagged = YES and saves to DB. Appears when rows are checked. Skips 78-CMR items when "Ignore 78" is checked.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>&#10003; Mark All as Tagged</strong></td>
+                        <td style="padding:8px;"><code>BtnMarkAllTagged</code></td>
+                        <td style="padding:8px;">Marks every item in the scan list as Tagged = YES and saves to DB. Requires confirmation. Skips 78-CMR items when "Ignore 78" is checked.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>Finalize / Retry Failed</strong></td>
+                        <td style="padding:8px;"><code>BtnCommit</code></td>
+                        <td style="padding:8px;">Re-attempts saving any items with status "Pending" or "Error" to the database. Also skips 78-CMR items when "Ignore 78" is checked.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- â€”â€”â€”& DATABASE FIELD MAPPING â€”â€”â€”& -->
+        <div class="card">
+            <h2>Database Field Mapping</h2>
+            <p>The <code>ScanItem</code> class maps to the following <code>asset</code> table columns:</p>
+            <table style="width:100%; border-collapse:collapse; margin:10px 0;">
+                <thead><tr style="border-bottom:2px solid var(--line-docs); text-align:left;">
+                    <th style="padding:8px;">ScanItem Property</th><th style="padding:8px;">DB Column</th><th style="padding:8px;">Purpose</th>
+                </tr></thead>
+                <tbody>
+                    <tr style="border-bottom:1px solid var(--line-docs);"><td style="padding:8px;"><code>Barcode</code></td><td style="padding:8px;"><code>name</code></td><td style="padding:8px;">EE tag barcode (primary identifier)</td></tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);"><td style="padding:8px;"><code>Description</code></td><td style="padding:8px;"><code>description</code></td><td style="padding:8px;">Asset description</td></tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);"><td style="padding:8px;"><code>TagType</code></td><td style="padding:8px;"><code>text19</code></td><td style="padding:8px;">Physical tag type (IQ350, Large_Metal, etc.)</td></tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);"><td style="padding:8px;"><code>Notes</code></td><td style="padding:8px;"><code>text20</code></td><td style="padding:8px;">User notes</td></tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);"><td style="padding:8px;"><code>EmplId</code></td><td style="padding:8px;"><code>text13</code></td><td style="padding:8px;">Assigned employee/operator</td></tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);"><td style="padding:8px;"><code>Tagged</code></td><td style="padding:8px;"><code>text18</code></td><td style="padding:8px;">"1" = tagged, "" = not tagged</td></tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);"><td style="padding:8px;"><code>TagDate</code></td><td style="padding:8px;"><code>text17</code></td><td style="padding:8px;">Date the asset was physically tagged</td></tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);"><td style="padding:8px;"><code>LocTagged</code></td><td style="padding:8px;"><code>text16</code></td><td style="padding:8px;">Location where the asset was scanned/tagged</td></tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);"><td style="padding:8px;"><code>DbLocation</code></td><td style="padding:8px;"><code>text6</code></td><td style="padding:8px;">Current database location (also updated on scan)</td></tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);"><td style="padding:8px;">&mdash;</td><td style="padding:8px;"><code>text11</code></td><td style="padding:8px;"><strong>Previous Location</strong> &mdash; automatically set to the old <code>text6</code> value before it is overwritten by the new scan location. Provides audit trail of where the asset was before the current scan moved it.</td></tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);"><td style="padding:8px;"><code>Cmr</code></td><td style="padding:8px;"><code>text8</code></td><td style="padding:8px;">CMR/EIL number &mdash; "78" prefix = OIT asset</td></tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);"><td style="padding:8px;"><code>SerialNumber</code></td><td style="padding:8px;"><code>text3</code></td><td style="padding:8px;">Asset serial number</td></tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);"><td style="padding:8px;"><code>AssetStatus</code></td><td style="padding:8px;"><code>listvalue1</code></td><td style="padding:8px;">Current asset status (IN USE, TURNED IN, etc.)</td></tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);"><td style="padding:8px;">&mdash;</td><td style="padding:8px;"><code>lastmodifiedby</code></td><td style="padding:8px;">Set to the selected Operator on each save</td></tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);"><td style="padding:8px;">&mdash;</td><td style="padding:8px;"><code>lastinventoried</code></td><td style="padding:8px;">Set to <code>SYSDATETIMEOFFSET()</code> on <strong>scan commits only</strong> (initial scan, bulk commit, offline sync, tag-all, mark-tagged). <strong>Not updated</strong> when editing metadata (description, tag type, notes) via the grid Edit button or when removing a row. This preserves the original inventory timestamp when correcting data entry errors after the fact.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- â€”â€”â€”& MOBILE & OFFLINE â€”â€”â€”& -->
+        <div class="card">
+            <h2>Mobile Responsiveness &amp; UI Optimization</h2>
+            <p>
+                This interface is universally optimized for both desktop browsers and portable mobile scanners (e.g., Zebra TC53/RFD40). Built on a <strong>Responsive Flexbox Architecture</strong> with dynamic CSS variables and native viewport scaling (<code>&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;</code>), all input boxes, control buttons, and data grids gracefully collapse and stack vertically when accessed on a phone or handheld scanner.
+                <br/><br/>
+                This unified design strategy provides a seamless field experience while centralizing all business logic and maintenance into a single <code>.aspx</code> codebase rather than maintaining disconnected mobile-only variants.
+            </p>
+
+            <h3>PWA / Home Screen Support</h3>
+            <ul>
+                <li>The page includes a <code>manifest.json</code> reference and PWA meta tags for iOS and Android home screen installation.</li>
+                <li>Once pinned to the home screen, the page launches in standalone mode (no browser chrome), giving a native app experience.</li>
+                <li>The <code>theme-color</code> meta tag sets the status bar to match the dark theme (<code>#0f172a</code>).</li>
+                <li>Combined with the Service Worker and offline scanning, this provides a <strong>true native-feel app</strong> that works without network.</li>
+            </ul>
+        </div>
+
+        <!-- â€”â€”â€”& UNDER THE HOOD â€”â€”â€”& -->
+        <div class="card">
+            <h2>How it Works (Under the Hood)</h2>
+            <h3>The SQL &amp; Postback Architecture</h3>
+            <p>
+                The page uses a <strong>Zero-Touch Persistence</strong> model. Every scan, edit, or bulk-tagging action triggers an asynchronous background save to the SQL database. Because the page already utilizes postbacks for scanner integration, this provides robust data protection with no perceived latency. The <code>ScanList</code> in the ASP.NET session acts as a transaction log for the current user's session, allowing for instant grid rendering and easy retries of failed network requests.
+            </p>
+
+            <h3>The Print Server MQTT Subsystem</h3>
+            <p>
+                When you press the "Print Checked" button, the page executes the client-side JavaScript function <code>printCheckedTags()</code> instead of performing an ASP.NET postback. Alternatively, if <strong>Auto Print</strong> is enabled, scanning an asset instantly calls <code>SaveScanToDb()</code> in the C# backend to obtain a valid Asset ID, which then invisibly injects the <code>printSingleTag()</code> JavaScript function back to the client interface for immediate execution.
+                <br/><br/>
+                This JavaScript:
+                <ul>
+                    <li>Fetches a Bearer Token from the iDash API using client-credentials logic injected into the page via C#.</li>
+                    <li>Compiles a JSON payload of the selected Asset IDs.</li>
+                    <li>Resolves routing logic. It checks your manual dropdown overrides, defaults to <code>print_mapping_config.json</code>, and queries SQL for template default targets (Service vs Client).</li>
+                    <li>Calls <code>/api/printjobs/print</code>.</li>
+                </ul>
+                The backend ASP.NET Web API inserts the record into the <code>printjob</code> SQL table, which is instantly picked up by the <code>iDash.PrintServer</code> Windows Service listening internally via Mosquitto MQTT on Port 8883. The Web Application automatically operates a lightweight Mosquitto MQTT Broker attached to <code>w3wp.exe</code>!
+            </p>
+
+            <div class="alert alert-warn">
+                <strong>Important Troubleshooting Note:</strong> If printing fails instantly, ensure the <code>MQTTPrint</code> user is properly registered in both the <code>mqttclient</code> and <code>printclient</code> SQL tables, and that BarTender Designer has an active underlying SQL connection on the target template.
+            </div>
+        </div>
+
+        <!-- â€”â€”â€”& CHANGELOG â€”â€”â€”& -->
+        <div class="card">
+            <h2>Changelog</h2>
+            <table style="width:100%; border-collapse:collapse; margin:10px 0;">
+                <thead><tr style="border-bottom:2px solid var(--line-docs); text-align:left;">
+                    <th style="padding:8px;">Date</th><th style="padding:8px;">Changes</th>
+                </tr></thead>
+                <tbody>
+                    <tr style="border-bottom:1px solid var(--line-docs); background: color-mix(in srgb, var(--accent2-docs), transparent 92%);">
+                        <td style="padding:8px;"><strong>2026-09-09</strong></td>
+                        <td style="padding:8px;">
+                            <ul style="margin:0; padding-left:16px;">
+                                <li><strong>Streamlined Tag Types to 4 Standard Options</strong> &mdash; Replaced the raw union query with 4 standardized options: <code>IQ350</code>, <code>Large_Metal</code>, <code>Small_Standard</code>, and <code>Small_Metal</code>. Disabled ViewState on <code>DdlDefaultTagType</code> and added client-side DOM sanitization so cached shells never display legacy duplicate options.</li>
+                                <li><strong>Automated Synonym Normalization (<code>NormalizeTagType</code>)</strong> &mdash; Automatically normalizes legacy tag types (e.g. <code>Metal_Large</code> &rarr; <code>Large_Metal</code>, <code>Std_Small</code> &rarr; <code>Small_Standard</code>) so existing asset records never lose their tag types during grid row updates.</li>
+                                <li><strong>Standardized Barcode Format Validation</strong> &mdash; Aligned regex across client JS, server POST, and offline sync to strictly enforce 3-digit station prefixes (<code>^\d{3} EE\w+$</code>) while supporting alphanumeric suffixes (e.g. <code>613 EE12345A</code>). Physical tags across all VA facilities strictly use the 3-digit station prefix (e.g. <code>512</code>); substations (such as Fort Howard or Perry Point) are resolved via system database lookup rather than physical barcode text.</li>
+                                <li><strong>Offline Operator &amp; Site Persistence</strong> &mdash; <code>DdlCompany</code> (Site) and <code>DdlEmpl</code> (Operator) now persist to <code>localStorage</code> alongside Location and restore automatically upon page load, even when disconnected from Wi-Fi.</li>
+                                <li><strong>Scanner Enter-Key Safety &amp; Interception</strong> &mdash; Direct <code>keydown</code> capture prevents premature form submit on handheld barcode scanners when offline, and pre-stashes barcodes in <code>localStorage</code> before online submits. Added offline queue deduplication.</li>
+                                <li><strong>Fallback Company ID Resolution</strong> &mdash; In <code>SaveScanToDb</code>, if location lookup cannot resolve company ID, it derives the facility ID from the barcode's 3-digit station prefix (e.g. <code>512</code> &rarr; 6, <code>517</code> &rarr; 4, <code>540</code> &rarr; 3, <code>581</code> &rarr; 5, <code>613</code> &rarr; 7) to satisfy database constraints.</li>
+                                <li><strong>Service Worker Bumped to v11</strong> &mdash; Updated cache to <code>idash-scanners-v11</code> and <code>idash-static-v11</code>. Replaced destructive service worker unregister loop with standard registration.</li>
+                                <li><strong>OIT Terminology &amp; Scope Correction</strong> &mdash; Updated all documentation and UI messaging to clarify that OIT represents the <strong>VA Office of Information Technology</strong> (equipment we do not tag; tracked purely to notify OIT that their equipment was scanned during sweeps).</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs); background: color-mix(in srgb, var(--accent2-docs), transparent 92%);">
+                        <td style="padding:8px;"><strong>2026-06-30</strong></td>
+                        <td style="padding:8px;">
+                            <ul style="margin:0; padding-left:16px;">
+                                <li><strong>Bug Fix: Page stuck in offline mode after connectivity returns</strong> &mdash; Three bugs prevented the page from recovering to online mode after losing and regaining network:
+                                    <ol style="margin:4px 0; padding-left:20px;">
+                                        <li><strong><code>quickProbeXHR</code> deadlock</strong> &mdash; When <code>_isOnline</code> was <code>false</code>, the quick probe (used by the <code>__doPostBack</code> intercept on every scan) short-circuited with <code>return resolve(false)</code> without ever hitting the network. This meant the page could never discover the server was back. <em>This was the primary cause.</em></li>
+                                        <li><strong><code>_probeInFlight</code> stuck flag</strong> &mdash; If an XHR probe hung without resolving, the <code>_probeInFlight</code> flag stayed <code>true</code> forever, blocking all subsequent probes from the 3-second interval. Added a 5-second safety timer that force-resets the flag.</li>
+                                        <li><strong>Post-sync reload served stale cache</strong> &mdash; <code>window.location.reload()</code> after sync could serve the cached page shell from the Service Worker (captured during offline mode). Changed to a cache-busting navigation: <code>window.location.href = 'va_tagteam_scan.aspx?_synced=' + Date.now()</code>.</li>
+                                    </ol>
+                                </li>
+                                <li><strong>Improved online recovery events</strong> &mdash; The browser <code>online</code> event now triggers three staggered server probes (immediate, +1s, +3s) instead of one, because Wi-Fi reconnection can take a moment to stabilize before the server is actually reachable.</li>
+                                <li><strong>Service Worker bumped to v9</strong> &mdash; Cache version incremented from v7 to v9. Old cached pages with the deadlock bug are purged during SW activation. Admin pages (<code>va_dbupdate</code>, <code>va_autodbupdate</code>) are now excluded from the SW's POST interception so they no longer incorrectly receive the scanner offline fallback page during long-running imports.</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs); background: color-mix(in srgb, var(--accent2-docs), transparent 92%);">
+                        <td style="padding:8px;"><strong>2026-06-29</strong></td>
+                        <td style="padding:8px;">
+                            <ul style="margin:0; padding-left:16px;">
+                                <li><strong>Bug Fix: <code>lastinventoried</code> no longer overwritten on edits</strong> &mdash; Previously, clicking Edit &rarr; Update on any grid row to change metadata (description, tag type, notes, employee ID) would set the asset's <code>lastinventoried</code> timestamp to the current date/time. This was incorrect because editing metadata is not the same as physically inventorying the asset. The <code>SaveScanToDb()</code> method now accepts a <code>updateInventoryDate</code> parameter (default <code>true</code>). The RowUpdating handler passes <code>false</code>, preserving the original inventory date. All actual scan operations (initial scan, bulk commit, offline sync, mark-tagged, tag-all) continue to update <code>lastinventoried</code> as expected.</li>
+                                <li><strong>Bug Fix: Remove button no longer stamps <code>lastinventoried</code></strong> &mdash; The &times; Remove button in the grid previously set <code>lastinventoried = SYSDATETIMEOFFSET()</code> when clearing scan fields from the database. Removing an asset from the scan list is not an inventory event, so this column is no longer touched. Only <code>lastmodifiedby</code> is updated on remove.</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs); background: color-mix(in srgb, var(--accent2-docs), transparent 92%);">
+                        <td style="padding:8px;"><strong>2026-06-26</strong></td>
+                        <td style="padding:8px;">
+                            <ul style="margin:0; padding-left:16px;">
+                                <li><strong>Offline Scanning Overhaul</strong> &mdash; Documented the complete multi-layer offline architecture including Service Worker v7 (POST interception, cache-first statics, network-first pages), <code>__doPostBack</code> override, <code>form.submit()</code> monkey-patch, connectivity probing (XHR HEAD every 3s), localStorage queue with edit/remove controls, sync endpoint (<code>?action=sync</code>), and pending barcode recovery. <em>Technicians can now scan continuously even in areas with no Wi-Fi &mdash; scans queue locally and sync automatically when connectivity returns.</em></li>
+                                <li>Added <strong>Tag Date Stale Guard</strong> &mdash; Blocks scanning when the tag date is not today. The date input glows red, a warning banner appears, and a confirmation button must be clicked before scanning resumes. Prevents technicians from accidentally recording scans with yesterday's date after resuming from a stale browser session. <em>Eliminates a common source of date errors that previously required manual SQL corrections.</em></li>
+                                <li>Added <strong>Barcode Prefix &harr; Site Validation</strong> &mdash; Warns the operator when the 3-digit barcode prefix doesn't match the selected site (both client-side and server-side). <em>Catches the "wrong site selected" mistake on the very first scan instead of discovering it 200 scans later.</em></li>
+                                <li>Added <strong>Grid Column Filters</strong> &mdash; Inline text filter boxes below each column header for instant row filtering. Multiple filters combine with AND logic. <em>Eliminates visual scanning through hundreds of rows to find a specific asset.</em></li>
+                                <li>Added <strong>Column Visibility Toggle</strong> (<strong>&#9776; Columns</strong> button) &mdash; Show/hide individual grid columns via checkboxes. State persisted in localStorage. <em>On mobile scanners with small screens, hiding unnecessary columns eliminates horizontal scrolling.</em></li>
+                                <li>Added <strong>Collapsible Config Panel</strong> (<strong>&#9881; Hide/Show Config</strong>) &mdash; The Site/Operator/Location/Date panel can be collapsed to free screen space. State persisted in localStorage. <em>Maximizes grid visibility on mobile devices during active scanning.</em></li>
+                                <li>Added <strong>Previous Location Tracking</strong> &mdash; On each scan, <code>text11</code> is automatically set to the old <code>text6</code> value before <code>text6</code> is overwritten with the new scan location. <em>Provides a full audit trail of asset movement.</em></li>
+                                <li>Added <strong>PWA / Home Screen</strong> meta tags for iOS and Android &mdash; combined with the Service Worker, technicians can pin the scan page to their home screen for a native app experience.</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>2026-06-24</strong></td>
+                        <td style="padding:8px;">
+                            <ul style="margin:0; padding-left:16px;">
+                                <li>Added <strong>Barcode Format Validation</strong> &mdash; rejects barcodes that don't match the 3-digit prefix + space pattern (e.g., "613 EE..."). Prevents invalid data from reaching the database. Applied to online scans, offline sync, and Load Scans filtering.</li>
+                                <li>Updated <strong>X Delete (Remove Row)</strong> &mdash; now clears all scan-related fields (<code>text13</code>, <code>text16</code>&ndash;<code>text20</code>) from the database so removed items no longer reappear in future loads or ENNX reports.</li>
+                                <li>Previous scan messages are now <strong>auto-cleared</strong> when the next scan is submitted, preventing stale error banners from persisting.</li>
+                                <li><strong>Refresh App Data</strong> now preserves the selected <strong>Site</strong> and <strong>Operator</strong> across refreshes. Previously, clicking Refresh would reset both dropdowns, causing users to accidentally scan as the wrong person.</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>2026-06-23</strong></td>
+                        <td style="padding:8px;">
+                            <ul style="margin:0; padding-left:16px;">
+                                <li>Added <strong>Ignore 78 EIL/CMR</strong> checkbox &mdash; excludes OIT assets (CMR starting with "78") from ENNX and DB updates.</li>
+                                <li>Added <strong>Date Range Filter</strong> (From/To) on Load Scans &mdash; filters by Tag Date (<code>text17</code>). Supports single-date and range selection.</li>
+                                <li>Added <strong>Show No Data Assets</strong> button &mdash; displays scanned assets not found in DB, excluded from ENNX.</li>
+                                <li>Added <strong>Show OIT Assets Scanned</strong> button &mdash; displays assets with 78 CMR for OIT reporting.</li>
+                                <li>Restructured config panel layout: Tag Date moved left, Current Location moved to far right.</li>
+                                <li>Load Scans toolbar moved to its own row below the configuration fields for cleaner alignment.</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px;"><strong>2026-04-24</strong></td>
+                        <td style="padding:8px;">
+                            <ul style="margin:0; padding-left:16px;">
+                                <li>Added <strong>Mark All as Tagged</strong> and <strong>Mark Selected as Tagged</strong> bulk action buttons with autocommit.</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</body>
+</html>

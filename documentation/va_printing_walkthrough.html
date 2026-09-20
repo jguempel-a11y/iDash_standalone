@@ -1,0 +1,282 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>iDash Docs &mdash; Printing Guide: Excel Equipment Import</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <style>
+        .step-card {
+            background: color-mix(in srgb, var(--text, #e2e8f0), transparent 97%);
+            border: 1px solid var(--line, #2a3441);
+            border-radius: 14px;
+            padding: 28px;
+            margin-bottom: 32px;
+        }
+        .step-num {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px; border-radius: 50%;
+            background: var(--accent-docs, #2ea8ff); color: #fff;
+            font-weight: 800; font-size: 16px; margin-right: 12px;
+            flex-shrink: 0;
+        }
+        .step-title {
+            font-size: 20px; font-weight: 700; display: flex; align-items: center;
+            margin-bottom: 12px;
+        }
+        .step-desc { color: var(--muted-docs, #8b95a5); font-size: 14px; line-height: 1.7; margin-bottom: 16px; }
+        .step-img {
+            width: 100%; border-radius: 10px;
+            border: 1px solid var(--line, #2a3441);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+        .step-img:hover { transform: scale(1.01); }
+        .step-caption {
+            font-size: 12px; color: var(--muted-docs, #8b95a5);
+            text-align: center; margin-top: 8px; font-style: italic;
+        }
+        .tip-box {
+            background: color-mix(in srgb, #10b981, transparent 88%);
+            border: 1px solid rgba(16,185,129,0.3);
+            border-left: 4px solid #10b981;
+            padding: 14px 18px; border-radius: 8px;
+            font-size: 13px; margin: 16px 0; color: #10b981;
+        }
+        .warn-box {
+            background: color-mix(in srgb, #f59e0b, transparent 88%);
+            border: 1px solid rgba(245,158,11,0.3);
+            border-left: 4px solid #f59e0b;
+            padding: 14px 18px; border-radius: 8px;
+            font-size: 13px; margin: 16px 0; color: #f59e0b;
+        }
+        .toc { margin: 24px 0; padding: 20px 24px; border-radius: 12px; background: color-mix(in srgb, var(--accent-docs, #2ea8ff), transparent 92%); border: 1px solid color-mix(in srgb, var(--accent-docs, #2ea8ff), transparent 70%); }
+        .toc-title { font-weight: 700; font-size: 15px; margin-bottom: 10px; color: var(--accent-docs, #2ea8ff); }
+        .toc ol { margin: 0; padding-left: 20px; }
+        .toc li { margin: 4px 0; font-size: 14px; }
+        .toc a { color: var(--text, #e2e8f0); text-decoration: none; }
+        .toc a:hover { color: var(--accent-docs, #2ea8ff); text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <a href="index.aspx" class="back-link">&larr; Documentation Hub</a>
+
+    <div class="doc-container">
+        <h1>&#128424; Printing Guide: Excel Equipment Import &amp; Print</h1>
+        <p class="doc-subtitle">Step-by-step walkthrough for importing equipment data from an Excel file into iDash and printing RFID asset labels &mdash; from login to label output.</p>
+
+        <div class="callout callout-info">
+            <strong>Prerequisites:</strong> Your iDash account must have access to the <strong>Excel Equipment Import &amp; Print</strong> tile. Contact your administrator if you don't see it on your dashboard. You'll also need a properly formatted <code>.xlsx</code> equipment file.
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="toc">
+            <div class="toc-title">&#128203; Steps in This Guide</div>
+            <ol>
+                <li><a href="#step1">Sign In to iDash</a></li>
+                <li><a href="#step2">Navigate to the Hub Dashboard</a></li>
+                <li><a href="#step3">Find the Excel Equipment Import Tile</a></li>
+                <li><a href="#step4">Load Your Equipment Data</a></li>
+                <li><a href="#step5">Review Equipment Data Grid</a></li>
+                <li><a href="#step6">Select Rows to Import/Print</a></li>
+                <li><a href="#step7">Choose a Label Template</a></li>
+                <li><a href="#step8">Configure Site Override &amp; Name Prefix</a></li>
+                <li><a href="#step9">Import &amp; Print</a></li>
+            </ol>
+        </div>
+
+        <!-- ═══════ STEP 1 ═══════ -->
+        <div class="step-card" id="step1">
+            <div class="step-title"><span class="step-num">1</span> Sign In to iDash</div>
+            <div class="step-desc">
+                Open your web browser and navigate to the iDash portal URL (e.g. <code>http://your-server/iDash/</code>).
+                You'll see the <strong>VA Asset Intelligence Hub</strong> login screen.
+                Enter your <strong>iDash username</strong> and <strong>password</strong>, then click <strong>Sign In</strong>.
+            </div>
+            <img src="images/light_step01_login.png?v=2" alt="iDash Login Page" class="step-img" />
+            <div class="step-caption">The iDash login screen &mdash; enter your credentials and click Sign In</div>
+            <div class="tip-box">
+                <strong>&#128161; Tip:</strong> If you see <em>"Contact your administrator if you need an account"</em>, ask your iDash admin to create an account for you with access to the Excel Print tile.
+            </div>
+        </div>
+
+        <!-- ═══════ STEP 2 ═══════ -->
+        <div class="step-card" id="step2">
+            <div class="step-title"><span class="step-num">2</span> Navigate to the Hub Dashboard</div>
+            <div class="step-desc">
+                After signing in, you'll land on the <strong>VA Asset Intelligence Hub</strong> &mdash; your main dashboard.
+                This shows all the tiles and tools available to your account. You'll see category tabs at the top:
+                <strong>Favorites</strong>, <strong>Guides &amp; Downloads</strong>, <strong>Scanning &amp; Tools</strong>, and <strong>Reports</strong>.
+            </div>
+            <img src="images/light_step02_hub.png?v=2" alt="iDash Hub Dashboard" class="step-img" />
+            <div class="step-caption">The iDash Hub showing your available tiles and categories (logged in as bob)</div>
+        </div>
+
+        <!-- ═══════ STEP 3 ═══════ -->
+        <div class="step-card" id="step3">
+            <div class="step-title"><span class="step-num">3</span> Find the Excel Equipment Import Tile</div>
+            <div class="step-desc">
+                Click the <strong>&#128218; Scanning &amp; Tools</strong> category tab to reveal the scanning and import tools.
+                Look for the <strong>&#128218; Excel Equipment Import &amp; Print</strong> tile &mdash; it has an orange border and describes bulk equipment loading.
+                Click the tile to open the import page.
+            </div>
+            <img src="images/light_step03_scanning_tools.png?v=2" alt="Scanning & Tools Category" class="step-img" />
+            <div class="step-caption">The Scanning &amp; Tools section showing the Excel Equipment Import tile</div>
+        </div>
+
+        <!-- ═══════ STEP 4 ═══════ -->
+        <div class="step-card" id="step4">
+            <div class="step-title"><span class="step-num">4</span> Load Your Equipment Data</div>
+            <div class="step-desc">
+                The Excel Import page has two ways to load data:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li><strong>&#128193; Auto-Detect (Default)</strong> &mdash; Automatically reads <code>C:\va_rfid\excel_data\equipment.xlsx</code> if the file exists on the server. A green dot indicates the file was found.</li>
+                <li><strong>&#128194; Browse File</strong> &mdash; Click <strong>Choose File</strong> to browse your local computer or network share for any <code>.xlsx</code> file, then click <strong>&#128196; Load File</strong> to upload it.</li>
+            </ul>
+            <img src="images/light_step04_excel_page.png?v=2" alt="Excel Import Page" class="step-img" />
+            <div class="step-caption">The Excel Import page with file source options, toolbar, and equipment data grid</div>
+            <div class="tip-box">
+                <strong>&#128161; Tip:</strong> The active file source is highlighted with a colored border. If you upload a file, it stays active for your entire session &mdash; refreshing the page won't lose it.
+            </div>
+        </div>
+
+        <!-- ═══════ STEP 5 ═══════ -->
+        <div class="step-card" id="step5">
+            <div class="step-title"><span class="step-num">5</span> Review the Equipment Data Grid</div>
+            <div class="step-desc">
+                Once data is loaded, the <strong>Equipment Data</strong> tab shows all rows from your Excel file in a scrollable grid.
+                Each row displays: Entry #, Manufacturer, Equipment Name, Model, Serial #, Category, Use Status, Location, Station, and more.
+                The <strong>Status</strong> column shows:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li><span style="background:rgba(16,185,129,.15); color:#10b981; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700;">NEW</span> &mdash; This asset doesn't exist in iDash yet</li>
+                <li><span style="background:rgba(245,158,11,.15); color:#f59e0b; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700;">UPDATE</span> &mdash; This asset already exists and will be updated</li>
+            </ul>
+            <img src="images/light_step05_grid.png?v=1" alt="Equipment Data Grid" class="step-img" />
+            <div class="step-caption">The data grid showing equipment rows loaded from the Excel file</div>
+        </div>
+
+        <!-- ═══════ STEP 6 ═══════ -->
+        <div class="step-card" id="step6">
+            <div class="step-title"><span class="step-num">6</span> Select Rows to Import/Print</div>
+            <div class="step-desc">
+                Check the boxes next to the rows you want to process. You can:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li>Click individual row checkboxes to select specific items</li>
+                <li>Click <strong>Select All</strong> to check every row</li>
+                <li>Click <strong>Clear</strong> to uncheck all</li>
+                <li>Use the header checkbox to toggle all at once</li>
+            </ul>
+            <div class="step-desc">The counter in the toolbar updates to show <strong>"X of Y rows selected"</strong>.</div>
+            <img src="images/light_step05_rows_selected.png?v=2" alt="Rows Selected" class="step-img" />
+            <div class="step-caption">Select rows using checkboxes &mdash; they turn blue when active</div>
+        </div>
+
+        <!-- ═══════ STEP 7 ═══════ -->
+        <div class="step-card" id="step7">
+            <div class="step-title"><span class="step-num">7</span> Choose a Label Template</div>
+            <div class="step-desc">
+                Use the <strong>Template</strong> dropdown to select which label format to print. Templates are pre-configured in the
+                <a href="va_print_mapping.html">Template Mapping Config</a> and correspond to BarTender <code>.btw</code> template files.
+                Common options include:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li><strong>AW_Std_Small</strong> &mdash; Standard small RFID label</li>
+                <li><strong>AW_Metal_Large</strong> &mdash; Large metal-mount tag</li>
+                <li>Each template shows its assigned site in brackets (e.g. <code>[613 Martinsburg]</code>)</li>
+            </ul>
+            <img src="images/light_step07_template.png?v=1" alt="Template Selection" class="step-img" />
+            <div class="step-caption">The Template dropdown showing available label formats and their assigned sites</div>
+        </div>
+
+        <!-- ═══════ STEP 8 ═══════ -->
+        <div class="step-card" id="step8">
+            <div class="step-title"><span class="step-num">8</span> Configure Site Override &amp; Name Prefix</div>
+            <div class="step-desc">
+                Before importing, you can optionally configure:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li><strong>Site Override</strong> &mdash; Forces all selected rows to a specific company/site regardless of the Station # column in the Excel file. Leave on <em>Auto</em> to use the Station column.</li>
+                <li><strong>Name Prefix</strong> &mdash; Inserts a text prefix before the Entry # when generating asset names (e.g. entering <code>EE</code> turns entry <code>600636</code> into <code>512-A60090 EE600636</code>).</li>
+            </ul>
+            <div class="step-desc">
+                Use the <strong>&#128269; Preview Names</strong> tab to see exactly what asset names will be generated before importing. Names update instantly as you change the Site Override or Name Prefix.
+            </div>
+            <div class="tip-box">
+                <strong>&#128161; Tip:</strong> Assets are <strong>upserted on Asset Name + Site</strong>. If a computed name already exists for the chosen site, the existing asset is updated (not duplicated).
+            </div>
+        </div>
+
+        <!-- ═══════ STEP 9 ═══════ -->
+        <div class="step-card" id="step9">
+            <div class="step-title"><span class="step-num">9</span> Import &amp; Print</div>
+            <div class="step-desc">
+                When you're ready, choose your action:
+            </div>
+            <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
+                <li><strong>Import Only</strong> &mdash; Adds/updates assets in iDash without printing any labels</li>
+                <li><strong>Import &amp; Print</strong> (green button) &mdash; Imports the assets AND queues RFID label print jobs via MQTT to BarTender</li>
+            </ul>
+            <div class="step-desc">
+                A confirmation dialog will appear showing how many rows will be processed. Click <strong>OK</strong> to proceed.
+                After completion, you'll see a success message with a count of assets created, updated, and print jobs queued.
+            </div>
+            <div class="warn-box">
+                <strong>&#9888; Important:</strong> For <strong>Import &amp; Print</strong> to work, the BarTender print server must be running and connected via MQTT. If you see <em>"Print Client not connected"</em>, check the <a href="va_print_admin.html">Print Administration</a> guide.
+            </div>
+        </div>
+
+        <!-- ═══════ TROUBLESHOOTING ═══════ -->
+        <h2 id="troubleshooting"><span class="section-num">&#128295;</span> Troubleshooting</h2>
+
+        <table class="doc-table">
+            <thead>
+                <tr>
+                    <th style="width:35%">Issue</th>
+                    <th>Solution</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Can't see the Excel Import tile</td>
+                    <td>Ask your admin to add <code>excel_print</code> to your tile access in User Management</td>
+                </tr>
+                <tr>
+                    <td>"Cannot read equipment.xlsx" error</td>
+                    <td>Either place the file in <code>C:\va_rfid\excel_data\</code> or use the <strong>Browse File</strong> option to upload directly</td>
+                </tr>
+                <tr>
+                    <td>No label templates in dropdown</td>
+                    <td>Templates are configured in <a href="va_print_mapping.html">Template Mapping Config</a> &mdash; at least one must be set up</td>
+                </tr>
+                <tr>
+                    <td>Import works but no labels print</td>
+                    <td>Check that the MQTT print server is connected. See <a href="va_mqtt_config.html">MQTT Configuration</a></td>
+                </tr>
+                <tr>
+                    <td>All rows show as UPDATE</td>
+                    <td>These assets already exist in iDash. Importing will update their fields. This is normal for re-imports.</td>
+                </tr>
+                <tr>
+                    <td>"Print Client not connected" error</td>
+                    <td>The BarTender print spooler is not running. Start the <code>Run_Bypass_Spooler.ps1</code> script or check Task Scheduler.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- ═══════ RELATED ═══════ -->
+        <h2><span class="section-num">&#128279;</span> Related Documentation</h2>
+        <ul>
+            <li><a href="va_print_admin.html">Print Administration (Master Guide)</a></li>
+            <li><a href="va_print_mapping.html">Template Mapping Configuration</a></li>
+            <li><a href="va_printing_guide.html">Printing Labels (User Guide)</a></li>
+            <li><a href="va_mqtt_config.html">MQTT Configuration &amp; Print Server</a></li>
+            <li><a href="va_excel_print.html">Excel Import &amp; Print (Technical Reference)</a></li>
+        </ul>
+
+    </div>
+</body>
+</html>

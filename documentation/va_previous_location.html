@@ -1,0 +1,364 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA LOCATION &amp; SCAN HISTORY &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<div class="wrap">
+    <a href="index.aspx">&larr; Back to Documentation Hub</a><br/><br/>
+
+    <div class="card">
+        <h1>&#128344; Location &amp; Scan History</h1>
+        <div style="margin-bottom:12px;">
+            <span class="badge badge-db">Database Connected</span>
+            <span class="badge" style="background:color-mix(in srgb, #10b981 15%, transparent);color:#10b981;border:1px solid #10b981;">Read-Only</span>
+            <span class="badge" style="background:#7c3aed;color:#ede9fe;border:1px solid #a78bfa;">Rev. 2026-07-25</span>
+        </div>
+        <p style="font-size:16px;margin:0;">
+            The <strong>Location &amp; Scan History</strong> tool (<code>va_previous_location.aspx</code>) is a forensic
+            location audit tool that lets field leads and administrators trace the complete movement history
+            of any asset across a VA facility. It surfaces every recorded <strong>location event</strong>
+            for an asset &mdash; combining real-time scan history from <code>dbo.v_locationhistory</code>
+            with the asset's current and previous location fields from <code>dbo.v_asset</code> &mdash;
+            so you can answer the question: <em>"Where has this asset been, and when?"</em>
+        </p>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- WHAT IT IS AND IS NOT -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>Is This Page Still Relevant?</h2>
+        <div class="alert-green">
+            <strong>&#10003; Yes &mdash; this is a standalone, purpose-built tool with unique functionality.</strong><br/>
+            It has not been merged into another page. It is distinct from the Asset Explorer
+            (<code>va_asset_api.aspx</code>), which shows a single asset's current field values,
+            and from the Data Research Portal (<code>va_data_research.aspx</code>), which does
+            bulk field browsing. Location &amp; Scan History is the <em>only</em> iDash page that
+            shows <strong>multi-row time-series movement records</strong> for an asset by joining
+            the <code>v_locationhistory</code> view.
+        </div>
+        <table>
+            <tr><th>Tool</th><th>What it shows</th><th>Data source</th></tr>
+            <tr>
+                <td><strong>Location &amp; Scan History</strong> <em>(this page)</em></td>
+                <td>Time-ordered list of every location where an asset has been seen or scanned</td>
+                <td><code>v_locationhistory</code> JOIN <code>v_asset</code></td>
+            </tr>
+            <tr>
+                <td>Asset Explorer (<code>va_asset_api.aspx</code>)</td>
+                <td>Single-row snapshot of current asset field values</td>
+                <td><code>dbo.asset</code> (single SELECT)</td>
+            </tr>
+            <tr>
+                <td>Data Research Portal (<code>va_data_research.aspx</code>)</td>
+                <td>Bulk multi-asset browse with filter rows, CSV export</td>
+                <td><code>dbo.asset</code>, uploaded flat files</td>
+            </tr>
+            <tr>
+                <td>RFID Asset Locator (<code>va_rfid_locator.aspx</code>)</td>
+                <td>Real-time proximity hunting for specific missing assets</td>
+                <td>Live RFID reads + <code>LookupAssets</code> WebMethod</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- HOW TO USE -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>How to Use</h2>
+
+        <h3>Search Controls</h3>
+        <table>
+            <tr><th>Control</th><th>What to Enter</th><th>SQL Parameter Mapped To</th></tr>
+            <tr>
+                <td><strong>Search Box</strong></td>
+                <td>Asset barcode (e.g., <code>512 EE12345</code>), partial barcode, serial number, or EIL group</td>
+                <td><code>@q</code> &mdash; matched with <code>LIKE '%@q%'</code> against <code>a.name</code>; exact match against <code>a.text3</code> (serial) and <code>a.text8</code> (EIL)</td>
+            </tr>
+            <tr>
+                <td><strong>Site Dropdown</strong></td>
+                <td>Select a VA facility from the list, or leave as <strong>All Sites</strong></td>
+                <td><code>@site</code> &mdash; appends <code>AND a.companyid = @site</code> when a specific site is selected</td>
+            </tr>
+            <tr>
+                <td><strong>From Date</strong></td>
+                <td>Start of date range for location events</td>
+                <td><code>@fromDate</code> &mdash; filters <code>ISNULL(h.timeseen, a.lastinventoried) &gt;= @fromDate</code></td>
+            </tr>
+            <tr>
+                <td><strong>To Date</strong></td>
+                <td>End of date range (inclusive &mdash; automatically extends to end of day)</td>
+                <td><code>@toDate</code> &mdash; filters <code>&lt; DATEADD(day, 1, @toDate)</code></td>
+            </tr>
+        </table>
+
+        <div class="info">
+            <strong>&#8505; Tip &mdash; Leaving Search Empty:</strong> If you leave the search box blank and click Search,
+            it returns the 2,000 most recent location events across all assets at the selected site and date range.
+            This is useful for auditing recent movement activity in a given period without knowing a specific asset number.
+        </div>
+
+        <h3>Grid Interactions</h3>
+        <ul>
+            <li><strong>Column Header Sort:</strong> Click any column header's <strong>&#9650;&#9660;</strong> arrows to sort ascending or descending. Toggle again to reverse. Numeric columns sort numerically; date columns sort chronologically.</li>
+            <li><strong>Per-Column Filter Row:</strong> Each column has an inline filter text box below the header. Type to instantly narrow results without re-querying the server.</li>
+            <li><strong>Column Chooser:</strong> Click the <strong>Columns</strong> button to open a checkbox panel. Toggle any column off to hide it from the grid. Useful on narrow screens or for focused investigation.</li>
+            <li><strong>Record Counter:</strong> The <strong>Total Records</strong> pill updates live to reflect both the raw server result count and the post-filter visible count.</li>
+        </ul>
+
+        <h3>Maximum Results</h3>
+        <p>
+            The query is capped at <strong>TOP 2,000 rows</strong> ordered by scan date descending.
+            If your search returns exactly 2,000 records, narrow by date range or a more specific asset identifier.
+        </p>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- COLUMN REFERENCE -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>Grid Column Reference</h2>
+        <table>
+            <tr><th>Column Label</th><th>SQL Source</th><th>Description</th></tr>
+            <tr>
+                <td><strong>Asset #</strong></td>
+                <td><code>a.name</code></td>
+                <td>EE barcode of the asset (e.g., <code>512 EE12345</code>). Primary identifier used by all VA asset tracking workflows.</td>
+            </tr>
+            <tr>
+                <td><strong>Description</strong></td>
+                <td><code>a.description</code></td>
+                <td>Human-readable equipment name from the iDash database (e.g., <em>Wheelchair, Manual</em>).</td>
+            </tr>
+            <tr>
+                <td><strong>EIL</strong></td>
+                <td><code>a.text8</code></td>
+                <td>Equipment Item List number &mdash; the VA government accountability grouping this asset belongs to.</td>
+            </tr>
+            <tr>
+                <td><strong>Serial</strong></td>
+                <td><code>a.text3</code></td>
+                <td>Manufacturer serial number of the asset.</td>
+            </tr>
+            <tr>
+                <td><strong>Location Scanned</strong></td>
+                <td><code>ISNULL(h.locationname, a.text6)</code></td>
+                <td>The location where this particular scan event occurred. Falls back to <code>text6</code> (current location barcode) if no history record exists for this row.</td>
+            </tr>
+            <tr>
+                <td><strong>Scan Date (UTC)</strong></td>
+                <td><code>ISNULL(h.timeseen, a.lastinventoried)</code></td>
+                <td>Timestamp when the location event was recorded. Falls back to <code>lastinventoried</code> if the row is from the asset table rather than the history view.</td>
+            </tr>
+            <tr>
+                <td><strong>Previous Loc (text11)</strong></td>
+                <td><code>a.text11</code></td>
+                <td>The location the asset was at <em>before</em> the most recent location update. This is a single-value field on the asset record &mdash; it is not a history chain; it is the previous single state. Populated by scanning workflows.</td>
+            </tr>
+            <tr>
+                <td><strong>Last Observed Loc</strong></td>
+                <td><code>a.lastobservedlocation</code></td>
+                <td>The location where a fixed RFID reader last detected this asset. Updated automatically by the iDash RFID reader infrastructure. May differ from scan-based locations.</td>
+            </tr>
+            <tr>
+                <td><strong>Current Loc (text6)</strong></td>
+                <td><code>a.text6</code></td>
+                <td>The current recorded location barcode (SP code) of the asset as of the last scan. This is the field updated by Tag Team Scan and similar workflows.</td>
+            </tr>
+        </table>
+
+        <div class="alert-blue" style="margin-top:14px;">
+            <strong>&#128204; Understanding the Three Location Fields</strong><br/>
+            Each asset record simultaneously carries three location-related values. This is intentional &mdash; they represent different data sources:<br/><br/>
+            &bull; <code>text6</code> &mdash; <strong>Scanner-assigned location</strong>: updated when a field tech scans the asset in a specific room via Tag Team Scan or Site Inventory<br/>
+            &bull; <code>lastobservedlocation</code> &mdash; <strong>Fixed reader-assigned location</strong>: updated automatically by infrastructure readers; can disagree with <code>text6</code> if the asset has moved since last manual scan<br/>
+            &bull; <code>text11</code> &mdash; <strong>Previous manual scan location</strong>: the value <code>text6</code> held <em>before</em> it was last updated; enables single-step "undo" investigation
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TECHNICAL ARCHITECTURE -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>Technical Architecture</h2>
+
+        <h3>Rendering Model</h3>
+        <p>
+            This page uses a <strong>client-rendered JSON API pattern</strong> &mdash; no ASP.NET postbacks.
+            On page load, the C# code-behind populates the Site dropdown via server-side data binding (<code>LoadCompanies()</code>).
+            All subsequent searches are driven by the JavaScript <code>doSearch()</code> function, which calls the
+            same page URL with <code>?api=search</code> query parameters and receives a JSON response.
+        </p>
+
+        <table>
+            <tr><th>Component</th><th>File</th><th>Role</th></tr>
+            <tr>
+                <td>Frontend UI</td>
+                <td><code>va_previous_location.aspx</code></td>
+                <td>Search controls, date pickers, grid, sort/filter JS, column chooser</td>
+            </tr>
+            <tr>
+                <td>Backend Logic</td>
+                <td><code>va_previous_location.aspx.cs</code></td>
+                <td><code>Page_Load</code> &mdash; routes to <code>LoadCompanies()</code> or <code>HandleApiSearch()</code> based on <code>Request["api"]</code></td>
+            </tr>
+            <tr>
+                <td>Site Loader</td>
+                <td><code>LoadCompanies()</code></td>
+                <td>Binds <code>DdlCompany</code> from <code>dbo.company</code> on initial page load only</td>
+            </tr>
+            <tr>
+                <td>API Handler</td>
+                <td><code>HandleApiSearch()</code></td>
+                <td>Executes parameterized SQL query, returns JSON array via <code>JavaScriptSerializer</code></td>
+            </tr>
+            <tr>
+                <td>JSON Response</td>
+                <td><code>SendJson()</code></td>
+                <td>Clears response, sets <code>application/json</code> content type, writes serialized result, terminates pipeline</td>
+            </tr>
+        </table>
+
+        <h3>SQL Query</h3>
+        <p>The core query joins the asset table to the location history view and applies up to three optional filter clauses:</p>
+        <pre style="background:var(--bg);border:1px solid var(--line);padding:15px;border-radius:8px;color:#a78bfa;font-size:13px;overflow-x:auto;">SELECT TOP 2000
+    a.name              AS barCode,          -- EE barcode / asset #
+    a.description       AS descr,            -- equipment name
+    a.text8             AS eil,              -- EIL group
+    a.text3             AS serial,           -- serial number
+    ISNULL(h.locationname, a.text6) AS scanLoc,   -- where scanned (history or current)
+    ISNULL(h.timeseen, a.lastinventoried) AS scanDate,  -- when scanned
+    a.text11            AS prevLoc,          -- previous location field
+    a.lastobservedlocation AS lastObsLoc,    -- fixed reader observation
+    a.text6             AS curLoc            -- current manual scan location
+FROM dbo.v_asset a WITH(NOLOCK)
+LEFT JOIN dbo.v_locationhistory h WITH(NOLOCK) ON a.id = h.assetid
+WHERE (
+    @q = ''
+    OR a.name  LIKE '%' + @q + '%'   -- asset barcode / partial match
+    OR a.text3 = @q                   -- exact serial match
+    OR a.text8 = @q                   -- exact EIL match
+)
+-- Optional: AND a.companyid = @site           (when site != 0)
+-- Optional: AND ISNULL(h.timeseen, ...) >= @fromDate
+-- Optional: AND ISNULL(h.timeseen, ...) <  DATEADD(day, 1, @toDate)
+ORDER BY ISNULL(h.timeseen, a.lastinventoried) DESC</pre>
+
+        <div class="alert-amber">
+            <strong>&#9888; NOLOCK Hint</strong><br/>
+            Both table references use <code>WITH(NOLOCK)</code> (read uncommitted isolation). This allows the query to run without
+            blocking active scan sessions and prevents scans from blocking history reads. The trade-off is that
+            very recently written rows may occasionally appear or disappear during a scan burst. For audit purposes
+            this is acceptable &mdash; results are consistent within a few seconds of any scan event.
+        </div>
+
+        <h3>API JSON Response Shape</h3>
+        <pre style="background:var(--bg);border:1px solid var(--line);padding:15px;border-radius:8px;color:#a78bfa;font-size:13px;overflow-x:auto;">{
+  "success": true,
+  "count": 142,
+  "data": [
+    {
+      "Asset": "512 EE12345",
+      "Description": "Wheelchair, Manual",
+      "EIL": "04-06900",
+      "Serial": "SN998877",
+      "Location": "3B-WEST-NURSING",
+      "Date": "2026-07-20 14:33:07",
+      "PreviousLocation": "3A-PHYSICAL-THERAPY",
+      "LastObservedLocation": "3B-WEST-NURSING",
+      "CurrentLocation": "3B-WEST-NURSING"
+    },
+    ...
+  ]
+}</pre>
+        <p>On error, the shape is: <code>{ "success": false, "error": "&lt;exception message&gt;" }</code></p>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- USE CASES -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>Common Use Cases</h2>
+        <table>
+            <tr><th>Scenario</th><th>How to Use</th></tr>
+            <tr>
+                <td><strong>Asset was lost / can't be found</strong></td>
+                <td>Enter the EE barcode, leave dates blank. The most recent entries show the last known scanned locations in reverse chronological order. Compare "Location Scanned" vs. "Last Observed Loc" to detect if a fixed reader has recently seen it somewhere different than its last manual scan.</td>
+            </tr>
+            <tr>
+                <td><strong>Audit where an asset was during a date range</strong></td>
+                <td>Enter the barcode and set a From / To date range. All movement events in that window will appear. Use the Scan Date column sort to trace the path chronologically.</td>
+            </tr>
+            <tr>
+                <td><strong>EIL group movement audit</strong></td>
+                <td>Enter the EIL number (e.g., <code>04-06900</code>) in the search box. Every asset in that EIL group's location history will appear. Filter the Location Scanned column to find items that moved between buildings.</td>
+            </tr>
+            <tr>
+                <td><strong>Serial number lookup</strong></td>
+                <td>Enter the exact serial number. The query performs an exact match (<code>a.text3 = @q</code>). Useful when you have a serial but not the EE barcode.</td>
+            </tr>
+            <tr>
+                <td><strong>Recent site-wide movement report</strong></td>
+                <td>Select a specific site from the dropdown, leave the search blank, set a date range (e.g., last 7 days). Returns up to 2,000 most recent movement events across all assets at that facility.</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ACCESS -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>Access &amp; Security</h2>
+        <div class="ok">
+            Access is controlled by the iDash tile-key model. Users must have the
+            <code>location_history</code> tile key in their <code>TileAccess</code> profile.
+            Typically granted to field leads, inventory supervisors, and administrators.
+            See <a href="va_user_management.html">User Management</a> for details.
+        </div>
+        <p>
+            All query parameters are passed via <code>SqlParameter</code> &mdash; no string interpolation
+            is ever used for user input. The <code>LIKE</code> pattern is built server-side using
+            <code>'%' + @q + '%'</code> parameterized form. No raw SQL errors are surfaced to the browser;
+            all exceptions are caught and returned as <code>{ success: false, error: "..." }</code>.
+        </p>
+        <div class="warn">
+            <strong>&#9888; Read-Only:</strong> This tool performs no writes. All queries are
+            <code>SELECT</code> only. It cannot modify location records, asset fields, or history entries.
+            To correct a location, use Tag Team Scan or the iDash desktop application.
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- RELATED PAGES -->
+    <!-- ============================================================ -->
+    <div class="card">
+        <h2>Related Pages</h2>
+        <table>
+            <tr><th>Page</th><th>Relationship</th></tr>
+            <tr><td><a href="va_tagteam_scan.html">Tag Team Scan</a></td><td>Primary tool that <em>creates</em> the location history records this page reads. Scanning an asset updates <code>text6</code> and writes a row to <code>v_locationhistory</code>.</td></tr>
+            <tr><td><a href="va_inventory.html">Site Inventory</a></td><td>Room-based sweep that also generates location events for assets scanned during an inventory session.</td></tr>
+            <tr><td><a href="va_asset_api.html">Asset Explorer</a></td><td>Companion lookup tool for viewing current field values of a single asset record rather than its movement history.</td></tr>
+            <tr><td><a href="va_rfid_locator.html">RFID Asset Locator</a></td><td>Use when you need to actively <em>find</em> a missing asset in real-time (proximity hunting). Use Location History first to understand where it was last seen, then use the Locator to hunt it down.</td></tr>
+            <tr><td><a href="va_reader_config.html">Fixed Reader Config</a></td><td>Fixed readers populate the <code>lastobservedlocation</code> field shown in this page's grid. If that column is blank for an asset, the asset has never been detected by a fixed reader.</td></tr>
+        </table>
+    </div>
+
+    <div style="margin-top:20px;"><a href="index.aspx">&larr; Back to Documentation Hub</a></div>
+    <footer>
+        <span style="display:block; margin-top:20px; padding-top:15px; border-top:1px solid var(--line); font-size:12px; color:var(--muted-docs);">
+            &copy; 2026 ID Integration Inc. &mdash; iDash Documentation &mdash; Location &amp; Scan History &mdash; Last updated July 25, 2026
+        </span>
+    </footer>
+</div>
+</body>
+</html>

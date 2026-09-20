@@ -1,0 +1,490 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>SYSTEM DIAGNOSTICS &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <div style="display:flex; gap:8px; padding:12px 32px; background:var(--card); border-bottom:1px solid var(--line); flex-wrap:wrap; font-size:13px;">
+        <a href="../index.aspx" style="color:var(--accent); text-decoration:none; font-weight:600;">&#8962; Hub</a>
+        <span style="color:var(--muted);">&bull;</span>
+        <a href="../va_system_diagnostics.aspx" style="color:var(--accent); text-decoration:none; font-weight:600;">&#128202; System Diagnostics</a>
+        <span style="color:var(--muted);">&bull;</span>
+        <a href="index.aspx" style="color:var(--accent); text-decoration:none; font-weight:600;">&#128196; All Docs</a>
+    </div>
+    <div class="container">
+        <h1>&#128202; System Diagnostics &amp; Health Monitor</h1>
+        <div style="margin-bottom:30px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span class="badge badge-api">iDash API</span>
+            <span class="badge badge-db">Database Connected</span>
+            <span class="badge" style="background:color-mix(in srgb,#f59e0b 15%,transparent); color:#f59e0b; border:1px solid #f59e0b;">Diagnostic Tool</span>
+            <span class="badge" style="background:color-mix(in srgb,#10b981 15%,transparent); color:#10b981; border:1px solid #10b981;">New 08/26</span>
+        </div>
+
+        <div style="background:var(--chip); border:1px solid var(--line); border-radius:12px; padding:18px; margin-bottom:30px;">
+            <strong>Contents</strong>
+            <ol style="margin:8px 0 0 0; padding-left:18px; font-size:14px;">
+                <li><a href="#overview" style="color:var(--accent);">Overview &amp; Purpose</a></li>
+                <li><a href="#access" style="color:var(--accent);">Who Should Use This</a></li>
+                <li><a href="#source" style="color:var(--accent);">Source Files</a></li>
+                <li><a href="#tests" style="color:var(--accent);">Test Suite — What Each Test Does</a></li>
+                <li><a href="#running" style="color:var(--accent);">How to Run Diagnostics</a></li>
+                <li><a href="#results" style="color:var(--accent);">Reading the Results</a></li>
+                <li><a href="#email" style="color:var(--accent);">Email Report</a></li>
+                <li><a href="#wv-deploy" style="color:var(--accent);">Deploying to WV / Remote Sites</a></li>
+                <li><a href="#future" style="color:var(--accent);">Future Test Suites (MQTT, RabbitMQ, Readers)</a></li>
+                <li><a href="#dev" style="color:var(--accent);">Developer Notes</a></li>
+                <li><a href="#troubleshooting" style="color:var(--accent);">Troubleshooting</a></li>
+                <li><a href="#changelog" style="color:var(--accent);">Changelog</a></li>
+            </ol>
+        </div>
+
+        <!-- ── OVERVIEW ─────────────────────────────────────────────── -->
+        <h2 id="overview">1. Overview &amp; Purpose</h2>
+        <p>
+            <code>va_system_diagnostics.aspx</code> is a one-click health-check dashboard for the iDash
+            platform. It was created to solve a recurring problem: after a database restore, a server migration,
+            or a reboot, the system can appear to work for web users but silently fail for the
+            <strong>mobile app in batch mode</strong>.
+        </p>
+        <p>
+            Batch mode failures are hard to reproduce without real RFID hardware. This page simulates the
+            exact same API path that the mobile app takes when syncing offline scans &mdash; calling
+            <code>PUT /api/asset?madeBy=iDashDiag</code> for each asset &mdash; which triggers
+            <code>AssetController.Update</code> and its license check, just as the mobile app does.
+        </p>
+        <div class="callout callout-warning">
+            <strong>Background:</strong> The original batch-mode error was
+            <em>&ldquo;License limits exceeded for companies or servers&rdquo;</em> appearing in the
+            API log at <code>C:\Logs\WebClient_log.txt</code>. The root causes were:
+            <ul style="margin:8px 0 0 16px;">
+                <li>A DB restore that left the old server&rsquo;s license key (MAC <code>E41FD59D1DEF</code>) in
+                    <code>dbo.applicationsetting</code> instead of the new server&rsquo;s MAC.</li>
+                <li><code>superadmin.companyid</code> was set to a specific company instead of <code>NULL</code>
+                    (global access), which caused tenant-count mismatches in the license check.</li>
+                <li>Stale entries in <code>dbo.serverstatus</code> from the old server.</li>
+            </ul>
+        </div>
+
+        <!-- ── ACCESS ──────────────────────────────────────────────── -->
+        <h2 id="access">2. Who Should Use This</h2>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);">Role</th>
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);">Use Case</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:8px 12px;"><strong>System Admin</strong></td>
+                <td style="padding:8px 12px;">After any DB restore, server migration, or IIS recycle &mdash; confirm the API and license are healthy before handing system back to users.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:8px 12px;"><strong>BIOMED / Field Tech</strong></td>
+                <td style="padding:8px 12px;">Before deploying mobile app scanners at a site &mdash; verify batch mode will work without needing actual RFID hardware.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:8px 12px;"><strong>Help Desk</strong></td>
+                <td style="padding:8px 12px;">Run and email the report to development when reporting a &ldquo;scanning not working&rdquo; issue.</td>
+            </tr>
+            <tr>
+                <td style="padding:8px 12px;"><strong>Developer</strong></td>
+                <td style="padding:8px 12px;">Validate code changes did not break the API or license check. Baseline timing (~350ms/asset) for performance regression detection.</td>
+            </tr>
+        </table>
+        <p><strong>Access control:</strong> requires the iDash tile key <code>admin_diagnostics</code> or <code>admin_users</code>. Admin role always has access.</p>
+
+        <!-- ── SOURCE ──────────────────────────────────────────────── -->
+        <h2 id="source">3. Source Files</h2>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);">File</th>
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);">Purpose</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:8px 12px;"><code>va_system_diagnostics.aspx</code></td>
+                <td style="padding:8px 12px;">Page markup &mdash; config form, animated result cards, summary bar, email button, loading overlay</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:8px 12px;"><code>va_system_diagnostics.aspx.cs</code></td>
+                <td style="padding:8px 12px;">Code-behind &mdash; all test runners, OAuth2 token fetch, DB queries, batch PUT loop, email HTML builder</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:8px 12px;"><code>App_Code/IdashApiHelper.cs</code></td>
+                <td style="padding:8px 12px;">Shared OAuth2 token cache &mdash; diagnostics re-uses the same <code>client_credentials</code> flow</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:8px 12px;"><code>App_Code/EmailHelper.cs</code></td>
+                <td style="padding:8px 12px;">SMTP send used for the HTML report email</td>
+            </tr>
+            <tr>
+                <td style="padding:8px 12px;"><code>tools/Invoke-BatchModeTest.ps1</code></td>
+                <td style="padding:8px 12px;">PowerShell equivalent &mdash; run from any machine without a browser. Located in <code>C:\va_rfid\V5Data\tools\</code></td>
+            </tr>
+        </table>
+
+        <!-- ── TESTS ──────────────────────────────────────────────── -->
+        <h2 id="tests">4. Test Suite &mdash; What Each Test Does</h2>
+
+        <h3>&#128273; Test 1: API Authentication</h3>
+        <p>
+            Sends a <code>POST</code> to <code>/connect/token</code> with <code>grant_type=client_credentials</code>
+            using the credentials from <code>web.config</code> keys
+            <code>iDash_ClientId</code> / <code>iDash_ClientSecret</code>.
+        </p>
+        <p><strong>Pass:</strong> receives an <code>access_token</code> and caches it for subsequent tests.<br/>
+           <strong>Fail:</strong> API is down, IIS not running, wrong client credentials, or network issue.</p>
+        <div class="callout callout-info">
+            The client credentials live in <code>dbo.clientapp</code>. Query:
+            <code>SELECT clientid, secret FROM dbo.clientapp</code>. The default fallback uses
+            <code>iDash_ClientId=v512</code> from <code>web.config</code>.
+        </div>
+
+        <h3>&#128451; Test 2: Database &amp; License</h3>
+        <p>
+            Connects directly to the iDash SQL database and checks:
+        </p>
+        <ul>
+            <li>Number of companies in <code>dbo.company</code></li>
+            <li>Total asset count in <code>dbo.asset</code></li>
+            <li>Whether <code>dbo.applicationsetting.licensekey</code> is present (not null/empty)</li>
+            <li>The <code>company</code> name and schema <code>version</code> stored in settings</li>
+        </ul>
+        <div class="callout callout-warning">
+            If the license key is shown as <strong>&ldquo;MISSING&rdquo;</strong>, batch mode will always fail.
+            The license must be applied via the iDash Settings UI or by directly updating
+            <code>dbo.applicationsetting SET licensekey = '...'</code>.
+        </div>
+
+        <h3>&#128268; Test 3: Server Registrations</h3>
+        <p>
+            Queries <code>dbo.serverstatus</code> and lists every registered service
+            (name, type, version, last-seen time). A healthy system typically has:
+        </p>
+        <ul>
+            <li><em>Alarm Monitoring Service</em> &mdash; always present</li>
+            <li><em>Print Server - Batch</em> &mdash; present when BarTender/print server is running</li>
+        </ul>
+        <div class="callout callout-warning">
+            After a <strong>DB restore from another server</strong>, stale rows from the old server may remain here.
+            If the license limits &ldquo;Servers&rdquo; count (e.g. 1 server allowed), extra rows can trigger
+            the batch-mode license error. Fix:
+            <code>DELETE FROM dbo.serverstatus WHERE name != 'YOUR_SERVER_NAME'</code>
+        </div>
+
+        <h3>&#128229; Test 4: Batch Update Simulation</h3>
+        <p>
+            This is the critical test. It mimics exactly what the mobile app does in offline batch sync mode:
+        </p>
+        <ol>
+            <li>Queries <code>N</code> assets from <code>dbo.asset</code> (configurable, default 5)</li>
+            <li>For each asset, sends <code>PUT /api/asset?madeBy=iDashDiag</code> with the asset JSON in the body</li>
+            <li>Records per-asset timing and catches any errors</li>
+            <li>Specifically detects the string <em>&ldquo;License limits exceeded&rdquo;</em> in the response body</li>
+        </ol>
+        <p><strong>Why PUT without ID in the URL?</strong> The iDash API route is
+           <code>[HttpPut] api/[controller]</code> &mdash; the asset ID is in the JSON body, not the URL path.
+           <code>PUT /api/asset/{id}</code> returns 405 Method Not Allowed.</p>
+        <div class="callout callout-info">
+            <strong>Expected performance:</strong> ~300&ndash;400ms per asset on a local server. Times above 1 second
+            suggest SQL or API performance issues. This number is useful as a regression baseline when upgrading
+            iDash.
+        </div>
+
+        <!-- ── RUNNING ─────────────────────────────────────────────── -->
+        <h2 id="running">5. How to Run Diagnostics</h2>
+        <ol>
+            <li>Log in to iDash at <code>http://[server]/iDash/</code></li>
+            <li>Click the <strong>&#128202; System Diagnostics</strong> tile on the home page</li>
+            <li>Select the <strong>Company / Site</strong> to filter the batch test assets (or leave as &ldquo;All Companies&rdquo;)</li>
+            <li>Set <strong>Batch Size</strong> (1&ndash;50). Default of 5 is sufficient for a health check; use 20+ for load testing</li>
+            <li>Click <strong>&#9654; Run Diagnostics</strong></li>
+            <li>A loading overlay appears while the 4 tests run (typically 3&ndash;10 seconds total)</li>
+            <li>Results display as animated cards with green <strong>PASS</strong> / red <strong>FAIL</strong> indicators</li>
+        </ol>
+        <div class="callout callout-info">
+            To run without a browser (e.g. on a remote server via RDP), use the PowerShell script:
+            <code>C:\va_rfid\V5Data\tools\Invoke-BatchModeTest.ps1 -BatchSize 10 -CompanyId 3</code>
+        </div>
+
+        <!-- ── RESULTS ────────────────────────────────────────────── -->
+        <h2 id="results">6. Reading the Results</h2>
+        <p>The summary bar shows four counters:</p>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);">Stat</th>
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);">Meaning</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:8px 12px;"><strong>Tests Passed</strong></td>
+                <td style="padding:8px 12px;">X / Y live tests (excludes &ldquo;Coming Soon&rdquo; placeholders)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:8px 12px;"><strong>Total Runtime</strong></td>
+                <td style="padding:8px 12px;">End-to-end wall-clock time for all tests in milliseconds</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:8px 12px;"><strong>Tests Run</strong></td>
+                <td style="padding:8px 12px;">Number of active (non-placeholder) tests executed</td>
+            </tr>
+            <tr>
+                <td style="padding:8px 12px;"><strong>Coming Soon</strong></td>
+                <td style="padding:8px 12px;">Placeholder tests not yet implemented (MQTT, RabbitMQ, Readers)</td>
+            </tr>
+        </table>
+
+        <p>Each test card shows:</p>
+        <ul>
+            <li><strong>Top color bar:</strong> green = pass, red = fail, dashed = coming soon</li>
+            <li><strong>Duration</strong> (top-right): milliseconds for that specific test</li>
+            <li><strong>Message:</strong> human-readable result summary</li>
+            <li><strong>Details:</strong> technical context (endpoint URL, client ID, error body snippet)</li>
+        </ul>
+
+        <h3>Common Failure Patterns</h3>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0; font-size:13px;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);">Test Fails</th>
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);">Likely Cause</th>
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);">Fix</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:8px 12px;">API Authentication</td>
+                <td style="padding:8px 12px;">IIS app pool recycled; API not running; wrong client ID/secret</td>
+                <td style="padding:8px 12px;">Check IIS; verify <code>dbo.clientapp</code>; restart app pool</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:8px 12px;">Database &amp; License &mdash; &ldquo;MISSING&rdquo;</td>
+                <td style="padding:8px 12px;">License key cleared by DB restore or Settings page</td>
+                <td style="padding:8px 12px;">Re-apply license via iDash Settings &rarr; License tab</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:8px 12px;">Batch Update &mdash; LICENSE LIMITS EXCEEDED</td>
+                <td style="padding:8px 12px;">License MAC doesn&rsquo;t match server; too many tenants/servers</td>
+                <td style="padding:8px 12px;">Check <code>applicationsetting.licensekey</code>; clean <code>serverstatus</code>; fix <code>superadmin.companyid = NULL</code></td>
+            </tr>
+            <tr>
+                <td style="padding:8px 12px;">Batch Update &mdash; 500 error</td>
+                <td style="padding:8px 12px;">Asset payload missing required fields; API validation failed</td>
+                <td style="padding:8px 12px;">Check API log at <code>C:\Logs\WebClient_log.txt</code></td>
+            </tr>
+        </table>
+
+        <!-- ── EMAIL ──────────────────────────────────────────────── -->
+        <h2 id="email">7. Email Report</h2>
+        <p>
+            After running tests, click <strong>&#128231; Email Report</strong> to send a full HTML diagnostic
+            report to all addresses configured in <code>iDash/config/email_recipients.json</code>.
+        </p>
+        <p>The email includes:</p>
+        <ul>
+            <li>Server hostname and run timestamp</li>
+            <li>Health summary (X/Y passed)</li>
+            <li>Table of all tests with status, duration, and details</li>
+            <li>Total runtime footer</li>
+        </ul>
+        <div class="callout callout-info">
+            Email settings (SMTP host, from address, etc.) are configured in <code>web.config</code> under
+            <code>SMTP_Host</code>, <code>SMTP_Port</code>, <code>SMTP_User</code>, <code>SMTP_Password</code>.
+            See <a href="va_support_request.html" style="color:var(--accent);">Support Request documentation</a>
+            for SMTP setup details.
+        </div>
+
+        <!-- ── WV DEPLOY ──────────────────────────────────────────── -->
+        <h2 id="wv-deploy">8. Deploying to WV / Remote Sites</h2>
+        <p>
+            The diagnostics page is designed to self-configure from the local <code>web.config</code>. To
+            deploy to the West Virginia site (VISN5-8) or any other remote site:
+        </p>
+        <ol>
+            <li>Copy <code>va_system_diagnostics.aspx</code> and <code>va_system_diagnostics.aspx.cs</code>
+                to <code>C:\inetpub\wwwroot\iDash\</code> on the target server</li>
+            <li>No config changes needed &mdash; it reads <code>iDash_TokenUrl</code>,
+                <code>iDash_ClientId</code>, <code>iDash_ClientSecret</code>,
+                and <code>iDash_ApiBase</code> from that server&rsquo;s <code>web.config</code></li>
+            <li>First check what client credentials exist on that server:
+                <code>SELECT clientid, secret FROM dbo.clientapp</code></li>
+            <li>Update <code>web.config</code> if the <code>iDash_ClientId</code> key is missing</li>
+        </ol>
+        <div class="callout callout-info">
+            <strong>WV-specific check:</strong> The WV system (VISN5-8) had its DB restored from the BURBOT
+            reference system. Verify the license reflects the VISN5-8 MAC address by checking:
+            <code>SELECT company, LEFT(licensekey,60) FROM dbo.applicationsetting</code>.
+            The preview should start with <code>VA West Virginia</code>.
+        </div>
+
+        <!-- ── FUTURE ─────────────────────────────────────────────── -->
+        <h2 id="future">9. Future Test Suites</h2>
+        <p>
+            Three test categories are stubbed as placeholders and will be implemented in a future release:
+        </p>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);">Test</th>
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);">What It Will Check</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:8px 12px;">&#128225; MQTT Broker</td>
+                <td style="padding:8px 12px;">Connect to Mosquitto/HiveMQ on port 8883; publish a test message; verify receipt. Used to pre-validate label printing connectivity.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:8px 12px;">&#128430; RabbitMQ Connection</td>
+                <td style="padding:8px 12px;">Connect to RabbitMQ management API; check queue depths; verify no dead-letter buildup.</td>
+            </tr>
+            <tr>
+                <td style="padding:8px 12px;">&#128268; Fixed Reader Ping</td>
+                <td style="padding:8px 12px;">Ping each registered reader in <code>dbo.reader</code>; check last-seen time; verify UDP/TCP connectivity to reader IP.</td>
+            </tr>
+        </table>
+        <p>
+            To add a new test, implement a method returning <code>DiagnosticResult</code> in
+            <code>va_system_diagnostics.aspx.cs</code> and add it to the <code>RunAllTests()</code> method.
+            Add a corresponding card section in <code>va_system_diagnostics.aspx</code> filtered by the new
+            category string.
+        </p>
+
+        <!-- ── DEV NOTES ──────────────────────────────────────────── -->
+        <h2 id="dev">10. Developer Notes</h2>
+
+        <h3>Authentication Flow</h3>
+        <p>
+            The diagnostics page authenticates using OAuth2 <code>client_credentials</code> grant
+            (same flow as <code>IdashApiHelper.cs</code>). Token endpoint:
+        </p>
+        <pre><code>POST /connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials
+&amp;client_id=v512
+&amp;client_secret=[from web.config iDash_ClientSecret]</code></pre>
+        <p>
+            Response contains <code>access_token</code> used as <code>Bearer</code> on all subsequent calls.
+        </p>
+
+        <h3>Batch Update Endpoint</h3>
+        <p>
+            The confirmed working update endpoint is:
+        </p>
+        <pre><code>PUT /api/asset?madeBy=iDashDiag
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{"id":3,"name":"512 EE10001","companyid":6}</code></pre>
+        <div class="callout callout-warning">
+            <strong>NOT</strong> <code>PUT /api/asset/{id}</code> &mdash; this returns 405.<br/>
+            <strong>NOT</strong> <code>GET /api/asset/{id}</code> for reading &mdash; this returns an empty body.<br/>
+            The route is <code>[HttpPut] api/[controller]</code> with the ID in the request body.
+        </div>
+
+        <h3>C# Compatibility</h3>
+        <p>
+            The IIS ASPX compiler on this system uses <strong>C# 5</strong>. The following C# 6+ features
+            must be avoided:
+        </p>
+        <ul>
+            <li>Expression-bodied members (<code>=> expr</code> on methods) &mdash; use full <code>{ return ...; }</code></li>
+            <li>Index initializers (<code>{ ["key"] = value }</code>) &mdash; use <code>.Add("key", value)</code></li>
+            <li>String interpolation (<code>$"..."</code>) &mdash; use <code>string.Format(...)</code></li>
+            <li>Null-conditional operators (<code>?.</code>) &mdash; use explicit null checks</li>
+        </ul>
+
+        <h3>Adding Tests</h3>
+        <pre><code>// In va_system_diagnostics.aspx.cs
+private DiagnosticResult TestMyNewCheck()
+{
+    var sw = Stopwatch.StartNew();
+    try
+    {
+        // ... your test logic ...
+        sw.Stop();
+        return new DiagnosticResult {
+            TestName = "My New Check",
+            Category = "mqtt",        // used to group cards in the ASPX
+            Icon     = "&amp;#128225;",
+            Passed   = true,
+            Message  = "Connected OK",
+            DurationMs = sw.ElapsedMilliseconds,
+            Details  = "Host: localhost:8883"
+        };
+    }
+    catch (Exception ex)
+    {
+        sw.Stop();
+        return new DiagnosticResult {
+            TestName="My New Check", Category="mqtt", Icon="&amp;#128225;",
+            Passed=false, Message=ex.Message, DurationMs=sw.ElapsedMilliseconds
+        };
+    }
+}
+
+// Then call it in RunAllTests():
+TestResults.Add(TestMyNewCheck());</code></pre>
+
+        <h3>PowerShell Equivalent</h3>
+        <p>
+            The PowerShell script <code>Invoke-BatchModeTest.ps1</code> does the same batch update test
+            and is useful for running on remote servers without browser access:
+        </p>
+        <pre><code># Run on VISN5-8 via RDP
+.\Invoke-BatchModeTest.ps1 `
+    -BaseUrl http://localhost `
+    -ClientId "v512" `
+    -ClientSecret "YOUR_SECRET" `
+    -BatchSize 10 `
+    -CompanyId 3</code></pre>
+
+        <!-- ── TROUBLESHOOTING ─────────────────────────────────────── -->
+        <h2 id="troubleshooting">11. Troubleshooting</h2>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0; font-size:13px;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);">Symptom</th>
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);">Cause</th>
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);">Resolution</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:8px 12px;">Page redirects to <code>../index.aspx</code> immediately</td>
+                <td style="padding:8px 12px;">Not logged in to iDash, or insufficient tile access</td>
+                <td style="padding:8px 12px;">Log in to iDash first; add <code>admin_diagnostics</code> tile to user&rsquo;s tile list</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:8px 12px;">Company dropdown is empty</td>
+                <td style="padding:8px 12px;">DB connection string misconfigured; <code>dbo.company</code> is empty</td>
+                <td style="padding:8px 12px;">Check <code>web.config</code> connection string; verify at least 1 company in DB</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:8px 12px;">Tests hang for &gt;30 seconds</td>
+                <td style="padding:8px 12px;">API is not responding (IIS recycled, app pool stopped)</td>
+                <td style="padding:8px 12px;">Open IIS Manager &rarr; restart iDash app pool; check <code>C:\Logs\WebClient_log.txt</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:8px 12px;">Email button does nothing</td>
+                <td style="padding:8px 12px;">No recipients configured, or SMTP not set up</td>
+                <td style="padding:8px 12px;">Add recipients via iDash Admin &rarr; Email Settings; verify SMTP in <code>web.config</code></td>
+            </tr>
+            <tr>
+                <td style="padding:8px 12px;">Batch test 500 errors</td>
+                <td style="padding:8px 12px;">Asset payload missing required fields for API validation</td>
+                <td style="padding:8px 12px;">Check <code>C:\Logs\WebClient_log.txt</code> for the full exception. May indicate schema changes in iDash update.</td>
+            </tr>
+        </table>
+
+        <!-- ── CHANGELOG ──────────────────────────────────────────── -->
+        <h2 id="changelog">12. Changelog</h2>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0; font-size:13px;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);">Date</th>
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);">Version</th>
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);">Change</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:8px 12px;">2026-08-11</td>
+                <td style="padding:8px 12px;">1.0</td>
+                <td style="padding:8px 12px;">Initial release. 4 live tests: API auth, DB/license, server registrations, batch update simulation. Email report. Placeholder stubs for MQTT/RabbitMQ/reader tests. PowerShell equivalent (<code>Invoke-BatchModeTest.ps1</code>).</td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

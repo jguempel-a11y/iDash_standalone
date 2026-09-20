@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>AUTO DB UPDATE &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+
+<div class="container">
+    <h1>Auto Database Update &amp; Cross-Site Merge SOP</h1>
+    <p>This document completely outlines the architecture and proper operating procedures for merging remote iDash database backups and flat-files into the master local system using the automated <code>va_autodbupdate.aspx</code> and corresponding SQL merging engine.</p>
+
+    <div class="success">
+        <strong>Intelligent Data Sync Active:</strong> The current synchronization framework natively protects all core master data variables (last known locations, last inventoried dates, structural records) during the merge process.
+    </div>
+
+    <h2>1. Accepted File Formats &amp; Loading Areas</h2>
+    <p>The Auto DB update module polls the designated watch folder continuously (Default: <code>C:\VA_RFID\va_dbupdate\autoload</code>).</p>
+    <ul>
+        <li><code>cart1.idash_daily_full.bak</code> - Represents a full SQL Backup file exported directly from an off-site master server.</li>
+        <li><code>data.txt</code> / <code>data.xlsx</code> - Represents flat data output files exported via ENNX/legacy table reports into the root.</li>
+    </ul>
+
+    <h2>2. Advanced Cross-Site Backup (.BAK) Merging</h2>
+    <p>When the engine detects a remote SQL backup (<code>.bak</code>), it routes the workload away from the default blind insertion routine to an incredibly secure database reconciliation pipeline (<code>va_bak_merge.sql</code>).</p>
+    
+    <ol>
+        <li><strong>Temp DB Spin-up:</strong> The backup file is restored strictly to an isolated temporary sandbox database (<code>idash_merge_temp</code>) so no direct interactions occur until verified.</li>
+        <li><strong>Upsert Normalization:</strong> Data flows natively bridging the temp server and the actual iDash system checking explicitly for duplicate RFIDs and Names.</li>
+        <li><strong>Master Field Protections:</strong> 
+            <ul>
+                <li><code>lastinventoried</code> is updated ONLY if the imported record has a newer/fresher ping.</li>
+                <li><code>lastobservedlocation</code> relies strictly on the most recently parsed area scans.</li>
+                <li><code>disposalstatus (listvalue1)</code> mapping handles "TURNED IN", "MISSING", preventing null-overwrites affecting deployment analytics.</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h2>3. The Intelligent CMR Filter</h2>
+    <div class="alert">
+        <strong>CRITICAL SAFETY PROTOCOL:</strong> Past database migrations uncovered massive corruption vectors where remote sites shoved extended nomenclature tags (e.g. <code>HOIST PATIENT CEILING</code>) into their CMR database column (<code>text8</code>). 
+    </div>
+    <p>To safely pull CMR IDs from remote databases without poisoning the master dataset:</p>
+    <ul>
+        <li>The script imports <code>text8</code> from incoming backups through an intelligent firewall.</li>
+        <li>If an incoming CMR string contains <strong>multiple spaces, exceeds 10 characters, lacks any dashes (-), or doesn't start with "CMR"</strong>, the script identifies it as an invalid nomenclature hazard.</li>
+        <li>Invalid payloads are immediately <strong>nulled out</strong> before insertion, protecting your CMR dashboard filters.</li>
+        <li>Validly formatted CMRs (e.g. <code>512-A00400</code>) easily slip through to map to the new database nodes intact.</li>
+    </ul>
+
+    <h2>4. Executing an Update</h2>
+    <p>To run an update manually:</p>
+    <ol>
+        <li>Drop the properly named <code>.bak</code> file or <code>.txt</code> file directly into <code>C:\VA_RFID\va_dbupdate\autoload</code>.</li>
+        <li>Open the <strong>Database Automation Panel</strong> (<code>va_autodbupdate.aspx</code>) in your browser.</li>
+        <li>Click <strong>Run Database Automation</strong>.</li>
+        <li>Once processed, the payload file will be cleanly sorted into the <code>/loaded</code> archive folder timestamped for reference.</li>
+    </ol>
+
+    <h2>Automation Triggers</h2>
+    <p>Outside of the manual button, external Windows Task Scheduler cycles can trigger updates autonomously by silently firing a localized ping to: <br/><code>/iDash/va_autodbupdate.aspx?auto=1</code></p>
+</div>
+
+</body>
+</html>

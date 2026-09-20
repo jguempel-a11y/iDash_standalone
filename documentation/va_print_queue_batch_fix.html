@@ -1,0 +1,439 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>PRINT QUEUE &amp; BATCH FIX &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .timeline { border-left: 3px solid var(--accent-docs); padding-left: 24px; margin: 20px 0; }
+        .timeline-item { position: relative; margin-bottom: 20px; }
+        .timeline-item::before { content: ''; position: absolute; left: -30px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-docs); }
+        .timeline-item h4 { margin: 0 0 4px 0; color: var(--accent-docs); }
+        .flow-diagram { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin: 16px 0; }
+        .flow-box { padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; text-align: center; min-width: 100px; }
+        .flow-arrow { font-size: 20px; color: var(--muted-docs); padding: 0 4px; }
+        .flow-web { background: color-mix(in srgb, #3b82f6 15%, transparent); border: 1px solid #3b82f6; color: #3b82f6; }
+        .flow-api { background: color-mix(in srgb, #8B5CF6 15%, transparent); border: 1px solid #8B5CF6; color: #8B5CF6; }
+        .flow-mqtt { background: color-mix(in srgb, #f59e0b 15%, transparent); border: 1px solid #f59e0b; color: #f59e0b; }
+        .flow-print { background: color-mix(in srgb, #10b981 15%, transparent); border: 1px solid #10b981; color: #10b981; }
+        .flow-db { background: color-mix(in srgb, #ef4444 15%, transparent); border: 1px solid #ef4444; color: #ef4444; }
+        .diff-block { font-family: 'Consolas', monospace; font-size: 12px; line-height: 1.5; padding: 14px; border-radius: 8px; overflow-x: auto; background: color-mix(in srgb, var(--text), transparent 96%); border: 1px solid var(--line); }
+        .diff-add { color: #10b981; }
+        .diff-del { color: #ef4444; text-decoration: line-through; }
+        .sql-block { background: color-mix(in srgb, #f59e0b, transparent 92%); border: 1px solid color-mix(in srgb, #f59e0b, transparent 60%); padding: 16px; border-radius: 10px; margin: 16px 0; }
+        .sql-block h4 { margin: 0 0 8px 0; color: #f59e0b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>&#128424; Print Queue &amp; Batch Print Fix</h1>
+        <div style="margin-bottom: 30px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <div style="margin-right: 15px; color:var(--muted-docs); font-size: 14px;">Categories:</div>
+            <span class='badge badge-db'>Database Connected</span>
+            <span class='badge' style="background:color-mix(in srgb, #8B5CF6 15%, transparent); color:#8B5CF6; border:1px solid #8B5CF6;">MQTT</span>
+            <span class='badge' style="background:color-mix(in srgb, #10b981 15%, transparent); color:#10b981; border:1px solid #10b981;">Print Server</span>
+            <span class='badge' style="background:color-mix(in srgb, #f59e0b 15%, transparent); color:#f59e0b; border:1px solid #f59e0b;">BarTender</span>
+            <span class='badge' style="background:color-mix(in srgb, #ef4444 15%, transparent); color:#ef4444; border:1px solid #ef4444;">Bug Fix &mdash; Aug 2026</span>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  PROBLEM STATEMENT                                     -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <h2>&#9888;&#65039; The Problem</h2>
+        <p>When printing <strong>multiple labels</strong> in a single batch (from Excel Import or Asset Master), the system produced <strong>duplicate labels</strong> and <strong>stuck/orphaned print jobs</strong>. Symptoms:</p>
+        <table>
+            <thead><tr><th>Symptom</th><th>What Happened</th><th>Frequency</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Duplicate labels</strong></td><td>Selecting 3 assets to print produced 7 labels (1 + 3 + 3)</td><td>Every batch &gt; 1</td></tr>
+                <tr><td><strong>Stuck jobs</strong></td><td>Jobs stuck at <code>completed=0</code> with empty <code>generatedrfid</code> and <code>message</code></td><td>~75% of batch jobs</td></tr>
+                <tr><td><strong>Queue bloat</strong></td><td><code>dbo.printjob</code> accumulating hundreds of orphaned rows</td><td>Cumulative</td></tr>
+            </tbody>
+        </table>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  ROOT CAUSE                                            -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <h2>&#128269; Root Cause: BarTender's "All Records" Database Query</h2>
+        <p>BarTender label templates are configured with a <strong>database connection</strong> that uses the <code>"All Records"</code> query mode. This means:</p>
+        
+        <div style="background:color-mix(in srgb,#ef4444,transparent 92%); border-left:6px solid #ef4444; padding:14px 18px; border-radius:0 10px 10px 0; margin:16px 0;">
+            <strong style="color:#ef4444;">&#9888; Critical:</strong> Every time BarTender is triggered, it queries the <code>printjob</code> table for <strong>ALL</strong> rows where <code>completed = 0</code> and prints <strong>every single one</strong> &mdash; not just the job it was triggered for.
+        </div>
+
+        <h3>The BarTender SQL Query (inside .btw templates)</h3>
+        <p>Each BarTender template (<code>.btw</code> file) contains an embedded database connection that runs a SQL query against the iDash database. The query BarTender executes when triggered:</p>
+        
+        <div class="sql-block">
+            <h4>&#128451; BarTender Template Database Query</h4>
+            <pre><code>-- This query is embedded INSIDE each BarTender .btw template file
+-- (Edit via BarTender Designer → Database Setup → Database Connection)
+-- Connection: OLEDB to iDash SQL Server
+-- Query Mode: "All Records"
+
+SELECT pj.id, pj.recordid, pj.templateid, pj.generatedrfid, 
+       pj.completed, pj.created, pj.companyid, pj.message,
+       a.name AS assetname, a.description, a.rfidtag,
+       a.text1, a.text2, a.text3, a.text4, a.text5, a.text6,
+       a.text7, a.text8, a.text9, a.text10,
+       l.name AS locationname
+FROM dbo.printjob pj
+INNER JOIN dbo.asset a ON a.id = pj.recordid
+LEFT JOIN dbo.location l ON l.id = a.locationid
+WHERE pj.completed = 0
+  AND pj.templateid = &lt;TemplateID&gt;
+  AND pj.companyid  = &lt;CompanyID&gt;
+ORDER BY pj.created ASC</code></pre>
+            <p style="color:var(--muted-docs); font-size:13px; margin:8px 0 0 0;">
+                <strong>Note:</strong> The <code>&lt;TemplateID&gt;</code> and <code>&lt;CompanyID&gt;</code> values are passed by the Print Server via MQTT message payload. The exact query may vary by template version &mdash; check your <code>.btw</code> file in BarTender Designer under <em>Database Setup &rarr; Tables/Queries</em>.
+            </p>
+        </div>
+
+        <h3>The v_printjob View</h3>
+        <p>iDash also provides a convenience view for the Print Administration page:</p>
+        <pre><code>-- dbo.v_printjob (used by iDash Print Administration UI)
+CREATE VIEW [dbo].[v_printjob] AS
+SELECT a.name  AS assetname,
+       l.name  AS locationname,
+       t.name  AS templatename,
+       pj.*
+FROM printjob pj
+LEFT JOIN asset    a ON a.id = pj.recordid
+LEFT JOIN location l ON l.id = pj.recordid
+LEFT JOIN template t ON t.id = pj.templateid;</code></pre>
+
+        <h3>What Went Wrong</h3>
+        <div class="flow-diagram">
+            <div class="flow-box flow-web">iDash<br><small>Submit 3 jobs</small></div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="flow-box flow-api">API<br><small>Insert row 1</small></div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="flow-box flow-mqtt">MQTT<br><small>Trigger #1</small></div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="flow-box flow-print">BarTender<br><small>Query: 1 pending<br>&rarr; prints 1 &#10003;</small></div>
+        </div>
+        <div class="flow-diagram">
+            <div class="flow-box flow-web" style="opacity:0.4">iDash</div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="flow-box flow-api">API<br><small>Insert row 2<br>(250ms later)</small></div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="flow-box flow-mqtt">MQTT<br><small>Trigger #2</small></div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="flow-box flow-db" style="border-color:#ef4444;">BarTender<br><small>Query: <strong>2 pending!</strong><br>&rarr; prints 1 + 2 &#10007;</small></div>
+        </div>
+        <p style="color:var(--muted-docs); font-size: 14px;">Job 1 hadn't been marked <code>completed=1</code> yet when BarTender was triggered for job 2, so BarTender's "All Records" query picked up <strong>both</strong> pending jobs and printed both.</p>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  THE FIX                                               -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <h2>&#9989; The Fix: Poll-for-Completion</h2>
+        <p>Instead of submitting all jobs rapidly, iDash now <strong>waits for each job to be marked <code>completed=1</code></strong> before submitting the next one. This guarantees zero pending jobs when BarTender is triggered for the next label.</p>
+
+        <div class="flow-diagram">
+            <div class="flow-box flow-web">Submit Job 1</div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="flow-box flow-print">Print &amp; Complete</div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="flow-box flow-api" style="border-style:dashed;">Poll: pending=0?</div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="flow-box flow-web">Submit Job 2</div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="flow-box flow-print">Print &amp; Complete</div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="flow-box flow-api" style="border-style:dashed;">Poll: pending=0?</div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="flow-box flow-web">Submit Job 3</div>
+        </div>
+
+        <div style="background:color-mix(in srgb,#10b981,transparent 92%); border-left:6px solid #10b981; padding:14px 18px; border-radius:0 10px 10px 0; margin:16px 0;">
+            <strong style="color:#10b981;">&#10003; Result:</strong> Every label prints exactly once. No duplicates. No orphaned jobs.
+        </div>
+
+        <h3>Polling Query</h3>
+        <p>Between each job submission, iDash runs this query every 500ms (up to 15-second timeout):</p>
+        <pre><code>SELECT COUNT(*) FROM dbo.printjob 
+WHERE completed = 0 
+  AND companyid  = @companyId 
+  AND templateid = @templateId</code></pre>
+        <p>When the count reaches <code>0</code>, the next job is submitted. If 15 seconds pass without completion, the next job is submitted anyway (fail-safe to prevent infinite hangs).</p>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  FILES CHANGED                                         -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <h2>&#128221; Files Changed</h2>
+        <table>
+            <thead><tr><th>File</th><th>Change</th><th>Impact</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><code>App_Code\IdashApiHelper.cs</code></td>
+                    <td>
+                        <strong>SubmitPrintJobsBatch()</strong> &mdash; Replaced SQL-insert-then-trigger-once approach with individual API calls + poll-for-completion between each.<br>
+                        <strong>SubmitPrintJobs()</strong> &mdash; Added same poll-for-completion logic between jobs.<br>
+                        <strong>WaitForPendingJobsComplete()</strong> &mdash; New private helper method that polls <code>dbo.printjob</code> for pending count.
+                    </td>
+                    <td>All print paths (Excel Import, Asset Master, TagTeam)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  BEFORE / AFTER CODE                                   -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <h2>&#128736;&#65039; Code Changes Detail</h2>
+
+        <h3>SubmitPrintJobsBatch() &mdash; Used by Excel Import &amp; Asset Master WebMethod</h3>
+        <div class="diff-block">
+            <div class="diff-del">// OLD: Insert N-1 jobs via raw SQL, trigger API once for last job</div>
+            <div class="diff-del">// Assumption: BarTender "All Records" picks up all pending jobs</div>
+            <div class="diff-del">// Reality: Only last job processed, rest orphaned at completed=0</div>
+            <br>
+            <div class="diff-add">// NEW: Submit each job individually via API, poll for completion</div>
+            <div class="diff-add">foreach (var assetId in assetIds) {</div>
+            <div class="diff-add">&nbsp;&nbsp;SubmitPrintJob(assetId, templateId, companyId);</div>
+            <div class="diff-add">&nbsp;&nbsp;if (submitted &lt; assetIds.Count)</div>
+            <div class="diff-add">&nbsp;&nbsp;&nbsp;&nbsp;WaitForPendingJobsComplete(connStr, companyId, templateId, 15000);</div>
+            <div class="diff-add">}</div>
+        </div>
+
+        <h3>SubmitPrintJobs() &mdash; Used by Asset Master HandlePrintRequest</h3>
+        <div class="diff-block">
+            <div class="diff-del">// OLD: Rapid-fire all jobs with no delay</div>
+            <div class="diff-del">SubmitPrintJob(recordId, templateId, companyId, tableName);</div>
+            <div class="diff-del">count++;</div>
+            <br>
+            <div class="diff-add">// NEW: Submit + poll for completion before next job</div>
+            <div class="diff-add">SubmitPrintJob(recordId, templateId, companyId, tableName);</div>
+            <div class="diff-add">count++;</div>
+            <div class="diff-add">if (count &lt; jobs.Count)</div>
+            <div class="diff-add">&nbsp;&nbsp;WaitForPendingJobsComplete(connStr, companyId, templateId, 15000);</div>
+        </div>
+
+        <h3>WaitForPendingJobsComplete() &mdash; New Shared Helper</h3>
+        <pre><code>private static void WaitForPendingJobsComplete(
+    string connStr, int companyId, long templateId, int maxWaitMs)
+{
+    int elapsed = 0;
+    const int pollInterval = 500; // Check every 500ms
+
+    while (elapsed &lt; maxWaitMs)
+    {
+        Thread.Sleep(pollInterval);
+        elapsed += pollInterval;
+
+        using (var cn = new SqlConnection(connStr))
+        {
+            cn.Open();
+            using (var cmd = new SqlCommand(
+                @"SELECT COUNT(*) FROM dbo.printjob 
+                  WHERE completed = 0 AND companyid = @cid 
+                  AND templateid = @tid", cn))
+            {
+                cmd.Parameters.AddWithValue("@cid", companyId);
+                cmd.Parameters.AddWithValue("@tid", templateId);
+                int pending = (int)cmd.ExecuteScalar();
+                if (pending == 0) return; // Safe to submit next
+            }
+        }
+    }
+    // Timeout: submit next anyway (fail-safe)
+}</code></pre>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  PERFORMANCE                                           -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <h2>&#9201; Performance Impact</h2>
+        <table>
+            <thead><tr><th>Batch Size</th><th>Old Behavior</th><th>New Behavior</th><th>Time</th></tr></thead>
+            <tbody>
+                <tr><td>1 label</td><td>Instant</td><td>Instant (no polling needed)</td><td>~3s</td></tr>
+                <tr><td>3 labels</td><td>Instant (but 2 stuck + duplicates)</td><td>Sequential, each verified</td><td>~10-15s</td></tr>
+                <tr><td>10 labels</td><td>Instant (but 9 stuck + duplicates)</td><td>Sequential, each verified</td><td>~30-50s</td></tr>
+                <tr><td>25 labels</td><td>Instant (but 24 stuck + duplicates)</td><td>Sequential, each verified</td><td>~1-2 min</td></tr>
+            </tbody>
+        </table>
+        <p><strong>Trade-off:</strong> Printing takes longer, but every label prints exactly once. The user sees a progress indicator on the browser while the batch processes.</p>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  PRINT QUEUE MAINTENANCE                               -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <h2>&#128451; Print Queue Maintenance SQL</h2>
+        <p>Use these queries to view and manage the print queue. Run via SSMS or the iDash <a href="va_dbupdate_workbench.html" style="color:var(--accent-docs);">DB Update Workbench</a>.</p>
+        
+        <h3>View Queue</h3>
+        <pre><code>-- All jobs (newest first) with asset and template names
+SELECT * FROM dbo.v_printjob ORDER BY created DESC;
+
+-- Just pending/stuck jobs
+SELECT id, recordid, templateid, generatedrfid, completed, created, message
+FROM dbo.printjob WHERE completed = 0 ORDER BY created;
+
+-- Job counts by status
+SELECT 
+    CASE WHEN completed = 1 AND message LIKE '%Successful%' THEN 'Success'
+         WHEN completed = 1 AND message LIKE '%error%'      THEN 'Error'
+         WHEN completed = 1 AND message LIKE '%not currently connected%' THEN 'Disconnected'
+         WHEN completed = 0 THEN 'Stuck/Pending'
+         ELSE 'Other' END AS Status,
+    COUNT(*) AS Total
+FROM dbo.printjob
+GROUP BY 
+    CASE WHEN completed = 1 AND message LIKE '%Successful%' THEN 'Success'
+         WHEN completed = 1 AND message LIKE '%error%'      THEN 'Error'
+         WHEN completed = 1 AND message LIKE '%not currently connected%' THEN 'Disconnected'
+         WHEN completed = 0 THEN 'Stuck/Pending'
+         ELSE 'Other' END
+ORDER BY Total DESC;</code></pre>
+
+        <h3>Clear Queue</h3>
+        <pre><code>-- Delete all completed jobs (safe — already processed)
+DELETE FROM dbo.printjob WHERE completed = 1;
+
+-- Delete stuck/orphaned jobs (completed=0, empty generatedrfid)
+-- These will never complete on their own
+DELETE FROM dbo.printjob WHERE completed = 0;
+
+-- Delete jobs older than 30 days
+DELETE FROM dbo.printjob 
+WHERE created &lt; DATEADD(DAY, -30, GETDATE());
+
+-- Nuclear: clear entire queue
+TRUNCATE TABLE dbo.printjob;</code></pre>
+
+        <div style="background:color-mix(in srgb,#f59e0b,transparent 92%); border-left:6px solid #f59e0b; padding:14px 18px; border-radius:0 10px 10px 0; margin:16px 0;">
+            <strong style="color:#f59e0b;">&#128161; Tip:</strong> On production, clear the queue periodically. There's no auto-purge &mdash; completed jobs accumulate indefinitely. A monthly <code>DELETE WHERE completed = 1</code> keeps it clean.
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  printjob TABLE SCHEMA                                 -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <h2>&#128451; printjob Table Schema</h2>
+        <table>
+            <thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>id</code></td><td>int (PK)</td><td>Auto-increment job ID</td></tr>
+                <tr><td><code>recordid</code></td><td>int</td><td>FK to <code>dbo.asset.id</code></td></tr>
+                <tr><td><code>tablename</code></td><td>varchar</td><td>Always <code>"Asset"</code></td></tr>
+                <tr><td><code>templateid</code></td><td>int</td><td>FK to <code>dbo.template.id</code> (e.g. 12=AW_Std_Small, 6=AW_Metal_IQ350, 7=AW_Metal_Large)</td></tr>
+                <tr><td><code>generatedrfid</code></td><td>varchar</td><td>Hex RFID tag written to the label. <strong>Empty when stuck.</strong></td></tr>
+                <tr><td><code>completed</code></td><td>bit</td><td><code>0</code> = pending/stuck, <code>1</code> = processed (success or error)</td></tr>
+                <tr><td><code>created</code></td><td>datetimeoffset</td><td>When the job was created</td></tr>
+                <tr><td><code>companyid</code></td><td>int</td><td>FK to <code>dbo.company.id</code> &mdash; determines which site's print client handles it</td></tr>
+                <tr><td><code>message</code></td><td>varchar</td><td><code>"Print Successful"</code>, error text, or empty (stuck)</td></tr>
+                <tr><td><code>usewithservice</code></td><td>varchar</td><td>Print client service name (e.g. <code>"visn5-8"</code>) or NULL/empty</td></tr>
+            </tbody>
+        </table>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  TEMPLATE TABLE                                        -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <h2>&#127991;&#65039; Template Reference</h2>
+        <table>
+            <thead><tr><th>Template ID</th><th>Name</th><th>Label Type</th><th>Use Case</th></tr></thead>
+            <tbody>
+                <tr><td>12</td><td><code>AW_Std_Small</code></td><td>Standard adhesive label</td><td>General equipment &mdash; smaller items, shelves</td></tr>
+                <tr><td>7</td><td><code>AW_Metal_Large</code></td><td>Metal-mount RFID tag</td><td>Large equipment, outdoor, harsh environment</td></tr>
+                <tr><td>6</td><td><code>AW_Metal_IQ350</code></td><td>Confidex IQ350 metal tag</td><td>Metal surfaces &mdash; cabinets, racks, vehicles</td></tr>
+            </tbody>
+        </table>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  PRINT FLOW ARCHITECTURE                               -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <h2>&#128736;&#65039; Complete Print Flow Architecture</h2>
+        <div class="timeline">
+            <div class="timeline-item">
+                <h4>1. User Action</h4>
+                <p>User selects assets in <strong>Excel Import</strong> or <strong>Asset Master</strong> and clicks <em>Print</em>.</p>
+            </div>
+            <div class="timeline-item">
+                <h4>2. iDash Server (IdashApiHelper.cs)</h4>
+                <p>Calls <code>SubmitPrintJob()</code> which POSTs to the iDash API:<br>
+                <code>POST /api/printjob</code> with <code>recordId</code>, <code>templateId</code>, <code>companyId</code><br>
+                The API inserts a row into <code>dbo.printjob</code> with <code>completed=0</code>.</p>
+            </div>
+            <div class="timeline-item">
+                <h4>3. iDash API &rarr; MQTT Trigger</h4>
+                <p>The API publishes an MQTT message to the Print Server topic, notifying it that a new job is ready.</p>
+            </div>
+            <div class="timeline-item">
+                <h4>4. Print Server (Windows Service)</h4>
+                <p>Receives the MQTT message, looks up the template's <code>.btw</code> file path, and invokes BarTender.</p>
+            </div>
+            <div class="timeline-item">
+                <h4>5. BarTender Prints</h4>
+                <p>BarTender opens the template, runs its <strong>embedded SQL query</strong> (<code>WHERE completed = 0</code>), generates RFID data, encodes the tag, and prints the label.</p>
+            </div>
+            <div class="timeline-item">
+                <h4>6. Print Server Marks Complete</h4>
+                <p>After BarTender returns, the Print Server updates the <code>printjob</code> row: sets <code>completed=1</code>, populates <code>generatedrfid</code> and <code>message</code>.</p>
+            </div>
+            <div class="timeline-item">
+                <h4>7. iDash Polls &amp; Submits Next (NEW)</h4>
+                <p><code>WaitForPendingJobsComplete()</code> checks <code>COUNT(*) WHERE completed=0</code> every 500ms. When it hits zero, the next job is submitted. Max wait: 15 seconds per job.</p>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  TROUBLESHOOTING                                       -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <h2>&#128295; Troubleshooting</h2>
+        <table>
+            <thead><tr><th>Issue</th><th>Likely Cause</th><th>Fix</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>Jobs stuck at <code>completed=0</code></td>
+                    <td>Print Server disconnected, BarTender not running, or template missing</td>
+                    <td>Check Print Administration page &mdash; verify MQTT status is <code>Connected</code> and Print Server PID is <code>Running</code>. Delete stuck jobs: <code>DELETE FROM printjob WHERE completed = 0</code></td>
+                </tr>
+                <tr>
+                    <td>Message: <em>"Print Client not currently connected"</em></td>
+                    <td>Print Server Windows Service is stopped or MQTT credentials are wrong</td>
+                    <td>Start the <code>iDash Print Server</code> service. Verify MQTT username/password in <code>appsettings.json</code> matches <code>dbo.printclient</code>.</td>
+                </tr>
+                <tr>
+                    <td>Message: <em>"BarTender Print Result Failure"</em></td>
+                    <td>BarTender license expired, template corrupt, or RFID encoder error</td>
+                    <td>Open BarTender, verify license. Try printing manually from BarTender. Check printer RFID settings.</td>
+                </tr>
+                <tr>
+                    <td>Batch takes very long</td>
+                    <td>Each label waits up to 15s for the previous to complete</td>
+                    <td>Normal &mdash; each label takes 3-5s to print + encode RFID. 25 labels &asymp; 2 minutes. This is the trade-off for guaranteed single prints.</td>
+                </tr>
+                <tr>
+                    <td>Duplicate labels (after fix)</td>
+                    <td>Old version of <code>IdashApiHelper.cs</code> deployed</td>
+                    <td>Verify the file contains <code>WaitForPendingJobsComplete</code>. Re-deploy from dev server.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!--  DEPLOYMENT                                            -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <h2>&#128640; Deployment Checklist</h2>
+        <ol>
+            <li>Clear stuck print jobs: <code>DELETE FROM dbo.printjob WHERE completed = 0</code></li>
+            <li>Copy <code>App_Code\IdashApiHelper.cs</code> from dev to production's <code>iDash\App_Code\</code></li>
+            <li>IIS auto-compiles on next request (no restart needed)</li>
+            <li>Test: Select 3 assets in Asset Master &rarr; Print &rarr; verify 3 labels (not 7)</li>
+            <li>Test: Import 3 from Excel &rarr; Import &amp; Print &rarr; verify 3 labels</li>
+            <li>Verify Print Administration page shows all jobs as <span style="color:#10b981; font-weight:bold;">Done</span></li>
+        </ol>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--line-docs); color: var(--muted-docs); font-size: 13px;">
+            <p><strong>Document Version:</strong> 1.0 &bull; <strong>Date:</strong> August 26, 2026 &bull; <strong>Author:</strong> iDash Development Team</p>
+            <p><strong>Related Docs:</strong> 
+                <a href="va_mqtt_config.html" style="color:var(--accent-docs);">MQTT Configuration</a> &bull;
+                <a href="va_excel_print.html" style="color:var(--accent-docs);">Excel Equipment Import</a> &bull;
+                <a href="va_asset_master.html" style="color:var(--accent-docs);">Asset Master</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

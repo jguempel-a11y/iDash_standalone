@@ -1,0 +1,590 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA USER MANAGEMENT &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<div class="wrap">
+    <a href="../index.aspx">&larr; Back to iDash Hub</a><br/><br/>
+
+    <!-- OVERVIEW -->
+    <div class="card">
+        <h1>&#128100; User Management</h1>
+        <div class="kv"><span class="k">File</span><code>va_user_management.aspx</code> / <code>va_user_management.aspx.cs</code></div>
+        <div class="kv"><span class="k">Storage</span><code>App_Data\idash_users.json</code> (auto-created on first run)</div>
+        <div class="kv"><span class="k">Access</span>Administrator role or <code>admin_users</code> tile permission</div>
+        <p>The unified User Management page controls <strong>two systems from one page</strong>: iDash portal users (roles, tiles, sites) and iDash/RFID scanner accounts (dbo.sysuser). Toggle between systems with the tab bar at the top &mdash; no page reload needed.</p>
+
+        <div class="toc">
+            <a href="#concepts">Access Model Concepts</a>
+            <a href="#roles">Portal Roles</a>
+            <a href="#site-perms">Site Permissions</a>
+            <a href="#create-user">Creating a New User</a>
+            <a href="#edit-user">Editing a User</a>
+            <a href="#disable-delete">Disabling &amp; Deleting</a>
+            <a href="#storage">How Users Are Stored</a>
+            <a href="#security">Security Notes</a>
+            <a href="#enforcement">Where Permissions Are Enforced</a>
+            <a href="#login-history">Login History</a>
+            <a href="#changelog">Changelog</a>
+        </div>
+    </div>
+
+    <!-- CONCEPTS -->
+    <div class="card" id="concepts">
+        <h2>Access Model Concepts</h2>
+        <p>iDash uses a <strong>three-dimensional access model</strong>: a <em>portal role</em> provides baseline permissions; <em>tile access permissions</em> granularly grant access to specific application tools and documentation; <em>site permissions</em> control which VA medical center data they can interact with and what they can do to it.</p>
+
+        <table>
+            <tr><th>Dimension</th><th>Controls</th><th>Values</th></tr>
+            <tr>
+                <td><strong>Portal Role</strong></td>
+                <td>Baseline user state and global administrative override</td>
+                <td><code>admin</code>, <code>user</code>, <code>readonly</code></td>
+            </tr>
+            <tr><td><strong>Tile Access Permissions</strong></td><td>Granular, per-tile access to Scanning tools, Reports, Documentation, and Admin Panels</td><td>List of permitted functional tiles (e.g. <code>scan_tagteam</code>, <code>admin_users</code>)</td></tr><tr><td><strong>Site Permission</strong></td>
+                <td>Per-site: what the user can do with that site's data</td>
+                <td><code>full</code>, <code>ennx</code>, or no entry (no access)</td>
+            </tr>
+        </table>
+
+        <div class="alert alert-info">
+            <strong>Admins bypass site permissions entirely.</strong> A user with the <code>admin</code> role always has full access to every site in the database &mdash; the site permission grid is stored but never enforced for them.
+        </div>
+    </div>
+
+    <!-- ROLES -->
+    <div class="card" id="roles">
+        <h2>Portal Roles</h2>
+
+        <h3><span class="badge badge-admin">Administrator</span></h3>
+        <ul>
+            <li><span class="check">&larr;&ldquo;</span> All reports, research tools, and ENNX generation</li>
+            <li><span class="check">&larr;&ldquo;</span> All scanning and tagging tools (VA Site Inventory, TagTeam, etc.)</li>
+            <li><span class="check">&larr;&ldquo;</span> Admin panel on the hub (DB Update, Log Viewer, AutoDB, etc.)</li>
+            <li><span class="check">&larr;&ldquo;</span> Documentation library</li>
+            <li><span class="check">&larr;&ldquo;</span> User Management (this page)</li>
+            <li><span class="check">&larr;&ldquo;</span> Ignores site access rules &mdash; always full access to all sites</li>
+        </ul>
+        <p>Use for ID Integration technical staff who need to manage the system. This is the only role that can access the admin panel and create other users.</p>
+
+        <h3><span class="badge badge-user">Standard User</span></h3>
+        <ul>
+            <li><span class="check">&larr;&ldquo;</span> Reports and research tools &mdash; limited to their assigned sites</li>
+            <li><span class="check">&larr;&ldquo;</span> Scanning and tagging tools &mdash; limited to their assigned sites and site permission level</li>
+            <li><span class="cross">&larr;&mdash;</span> Admin panel hidden</li>
+            <li><span class="check">&larr;&ldquo;</span> Documentation library</li>
+            <li><span class="cross">&larr;&mdash;</span> Cannot manage users</li>
+        </ul>
+        <p>Use for VA staff or field technicians who need to actively work with inventory data at assigned sites.</p>
+
+        <h3><span class="badge badge-readonly">Read-Only</span></h3>
+        <ul>
+            <li><span class="check">&larr;&ldquo;</span> Reports and research tools &mdash; limited to assigned sites</li>
+            <li><span class="check">&larr;&ldquo;</span> Can generate ENNX reports (if site permission = <code>ennx</code> or <code>full</code>)</li>
+            <li><span class="cross">&larr;&mdash;</span> Cannot scan assets, operate TagTeam, or move inventory</li>
+            <li><span class="cross">&larr;&mdash;</span> Admin panel hidden</li>
+            <li><span class="check">&larr;&ldquo;</span> Documentation library</li>
+        </ul>
+        <p>Use for VA supervisors, auditors, or report consumers who only need to view data and pull ENNX exports.</p>
+    </div>
+
+    <!-- SITE PERMISSIONS -->
+    <div class="card" id="site-perms">
+        <h2>Site Permissions</h2>
+        <p>After setting a portal role, you assign which VA medical center sites the user can access, and what level of permission they have at each site. Sites come directly from <code>dbo.company</code> in the iDash database.</p>
+
+        <table>
+            <tr><th>Permission</th><th>Code Value</th><th>What the User Can Do</th><th>What is Blocked</th></tr>
+            <tr>
+                <td><span class="badge badge-full">Full Access</span></td>
+                <td><code>full</code></td>
+                <td>
+                    View all site data, scan assets, commit location moves, tag assets,
+                    generate ENNX output, run sweeps, export results, email reports.
+                    Every inventory write operation is permitted.
+                </td>
+                <td>Nothing &mdash; complete site access.</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-ennx">ENNX / Report Only</span></td>
+                <td><code>ennx</code></td>
+                <td>
+                    View site reports, ENNX generation, research and look-up tools,
+                    export to Excel/CSV, email results. Read operations only.
+                </td>
+                <td>
+                    Cannot commit asset moves. Cannot scan assets in VA Site Inventory
+                    or TagTeam Scan. The "Commit Scans" button will not appear.
+                    Location writes are blocked server-side.
+                </td>
+            </tr>
+            <tr>
+                <td style="color:var(--muted-docs);">No Entry</td>
+                <td><em>(key absent)</em></td>
+                <td>Nothing. Site data is not visible.</td>
+                <td>Everything &mdash; site is completely hidden from the user's dropdowns and reports.</td>
+            </tr>
+        </table>
+
+        <div class="alert alert-warn">
+            <strong>Wildcard Site ("*"):</strong> Instead of listing sites individually you can set a single entry with the key <code>*</code> and a permission value. This grants that permission level to <em>all current and future sites</em> in the database without needing to update the user when new sites are added.
+        </div>
+
+        <h3>Typical Configurations</h3>
+        <table>
+            <tr><th>Scenario</th><th>Setup</th></tr>
+            <tr><td>Field tech covering two specific buildings</td><td>Add those two site names with <code>full</code></td></tr>
+            <tr><td>VA supervisor who reviews reports for their VISN</td><td>Add their sites with <code>ennx</code></td></tr>
+            <tr><td>National auditor viewing all facilities</td><td>Set wildcard <code>*</code> &larr;&rsquo; <code>ennx</code></td></tr>
+            <tr><td>ID Integration admin managing everything</td><td>Use <code>admin</code> role &mdash; no site setup needed</td></tr>
+        </table>
+    </div>
+
+    <!-- CREATING A USER -->
+    <div class="card" id="create-user">
+        <h2>Creating a New User &mdash; Step by Step</h2>
+
+        <div class="alert alert-info">
+            You must be logged in with an <strong>Administrator</strong> account to access User Management. Navigate to the hub, log in under Admin Tools, then click the <strong>User Management</strong> tile.
+        </div>
+
+        <div class="step">
+            <div class="step-num sn-green">1</div>
+            <div>
+                <strong>Open the Add User form</strong>
+                <p>Click the green <strong>+ Add User</strong> button in the top-right of the Portal Users card. A modal dialog slides in.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-num sn-green">2</div>
+            <div>
+                <strong>Fill in account details</strong>
+                <table>
+                    <tr><th>Field</th><th>Required</th><th>Notes</th></tr>
+                    <tr><td><strong>Username</strong></td><td>Yes</td><td>Login name. Auto-lowercased. Must be unique. No spaces. E.g. <code>jsmith</code></td></tr>
+                    <tr><td><strong>Display Name</strong></td><td>No</td><td>Human name shown in grids and welcome messages. Defaults to username if blank.</td></tr>
+                    <tr><td><strong>Password</strong></td><td>Yes</td><td>Minimum 6 characters. SHA-256 hashed before writing to disk &mdash; never stored in plain text.</td></tr>
+                    <tr><td><strong>Confirm Password</strong></td><td>Yes</td><td>Must match password exactly.</td></tr>
+                    <tr><td><strong>Portal Role</strong></td><td>Yes</td><td>See Role table above. Controls which sections are visible in the portal.</td></tr>
+                    <tr><td><strong>Notes</strong></td><td>No</td><td>Internal notes about this account (e.g. "Regional Baltimore field tech").</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-num sn-green">3</div>
+            <div>
+                <strong>Assign Site Access Permissions</strong>
+                <p>The <em>Site Access Permissions</em> section below the divider shows a grid of every site from <code>dbo.company</code>. For each site you wish to grant access:</p>
+                <ol>
+                    <li>Tick the checkbox next to the site name. The row highlights green and a permission dropdown appears.</li>
+                    <li>Choose <strong>Full Access</strong> (can move assets, commit scans) or <strong>ENNX / Report Only</strong> (view + export only).</li>
+                    <li>Repeat for each site that should be accessible to this user.</li>
+                </ol>
+
+                <h4>Shortcuts</h4>
+                <ul>
+                    <li><strong>All &mdash; Full</strong> button: ticks all sites with Full Access in one click.</li>
+                    <li><strong>All &mdash; ENNX</strong> button: ticks all sites with ENNX Only in one click.</li>
+                    <li><strong>Clear All</strong> button: unticks all sites (no access).</li>
+                </ul>
+
+                <div class="alert alert-info">
+                    If the role is set to <strong>Administrator</strong>, a blue notice appears explaining that site assignments are ignored &mdash; admins always have full access to everything. You may still fill in the grid for documentation purposes, but it has no enforcement effect.
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-num sn-green">4</div>
+            <div>
+                <strong>Click "Create User"</strong>
+                <p>Client-side validation runs first (password length, match, username required). If all checks pass, a server postback fires, the user is written to <code>App_Data\idash_users.json</code>, and a green success message confirms the account was created.</p>
+                <p>The user can now log in immediately using the login panel on the hub.</p>
+            </div>
+        </div>
+
+        <h3>Example: Creating a Field Tech Account</h3>
+        <pre>Username:     jsmith
+Display Name: John Smith
+Password:     (set secure password)
+Role:         Standard User
+Notes:        Baltimore &mdash; TagTeam field technician
+
+Site Access:
+  VA Maryland HCS &mdash; Baltimore     [Full Access]
+  VA Maryland HCS &mdash; Perry Point   [Full Access]
+  (all other sites &mdash; unchecked)</pre>
+        <p>This user can scan, move, and commit assets at Baltimore and Perry Point, but cannot see data from any other site, cannot access the admin panel, and cannot manage users.</p>
+
+        <h3>Example: Creating a Read-Only Supervisor Account</h3>
+        <pre>Username:     lmorales
+Display Name: Lt. Col. Morales (VA OIG)
+Password:     (set secure password)
+Role:         Read-Only
+Notes:        OIG auditor &mdash; read-only access to all facility sites
+
+Site Access:
+  [Click "All &mdash; ENNX" button &mdash; all sites populated]</pre>
+        <p>This user can view all reports and generate ENNX exports across all sites, but cannot move assets or access admin tools.</p>
+    </div>
+
+    <!-- EDITING -->
+    <div class="card" id="edit-user">
+        <h2>Editing an Existing User</h2>
+        <p>Click the <strong>Edit</strong> button in the Actions column for any user. The Edit modal pre-populates with all current values including site access checkboxes.</p>
+
+        <table>
+            <tr><th>Field</th><th>Behavior</th></tr>
+            <tr><td><strong>Password</strong></td><td>Leave blank to keep the current password. Only enter a new value if you are changing it. The hash in the JSON file is updated only if you type a new password.</td></tr>
+            <tr><td><strong>Role</strong></td><td>Changing role takes effect immediately on the user's next page load (not next login). A currently-logged-in user's session role is not retroactively updated.</td></tr>
+            <tr><td><strong>Site Access</strong></td><td>The existing site checkboxes and permission dropdowns are pre-selected. Modify as needed and save. Sites not checked are removed from the user's access.</td></tr>
+            <tr><td><strong>Account Status</strong></td><td>Set to Disabled to immediately prevent the user from logging in without deleting the account. Their historical LastLogin data is preserved.</td></tr>
+        </table>
+
+        <div class="alert alert-warn">
+            <strong>Self-protection:</strong> You cannot disable or delete your own account while you are logged in. This prevents accidental lock-out of the last admin. A server-side check enforces this regardless of what is submitted.
+        </div>
+    </div>
+
+    <!-- DISABLE / DELETE -->
+    <div class="card" id="disable-delete">
+        <h2>Disabling vs. Deleting Users</h2>
+
+        <h3>Disable (Recommended for Temporary Suspension)</h3>
+        <p>Use the Edit modal, change Account Status to <strong>Disabled</strong>. The user record is retained with full history. The <code>Enabled: false</code> flag in the JSON causes <code>UserManager.Authenticate()</code> to reject all login attempts with the generic "Invalid username or password, or account is disabled" message (no hint to the user which reason applies).</p>
+
+        <h3>Delete (Permanent)</h3>
+        <p>Click the red <strong>Delete</strong> button. A browser confirmation dialog runs first. On confirm, the server removes the record entirely from <code>idash_users.json</code>. This is irreversible &mdash; the account, password hash, site access, and login history are all erased.</p>
+
+        <div class="alert alert-danger">
+            <strong>No undo for Delete.</strong> If you need to re-create the user later, you must add them fresh and re-assign all site permissions.
+        </div>
+    </div>
+
+    <!-- STORAGE -->
+    <div class="card" id="storage">
+        <h2>How Users Are Stored</h2>
+        <p>All user records live in a single JSON file: <code>App_Data\idash_users.json</code>. This file is created automatically on first use, seeded with the default <code>idashadmin</code> account.</p>
+
+        <h3>Example Record</h3>
+        <pre>{
+  "Username":     "jsmith",
+  "PasswordHash": "e3b0c442...sha256hex...",
+  "Role":         "user",
+  "DisplayName":  "John Smith",
+  "Notes":        "Baltimore field tech",
+  "Enabled":      true,
+  "CreatedDate":  "2026-04-20 20:35",
+  "LastLogin":    "2026-04-21 08:12",`r`n  "TileAccess":   ["scan_tagteam", "rpt_overview", "scan_maps", "admin_autodb"],`r`n  "SiteAccess": {
+    "VA Maryland HCS - Baltimore":   "full",
+    "VA Maryland HCS - Perry Point": "full"
+  }
+}</pre>
+
+        <h3>SiteAccess Field Format</h3>
+        <table>
+            <tr><th>Key</th><th>Meaning</th></tr>
+            <tr><td><code>"SiteName"</code> (exact match)</td><td>Permission applies to that specific site only</td></tr>
+            <tr><td><code>"*"</code></td><td>Wildcard &mdash; applies to every site in the system</td></tr>
+        </table>
+
+        <table>
+            <tr><th>Value</th><th>Meaning</th></tr>
+            <tr><td><code>"full"</code></td><td>Full read/write &mdash; can move assets and commit scans</td></tr>
+            <tr><td><code>"ennx"</code></td><td>ENNX/report access only &mdash; view, filter, export, email reports</td></tr>
+        </table>
+
+        <div class="alert alert-warn">
+            <strong>File location:</strong> <code>App_Data</code> is not browseable via IIS (protected by default <code>web.config</code>). Treat the JSON file as a sensitive credential store &mdash; back it up when migrating servers, and restrict filesystem access accordingly.
+        </div>
+    </div>
+
+    <!-- SECURITY -->
+    <div class="card" id="security">
+        <h2>Security Notes</h2>
+
+        <h3>Password Storage</h3>
+        <p>Passwords are hashed with <strong>SHA-256</strong> before storage (<code>UserManager.HashPassword()</code>). The raw password is never written to disk or logged. The hash is compared at login &mdash; if the hashes match and the user is enabled, the session is granted.</p>
+        <div class="alert alert-warn">
+            SHA-256 without a salt is suitable for this internal-network tool but is not hardened production-grade password storage. For externally exposed deployments, consider migrating to bcrypt or Argon2 via a stronger password library.
+        </div>
+
+        <h3>Session Model</h3>
+        <table>
+            <tr><th>Session Key</th><th>Type</th><th>Purpose</th></tr>
+            <tr><td><code>IsAdminAuthenticated</code></td><td>bool</td><td>Set to <code>true</code> on successful login. Controls login panel visibility.</td></tr>
+            <tr><td><code>IdashUserRole</code></td><td>string</td><td><code>admin</code>, <code>user</code>, or <code>readonly</code>. Evaluated on every page load.</td></tr>
+            <tr><td><code>IdashUsername</code></td><td>string</td><td>Logged-in username. Used for self-protection guards.</td></tr><tr><td><code>IdashTileAccess</code></td><td>List&lt;string&gt;</td><td>Array of permitted functional tiles. Verified by <code>CanSeeTile()</code>.</td></tr>
+        </table>
+        <p>Sessions expire with the ASP.NET session timeout (default 20 minutes of inactivity unless configured otherwise in IIS). There is no "remember me" &mdash; users must log in again after a session expires.</p>
+
+        <h3>Default Account</h3>
+        <div class="alert alert-danger">
+            The default seeded account is <code>idashadmin</code> / <code>idashadmin</code>. <strong>Change this password immediately after first deployment.</strong> Edit the default admin account, enter a new strong password, and save.
+        </div>
+
+        <h3>Admin Lock-Out Prevention</h3>
+        <p>The server enforces that you cannot disable or delete your own account while logged in. Always ensure at least one other admin account exists before modifying your own credentials.</p>
+    </div>
+
+    <!-- ENFORCEMENT -->
+    <div class="card" id="enforcement">
+        <h2>Where Permissions Are Enforced</h2>
+        <p>The <code>UserManager</code> class exposes three site-check helpers that modules should use:</p>
+        <pre>// Returns "full", "ennx", or null
+UserManager.GetSitePermission(user, siteName)
+
+// True if the user can see data for this site
+UserManager.CanAccessSite(user, siteName)
+
+// True if the user can commit location moves / scans
+UserManager.CanWriteSite(user, siteName)
+
+// True if the user can view data and run ENNX exports
+UserManager.CanReportSite(user, siteName)</pre>
+
+        <h3>Hub Tile Enforcement (<code>index.aspx</code>)</h3>
+        <p>Every tile on the hub is wrapped in a server-side <code>&lt;% if (CanSeeTile("key")) { %&gt;</code> guard. The <code>CanSeeTile()</code> method reads the user's <code>IdashTileAccess</code> session list and calls <code>UserManager.CanAccessTile()</code>. Admin users bypass all checks and see every tile.</p>
+
+        <table>
+            <tr><th>Section</th><th>Guard Pattern</th><th>Example Keys</th></tr>
+            <tr>
+                <td>Scanning &amp; Field Tools</td>
+                <td>Each tile individually guarded</td>
+                <td><code>scan_tagteam</code>, <code>scan_inventory</code>, <code>scan_maps</code>, <code>scan_locator</code></td>
+            </tr>
+            <tr>
+                <td>ENNX Generation</td>
+                <td>Each tile individually guarded</td>
+                <td><code>scan_ennx</code>, <code>scan_eil</code>, <code>scan_universal_ennx</code>, <code>rpt_ennx</code></td>
+            </tr>
+            <tr>
+                <td>Printing</td>
+                <td>Section: <code>CanSeeAny("print_mapping", "admin_printer_routing")</code></td>
+                <td><code>print_mapping</code>, <code>admin_printer_routing</code></td>
+            </tr>
+            <tr>
+                <td>MQTT &amp; Fixed Readers</td>
+                <td>Each tile individually guarded</td>
+                <td><code>admin_reader_config</code>, <code>admin_mqtt</code></td>
+            </tr>
+            <tr>
+                <td>Reports &amp; Analytics</td>
+                <td>Each tile: <code>CanSeeTile("rpt_xxx")</code></td>
+                <td><code>rpt_overview</code>, <code>rpt_tagging</code>, <code>rpt_ennx</code>, <code>rpt_automation</code>, <code>rpt_asset_master</code></td>
+            </tr>
+            <tr>
+                <td>Search / Lookup</td>
+                <td>Each tile individually guarded</td>
+                <td><code>search</code>, <code>search_history</code></td>
+            </tr>
+            <tr>
+                <td>Database &amp; Data Mgmt</td>
+                <td>Each tile individually guarded</td>
+                <td><code>admin_manualdb</code>, <code>admin_autodb</code>, <code>admin_sql</code>, <code>admin_bcp</code>, <code>admin_workbench</code></td>
+            </tr>
+            <tr>
+                <td><strong>Admin Panel</strong></td>
+                <td>Panel requires login + at least one <code>admin_*</code> tile.<br/><strong>Each admin tile individually guarded</strong> by <code>CanSeeTile("admin_xxx")</code>.</td>
+                <td><code>admin_users</code>, <code>admin_print</code>, <code>admin_restore</code>, <code>admin_logs</code></td>
+            </tr>
+            <tr>
+                <td>Guides &amp; Downloads</td>
+                <td>Each tile individually guarded</td>
+                <td><code>downloads</code>, <code>docs</code>, <code>docs_arch</code>, <code>docs_label_sop</code>, <code>docs_cookbook</code></td>
+            </tr>
+        </table>
+
+        <h3>Module-Level Enforcement</h3>
+        <table>
+            <tr><th>Module</th><th>Enforcement Point</th></tr>
+            <tr>
+                <td>VA Site Inventory (<code>va_inventory.aspx</code>)</td>
+                <td>Site dropdown pre-filtered to user's accessible sites.<br/>
+                    "Commit Scans" button hidden if <code>CanWriteSite</code> returns false for the active site.<br/>
+                    Server-side commit handler verifies <code>CanWriteSite</code> before executing any SQL UPDATE.</td>
+            </tr>
+            <tr>
+                <td>ENNX Export (<code>va_ennx.aspx</code>)</td>
+                <td>Site filter dropdown limited to sites where <code>CanReportSite</code> is true.</td>
+            </tr>
+            <tr>
+                <td>Reports &amp; Research</td>
+                <td>Site selectors scoped to accessible sites only.</td>
+            </tr>
+            <tr>
+                <td>TagTeam Scan (<code>va_tagteam_scan.aspx</code>)</td>
+                <td>Write API verifies <code>CanWriteSite</code> before persisting any scan record.</td>
+            </tr>
+            <tr><td>User Management (<code>va_user_management.aspx</code>)</td><td>Server-side gate checks <code>CanAccessTile(role, tiles, "admin_users")</code> before rendering the page. Non-admin users with the <code>admin_users</code> tile permission can access user management.</td></tr>
+            <tr><td>Documentation Hub (<code>documentation/index.aspx</code>)</td><td>Guides and technical manuals are dynamically shown or hidden based on the user's functional tile permissions using the same <code>CanSee()</code> pattern (e.g., granting <code>scan_tagteam</code> automatically shows the Tag Team Scan documentation).</td></tr>
+        </table>
+
+        <div class="alert alert-info">
+            <strong>Defense in depth:</strong> Enforcement is applied both at the UI layer (hiding buttons, filtering dropdowns, gating tiles) and at the server-side handler level (verifying permission before SQL execution). A user who tries to call a protected endpoint without the correct session role will receive a 403-like error response.
+        </div>
+    </div>
+
+    <!-- LOGIN HISTORY -->
+    <div class="card" id="login-history">
+        <h2>&#128221; Login History</h2>
+        <p>Every sign-in attempt to iDash (success or failure) is logged to a persistent audit file. The <strong>Login History</strong> card at the bottom of this page displays the most recent 50 entries along with KPI summary cards:</p>
+
+        <table>
+            <tr><th>KPI</th><th>Description</th></tr>
+            <tr><td><strong>Logins Today</strong></td><td>Number of successful sign-ins since midnight</td></tr>
+            <tr><td><strong>Failures Today</strong></td><td>Number of failed sign-in attempts since midnight</td></tr>
+            <tr><td><strong>Unique Users (7d)</strong></td><td>Distinct usernames with successful logins in the last 7 days</td></tr>
+            <tr><td><strong>Total Entries</strong></td><td>Total number of entries in the audit log file</td></tr>
+        </table>
+
+        <h3>Storage</h3>
+        <p>Audit entries are stored in <code>logs/login_audit.jsonl</code> (JSON Lines format &mdash; one JSON object per line). Each entry contains:</p>
+        <ul>
+            <li><code>ts</code> &mdash; Timestamp (ISO 8601 local time)</li>
+            <li><code>user</code> &mdash; Username attempted</li>
+            <li><code>ip</code> &mdash; Client IP address</li>
+            <li><code>ok</code> &mdash; <code>true</code> for success, <code>false</code> for failure</li>
+            <li><code>role</code> &mdash; User role (only populated on successful login)</li>
+        </ul>
+
+        <h3>File Size Control</h3>
+        <p>The audit file is automatically maintained so it never grows unbounded:</p>
+        <ul>
+            <li><strong>90-day rolling window</strong> &mdash; entries older than 90 days are trimmed</li>
+            <li><strong>5,000 entry cap</strong> &mdash; if the file exceeds this, the oldest entries are dropped</li>
+            <li>Trimming runs automatically on every write (~&lt;10ms)</li>
+            <li>Maximum steady-state file size: <strong>~500 KB</strong></li>
+        </ul>
+
+        <h3>Also Available On</h3>
+        <p>The same audit data is also available on the <strong>Log Viewer</strong> page (<code>va_log_viewer.aspx</code>) under the <strong>Login Audit</strong> tab, which shows the last 100 entries.</p>
+    </div>
+
+    <!-- CHANGELOG -->
+    <div class="card" id="changelog">
+        <h2>&#128203; Changelog</h2>
+
+        <div class="changelog-entry" style="border-left:4px solid #ef4444; padding-left:16px; margin-bottom:24px;">
+            <div style="font-size:12px; color:var(--muted-docs); margin-bottom:4px;">2026-07-01 &mdash; <span style="color:#ef4444; font-weight:700;">SECURITY FIX</span></div>
+            <h3 style="margin-top:0;">Hub Tile Permissions &mdash; Per-Tile Admin Guards</h3>
+            <p><strong>Problem:</strong> All 15 admin panel tiles (Site Config, Field Sync, Manual DB Update, Auto DB Update, SQL Upload, BCP Queries, Excel Merge, System Automations, System Logs, Log Analyzer, Database Restore, Email Config, User Management) were displayed to <em>any user</em> who had <em>even one</em> <code>admin_*</code> tile permission. For example, granting only <code>admin_logs</code> would expose the Database Restore and User Management tiles. Clicking an unauthorized tile would navigate to the page (which may or may not have its own server-side auth gate).</p>
+            <p><strong>Root Cause:</strong> The admin section in <code>index.aspx</code> used a single <code>PnlProtected.Visible</code> panel gate with no individual <code>CanSeeTile()</code> guards on the admin tiles. All tiles rendered unconditionally within the panel.</p>
+            <p><strong>Fix:</strong></p>
+            <ul>
+                <li>Wrapped every admin tile in its own <code>&lt;% if (CanSeeTile("admin_xxx")) { %&gt;</code> guard, matching the existing pattern used by Reports, Search, and Scanning sections.</li>
+                <li>Users now see <strong>only</strong> the specific admin tiles they have been granted access to.</li>
+            </ul>
+            <p><strong>Files changed:</strong></p>
+            <ul>
+                <li><code>index.aspx</code> &mdash; added <code>CanSeeTile()</code> guards to 15 admin tiles, 1 report tile, and 1 restricted report tile</li>
+            </ul>
+        </div>
+
+        <div class="changelog-entry" style="border-left:4px solid #ef4444; padding-left:16px; margin-bottom:24px;">
+            <div style="font-size:12px; color:var(--muted-docs); margin-bottom:4px;">2026-07-01 &mdash; <span style="color:#ef4444; font-weight:700;">BUG FIX</span></div>
+            <h3 style="margin-top:0;">Daily Report Automation Tile Missing Permission Guard</h3>
+            <p><strong>Problem:</strong> The "Daily Report Automation" tile in the Reports section of the hub was rendered without a <code>CanSeeTile("rpt_automation")</code> guard. Any user who had access to any report tile would see the Report Automation tile, regardless of whether <code>rpt_automation</code> was in their <code>TileAccess</code> list.</p>
+            <p><strong>Fix:</strong> Wrapped in <code>&lt;% if (CanSeeTile("rpt_automation")) { %&gt;</code>.</p>
+        </div>
+
+        <div class="changelog-entry" style="border-left:4px solid #f59e0b; padding-left:16px; margin-bottom:24px;">
+            <div style="font-size:12px; color:var(--muted-docs); margin-bottom:4px;">2026-07-01 &mdash; <span style="color:#f59e0b; font-weight:700;">UI FIX</span></div>
+            <h3 style="margin-top:0;">User Management Tile Label Completeness</h3>
+            <p><strong>Problem:</strong> The <code>getTileLabel()</code> JavaScript function in the User Management modal was missing human-readable labels for 14 tile keys: <code>rpt_automation</code>, <code>scan_universal_ennx</code>, and all 11 <code>admin_*</code> keys. These tiles appeared in the checkbox grid with their raw key string (e.g., "admin_manualdb") instead of a friendly name (e.g., "Manual DB Update").</p>
+            <p><strong>Fix:</strong> Added all missing labels to the <code>getTileLabel()</code> mapping object. The checkbox grid now shows the correct human-readable label for every tile key.</p>
+            <p><strong>Files changed:</strong></p>
+            <ul>
+                <li><code>va_user_management.aspx</code> &mdash; expanded <code>getTileLabel()</code> label map from 18 entries to 32 entries</li>
+            </ul>
+        </div>
+
+        <div class="changelog-entry" style="border-left:4px solid #ef4444; padding-left:16px; margin-bottom:24px;">
+            <div style="font-size:12px; color:var(--muted-docs); margin-bottom:4px;">2026-07-01 &mdash; <span style="color:#ef4444; font-weight:700;">BUG FIX</span></div>
+            <h3 style="margin-top:0;">"Asset Values" Restricted Report Tile Missing Permission Guard</h3>
+            <p><strong>Problem:</strong> The "Asset Values" tile in the Admin Panel's "Restricted Reports" sub-section was visible to any authenticated user with admin panel access, regardless of whether they had the <code>rpt_overview</code> tile permission.</p>
+            <p><strong>Fix:</strong> Wrapped in <code>&lt;% if (CanSeeTile("rpt_overview")) { %&gt;</code>.</p>
+        </div>
+
+        <div class="changelog-entry" style="border-left:4px solid #a855f7; padding-left:16px; margin-bottom:24px;">
+            <div style="font-size:12px; color:var(--muted-docs); margin-bottom:4px;">2026-07-12 &mdash; <span style="color:#a855f7; font-weight:700;">MAJOR</span></div>
+            <h3 style="margin-top:0;">Unified User Management &mdash; iDash + iDash in One Page</h3>
+            <p><strong>What changed:</strong> The iDash User Management and Scanner & System User Management pages are now combined into a single unified page with a system toggle at the top. Users click <strong>"iDash Portal Users"</strong> (purple) or <strong>"Scanner &amp; System Users"</strong> (amber) to switch views &mdash; no page reload.</p>
+            <p>The iDash section loads via an embedded iframe to keep both ASP.NET postback pipelines independent and avoid conflicts.</p>
+            <p><strong>Hub change:</strong> The two separate tiles were merged into one <strong>"User Management"</strong> tile.</p>
+        </div>
+
+        <div class="changelog-entry" style="border-left:4px solid #10b981; padding-left:16px; margin-bottom:24px;">
+            <div style="font-size:12px; color:var(--muted-docs); margin-bottom:4px;">2026-07-12 &mdash; <span style="color:#10b981; font-weight:700;">FEATURE</span></div>
+            <h3 style="margin-top:0;">7 New Granular Tile Keys for Admin Pages</h3>
+            <p>Previously, many admin pages (Training Hub, Site Config, Field Sync, etc.) shared the <code>admin_manualdb</code> tile key. Each now has its own independent key:</p>
+            <table>
+                <tr><th>Key</th><th>Page</th></tr>
+                <tr><td><code>admin_training</code></td><td>Training &amp; Setup Hub</td></tr>
+                <tr><td><code>admin_site_config</code></td><td>System Configuration (<code>va_reader_config.aspx</code>)</td></tr>
+                <tr><td><code>admin_field_sync</code></td><td>Field Server Sync</td></tr>
+                <tr><td><code>admin_workbench</code></td><td>Import Workbench</td></tr>
+                <tr><td><code>admin_sitedata</code></td><td>Site Data Export &amp; Import</td></tr>
+                <tr><td><code>admin_fhir_bridge</code></td><td>Supply Chain Bridge</td></tr>
+            </table>
+            <p>A new <strong>"Admin &mdash; Extended"</strong> group appears in the tile access checkbox grid in the edit user modal.</p>
+        </div>
+
+        <div class="changelog-entry" style="border-left:4px solid #3b82f6; padding-left:16px; margin-bottom:24px;">
+            <div style="font-size:12px; color:var(--muted-docs); margin-bottom:4px;">2026-07-12 &mdash; <span style="color:#3b82f6; font-weight:700;">FEATURE</span></div>
+            <h3 style="margin-top:0;">"View Docs" Buttons Added to All Tool Pages</h3>
+            <p>Every tool/admin page now has a <strong>&#128214; View Docs</strong> button that links directly to its documentation page in the Documentation Hub. Users no longer need to search the hub to find the right guide.</p>
+        </div>
+
+        <div class="changelog-entry" style="border-left:4px solid #3b82f6; padding-left:16px; margin-bottom:24px;">
+            <div style="font-size:12px; color:var(--muted-docs); margin-bottom:4px;">2026-07-12 &mdash; <span style="color:#3b82f6; font-weight:700;">FEATURE</span></div>
+            <h3 style="margin-top:0;">Documentation Hub Search Bar</h3>
+            <p>The Documentation Hub now has an instant search bar at the top. Type to filter tiles by title or description. Supports <kbd>Ctrl+K</kbd> and <kbd>/</kbd> keyboard shortcuts, result counter, and clear button.</p>
+        </div>
+
+        <div class="changelog-entry" style="border-left:4px solid #10b981; padding-left:16px; margin-bottom:24px;">
+            <div style="font-size:12px; color:var(--muted-docs); margin-bottom:4px;">2026-07-22 &mdash; <span style="color:#10b981; font-weight:700;">FEATURE</span></div>
+            <h3 style="margin-top:0;">Login Audit Trail</h3>
+            <p>Every sign-in attempt (success and failure) is now logged to <code>logs/login_audit.jsonl</code>. The Login History card on this page shows KPI stats and the last 50 entries. The same data is also available on the <strong>Log Viewer &rarr; Login Audit</strong> tab (last 100 entries).</p>
+            <ul>
+                <li>File auto-trims at 90 days or 5,000 entries (whichever comes first)</li>
+                <li>Maximum file size ~500 KB</li>
+                <li>Zero external dependencies (no Newtonsoft required)</li>
+            </ul>
+        </div>
+
+        <div class="changelog-entry" style="border-left:4px solid #10b981; padding-left:16px; margin-bottom:24px;">
+            <div style="font-size:12px; color:var(--muted-docs); margin-bottom:4px;">2026-09-11 &mdash; <span style="color:#10b981; font-weight:700;">FEATURE / CLEANUP</span></div>
+            <h3 style="margin-top:0;">System Configuration Tile Consolidation &amp; Dashboard Declutter</h3>
+            <p><strong>What changed:</strong></p>
+            <ul>
+                <li>Duplicate <strong>"Site Configuration"</strong> tile (<code>admin_site_config</code> &rarr; <code>va_site_config.aspx</code>) removed from hub. Surviving tile renamed <strong>"System Configuration"</strong>, now links to <code>va_reader_config.aspx</code>, gated on <code>admin_site_config</code> OR <code>admin_reader_config</code> / <code>admin_mqtt</code> / <code>admin_printer_routing</code> / <code>print_mapping</code>.</li>
+                <li><strong>"Direct MQTT Label Printing"</strong> tile (<code>docs_print</code>) removed from hub. Documentation file preserved but no longer surfaced as a tile.</li>
+                <li><code>admin_site_config</code> label updated to <strong>"System Configuration"</strong> (was "Site Configuration") &mdash; reflected in the User Management checkbox grid.</li>
+                <li><code>docs_print</code> removed from <code>TILE_KEYS</code>, <code>TILE_GROUPS</code>, and <code>TileLabel()</code> in <code>UserManager.cs</code> &mdash; no longer a User Management checkbox.</li>
+            </ul>
+            <p><strong>Files changed:</strong> <code>index.aspx</code>, <code>App_Code/UserManager.cs</code></p>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="text-align:center; color:var(--muted-docs); font-size:12px; margin-top:40px;">
+        iDash User Management &mdash; Documentation &copy; 2026<br/>
+        Last revised: September 11, 2026 &bull; ID Integration Inc.
+    </div>
+
+</div>
+</body>
+</html>
+

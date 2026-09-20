@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>FHIR Bridge (Deprecated) &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .badge-fhir { background: color-mix(in srgb, #e87722, transparent 85%); color: #e87722; border: 1px solid color-mix(in srgb, #e87722, transparent 70%); }
+        .badge-sandbox { background: color-mix(in srgb, var(--warn-docs), transparent 85%); color: var(--warn-docs); border: 1px solid color-mix(in srgb, var(--warn-docs), transparent 70%); }
+        .badge-supply { background: color-mix(in srgb, var(--accent2-docs), transparent 85%); color: var(--accent2-docs); border: 1px solid color-mix(in srgb, var(--accent2-docs), transparent 70%); }
+        .badge-new { background: color-mix(in srgb, var(--warn-docs), transparent 85%); color: var(--warn-docs); border: 1px solid color-mix(in srgb, var(--warn-docs), transparent 70%); }
+        .badge-security { background: color-mix(in srgb, var(--danger), transparent 85%); color: var(--danger); border: 1px solid color-mix(in srgb, var(--danger), transparent 70%); }
+        .badge-phase { background: color-mix(in srgb, var(--accent-docs), transparent 85%); color: var(--accent-docs); border: 1px solid color-mix(in srgb, var(--accent-docs), transparent 70%); }
+        .decision-row { display: flex; gap: 20px; margin-bottom: 24px; align-items: flex-start; }
+        .decision-icon { flex-shrink: 0; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .decision-body { flex: 1; }
+        .decision-body h3 { margin-top: 0; }
+        .di-blue { background: var(--accent-docs); color: #fff; }
+        .di-green { background: var(--accent2-docs); color: #fff; }
+        .di-warn { background: var(--warn-docs); color: #fff; }
+        .di-red { background: var(--danger); color: #fff; }
+        .di-fhir { background: #e87722; color: #fff; }
+        .file-card { background: rgba(0,0,0,0.15); border: 1px solid var(--line-docs); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+        .file-card h4 { margin: 0 0 8px 0; color: var(--accent-docs); font-size: 1rem; }
+        .file-card p { margin: 0; font-size: 0.9rem; }
+        .file-card .meta { display: flex; gap: 12px; margin-top: 8px; font-size: 0.8rem; color: var(--muted-docs); }
+        .why-box { background: color-mix(in srgb, #e87722, transparent 92%); border-left: 6px solid #e87722; padding: 16px 20px; border-radius: 0 12px 12px 0; margin: 20px 0; }
+        .seq-num { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--accent-docs); color: #fff; font-weight: 800; font-size: 0.85rem; margin-right: 10px; flex-shrink: 0; }
+    </style>
+</head>
+<body>
+<a class="skip-nav" href="#main-content">Skip to main content</a>
+<main id="main-content" role="main">
+<div class="wrap">
+    <a href="index.aspx">&larr; Back to Documentation Hub</a><br/><br/>
+
+    <!-- DEPRECATION BANNER -->
+    <div class="card" style="background: linear-gradient(135deg, rgba(239,68,68,0.12), rgba(245,158,11,0.08)); border: 2px solid var(--danger); border-radius: 16px;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <div style="font-size: 2.5rem; line-height: 1;" aria-hidden="true">&#x26D4;</div>
+            <div>
+                <h2 style="margin: 0 0 8px 0; color: var(--danger); border: none; padding: 0;">This Documentation Is Deprecated</h2>
+                <p style="margin: 0; font-size: 1rem; line-height: 1.6;">
+                    The VA Lighthouse FHIR API (<code>developer.va.gov</code>) is for <strong>patient/Veteran-facing data only</strong>
+                    (Health Records, Benefits, Claims, Appeals). <strong>iDash does not store, transmit, or access patient data.</strong>
+                    We only push supply chain equipment inventory data to AEMS/MERS.
+                </p>
+                <div style="margin-top: 12px;">
+                    <strong>Use these instead:</strong>
+                    <a href="va_valip_integration.html" style="display: inline-block; margin: 4px 8px 4px 0; padding: 6px 14px; background: var(--accent-docs); color: #fff; border-radius: 8px; font-weight: 600; text-decoration: none;">&rarr; VALIP Integration Architecture</a>
+                    <a href="va_ennx_vista_push.html" style="display: inline-block; margin: 4px 8px 4px 0; padding: 6px 14px; background: #e87722; color: #fff; border-radius: 8px; font-weight: 600; text-decoration: none;">&rarr; ENNX &rarr; VistA Push</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- HEADER                                                  -->
+    <!-- ======================================================= -->
+    <div class="card" style="background: linear-gradient(135deg, var(--card), rgba(232, 119, 34, 0.08));">
+        <h1 style="opacity: 0.6;"><span aria-hidden="true">&#127973;</span> FHIR Bridge &mdash; iDash &rarr; VistA <span style="color: var(--danger); font-size: 0.6em;">(DEPRECATED)</span></h1>
+        <div style="margin-bottom:12px;">
+            <span class="badge badge-fhir">&#x1F525; HL7 FHIR R4</span>
+            <span class="badge badge-supply">Supply Chain Only</span>
+            <span class="badge badge-security">No PHI/PII</span>
+            <span class="badge badge-phase">Phase 1 Complete</span>
+            <span class="badge badge-new">Created 07/07/2026</span>
+        </div>
+        <p style="font-size:16px; margin:0; max-width:900px;">
+            The <strong>FHIR Bridge</strong> maps supply chain data collected by iDash (asset identity, RFID tags,
+            location, inventory status) into <strong>HL7 FHIR R4</strong> compliant JSON resources and generates
+            transaction Bundles for submission to VA VistA through the
+            <a href="https://developer.va.gov" target="_blank">VA Lighthouse FHIR API</a>.
+            This module handles <strong>non-expendable equipment tracking only</strong> &mdash;
+            no patient data, no clinical records, no PHI/PII of any kind.
+        </p>
+    </div>
+
+    <!-- TABLE OF CONTENTS -->
+    <div class="card">
+        <h2>Table of Contents</h2>
+        <div class="toc">
+            <a href="#why">Why This Exists</a>
+            <a href="#what-it-does">What It Does</a>
+            <a href="#architecture">Architecture &amp; Data Flow</a>
+            <a href="#files">File Manifest</a>
+            <a href="#rsa">RSA Key Generation</a>
+            <a href="#fhir-mapping">FHIR Resource Mapping</a>
+            <a href="#sandbox">VA Sandbox Registration</a>
+            <a href="#oauth">OAuth 2.0 CCG Flow</a>
+            <a href="#ennx-relationship">Relationship to ENNX</a>
+            <a href="#decisions">Design Decisions &amp; Rationale</a>
+            <a href="#phases">Phased Implementation</a>
+            <a href="#security">Security Model</a>
+            <a href="#troubleshooting">Troubleshooting</a>
+            <a href="#developer-handoff">Developer Handoff</a>
+            <a href="#changelog">Changelog</a>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- WHY THIS EXISTS                                         -->
+    <!-- ======================================================= -->
+    <div class="card" id="why">
+        <h2>Why This Exists</h2>
+
+        <h3>The Problem</h3>
+        <p>
+            iDash collects detailed asset and location data through RFID scanning, barcode capture,
+            and manual inventory across VA medical centers. This data lives in the local iDash SQL Server
+            database (<code>dbo.asset</code>, <code>dbo.company</code>) and is highly accurate because it
+            represents <em>physically observed</em> equipment states &mdash; not just administrative records.
+        </p>
+        <p>
+            However, getting this data <strong>back into VistA</strong> (the VA's system of record) currently
+            requires manual ENNX file generation, email submission, and human-driven import processes.
+            This creates delays, introduces transcription errors, and makes real-time equipment visibility impossible.
+        </p>
+
+        <h3>The Solution</h3>
+        <p>
+            The FHIR Bridge provides a <strong>standards-based, automated pipeline</strong> from iDash to VistA
+            using <a href="https://hl7.org/fhir/R4/" target="_blank">HL7 FHIR R4</a> &mdash; the same interoperability
+            standard that the VA has adopted through its
+            <a href="https://developer.va.gov" target="_blank">Lighthouse API platform</a>.
+            Instead of flat-text ENNX files, assets and locations become structured FHIR resources that can be
+            validated, versioned, and transmitted over REST APIs.
+        </p>
+
+        <div class="why-box">
+            <strong>Why FHIR and not a custom API?</strong><br>
+            The VA has invested heavily in FHIR as its primary interoperability standard. Using FHIR means:
+            (1) the data format is standardized and can be validated by any FHIR-compliant tool,
+            (2) the VA Lighthouse API already has the infrastructure to receive it,
+            (3) no custom server-side code needs to be deployed on VA infrastructure,
+            and (4) the same approach can be reused across any VISN or facility without site-specific modifications.
+        </div>
+
+        <h3>What This Is NOT</h3>
+        <ul>
+            <li><strong>Not patient-facing:</strong> This module never creates, reads, or transmits patient data, clinical records, or any PHI/PII.</li>
+            <li><strong>Not a replacement for ENNX:</strong> The ENNX workflow continues to work as-is. The FHIR Bridge is an <em>additional</em> export path using modern standards.</li>
+            <li><strong>Not a VistA modification:</strong> No code runs on VistA servers. The FHIR Bridge runs entirely on the iDash web server and communicates through standard HTTPS REST APIs.</li>
+            <li><strong>Not a database migration:</strong> iDash SQL remains the source of truth. The FHIR Bridge reads from it and generates outbound payloads.</li>
+        </ul>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- WHAT IT DOES                                            -->
+    <!-- ======================================================= -->
+    <div class="card" id="what-it-does">
+        <h2>What It Does</h2>
+        <p>The FHIR Bridge provides four capabilities through a single tabbed dashboard page:</p>
+
+        <table>
+            <thead><tr><th>Tab</th><th>Capability</th><th>Why It Matters</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>&#x1F511; RSA Keys &amp; Sandbox</strong></td>
+                    <td>Generates 2048-bit RSA key pairs and exports the public key in JWK format for VA Lighthouse registration.</td>
+                    <td>Required for OAuth 2.0 Client Credentials Grant authentication. Without this key pair, the FHIR API cannot be accessed.</td>
+                </tr>
+                <tr>
+                    <td><strong>&#x2699; Configuration</strong></td>
+                    <td>Stores FHIR endpoint URLs, OAuth token URLs, Client ID, and sandbox/production mode toggle. Tests connectivity to the FHIR <code>/metadata</code> endpoint.</td>
+                    <td>Centralized config avoids hardcoding. Stored in <code>config/fhir/fhir_config.json</code> (not <code>web.config</code>) to prevent IIS app pool recycles when settings change.</td>
+                </tr>
+                <tr>
+                    <td><strong>&#x1F504; Asset Mapper</strong></td>
+                    <td>Loads assets from iDash SQL, lets users select which to export, builds FHIR <code>Device</code> + <code>Location</code> resources, previews the Bundle JSON, and downloads the file.</td>
+                    <td>Gives operators full control over what gets pushed. The preview step lets them validate the FHIR payload before transmission &mdash; critical for auditability.</td>
+                </tr>
+                <tr>
+                    <td><strong>&#x1F4CB; Transaction Log</strong></td>
+                    <td>Records every operation (key generation, config saves, bundle generation, connectivity tests) with timestamps, status codes, and messages.</td>
+                    <td>Full audit trail. Stored in <code>config/fhir/fhir_push_log.json</code>. Last 100 entries retained.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- ARCHITECTURE                                            -->
+    <!-- ======================================================= -->
+    <div class="card" id="architecture">
+        <h2>Architecture &amp; Data Flow</h2>
+
+        <h3>System Context</h3>
+        <pre>
+┌-------------------------------------------------------------------------┐
+│  VA MEDICAL CENTER                                                      │
+│                                                                         │
+│  ┌--------------┐    SQL Read     ┌------------------┐                  │
+│  │  iDash    │--------------->│  FHIR Bridge     │                  │
+│  │  SQL Server   │                │  (va_fhir_bridge  │                  │
+│  │  dbo.asset    │                │   .aspx/.aspx.cs) │                  │
+│  │  dbo.company  │                └--------┬---------┘                  │
+│  └--------------┘                          │                            │
+│                                            │ HTTPS POST                 │
+│                                            │ (FHIR Bundle JSON)         │
+│                                            │ + Bearer Token (JWT)       │
+│                                            v                            │
+│                              ┌-------------------------┐                │
+│                              │  VA Lighthouse FHIR API  │                │
+│                              │  sandbox-api.va.gov      │                │
+│                              │  /services/fhir/v0/r4    │                │
+│                              └-------------┬-----------┘                │
+│                                            │                            │
+│                                            v                            │
+│                                     ┌-------------┐                     │
+│                                     │   VistA      │                     │
+│                                     │   (SoR)      │                     │
+│                                     └-------------┘                     │
+└-------------------------------------------------------------------------┘
+        </pre>
+
+        <h3>Data Flow (Step by Step)</h3>
+        <div class="step">
+            <div class="step-num sn-blue">1</div>
+            <div>
+                <strong>Asset Selection</strong> &mdash; Operator selects a site (company) from the dropdown.
+                The code-behind queries <code>dbo.asset</code> joined with <code>dbo.company</code> to load
+                the latest 200 assets for that station. Operator checks individual rows to include in the export.
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num sn-blue">2</div>
+            <div>
+                <strong>FHIR Mapping</strong> &mdash; Each selected asset row becomes a FHIR <code>Device</code> resource.
+                Unique locations are deduplicated and become FHIR <code>Location</code> resources.
+                The field mapping is deterministic and documented below.
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num sn-blue">3</div>
+            <div>
+                <strong>Bundle Assembly</strong> &mdash; All resources are wrapped in a FHIR <code>Bundle</code>
+                (type: <code>transaction</code>). Each entry includes a <code>request</code> block specifying
+                the HTTP method (<code>PUT</code>) and target URL for idempotent upserts.
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num sn-green">4</div>
+            <div>
+                <strong>Preview &amp; Export</strong> &mdash; The JSON is displayed in a preview textarea.
+                Operator can copy to clipboard or download as a <code>.json</code> file.
+                Both client-side (JavaScript) and server-side (C#) bundle builders exist for redundancy.
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num sn-warn">5</div>
+            <div>
+                <strong>Transmission (Phase 2)</strong> &mdash; Once VA sandbox credentials are configured,
+                the Bundle will be POSTed to the FHIR endpoint with a Bearer token obtained through the
+                OAuth 2.0 Client Credentials Grant flow (JWT signed with the RSA private key).
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- FILE MANIFEST                                           -->
+    <!-- ======================================================= -->
+    <div class="card" id="files">
+        <h2>File Manifest</h2>
+        <p>Every file created for this module, its exact purpose, and why it exists:</p>
+
+        <h3>Application Files</h3>
+
+        <div class="file-card">
+            <h4><code>va_fhir_bridge.aspx</code></h4>
+            <p>Frontend page. Four-tab layout: RSA Keys, Configuration, Asset Mapper, Transaction Log.
+            All CSS is inline (no external stylesheet dependency beyond <code>theme.css</code>).
+            Client-side JavaScript handles tab switching, checkbox selection, FHIR preview generation,
+            and clipboard copy. Follows the same theming pattern as every other iDash page.</p>
+            <div class="meta">
+                <span><strong>Type:</strong> ASP.NET WebForm</span>
+                <span><strong>Lines:</strong> ~520</span>
+                <span><strong>Dependencies:</strong> theme.css, theme-init.js</span>
+            </div>
+        </div>
+
+        <div class="file-card">
+            <h4><code>va_fhir_bridge.aspx.cs</code></h4>
+            <p>Code-behind. Handles all server-side logic: RSA key generation via <code>System.Security.Cryptography.RSA</code>,
+            FHIR config read/write to JSON, SQL asset loading from <code>dbo.asset</code>/<code>dbo.company</code>,
+            FHIR Bundle JSON construction, FHIR <code>/metadata</code> connectivity testing via <code>HttpClient</code>,
+            and transaction log management.</p>
+            <div class="meta">
+                <span><strong>Type:</strong> C# Code-Behind</span>
+                <span><strong>Lines:</strong> ~875</span>
+                <span><strong>Key Methods:</strong> BuildFhirBundleJson, BuildJwk, Base64UrlEncode, LoadAssetsByIds</span>
+            </div>
+        </div>
+
+        <div class="file-card">
+            <h4><code>Generate-VA-RSA-Key.ps1</code></h4>
+            <p>Standalone PowerShell script for RSA key generation. Can be run independently from the command line
+            without requiring the web application. Uses <code>RSACryptoServiceProvider</code> (.NET Framework 4.8 compatible).
+            Produces PEM-formatted keys and JWK output. Self-validates that all output files exist after generation.</p>
+            <div class="meta">
+                <span><strong>Type:</strong> PowerShell Script</span>
+                <span><strong>Lines:</strong> ~210</span>
+                <span><strong>Usage:</strong> <code>powershell -ExecutionPolicy Bypass -File Generate-VA-RSA-Key.ps1</code></span>
+            </div>
+        </div>
+
+        <h3>Configuration Files (<code>config/fhir/</code>)</h3>
+
+        <div class="file-card">
+            <h4><code>config/fhir/fhir_config.json</code></h4>
+            <p>FHIR endpoint configuration. Contains the base URL, OAuth token URL, client ID, and sandbox/production mode.
+            <strong>Why a separate JSON file?</strong> Changing <code>web.config</code> causes an IIS application pool recycle,
+            which destroys all active user sessions. This is the same pattern used by <code>users.json</code>,
+            <code>printer_routing.json</code>, and other iDash configuration files.</p>
+            <div class="meta">
+                <span><strong>Format:</strong> JSON</span>
+                <span><strong>Modified by:</strong> Configuration tab save button</span>
+            </div>
+        </div>
+
+        <div class="file-card">
+            <h4><code>config/fhir/private.pem</code></h4>
+            <p>RSA private key in PKCS#1 PEM format (for .NET Framework compatibility) or XML format
+            (when generated from the web UI). <strong>This file must NEVER leave the server.</strong>
+            It is used to sign JWT assertions for the OAuth 2.0 Client Credentials Grant.
+            If compromised, regenerate immediately and re-register with VA Lighthouse.</p>
+            <div class="meta">
+                <span><strong>Security:</strong> SERVER-ONLY. Never commit to source control.</span>
+                <span><strong>Generated by:</strong> Key generation (web UI or PowerShell)</span>
+            </div>
+        </div>
+
+        <div class="file-card">
+            <h4><code>config/fhir/public.pem</code></h4>
+            <p>RSA public key in PKCS#1 PEM format or XML format. Safe to share.
+            This is the key that VA Lighthouse uses to verify JWT signatures.</p>
+            <div class="meta">
+                <span><strong>Security:</strong> Public. Safe to distribute.</span>
+            </div>
+        </div>
+
+        <div class="file-card">
+            <h4><code>config/fhir/public.jwk</code></h4>
+            <p>Public key in <strong>JSON Web Key (JWK)</strong> format. This is the exact format required by the
+            VA Lighthouse developer portal during sandbox registration. Contains <code>kty</code>, <code>n</code>,
+            <code>e</code>, <code>kid</code>, <code>use</code>, and <code>alg</code> fields.</p>
+            <div class="meta">
+                <span><strong>Paste into:</strong> <a href="https://developer.va.gov" target="_blank">developer.va.gov</a> sandbox registration form</span>
+            </div>
+        </div>
+
+        <div class="file-card">
+            <h4><code>config/fhir/fhir_push_log.json</code></h4>
+            <p>Transaction log. JSON array of the last 100 operations. Each entry has <code>timestamp</code>,
+            <code>category</code> (KEYGEN, CONFIG, TEST, BUNDLE), <code>status</code> (SUCCESS/ERROR/FAILED),
+            and <code>message</code>.</p>
+            <div class="meta">
+                <span><strong>Max entries:</strong> 100 (oldest truncated)</span>
+                <span><strong>Viewable in:</strong> Transaction Log tab</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- RSA KEY GENERATION                                      -->
+    <!-- ======================================================= -->
+    <div class="card" id="rsa">
+        <h2>&#x1F511; RSA Key Generation</h2>
+
+        <h3>Why RSA Keys?</h3>
+        <p>
+            The VA Lighthouse FHIR API uses <strong>OAuth 2.0 Client Credentials Grant (CCG)</strong>
+            for server-to-server authentication. Unlike user-facing OAuth (which uses browser redirects),
+            CCG requires the client (iDash) to prove its identity by signing a
+            <a href="https://datatracker.ietf.org/doc/html/rfc7519" target="_blank">JSON Web Token (JWT)</a>
+            with an RSA private key. The VA verifies the signature using the corresponding public key
+            (which was registered during sandbox setup in JWK format).
+        </p>
+
+        <h3>How Keys Are Generated</h3>
+        <p>
+            The FHIR Bridge uses <strong>.NET <code>RSACryptoServiceProvider</code></strong> (available in
+            .NET Framework 4.8, which is what runs on the VA server) to generate a 2048-bit RSA key pair.
+            This is <strong>mathematically equivalent</strong> to running:
+        </p>
+        <pre>openssl genrsa -out private.pem 2048
+openssl rsa -in private.pem -pubout -out public.pem</pre>
+        <p>
+            The advantage of using .NET crypto is that <strong>no OpenSSL installation is required</strong>
+            on the VA server. The .NET runtime (already present for IIS/ASP.NET) handles all cryptographic operations.
+            The reference for the OpenSSL equivalent is
+            <a href="https://docs.openssl.org/3.0/man1/openssl-rsa/#notes" target="_blank">OpenSSL 3.0 RSA Notes</a>.
+        </p>
+
+        <h3>Two Generation Methods</h3>
+        <table>
+            <thead><tr><th>Method</th><th>How</th><th>When to Use</th><th>Output Format</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>Web UI</strong></td>
+                    <td>Click &ldquo;Generate RSA Key Pair&rdquo; on the FHIR Bridge page (RSA Keys tab).</td>
+                    <td>Normal use. Keys are generated server-side via the code-behind.</td>
+                    <td>XML (RSA ToXmlString)</td>
+                </tr>
+                <tr>
+                    <td><strong>PowerShell</strong></td>
+                    <td><code>powershell -ExecutionPolicy Bypass -File Generate-VA-RSA-Key.ps1</code></td>
+                    <td>Scripted/automated deployments, or when IIS access is unavailable.</td>
+                    <td>PEM (PKCS#1 DER encoded)</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>Both methods produce the same JWK output (the format required by VA Lighthouse).</p>
+
+        <h3>JWK Format Reference</h3>
+        <pre>{
+  "kty": "RSA",
+  "n":   "&lt;base64url-encoded modulus (256 bytes for 2048-bit key)&gt;",
+  "e":   "AQAB",
+  "kid": "&lt;auto-generated key ID from SHA-256 of modulus&gt;",
+  "use": "sig",
+  "alg": "RS256"
+}</pre>
+        <p><strong>Field breakdown:</strong></p>
+        <table>
+            <thead><tr><th>Field</th><th>Value</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td><code>kty</code></td><td><code>"RSA"</code></td><td>Key type. Always RSA for VA CCG.</td></tr>
+                <tr><td><code>n</code></td><td>Base64url-encoded</td><td>RSA modulus. The &ldquo;public number&rdquo; of the key pair.</td></tr>
+                <tr><td><code>e</code></td><td><code>"AQAB"</code></td><td>RSA exponent. Always 65537 (standard).</td></tr>
+                <tr><td><code>kid</code></td><td>16-char hash</td><td>Key ID. Auto-generated from SHA-256 of the modulus. Used for key rotation.</td></tr>
+                <tr><td><code>use</code></td><td><code>"sig"</code></td><td>Key usage: signing (not encryption).</td></tr>
+                <tr><td><code>alg</code></td><td><code>"RS256"</code></td><td>Algorithm: RSA with SHA-256.</td></tr>
+            </tbody>
+        </table>
+
+        <div class="alert alert-warn">
+            <strong>&#9888; Security:</strong> The <code>private.pem</code> file must <strong>never</strong> leave the server.
+            Do not commit it to source control. Do not email it. Do not copy it to shared drives.
+            If compromised, regenerate the key pair immediately and re-register with VA Lighthouse.
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- FHIR RESOURCE MAPPING                                   -->
+    <!-- ======================================================= -->
+    <div class="card" id="fhir-mapping">
+        <h2>FHIR Resource Mapping</h2>
+        <p>
+            The following tables document the exact mapping from iDash database fields to FHIR R4 resource properties.
+            This mapping is used by both the client-side preview (JavaScript) and the server-side bundle generator (C#).
+            <strong>Both implementations produce identical output for the same input data.</strong>
+        </p>
+
+        <h3>Asset &rarr; FHIR <code>Device</code></h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>iDash Field</th>
+                    <th>SQL Column</th>
+                    <th>FHIR Device Property</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Asset Name (e.g. <code>512 EE18193</code>)</td><td><code>name</code></td><td><code>identifier[0].value</code></td><td>System: <code>urn:oid:2.16.840.1.113883.4.349</code> (VA OID)</td></tr>
+                <tr><td>Description</td><td><code>description</code></td><td><code>deviceName[0].name</code></td><td>Type: <code>user-friendly-name</code>. Falls back to <code>name</code> if empty.</td></tr>
+                <tr><td>Serial Number</td><td><code>serialnumber</code></td><td><code>serialNumber</code></td><td>Direct mapping.</td></tr>
+                <tr><td>RFID Tag (EPC)</td><td><code>rfidtag</code></td><td><code>identifier[1]</code></td><td>Type coding: <code>v2-0203/RFID</code>. Only added if non-empty.</td></tr>
+                <tr><td>Location</td><td><code>lastobservedlocation</code></td><td><code>location</code> (Reference)</td><td>Reference to the Location resource: <code>Location/idash-loc-{code}</code></td></tr>
+                <tr><td>EIL Code (CMR)</td><td><code>text8</code></td><td>(Extension, future)</td><td>Tracked in iDash as CMR/EIL; will be mapped to a VA-specific extension in Phase 2.</td></tr>
+                <tr><td>Last Inventoried</td><td><code>lastinventoried</code></td><td><code>meta.lastUpdated</code></td><td>Falls back to current UTC timestamp if null.</td></tr>
+                <tr><td>Disposal Status</td><td><code>disposalstatus</code></td><td><code>status</code></td><td>Maps to: <code>active</code> (if empty or &ldquo;active&rdquo;) or <code>inactive</code> (any other value).</td></tr>
+                <tr><td>Station</td><td><code>company.name</code> (first 3 chars)</td><td><code>owner</code> (future)</td><td>Currently carried as data attribute; will be mapped to Organization reference in Phase 2.</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Location &rarr; FHIR <code>Location</code></h3>
+        <table>
+            <thead>
+                <tr><th>iDash Field</th><th>Source</th><th>FHIR Location Property</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>SP Code (e.g. <code>SP-ROOM-101</code>)</td><td><code>lastobservedlocation</code></td><td><code>identifier[0].value</code></td><td>System: VA OID. Deduplicated across all selected assets.</td></tr>
+                <tr><td>Location Name</td><td><code>lastobservedlocation</code></td><td><code>name</code></td><td>Uses the location code as the display name.</td></tr>
+                <tr><td>Station Number</td><td>Derived from <code>company.name</code></td><td><code>managingOrganization.display</code></td><td>Format: <code>VA Station {code}</code></td></tr>
+                <tr><td>Type</td><td>Hardcoded</td><td><code>type[0].coding</code></td><td><code>v3-RoleCode/HOSP</code> (Hospital). Refinable per location type in Phase 2.</td></tr>
+                <tr><td>Status</td><td>Hardcoded</td><td><code>status</code></td><td>Always <code>active</code>. Derived statuses in Phase 2.</td></tr>
+                <tr><td>Mode</td><td>Hardcoded</td><td><code>mode</code></td><td>Always <code>instance</code> (physical place, not abstract).</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Bundle Structure</h3>
+        <p>All resources are wrapped in a FHIR <code>Bundle</code> with <code>type: "transaction"</code>:</p>
+        <pre>{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "timestamp": "2026-07-07T18:30:00.000Z",
+  "meta": { "source": "idash-fhir-bridge" },
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:location-SP-ROOM-101",
+      "resource": { /* Location resource */ },
+      "request": { "method": "PUT", "url": "Location/idash-loc-SP-ROOM-101" }
+    },
+    {
+      "fullUrl": "urn:uuid:device-12345",
+      "resource": { /* Device resource */ },
+      "request": { "method": "PUT", "url": "Device/idash-12345" }
+    }
+    // ... more entries
+  ]
+}</pre>
+        <p>
+            <strong>Ordering:</strong> Location resources are placed first in the <code>entry</code> array,
+            followed by Device resources. This ensures that when the transaction is processed,
+            Location references in Device resources can be resolved.
+        </p>
+        <p>
+            <strong>Idempotency:</strong> All entries use <code>PUT</code> (not <code>POST</code>),
+            with deterministic IDs (<code>idash-{id}</code>). This means re-sending the same
+            bundle updates existing resources rather than creating duplicates.
+        </p>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- VA SANDBOX REGISTRATION                                 -->
+    <!-- ======================================================= -->
+    <div class="card" id="sandbox">
+        <h2>&#x1F4DD; VA Sandbox Registration Walkthrough</h2>
+        <p>Step-by-step process to get sandbox access from VA Lighthouse:</p>
+
+        <div class="step">
+            <div class="step-num sn-blue">1</div>
+            <div>
+                <strong>Generate RSA Keys</strong>
+                <p>Open the FHIR Bridge page (<code>/iDash/va_fhir_bridge.aspx</code>) and click
+                <strong>&ldquo;Generate RSA Key Pair&rdquo;</strong>. Verify that all three status indicators
+                (Private Key, Public Key, JWK) show green &ldquo;Found&rdquo; badges.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-num sn-blue">2</div>
+            <div>
+                <strong>Copy the JWK</strong>
+                <p>In the &ldquo;Public Key (JWK)&rdquo; panel, click &ldquo;Copy JWK to Clipboard&rdquo;.
+                This copies the JSON Web Key that VA needs to verify your JWT signatures.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-num sn-blue">3</div>
+            <div>
+                <strong>Register at VA Developer Portal</strong>
+                <p>Go to <a href="https://developer.va.gov" target="_blank">developer.va.gov</a>.
+                Create an account if you don't have one. Navigate to the FHIR Health API section
+                and request sandbox access. During registration:</p>
+                <ul>
+                    <li>Select <strong>Client Credentials Grant (CCG)</strong> as the authentication type</li>
+                    <li>Paste the JWK when prompted for your public key</li>
+                    <li>Request scopes: <code>system/Device.read</code>, <code>system/Device.write</code>,
+                        <code>system/Location.read</code>, <code>system/Location.write</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-num sn-green">4</div>
+            <div>
+                <strong>Configure Client ID</strong>
+                <p>After VA approves your sandbox request, you'll receive a <strong>Client ID</strong>.
+                Go to the Configuration tab in the FHIR Bridge and enter:</p>
+                <ul>
+                    <li><strong>FHIR Base URL:</strong> <code>https://sandbox-api.va.gov/services/fhir/v0/r4</code></li>
+                    <li><strong>Token URL:</strong> <code>https://sandbox-api.va.gov/oauth2/token</code></li>
+                    <li><strong>Client ID:</strong> (the ID provided by VA)</li>
+                    <li><strong>Mode:</strong> Sandbox</li>
+                </ul>
+                <p>Click <strong>Save Configuration</strong>.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-num sn-green">5</div>
+            <div>
+                <strong>Test the Connection</strong>
+                <p>Click &ldquo;Test Connection&rdquo; to verify that the iDash server can reach
+                the FHIR <code>/metadata</code> endpoint. A successful test returns HTTP 200 and
+                displays the CapabilityStatement JSON, confirming FHIR R4 support and available resources.</p>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            <strong>&#x2139; Sandbox vs. Production:</strong> Sandbox access is self-service and instant.
+            Production access requires a formal VA agreement, security review, and a live demo.
+            Build and validate everything in sandbox first.
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- OAUTH 2.0 CCG FLOW                                      -->
+    <!-- ======================================================= -->
+    <div class="card" id="oauth">
+        <h2>&#x1F512; OAuth 2.0 Client Credentials Grant Flow</h2>
+        <p>Technical reference for how authentication works (Phase 2 implementation):</p>
+        <pre>
+1. iDash builds a JWT assertion:
+   Header:  { "alg": "RS256", "kid": "&lt;from JWK&gt;" }
+   Payload: {
+     "iss": "&lt;client_id&gt;",
+     "sub": "&lt;client_id&gt;",
+     "aud": "https://sandbox-api.va.gov/oauth2/token",
+     "iat": &lt;now&gt;,
+     "exp": &lt;now + 300s&gt;,
+     "jti": "&lt;unique UUID&gt;"
+   }
+
+2. iDash signs the JWT with the RSA private key (RS256).
+
+3. iDash POSTs to the token endpoint:
+   POST /oauth2/token
+   Content-Type: application/x-www-form-urlencoded
+
+   grant_type=client_credentials
+   &client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer
+   &client_assertion=&lt;signed JWT&gt;
+   &scope=system/Device.read system/Device.write system/Location.read system/Location.write
+
+4. VA Lighthouse verifies the JWT signature against the registered JWK.
+
+5. VA returns an access token:
+   { "access_token": "&lt;bearer token&gt;", "token_type": "bearer", "expires_in": 300 }
+
+6. iDash uses the bearer token for FHIR API calls:
+   POST /services/fhir/v0/r4
+   Authorization: Bearer &lt;access_token&gt;
+   Content-Type: application/fhir+json
+
+   { /* FHIR Bundle */ }
+        </pre>
+        <p>
+            This flow is identical to the pattern used by <code>IdashApiClient.cs</code> for the
+            existing REST API (which also uses OAuth 2.0 with token caching and expiry checks via
+            <code>EnsureToken()</code>). The FHIR CCG flow adds JWT signing as the authentication mechanism
+            instead of client_secret.
+        </p>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- ENNX RELATIONSHIP                                       -->
+    <!-- ======================================================= -->
+    <div class="card" id="ennx-relationship">
+        <h2>Relationship to ENNX</h2>
+        <p>
+            The ENNX (Electronic Non-Expendable Exchange) workflow is the VA's established standard for
+            inventory submissions. <strong>The FHIR Bridge does not replace ENNX.</strong> It provides an
+            additional, standards-based export path. Both systems read from the same iDash SQL database.
+        </p>
+        <table>
+            <thead><tr><th>Feature</th><th>ENNX Tools</th><th>FHIR Bridge</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Data Format</strong></td><td>Plain text (<code>.txt</code>)</td><td>JSON (FHIR R4 Bundle)</td></tr>
+                <tr><td><strong>Transport</strong></td><td>Email / file download / SQL save</td><td>HTTPS REST API (or JSON download)</td></tr>
+                <tr><td><strong>Standard</strong></td><td>VA-proprietary ENNX format</td><td>HL7 FHIR R4 (international standard)</td></tr>
+                <tr><td><strong>Target System</strong></td><td>VA inventory import process</td><td>VA VistA via Lighthouse FHIR API</td></tr>
+                <tr><td><strong>Data Source</strong></td><td>iDash SQL (<code>dbo.asset</code>)</td><td>iDash SQL (<code>dbo.asset</code>) &mdash; same</td></tr>
+                <tr><td><strong>Validation</strong></td><td>Manual review</td><td>FHIR schema validation + preview</td></tr>
+                <tr><td><strong>Idempotency</strong></td><td>No (each submission is treated as new)</td><td>Yes (PUT with deterministic IDs)</td></tr>
+                <tr><td><strong>Patient Data</strong></td><td>None</td><td>None</td></tr>
+                <tr><td><strong>Automation Potential</strong></td><td>Limited (email-based)</td><td>High (REST API with scheduled jobs)</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- DESIGN DECISIONS                                        -->
+    <!-- ======================================================= -->
+    <div class="card" id="decisions">
+        <h2>Design Decisions &amp; Rationale</h2>
+        <p>
+            Every architectural choice in this module was made deliberately. This section documents
+            <strong>why</strong> each decision was made, so that future developers understand the reasoning
+            before proposing changes.
+        </p>
+
+        <div class="decision-row">
+            <div class="decision-icon di-blue">1</div>
+            <div class="decision-body">
+                <h3>Why .NET Crypto Instead of OpenSSL?</h3>
+                <p>VA servers have strict software installation policies. Installing OpenSSL would require
+                an additional ATO (Authority to Operate) review. .NET <code>RSACryptoServiceProvider</code>
+                is already present on every Windows Server running IIS/.NET Framework. Same math, zero
+                new dependencies.</p>
+            </div>
+        </div>
+
+        <div class="decision-row">
+            <div class="decision-icon di-green">2</div>
+            <div class="decision-body">
+                <h3>Why JSON Config Instead of web.config?</h3>
+                <p>Modifying <code>web.config</code> triggers an IIS application pool recycle, which
+                destroys all active user sessions across the entire iDash portal. Storing FHIR config
+                in <code>config/fhir/fhir_config.json</code> avoids this. This is the same pattern
+                used by <code>users.json</code>, <code>email_recipients.json</code>, and
+                <code>printer_routing.json</code> throughout iDash.</p>
+            </div>
+        </div>
+
+        <div class="decision-row">
+            <div class="decision-icon di-fhir">3</div>
+            <div class="decision-body">
+                <h3>Why FHIR Device + Location (Not SupplyDelivery)?</h3>
+                <p><code>Device</code> is the correct FHIR resource for physical asset instances (serial-numbered
+                equipment). <code>SupplyDelivery</code> is for consumable supply shipments.
+                <code>Location</code> represents physical places where assets reside. These are the resources
+                that VA Lighthouse explicitly supports. <code>SupplyRequest</code> may be added in Phase 3
+                for inventory movement tracking.</p>
+            </div>
+        </div>
+
+        <div class="decision-row">
+            <div class="decision-icon di-warn">4</div>
+            <div class="decision-body">
+                <h3>Why Phase 1 = JSON Generation Only?</h3>
+                <p>The VA Lighthouse FHIR API is primarily read-only for most consumers. Write access
+                requires explicit VA authorization. Building the FHIR Bundle generator first means:
+                (1) the mapping can be validated immediately,
+                (2) bundles can be downloaded and submitted through whatever channel VA approves,
+                (3) no blocked progress while waiting for sandbox credentials.
+                Direct API POST will be enabled in Phase 2 once CCG authentication is configured.</p>
+            </div>
+        </div>
+
+        <div class="decision-row">
+            <div class="decision-icon di-blue">5</div>
+            <div class="decision-body">
+                <h3>Why Both Client-Side and Server-Side Bundle Builders?</h3>
+                <p>The client-side builder (JavaScript) provides instant preview without a server round-trip.
+                The server-side builder (C#) is used for downloads and API transmission because it has
+                direct SQL access and can handle parameterized queries. Both use the same mapping logic
+                and produce identical output.</p>
+            </div>
+        </div>
+
+        <div class="decision-row">
+            <div class="decision-icon di-green">6</div>
+            <div class="decision-body">
+                <h3>Why PUT Instead of POST for Bundle Entries?</h3>
+                <p><code>PUT</code> with deterministic resource IDs (<code>idash-{id}</code>) makes
+                every bundle submission <strong>idempotent</strong>. Re-sending the same bundle updates
+                existing resources instead of creating duplicates. This is critical for retry scenarios
+                and scheduled automation.</p>
+            </div>
+        </div>
+
+        <div class="decision-row">
+            <div class="decision-icon di-red">7</div>
+            <div class="decision-body">
+                <h3>Why Station-Scoped Asset Loading?</h3>
+                <p>Assets are loaded per-station (matching the existing <code>DdlCompany</code> pattern
+                used throughout iDash). This prevents cross-station data leakage and keeps payloads
+                manageable. Each station's data should be pushed independently to maintain clear
+                <code>managingOrganization</code> references in the FHIR Location resources.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- PHASED IMPLEMENTATION                                   -->
+    <!-- ======================================================= -->
+    <div class="card" id="phases">
+        <h2>Phased Implementation</h2>
+        <table>
+            <thead><tr><th>Phase</th><th>Status</th><th>Capability</th><th>Dependencies</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>Phase 1</strong></td>
+                    <td style="color:var(--accent2-docs); font-weight:700;">&#10003; Complete</td>
+                    <td>RSA key generation, JWK export, FHIR config management, asset-to-FHIR mapping (Device + Location), Bundle JSON preview and download, transaction logging, documentation</td>
+                    <td>None (self-contained)</td>
+                </tr>
+                <tr>
+                    <td><strong>Phase 2</strong></td>
+                    <td style="color:var(--warn-docs); font-weight:700;">&#x23F3; Pending VA Access</td>
+                    <td>OAuth 2.0 CCG token acquisition (JWT signed with RSA private key), direct POST to VA FHIR endpoint, response handling, error retry logic</td>
+                    <td>VA Lighthouse sandbox credentials (Client ID)</td>
+                </tr>
+                <tr>
+                    <td><strong>Phase 3</strong></td>
+                    <td style="color:var(--muted-docs); font-weight:700;">&#x1F512; Requires VA Agreement</td>
+                    <td>Production deployment, scheduled automated pushes (Task Scheduler integration), SupplyRequest resource support, EIL extension mapping, Organization resource for stations</td>
+                    <td>VA production access agreement, FHIR write authorization</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- SECURITY MODEL                                          -->
+    <!-- ======================================================= -->
+    <div class="card" id="security">
+        <h2>&#x1F512; Security Model</h2>
+
+        <h3>Access Control</h3>
+        <ul>
+            <li>The FHIR Bridge page is protected by iDash session authentication (same as all other pages).</li>
+            <li>Access should be restricted to <strong>admin</strong> role users only (via tile access control: <code>docs_arch</code>).</li>
+            <li>The page manages cryptographic keys and external API credentials &mdash; non-admin users should not see it.</li>
+        </ul>
+
+        <h3>Data Classification</h3>
+        <table>
+            <thead><tr><th>Data Type</th><th>Classification</th><th>Handling</th></tr></thead>
+            <tbody>
+                <tr><td>RSA Private Key</td><td style="color:var(--danger); font-weight:700;">SECRET</td><td>Server-only. Never transmitted. Never committed to source control.</td></tr>
+                <tr><td>RSA Public Key / JWK</td><td>Public</td><td>Safe to share. Registered with VA Lighthouse.</td></tr>
+                <tr><td>Client ID</td><td>Sensitive</td><td>Stored in <code>fhir_config.json</code>. Not a secret by itself, but identifies the application.</td></tr>
+                <tr><td>Bearer Token</td><td style="color:var(--danger); font-weight:700;">SECRET</td><td>Short-lived (300s). Transmitted over HTTPS only. Never logged.</td></tr>
+                <tr><td>Asset Data</td><td>CUI (Controlled Unclassified)</td><td>Equipment inventory data. No PHI/PII. Transmitted over HTTPS.</td></tr>
+                <tr><td>FHIR Bundle JSON</td><td>CUI</td><td>Contains equipment identifiers and locations. No patient data.</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Network Security</h3>
+        <ul>
+            <li>All VA Lighthouse API communication uses <strong>HTTPS (TLS 1.2+)</strong>.</li>
+            <li>The iDash server must have outbound HTTPS access to <code>sandbox-api.va.gov</code> (or <code>api.va.gov</code> for production).</li>
+            <li>No inbound ports are opened. The FHIR Bridge is always the initiator.</li>
+        </ul>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- TROUBLESHOOTING                                         -->
+    <!-- ======================================================= -->
+    <div class="card" id="troubleshooting">
+        <h2>Troubleshooting</h2>
+        <table>
+            <thead><tr><th>Symptom</th><th>Likely Cause</th><th>Fix</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>Key generation fails with &ldquo;Access denied&rdquo;</td>
+                    <td>IIS app pool identity lacks write permission to <code>config/fhir/</code></td>
+                    <td>Grant the IIS app pool user (e.g., <code>IIS AppPool\DefaultAppPool</code>) write access to the <code>config/fhir/</code> directory.</td>
+                </tr>
+                <tr>
+                    <td>Test Connection shows &ldquo;ERROR: The remote name could not be resolved&rdquo;</td>
+                    <td>DNS resolution failure or firewall blocking outbound HTTPS</td>
+                    <td>Verify the server can resolve <code>sandbox-api.va.gov</code>. Check firewall rules for outbound port 443. Test with <code>Invoke-WebRequest https://sandbox-api.va.gov</code> from PowerShell.</td>
+                </tr>
+                <tr>
+                    <td>Test Connection shows &ldquo;ERROR: 401 Unauthorized&rdquo;</td>
+                    <td>The <code>/metadata</code> endpoint is usually unauthenticated. If 401, the endpoint URL may be wrong.</td>
+                    <td>Verify the FHIR Base URL is correct. The metadata endpoint should be <code>{base}/metadata</code>.</td>
+                </tr>
+                <tr>
+                    <td>No assets load when clicking &ldquo;Load Assets&rdquo;</td>
+                    <td>Connection string mismatch or empty company</td>
+                    <td>Verify <code>web.config</code> has the <code>iDash</code> connection string. Check that the selected company has assets in <code>dbo.asset</code>.</td>
+                </tr>
+                <tr>
+                    <td>JWK shows &ldquo;(No JWK file found)&rdquo;</td>
+                    <td>Keys haven't been generated yet</td>
+                    <td>Click &ldquo;Generate RSA Key Pair&rdquo; or run the PowerShell script.</td>
+                </tr>
+                <tr>
+                    <td>PowerShell script fails with <code>ExportPkcs8PrivateKey</code> error</td>
+                    <td>Running on .NET Core instead of .NET Framework 4.8</td>
+                    <td>This was fixed in the current version. The script now uses <code>RSACryptoServiceProvider</code> and manual DER encoding, which works on .NET Framework 4.8.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- DEVELOPER HANDOFF                                       -->
+    <!-- ======================================================= -->
+    <div class="card" id="developer-handoff">
+        <h2>&#x1F4E6; Developer Handoff</h2>
+        <p>
+            Everything a developer needs to understand, modify, or extend this module.
+        </p>
+
+        <h3>How to Add a New FHIR Resource Type</h3>
+        <ol>
+            <li>Define the mapping from iDash SQL columns to FHIR resource properties (document it in the mapping table above).</li>
+            <li>In <code>va_fhir_bridge.aspx.cs</code>: create a new method like <code>BuildSupplyRequestResource(DataRow row)</code> following the same pattern as <code>BuildFhirBundleJson</code>.</li>
+            <li>In <code>va_fhir_bridge.aspx</code> (JavaScript): add the corresponding client-side resource builder in the <code>generatePreview()</code> function.</li>
+            <li>Add the new resource entries to the Bundle's <code>entry</code> array in both builders.</li>
+            <li>Update the data-attributes on the asset checkboxes if new SQL columns are needed.</li>
+            <li>Update this documentation page with the new mapping table.</li>
+        </ol>
+
+        <h3>How to Implement Phase 2 (Direct API POST)</h3>
+        <ol>
+            <li>Implement <code>GenerateClientAssertion()</code> in the code-behind: build a JWT with the header/payload described in the OAuth section, sign it with the RSA private key using <code>RSAPKCS1SignatureFormatter</code>.</li>
+            <li>Implement <code>AcquireToken()</code>: POST the JWT to the token URL, parse the response for <code>access_token</code> and <code>expires_in</code>. Cache the token and check expiry (same pattern as <code>IdashApiClient.EnsureToken()</code>).</li>
+            <li>Implement <code>PushBundle(string bundleJson)</code>: POST the Bundle JSON to the FHIR base URL with <code>Authorization: Bearer {token}</code> and <code>Content-Type: application/fhir+json</code>.</li>
+            <li>Add a &ldquo;Push to VistA&rdquo; button handler that calls <code>AcquireToken</code> then <code>PushBundle</code>.</li>
+            <li>Log the response (status code, response body) to the transaction log.</li>
+        </ol>
+
+        <h3>Key Code Locations</h3>
+        <table>
+            <thead><tr><th>What</th><th>Where</th><th>Method/Function</th></tr></thead>
+            <tbody>
+                <tr><td>RSA key generation (server)</td><td><code>va_fhir_bridge.aspx.cs</code></td><td><code>BtnGenerateKeys_Click</code></td></tr>
+                <tr><td>RSA key generation (script)</td><td><code>Generate-VA-RSA-Key.ps1</code></td><td>(top-level script)</td></tr>
+                <tr><td>JWK construction</td><td><code>va_fhir_bridge.aspx.cs</code></td><td><code>BuildJwk(RSAParameters)</code></td></tr>
+                <tr><td>Base64url encoding</td><td><code>va_fhir_bridge.aspx.cs</code></td><td><code>Base64UrlEncode(byte[])</code></td></tr>
+                <tr><td>FHIR Bundle builder (C#)</td><td><code>va_fhir_bridge.aspx.cs</code></td><td><code>BuildFhirBundleJson(DataTable)</code></td></tr>
+                <tr><td>FHIR Bundle builder (JS)</td><td><code>va_fhir_bridge.aspx</code></td><td><code>generatePreview()</code></td></tr>
+                <tr><td>Asset SQL query</td><td><code>va_fhir_bridge.aspx.cs</code></td><td><code>LoadAssetsFromSql(int, int)</code></td></tr>
+                <tr><td>Asset-by-ID query</td><td><code>va_fhir_bridge.aspx.cs</code></td><td><code>LoadAssetsByIds(string[])</code></td></tr>
+                <tr><td>Config read/write</td><td><code>va_fhir_bridge.aspx.cs</code></td><td><code>LoadFhirConfig()</code>, <code>BtnSaveConfig_Click</code></td></tr>
+                <tr><td>FHIR connectivity test</td><td><code>va_fhir_bridge.aspx.cs</code></td><td><code>BtnTestConnection_Click</code></td></tr>
+                <tr><td>Transaction log</td><td><code>va_fhir_bridge.aspx.cs</code></td><td><code>AddLogEntry()</code>, <code>RefreshLog()</code></td></tr>
+                <tr><td>Tab switching (UI)</td><td><code>va_fhir_bridge.aspx</code></td><td><code>switchTab(tabId)</code></td></tr>
+                <tr><td>Checkbox selection</td><td><code>va_fhir_bridge.aspx</code></td><td><code>toggleSelectAll()</code>, <code>prepareSelectedIds()</code></td></tr>
+            </tbody>
+        </table>
+
+        <h3>Testing Checklist</h3>
+        <table>
+            <thead><tr><th>Test</th><th>Expected Result</th><th>How to Verify</th></tr></thead>
+            <tbody>
+                <tr><td>RSA key generation (web UI)</td><td>All three badges show green &ldquo;Found&rdquo;</td><td>Click &ldquo;Generate RSA Key Pair&rdquo;, check the KPI badges</td></tr>
+                <tr><td>RSA key generation (PowerShell)</td><td>Script exits 0, prints <code>[OK] All output files verified</code></td><td>Run <code>powershell -File Generate-VA-RSA-Key.ps1</code></td></tr>
+                <tr><td>JWK validity</td><td>Valid JSON with <code>kty</code>, <code>n</code>, <code>e</code>, <code>kid</code> fields</td><td>Open <code>config/fhir/public.jwk</code>, validate JSON structure</td></tr>
+                <tr><td>Config save/load</td><td>Values persist across page reloads</td><td>Enter values, save, refresh page, verify fields populated</td></tr>
+                <tr><td>Asset loading</td><td>Grid populates with asset rows</td><td>Select a company, click &ldquo;Load Assets&rdquo;</td></tr>
+                <tr><td>FHIR preview (client-side)</td><td>Valid JSON appears in the preview textarea</td><td>Select assets, click &ldquo;Generate FHIR Preview&rdquo;</td></tr>
+                <tr><td>FHIR download (server-side)</td><td>Browser downloads <code>.json</code> file</td><td>Select assets, click &ldquo;Download JSON&rdquo;</td></tr>
+                <tr><td>Transaction log</td><td>Entries appear with timestamps and status</td><td>Perform any action, switch to Transaction Log tab</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- CHANGELOG                                               -->
+    <!-- ======================================================= -->
+    <div class="card" id="changelog">
+        <h2>Changelog</h2>
+
+        <h3>07/07/2026 &mdash; Initial Release (Phase 1)</h3>
+        <p>Created by John via iDash development tools. All Phase 1 capabilities delivered:</p>
+        <table>
+            <tr><th>Change</th><th>Detail</th></tr>
+            <tr>
+                <td><strong>New: <code>va_fhir_bridge.aspx</code></strong></td>
+                <td>Four-tab dashboard page: RSA Keys &amp; Sandbox, Configuration, Asset Mapper, Transaction Log. Full dark/light theme support. Client-side FHIR Bundle preview with live JSON generation.</td>
+            </tr>
+            <tr>
+                <td><strong>New: <code>va_fhir_bridge.aspx.cs</code></strong></td>
+                <td>~875 lines. RSA key generation, JWK builder, FHIR config persistence, SQL asset loader, FHIR Bundle JSON generator (Device + Location resources), connectivity tester, transaction logger.</td>
+            </tr>
+            <tr>
+                <td><strong>New: <code>Generate-VA-RSA-Key.ps1</code></strong></td>
+                <td>Standalone PowerShell script. Uses <code>RSACryptoServiceProvider</code> (not OpenSSL). Generates PEM + JWK. Self-validates output. .NET Framework 4.8 compatible.</td>
+            </tr>
+            <tr>
+                <td><strong>New: <code>config/fhir/</code></strong></td>
+                <td>Configuration directory: <code>fhir_config.json</code>, <code>private.pem</code>, <code>public.pem</code>, <code>public.jwk</code>, <code>fhir_push_log.json</code>.</td>
+            </tr>
+            <tr>
+                <td><strong>New: Documentation hub tile</strong></td>
+                <td>Added FHIR Bridge tile to the Architecture &amp; Developer Guides section of <code>documentation/index.aspx</code>.</td>
+            </tr>
+            <tr>
+                <td><strong>Fix: .NET Framework 4.8 compatibility</strong></td>
+                <td>Replaced <code>RSA.Create()</code> + <code>ExportPkcs8PrivateKey()</code> (.NET Core 3.0+) with <code>RSACryptoServiceProvider</code> + manual DER encoding. Replaced Unicode characters in PowerShell strings with ASCII equivalents.</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="margin-top:48px;padding-top:20px;border-top:1px solid var(--line);">
+        <a href="index.aspx" style="font-weight:600;">&larr; Back to Documentation Hub</a>
+    </div>
+</div>
+
+<footer style="margin-top:40px;padding:20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted-docs);display:flex;justify-content:space-between;align-items:center;background:var(--bg);max-width:1400px;margin-left:auto;margin-right:auto;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
+        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
+        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+        <span>&copy; 2026 ID Integration Inc. &mdash; Last updated 07/07/2026</span>
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height:14px;opacity:.9;">
+    </div>
+</footer>
+</div>
+</main>
+</body>
+</html>

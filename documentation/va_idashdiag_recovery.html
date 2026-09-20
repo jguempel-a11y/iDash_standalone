@@ -1,0 +1,136 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>ASSET DATA RECOVERY &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <div style="display:flex; gap:8px; padding:12px 32px; background:var(--card); border-bottom:1px solid var(--line); flex-wrap:wrap; font-size:13px;">
+        <a href="../index.aspx" style="color:var(--accent); text-decoration:none; font-weight:600;">&#8962; Hub</a>
+        <span style="color:var(--muted);">&bull;</span>
+        <a href="index.aspx" style="color:var(--accent); text-decoration:none; font-weight:600;">&#128196; All Docs</a>
+    </div>
+    <div class="container">
+        <h1>&#128657; Asset Data Recovery Tool</h1>
+        <div style="margin-bottom:30px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span class='badge badge-db'>Database Recovery</span>
+            <span class='badge' style="background:color-mix(in srgb, #ef4444 15%, transparent); color:#ef4444; border:1px solid #ef4444;">Data Loss Fix</span>
+            <span class='badge' style="background:color-mix(in srgb, #10b981 15%, transparent); color:#10b981; border:1px solid #10b981;">New 08/26</span>
+        </div>
+
+        <!-- BACKGROUND -->
+        <h2>Background: What Happened</h2>
+        <div style="background:color-mix(in srgb, #ef4444, transparent 90%); border:1px solid #ef4444; border-radius:10px; padding:16px; margin:16px 0;">
+            <strong style="color:#ef4444;">&#9888; Root Cause</strong>
+            <p style="margin:6px 0 0; font-size:13px;">The System Diagnostics page (<code>va_system_diagnostics.aspx</code>) previously included a <strong>"Batch Update Simulation"</strong> test that used <code>PUT /api/asset</code> to simulate mobile scanner syncs. However, the PUT payload only included 6 fields (<code>id, name, companyid, description, text1, text3</code>). The iDash API interpreted all omitted fields as NULL, <strong>wiping out</strong> rfidtag, serial numbers, text fields, location data, and other asset information on every record the test touched.</p>
+        </div>
+        <div style="background:color-mix(in srgb, #10b981, transparent 90%); border:1px solid #10b981; border-radius:10px; padding:16px; margin:16px 0;">
+            <strong style="color:#10b981;">&#9989; Fix Applied</strong>
+            <p style="margin:6px 0 0; font-size:13px;">The diagnostics test has been converted to a <strong>read-only</strong> <code>GET /api/asset/{id}</code> call. It still validates API auth, license limits, and connectivity but <strong>no longer modifies any data</strong>. This fix must be deployed to all systems running iDash diagnostics.</p>
+        </div>
+
+        <!-- HOW TO IDENTIFY -->
+        <h2>How to Identify Damaged Records</h2>
+        <p>All records modified by the old test are stamped with a unique marker:</p>
+        <pre style="background:var(--chip); border:1px solid var(--line); border-radius:8px; padding:14px; font-size:13px; overflow-x:auto;">SELECT id, name, rfidtag, lastmodified, lastmodifiedby
+FROM dbo.asset
+WHERE lastmodifiedby = 'iDashDiag'
+ORDER BY id;</pre>
+        <p>The <code>lastmodified</code> timestamp shows exactly when the damage occurred. Records created before that timestamp are the ones to recover.</p>
+
+        <!-- WHAT WAS PRESERVED -->
+        <h2>What Was Preserved vs. Lost</h2>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Status</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Fields</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;"><strong style="color:#10b981;">&#9989; Preserved</strong></td>
+                <td style="padding:10px;"><code>id</code>, <code>name</code>, <code>companyid</code>, <code>description</code>, <code>text1</code>, <code>text3</code>, <code>created</code>, <code>disposalstatus</code>, <code>maintenancemethod</code></td>
+            </tr>
+            <tr>
+                <td style="padding:10px;"><strong style="color:#ef4444;">&#10060; Wiped to NULL</strong></td>
+                <td style="padding:10px;"><code>rfidtag</code>, <code>assettype</code>, <code>departmentcode</code>, <code>text2</code>, <code>text4</code>&ndash;<code>text20</code>, <code>listvalue1</code>&ndash;<code>listvalue5</code>, <code>date1</code>&ndash;<code>date5</code>, <code>locationid</code>, <code>checkinstatus</code>, <code>checkedoutto</code>, <code>lastobservedlocation</code>, <code>lastobservedtime</code>, <code>lastmodified</code>, <code>lastmodifiedby</code>, and all maintenance/disposal fields</td>
+            </tr>
+        </table>
+
+        <!-- RECOVERY TOOL -->
+        <h2>Recovery Tool: Cross-System Restore</h2>
+        <p>This script restores a <code>.bak</code> backup file on a <strong>separate machine</strong>, extracts the clean data for the damaged asset IDs, and generates portable <code>UPDATE</code> statements you can paste into SSMS on the damaged system.</p>
+
+        <h3>Prerequisites</h3>
+        <ul>
+            <li>A <code>.bak</code> file from the damaged system taken <strong>before</strong> the diagnostics test ran</li>
+            <li>A SQL Server instance to restore the backup on (can be any machine, doesn't need to be the damaged one)</li>
+            <li>Enough disk space for the temporary restore (auto-cleaned after)</li>
+        </ul>
+
+        <h3>Step-by-Step</h3>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px; color:var(--muted-docs); width:40px;">Step</th>
+                <th style="text-align:left; padding:10px; color:var(--muted-docs);">Action</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">1</td>
+                <td style="padding:10px;">Copy the <code>.bak</code> from the damaged system to the recovery machine</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">2</td>
+                <td style="padding:10px;">Open <a href="va_idashdiag_recovery.sql" style="color:var(--accent);">va_idashdiag_recovery.sql</a> in SSMS on the recovery machine</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">3</td>
+                <td style="padding:10px;">Edit the 5 configuration variables at the top (backup path, temp DB name, file paths, target DB name)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">4</td>
+                <td style="padding:10px;">In SSMS: <strong>Query &gt; Results To &gt; Results to Text</strong> (Ctrl+T), then set <strong>Tools &gt; Options &gt; Query Results &gt; Max Characters = 8000</strong></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">5</td>
+                <td style="padding:10px;">Run the script &mdash; it restores the backup, generates UPDATE statements, and prints them</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">6</td>
+                <td style="padding:10px;">Copy the generated UPDATE output (everything between <code>BEGIN TRANSACTION</code> and <code>COMMIT</code>)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px;">7</td>
+                <td style="padding:10px;">Paste and run in SSMS on the <strong>damaged system</strong></td>
+            </tr>
+            <tr>
+                <td style="padding:10px;">8</td>
+                <td style="padding:10px;">Run the cleanup section at the bottom to drop the temp database</td>
+            </tr>
+        </table>
+
+        <h3>Download</h3>
+        <div style="margin:16px 0;">
+            <a href="va_idashdiag_recovery.sql" download style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; background:var(--accent); color:#fff; border-radius:8px; text-decoration:none; font-weight:700; font-size:14px;">
+                &#128190; Download va_idashdiag_recovery.sql
+            </a>
+        </div>
+
+        <!-- CUSTOMIZATION -->
+        <h2>Customizing the Asset ID List</h2>
+        <p>The script includes a hardcoded list of asset IDs (177324&ndash;177367) from the original incident. To recover different assets, update the <code>WHERE id IN (...)</code> clause on line ~110. You can get the full list from the damaged system:</p>
+        <pre style="background:var(--chip); border:1px solid var(--line); border-radius:8px; padding:14px; font-size:13px; overflow-x:auto;">-- Run on the DAMAGED system to get the ID list:
+SELECT id FROM dbo.asset WHERE lastmodifiedby = 'iDashDiag' ORDER BY id;</pre>
+
+        <!-- NOTE ABOUT N PREFIX -->
+        <h2>FAQ: Why Do Values Have N&rsquo; Prefix?</h2>
+        <p>The generated UPDATE statements use <code>N'value'</code> syntax (e.g., <code>N'613EE10047FF'</code>). This is standard SQL Server syntax for Unicode (NVARCHAR) string literals. The <code>N</code> is <strong>not stored in the data</strong> &mdash; it tells SQL Server to treat the string as Unicode. The actual stored value is just <code>613EE10047FF</code>.</p>
+
+        <div style="margin-top:30px; padding-top:20px; border-top:1px solid var(--line); font-size:12px; color:var(--muted-docs);">
+            <em>Created: August 2026 &bull; Related: <a href="va_system_diagnostics.html" style="color:var(--accent);">System Diagnostics</a> &bull; Fix: Diagnostics test converted to read-only GET</em>
+        </div>
+    </div>
+</body>
+</html>

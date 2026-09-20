@@ -1,0 +1,202 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>iDash Docs — License Fix: Network Adapter Change</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+</head>
+<body>
+    <a href="index.aspx" class="back-link">&larr; Documentation Hub</a>
+
+    <div class="doc-container">
+        <h1>&#128272; License Fix: Network Adapter Change</h1>
+        <p class="doc-subtitle">How to resolve <code>LICENSE KEY ERROR. EXPECTING MAC ADDRESS</code> after a NIC swap, adapter replacement, or VM migration.</p>
+
+        <div class="callout callout-warn">
+            <strong>This is a common issue.</strong> Every time a server's network adapter is replaced, disabled, or swapped, the iDash license validation fails because the license is bound to the old adapter's MAC address. This guide documents the fix.
+        </div>
+
+        <!-- ═══════ SECTION 1 ═══════ -->
+        <h2 id="s1"><span class="section-num">1</span> Understanding the Problem</h2>
+        
+        <p>iDash licenses are tied to a specific <strong>MAC address</strong> (hardware network adapter identifier). When you see this error in the logs:</p>
+        
+        <pre class="code-block">LICENSE KEY ERROR. EXPECTING MAC ADDRESS 00E04C360E15 WHICH IS NOT FOUND ON THIS SERVER.</pre>
+
+        <p>It means:</p>
+        <ul>
+            <li>The license stored in <code>dbo.applicationsetting.licensekey</code> was generated for MAC <code>00E04C360E15</code></li>
+            <li>That MAC address <strong>no longer exists</strong> on the server (adapter was replaced/disabled)</li>
+            <li>A new license keyed to the <strong>current</strong> MAC is required</li>
+        </ul>
+
+        <h3>Where the License Lives</h3>
+        <table>
+            <tr><th>Location</th><th>Details</th></tr>
+            <tr><td><code>dbo.applicationsetting.licensekey</code></td><td>Base64-encoded JSON containing the license key string and cryptographic signature</td></tr>
+        </table>
+
+        <h3>License Key Structure (Decoded)</h3>
+        <pre class="code-block">{
+  "LicenseKey": "VA Baltimore 80E4BADAC5E1|5|1|5|80E4BADAC5E1",
+  "Signature": "Ko9+NAea2VXq...iEw="
+}</pre>
+        <p>The <code>LicenseKey</code> field format is: <code>Label MAC|sites|?|assets|MAC</code>. The MAC appears at both the start and end of the key string.</p>
+
+        <!-- ═══════ SECTION 2 ═══════ -->
+        <h2 id="s2"><span class="section-num">2</span> Step-by-Step Fix</h2>
+
+        <div class="callout callout-info">
+            <strong>Prerequisites:</strong> SQL Server Management Studio (SSMS) access to the iDash database, access to the iDash web interface, and the new license key (base64 string) from Infinid Technologies.
+        </div>
+
+        <h3>Step 1: Identify the Current MAC Address</h3>
+        <p>On the <strong>affected server</strong>, open PowerShell and run:</p>
+        <pre class="code-block">Get-NetAdapter | Where-Object Status -eq 'Up' | Select-Object Name, MacAddress, Status</pre>
+        <p>Note the MAC address (e.g., <code>80-E4-BA-DA-C5-E1</code>). Remove dashes and uppercase it: <code>80E4BADAC5E1</code>. This is the MAC that the new license must be keyed to.</p>
+
+        <h3>Step 2: Request a New License</h3>
+        <p>Contact <strong>Infinid Technologies</strong> (or your license provider) with:</p>
+        <ul>
+            <li>The new MAC address</li>
+            <li>The site name / VISN</li>
+            <li>The required asset count and site count</li>
+        </ul>
+        <p>They will provide a new base64-encoded license string.</p>
+
+        <h3>Step 3: Clear the Old License (SQL)</h3>
+        <p>Connect to the iDash database in SSMS and run:</p>
+        <pre class="code-block">-- Verify current (broken) license
+SELECT licensekey FROM dbo.applicationsetting;
+
+-- Clear it
+UPDATE dbo.applicationsetting SET licensekey = '';</pre>
+
+        <div class="callout callout-warn">
+            <strong>Script available:</strong> The full diagnostic + fix script is available at: <br>
+            <code>iDash &rarr; Downloads &rarr; Scripts &rarr; va_license_fix.sql</code><br>
+            Or directly: <a href="../downloads/Scripts/va_license_fix.sql">va_license_fix.sql</a>
+        </div>
+
+        <h3>Step 4: Apply the New License</h3>
+        <p><strong>Use the iDash web interface</strong> (recommended):</p>
+        <ol>
+            <li>Open the iDash admin / settings page</li>
+            <li>Paste the new base64 license key into the license field</li>
+            <li>Save / Apply</li>
+        </ol>
+
+        <div class="callout callout-warn">
+            <strong>If the iDash interface rejects the key</strong>, the <code>licensekey</code> column may be too short. Run this first:
+            <pre class="code-block" style="margin-top:8px;">ALTER TABLE dbo.applicationsetting ALTER COLUMN licensekey varchar(2000);</pre>
+            Newer licenses with site labels (e.g., "VA Baltimore") produce longer base64 strings that may exceed a <code>varchar(255)</code> column.
+        </div>
+
+        <h3>Step 5: Restart Services</h3>
+        <pre class="code-block">iisreset
+# Also restart the iDash Print Server service if applicable
+Restart-Service "iDash Print Server" -ErrorAction SilentlyContinue</pre>
+
+        <h3>Step 6: Verify</h3>
+        <ul>
+            <li>Check the web application logs (<code>C:\Logs\</code>) — the MAC error should be gone</li>
+            <li>Run <strong>iDash &rarr; System Diagnostics</strong> — the "Database &amp; License" test should pass</li>
+            <li>Try a batch update from a mobile device to confirm license limits are no longer exceeded</li>
+        </ul>
+
+        <!-- ═══════ SECTION 3 ═══════ -->
+        <h2 id="s3"><span class="section-num">3</span> Decoding a License Key</h2>
+        <p>License keys are base64-encoded JSON. To inspect one, use PowerShell:</p>
+        <pre class="code-block"># Decode a license key
+$key = "ew0KICAiTGljZW5z..."  # paste full base64 string
+$mod = $key.Length % 4
+if ($mod -gt 0) { $key += ('=' * (4 - $mod)) }  # fix padding if needed
+[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($key))</pre>
+
+        <p>This will output something like:</p>
+        <pre class="code-block">{
+  "LicenseKey": "VA Baltimore 80E4BADAC5E1|5|1|5|80E4BADAC5E1",
+  "Signature": "Ko9+NAea2VXq..."
+}</pre>
+        <p>The MAC address appears in the <code>LicenseKey</code> value. Compare it with the server's actual MAC to confirm the key matches.</p>
+
+        <!-- ═══════ SECTION 4 ═══════ -->
+        <h2 id="s4"><span class="section-num">4</span> Troubleshooting</h2>
+
+        <table>
+            <tr><th>Problem</th><th>Cause</th><th>Fix</th></tr>
+            <tr>
+                <td>License accepted but batch updates still fail with "License limits exceeded"</td>
+                <td>iDash API caches the license in memory</td>
+                <td>Run <code>iisreset</code> to clear the cache</td>
+            </tr>
+            <tr>
+                <td>New license key rejected / won't save</td>
+                <td>Column <code>licensekey</code> is too short (varchar 255)</td>
+                <td><code>ALTER TABLE dbo.applicationsetting ALTER COLUMN licensekey varchar(2000);</code></td>
+            </tr>
+            <tr>
+                <td>Key appears truncated after pasting</td>
+                <td>Clipboard truncation or missing base64 padding</td>
+                <td>Save the key to a .txt file first, then paste from there. Add <code>=</code> padding if needed.</td>
+            </tr>
+            <tr>
+                <td>MAC changed again after fix</td>
+                <td>Another adapter swap, Windows Update, or VM migration</td>
+                <td>Repeat the process. Consider using a USB Ethernet adapter with a fixed MAC.</td>
+            </tr>
+            <tr>
+                <td>Multiple MACs on server — which one?</td>
+                <td>Server has multiple NICs</td>
+                <td>Use the MAC of the <strong>primary active</strong> adapter. Run <code>Get-NetAdapter | Where Status -eq Up</code></td>
+            </tr>
+            <tr>
+                <td>Error repeats every 5 minutes in logs</td>
+                <td>iDash re-checks the license on a timer</td>
+                <td>Expected behavior until the license is fixed. Will stop after applying valid key + iisreset.</td>
+            </tr>
+        </table>
+
+        <!-- ═══════ SECTION 5 ═══════ -->
+        <h2 id="s5"><span class="section-num">5</span> Prevention</h2>
+        <ul>
+            <li><strong>Document the MAC address</strong> for each site in your site records</li>
+            <li><strong>Request a spare license</strong> if the site frequently changes adapters</li>
+            <li><strong>Use a dedicated NIC</strong> (USB Ethernet adapter) with a known, fixed MAC for licensing</li>
+            <li><strong>Set a static MAC</strong> in the NIC's advanced driver settings if possible</li>
+            <li><strong>Before replacing a NIC</strong>, note the current MAC and request the new license proactively</li>
+        </ul>
+
+        <!-- ═══════ SECTION 6 ═══════ -->
+        <h2 id="s6"><span class="section-num">6</span> Quick Reference — Complete Fix Commands</h2>
+        <p>Copy-paste this checklist for fast resolution:</p>
+        <pre class="code-block">-- 1. Find current MAC (PowerShell on affected server)
+Get-NetAdapter | Where-Object Status -eq 'Up' | Select-Object Name, MacAddress
+
+-- 2. Get new license from Infinid for the new MAC
+
+-- 3. Clear old license (SSMS)
+UPDATE dbo.applicationsetting SET licensekey = '';
+
+-- 4. Apply new license via iDash web interface
+--    (paste the base64 key and save)
+
+-- 5. Restart services (PowerShell, elevated)
+iisreset
+Restart-Service "iDash Print Server" -ErrorAction SilentlyContinue
+
+-- 6. Verify (check logs)
+Get-Content "C:\Logs\*.txt" -Tail 20 | Select-String "LICENSE"
+-- Should return no results = fixed!</pre>
+
+        <div class="doc-footer">
+            <strong>Related:</strong>
+            <a href="va_system_diagnostics.html">System Diagnostics</a> &bull;
+            <a href="va_site_config.html">Site Configuration</a> &bull;
+            <a href="../downloads/Scripts/va_license_fix.sql" download class="btn">&#128190; Download va_license_fix.sql</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,240 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Daily Scanner Workflow &mdash; VA Asset Intelligence Hub</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <style>
+        .step-card { background: color-mix(in srgb, var(--text,#e2e8f0), transparent 97%); border: 1px solid var(--line,#2a3441); border-radius: 14px; padding: 28px; margin-bottom: 28px; }
+        .step-title { font-size: 19px; font-weight: 700; display: flex; align-items: center; margin-bottom: 10px; }
+        .step-num { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: var(--accent,#3b82f6); color: #fff; font-weight: 800; font-size: 15px; margin-right: 12px; flex-shrink: 0; }
+        .step-desc { color: var(--muted-docs,#8b95a5); font-size: 14px; line-height: 1.8; margin-bottom: 10px; }
+        .tip-box  { background: color-mix(in srgb,#10b981,transparent 88%); border: 1px solid rgba(16,185,129,.3); border-left: 4px solid #10b981; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #10b981; }
+        .warn-box { background: color-mix(in srgb,#f59e0b,transparent 88%); border: 1px solid rgba(245,158,11,.3);  border-left: 4px solid #f59e0b; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #f59e0b; }
+        .danger-box { background: color-mix(in srgb,#ef4444,transparent 88%); border: 1px solid rgba(239,68,68,.3); border-left: 4px solid #ef4444; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #ef4444; }
+        .info-box { background: color-mix(in srgb,#3b82f6,transparent 88%); border: 1px solid rgba(59,130,246,.3);  border-left: 4px solid #3b82f6; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #3b82f6; }
+        .section-divider { border: none; border-top: 2px solid var(--line,#2a3441); margin: 36px 0; }
+        .phase-header { font-size: 17px; font-weight: 800; margin: 28px 0 10px; padding: 10px 16px; border-radius: 10px; display: flex; align-items: center; gap: 10px; }
+        .ph-blue  { background: color-mix(in srgb,#3b82f6,transparent 88%); border: 1px solid rgba(59,130,246,.3); color: #3b82f6; }
+        .ph-green { background: color-mix(in srgb,#10b981,transparent 88%); border: 1px solid rgba(16,185,129,.3); color: #10b981; }
+        .ph-amber { background: color-mix(in srgb,#f59e0b,transparent 88%); border: 1px solid rgba(245,158,11,.3); color: #f59e0b; }
+        .color-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; }
+        .cp-orange { background: rgba(251,146,60,.2); border: 1px solid #fb923c; color: #fb923c; }
+        .cp-green  { background: rgba(34,197,94,.2);  border: 1px solid #22c55e; color: #22c55e; }
+        .cp-blue   { background: rgba(147,197,253,.2); border: 1px solid #93c5fd; color: #93c5fd; }
+        .color-key { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+        .pin-badge { display: inline-block; font-size: 28px; font-weight: 900; letter-spacing: 8px; padding: 10px 24px; border-radius: 12px; background: color-mix(in srgb,#3b82f6,transparent 85%); border: 2px solid #3b82f6; color: #3b82f6; font-family: monospace; }
+        .ss { display: block; width: 100%; max-width: 820px; border-radius: 10px; border: 1px solid var(--line,#2a3441); box-shadow: 0 4px 20px rgba(0,0,0,.14); margin: 12px 0 4px; }
+        .ss-port { display: block; max-width: 320px; border-radius: 10px; border: 1px solid var(--line,#2a3441); box-shadow: 0 4px 20px rgba(0,0,0,.14); margin: 12px 0 4px; }
+        .ss-cap { font-size: .77rem; color: var(--muted-docs,#8b95a5); margin: 0 0 12px; font-style: italic; }
+        .ss-row { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; margin: 12px 0; }
+        .ss-col { display: flex; flex-direction: column; }
+        .trigger-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 14px 0; }
+        @media (max-width: 640px) { .trigger-grid { grid-template-columns: 1fr; } }
+        .trigger-card { background: color-mix(in srgb, var(--text,#e2e8f0), transparent 94%); border: 1px solid var(--line,#2a3441); border-radius: 10px; padding: 16px 20px; }
+        .trigger-card h4 { margin: 0 0 8px; font-size: 15px; font-weight: 800; }
+        .trigger-card p { margin: 0; font-size: 13px; color: var(--muted-docs,#8b95a5); line-height: 1.7; }
+    </style>
+</head>
+<body>
+<a href="index.aspx" class="back-link">&larr; Documentation Hub</a>
+<div class="doc-container">
+    <h1>&#128241; Daily Scanner Workflow</h1>
+    <p class="doc-subtitle">Complete end-to-end procedure for using the <strong>Zebra TC53 + RF40 sled</strong> to perform room inventory scans with iDash.</p>
+
+    <div class="callout callout-info">
+        <strong>Scope of this guide.</strong> Covers the full daily scanning procedure: unlocking the scanner, syncing the app at the Scanning PC, logging in, scanning room locations and RFID assets, reviewing color-coded results, taking action on unexpected items, and syncing data back when finished.
+        <div style="margin-top:8px;">
+            &#128196; <strong>Printable Pocket Card:</strong> Looking for a laminated reference to take with you in the field? See the <a href="va_guide_scanner_reference_card.html" style="color:var(--accent,#3b82f6); font-weight:700; text-decoration:underline;">Scanner &amp; ENNX Quick Reference Card (3&times;5&quot; / 4&times;6&quot;)</a>.
+        </div>
+    </div>
+
+    <div class="step-card" style="padding:20px 28px;">
+        <div class="step-title" style="margin-bottom:4px;">&#128196; Workflow Overview</div>
+        <table class="doc-table">
+            <thead><tr><th style="width:5%">#</th><th>Step</th><th>Where</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td>Take scanner + sled to Scanning PC</td><td>Scanning PC</td></tr>
+                <tr><td>2</td><td>Enter PIN on scanner</td><td>Scanner</td></tr>
+                <tr><td>3</td><td>Open iDash &amp; sync app</td><td>Scanning PC (must be on network)</td></tr>
+                <tr><td>4</td><td>Log in, wait for full sync</td><td>Scanner</td></tr>
+                <tr><td>5</td><td>Scan location barcode tag</td><td>Field &mdash; <em>bottom trigger</em></td></tr>
+                <tr><td>6</td><td>Scan RFID assets in room</td><td>Field &mdash; <em>top trigger</em></td></tr>
+                <tr><td>7</td><td>Review results and take action</td><td>Scanner screen</td></tr>
+                <tr><td>8</td><td>Tap Inventory Done, move to next room</td><td>Scanner screen</td></tr>
+                <tr><td>9</td><td>Return to Scanning PC &mdash; Sync App</td><td>Scanning PC (must be on network)</td></tr>
+                <tr><td>10</td><td>Log out</td><td>Scanner</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PHASE 1: Setup at PC -->
+    <hr class="section-divider" />
+    <div class="phase-header ph-blue">&#128187; Phase 1: Setup at the Scanning PC</div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">1</span> Bring Scanner &amp; Sled to the Scanning PC</div>
+        <div class="step-desc">Before leaving to scan rooms, complete all setup steps at the <strong>Scanning PC</strong> while connected to the network. The app must sync data <em>before</em> you head out.</div>
+        <div class="info-box"><strong>&#128205; Why this matters:</strong> The app download from the server includes all current asset records and locations. Scanning without a fresh sync means the scanner has stale data and inventory results may not be accurate.</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">2</span> Enter PIN on the Scanner</div>
+        <div class="step-desc">Wake the TC53 scanner and enter the PIN to unlock it.</div>
+        <div style="margin: 12px 0;">
+            <div class="pin-badge">5 6 1 3</div>
+        </div>
+        <p class="ss-cap" style="margin-top:6px;">Scanner unlock PIN &mdash; enter this on the device keypad to unlock the screen.</p>
+        <div class="tip-box"><strong>&#128161; Tip:</strong> If the scanner is in a holster or charging cradle, press the power button first to wake the screen before entering the PIN.</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">3</span> Open iDash and Sync</div>
+        <div class="step-desc">From the home screen, tap the <strong>iDash</strong> icon to launch the app. When prompted, select <strong>YES</strong> to sync with the master database.</div>
+        <div class="ss-row">
+            <div class="ss-col">
+                <img class="ss-port" src="img/batch_scan/image1.jpeg" alt="TC53 home screen showing iDash app icon alongside Settings icon" />
+                <p class="ss-cap">TC53 home screen &mdash; tap the <strong>iDash</strong> icon to launch.</p>
+            </div>
+            <div class="ss-col">
+                <img class="ss-port" src="img/batch_scan/image2.png" alt="Sync dialog asking Do you want to Sync with the master database with NO and YES buttons" />
+                <p class="ss-cap">Sync prompt &mdash; always tap <strong>YES</strong> when at the Scanning PC to download the latest data.</p>
+            </div>
+        </div>
+        <div class="danger-box"><strong>&#9888; This step MUST be done at the Scanning PC.</strong> The sync connects to the VA network server. If you are away from the PC / off-network, the app will not be able to reach the server.</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">4</span> Log In and Wait for Sync to Complete</div>
+        <div class="step-desc">Enter your <strong>username and password</strong>, then tap <strong>Login</strong>. A progress spinner will appear while the app downloads the latest asset data. <strong>Do not leave the Scanning PC until sync is 100% complete.</strong></div>
+        <div class="ss-row">
+            <div class="ss-col">
+                <img class="ss-port" src="img/batch_scan/image3.png" alt="iDash login screen showing Username and Password fields and Login button" />
+                <p class="ss-cap">Login screen &mdash; enter your VA credentials and tap <strong>Login</strong>.</p>
+            </div>
+            <div class="ss-col">
+                <img class="ss-port" src="img/batch_scan/image4.png" alt="Syncing Down progress spinner showing 26% with Scan Room Location screen in background" />
+                <p class="ss-cap">Sync in progress &mdash; wait for this spinner to fully complete before leaving the PC.</p>
+            </div>
+            <div class="ss-col">
+                <img class="ss-port" src="img/batch_scan/image5.png" alt="Scan Room Location screen with Sync Completed message at the bottom of the screen" />
+                <p class="ss-cap"><strong>Sync Completed</strong> &mdash; only leave the PC once you see this confirmation at the bottom of the screen.</p>
+            </div>
+        </div>
+        <div class="warn-box"><strong>&#9888; Do not leave the Scanning PC until you see &ldquo;Sync Completed.&rdquo;</strong> Leaving early means the scanner has incomplete data and scans will not be reliable.</div>
+    </div>
+
+    <!-- PHASE 2: Scanning Rooms -->
+    <hr class="section-divider" />
+    <div class="phase-header ph-green">&#128225; Phase 2: Scanning Room Locations</div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">5</span> Scan the Room Location Tag</div>
+        <div class="step-desc">Once sync is complete and you are at the room to scan, use the <strong>bottom trigger</strong> on the RF40 sled to scan the <strong>location barcode tag</strong> posted on or near the room door.</div>
+        <div class="trigger-grid">
+            <div class="trigger-card">
+                <h4 style="color:#3b82f6;">&#9660; Bottom Trigger &mdash; Barcode</h4>
+                <p>Scans 1D/2D <strong>barcodes</strong>. Point at the room location tag barcode and squeeze the bottom trigger to read it. The room name and number will appear in the app header.</p>
+            </div>
+            <div class="trigger-card">
+                <h4 style="color:#10b981;">&#9650; Top Trigger &mdash; RFID</h4>
+                <p>Activates the <strong>RFID antenna</strong>. Hold the sled toward the room and squeeze the top trigger to detect RFID tags on equipment in the room.</p>
+            </div>
+        </div>
+        <img class="ss" src="img/batch_scan/image12.png" alt="Scan Room Location screen showing empty Name, RFID Tag, Last Inventoried columns ready to scan a room" />
+        <p class="ss-cap">Scan Room Location &mdash; the room list is empty until you scan the location barcode tag. After scanning, the room will load and you can begin reading RFID tags.</p>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">6</span> Scan RFID Assets in the Room</div>
+        <div class="step-desc">With the room loaded, use the <strong>top trigger</strong> to sweep the sled around the room and read all RFID tags on equipment. The asset list will populate as tags are detected.</div>
+        <div class="ss-row">
+            <div class="ss-col">
+                <img class="ss-port" src="img/batch_scan/image6.png" alt="iDash room SPGA103-5 showing Inventory Done header and all items highlighted in orange with magnifying glass icons indicating unread assets" />
+                <p class="ss-cap"><strong>Orange items</strong> = assets expected in this room that have <em>not yet been read</em> by the RFID sled. Sweep around the room until all orange items turn another color.</p>
+            </div>
+            <div class="ss-col">
+                <img class="ss-port" src="img/batch_scan/image8.png" alt="Room SP111-519 showing mix of green inventoried items with checkmarks, blue unexpected location items with pin icons, and orange unread items" />
+                <p class="ss-cap">As you scan: <span class="color-pill cp-green">&#10003; Green = Inventoried</span> &nbsp;<span class="color-pill cp-blue">&#128205; Blue = Unexpected location</span> &nbsp;<span class="color-pill cp-orange">&#9632; Orange = Not yet read</span></p>
+            </div>
+        </div>
+        <div class="color-key">
+            <span class="color-pill cp-green">&#10003; Green &mdash; Inventoried (found in expected location)</span>
+            <span class="color-pill cp-blue">&#128205; Blue &mdash; Unexpected location (found here but belongs elsewhere)</span>
+            <span class="color-pill cp-orange">&#9632; Orange &mdash; Expected but not yet scanned</span>
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">7</span> Review Results and Take Action</div>
+        <div class="step-desc">After sweeping the room, review the color-coded asset list. For items requiring action, tap the item to bring up the <strong>Action menu</strong>.</div>
+        <div class="ss-row">
+            <div class="ss-col">
+                <img class="ss-port" src="img/batch_scan/image9.png" alt="Room SPGA103-5 showing mix of orange unread items and blue unexpected-location items with pin icons" />
+                <p class="ss-cap">Mixed results: orange = still unread (keep scanning), blue = found here but assigned elsewhere.</p>
+            </div>
+            <div class="ss-col">
+                <img class="ss-port" src="img/batch_scan/image10.png" alt="Action menu popup showing options: Move from SP5-302, Move All Unexpected, Edit, Ignore, Locate, Maintenance Histories, and Cancel" />
+                <p class="ss-cap">Action menu &mdash; tap any item to see available actions for that asset.</p>
+            </div>
+        </div>
+        <table class="doc-table" style="margin-top:10px;">
+            <thead><tr><th style="width:30%">Action</th><th>What it does</th><th>When to use</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Move from [location]</strong></td><td>Moves this asset to the current room</td><td>Asset is physically here and should stay</td></tr>
+                <tr><td><strong>Move All Unexpected</strong></td><td>Moves all blue items to the current room in one step</td><td>Multiple items all belong in this room now</td></tr>
+                <tr><td><strong>Locate</strong></td><td>Activates RFID Geiger-counter locate mode</td><td>Finding a specific asset by signal strength</td></tr>
+                <tr><td><strong>Ignore</strong></td><td>Skips this item for this scan session</td><td>Item is a known visitor / on loan</td></tr>
+                <tr><td><strong>Edit</strong></td><td>Edit asset details directly</td><td>Correcting asset record data</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">8</span> Tap &ldquo;Inventory Done&rdquo; and Move to Next Room</div>
+        <div class="step-desc">When you are finished reviewing and acting on all items in the room, tap the <strong>Inventory Done</strong> button in the top-right corner. Then <strong>repeat Steps 5&ndash;8</strong> for each remaining room.</div>
+        <img class="ss-port" src="img/batch_scan/image7.png" alt="Room SPGA103-5 showing Inventory Done button in the top right header and orange items in the asset list below" />
+        <p class="ss-cap"><strong>Inventory Done</strong> button (top right) &mdash; tap when you have finished reviewing all assets in this room. This marks the room as inventoried and returns you to the location scanner screen.</p>
+        <div class="tip-box"><strong>&#128161; Repeat for each room:</strong> Return to the <strong>Scan Room</strong> tab, scan the next room&rsquo;s barcode tag, sweep for RFID tags, review items, and tap Inventory Done. Continue until all locations are complete.</div>
+    </div>
+
+    <!-- PHASE 3: Wrap Up -->
+    <hr class="section-divider" />
+    <div class="phase-header ph-amber">&#128187; Phase 3: Return to Scanning PC &amp; Sync</div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">9</span> Return to the Scanning PC &mdash; Sync App</div>
+        <div class="step-desc">When all rooms have been inventoried, <strong>return to the Scanning PC</strong>. Tap the <strong>MORE</strong> tab on the scanner, scroll down, and select <strong>SYNC APP</strong>.</div>
+        <img class="ss-port" src="img/batch_scan/image13.png" alt="MORE tab menu showing FIXED V-TAGS, LOCATIONS, READ ASSETS, READ TAGS, SCHEDULED MAINTENANCE, SETUP GATEWAY, SOFTWARE CONNECTIVITY, SYNC APP, APP SETTINGS, PRIVACY POLICY, LOG OUT buttons" />
+        <p class="ss-cap">MORE tab &mdash; scroll down and tap <strong>SYNC APP</strong> to upload all scan data to the server. This <strong>must</strong> be done at the Scanning PC while on the VA network.</p>
+        <div class="danger-box"><strong>&#9888; SYNC APP must be done at the Scanning PC.</strong> This step uploads all your scan results to the server. If you sync away from the PC / off-network, the upload will fail and your scan session data will not be saved.</div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">10</span> Log Out</div>
+        <div class="step-desc">After sync is confirmed complete, scroll to the bottom of the <strong>MORE</strong> tab and tap <strong>LOG OUT</strong>.</div>
+        <div class="tip-box"><strong>&#128161; Always log out when finished.</strong> Logging out protects your credentials and ensures the next user starts with a fresh, clean session.</div>
+    </div>
+
+    <hr class="section-divider" />
+    <h2><span class="section-num">&#128203;</span> Quick Reference Summary</h2>
+    <table class="doc-table">
+        <thead><tr><th style="width:5%">#</th><th>Step</th><th>Key Detail</th></tr></thead>
+        <tbody>
+            <tr><td>1</td><td>Bring scanner + sled to Scanning PC</td><td>Must be on VA network for sync</td></tr>
+            <tr><td>2</td><td>Enter PIN</td><td><strong>5613</strong></td></tr>
+            <tr><td>3</td><td>Open iDash &rarr; tap YES to sync</td><td>Must be at Scanning PC</td></tr>
+            <tr><td>4</td><td>Log in &rarr; wait for &ldquo;Sync Completed&rdquo;</td><td>Do not leave PC until complete</td></tr>
+            <tr><td>5</td><td>Scan location barcode</td><td><strong>Bottom trigger</strong> on sled</td></tr>
+            <tr><td>6</td><td>Scan RFID assets</td><td><strong>Top trigger</strong> on sled, sweep entire room</td></tr>
+            <tr><td>7</td><td>Review color-coded results, take action</td><td>Orange = unread &bull; Green = inventoried &bull; Blue = unexpected</td></tr>
+            <tr><td>8</td><td>Tap Inventory Done &rarr; next room</td><td>Repeat Steps 5&ndash;8 for each room</td></tr>
+            <tr><td>9</td><td>Return to Scanning PC &rarr; MORE &rarr; Sync App</td><td>Must be at Scanning PC</td></tr>
+            <tr><td>10</td><td>Log out</td><td>MORE tab &rarr; Log Out</td></tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

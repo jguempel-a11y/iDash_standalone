@@ -1,0 +1,305 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>PRINTING ASSET LABELS &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <div class="container">
+        <h1>&#128424; Printing Asset Labels</h1>
+        <div style="margin-bottom: 30px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <div style="margin-right: 15px; color:var(--muted-docs); font-size: 14px;">Integrations:</div>
+            <span class='badge badge-db'>Database Connected</span>
+            <span class='badge' style="background:color-mix(in srgb, #8B5CF6 15%, transparent); color:#8B5CF6; border:1px solid #8B5CF6;">Print Jobs</span>
+            <span class='badge' style="background:color-mix(in srgb, #10b981 15%, transparent); color:#10b981; border:1px solid #10b981;">New 07/24</span>
+        </div>
+
+        <h2>Overview</h2>
+        <p>The <strong>Asset Master</strong> page (<code>va_asset_master.aspx</code>) includes a built-in print feature that lets you submit RFID label print jobs for one or more assets. You select assets by entering EE numbers &mdash; the site prefix (e.g. <code>613 EE</code>) is automatically detected from the selected site. Print jobs are routed through the iDash core API, which publishes to the Print Server via MQTT for automatic printing via BarTender.</p>
+
+        <div style="background:color-mix(in srgb, var(--accent-docs, var(--accent)), transparent 90%); border:1px solid color-mix(in srgb, var(--accent-docs, var(--accent)), transparent 60%); border-radius:8px; padding:12px 16px; margin:16px 0; font-size:13px; color:var(--text);">
+            <strong>&#128736; Admin Setup:</strong> For template, printer, and multi-site configuration, see <a href="va_print_admin.html" style="color:var(--accent-docs, var(--accent));">Print Administration</a>.
+        </div>
+
+        <!-- ═══════════════════════════════════════════════ -->
+        <!-- STEP-BY-STEP GUIDE                              -->
+        <!-- ═══════════════════════════════════════════════ -->
+        <h2>How to Print Labels &mdash; Step by Step</h2>
+
+        <h3>Step 1: Navigate to Asset Master</h3>
+        <p>From the iDash hub, click <strong>Asset Master</strong>, or navigate directly to:</p>
+        <pre style="padding:12px 16px; border-radius:8px; background:var(--chip); border:1px solid var(--line); font-size:14px; color:var(--text);">https://&lt;your-server&gt;/iDash/va_asset_master.aspx</pre>
+
+        <h3>Step 2: Select a Site</h3>
+        <p>Use the <strong>Site</strong> dropdown at the top of the page. The print feature needs to know which site you're printing for in order to determine the correct asset name prefix.</p>
+
+        <h3>Step 3: Open the Print Modal</h3>
+        <p>Click the <strong>&#128424; Print</strong> button in the header bar (left of the CSV/Excel export buttons). The print modal will open with:</p>
+        <ul>
+            <li><strong>Site Prefix</strong> &mdash; auto-detected (e.g. <code>613 EE</code> for Martinsburg, <code>512 EE </code> for Baltimore)</li>
+            <li><strong>Asset Numbers</strong> &mdash; input field for entering the numeric portion</li>
+            <li><strong>Print Template</strong> &mdash; dropdown of available label templates</li>
+        </ul>
+
+        <h3>Step 4: Enter Asset Numbers</h3>
+        <p>Type the asset numbers (just the numbers &mdash; the prefix is added automatically). You can use any of these formats:</p>
+
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px 12px; color:var(--muted-docs);">Format</th>
+                <th style="text-align:left; padding:10px 12px; color:var(--muted-docs);">You Type</th>
+                <th style="text-align:left; padding:10px 12px; color:var(--muted-docs);">Assets Generated</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px 12px; font-weight:700; color:var(--accent-docs, var(--accent));">Single</td>
+                <td style="padding:10px 12px;"><code>312</code></td>
+                <td style="padding:10px 12px;"><code>613 EE312</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px 12px; font-weight:700; color:var(--accent-docs, var(--accent));">Range</td>
+                <td style="padding:10px 12px;"><code>1-25</code></td>
+                <td style="padding:10px 12px;"><code>613 EE1</code> through <code>613 EE25</code> (25 labels)</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px 12px; font-weight:700; color:var(--accent-docs, var(--accent));">Comma-separated</td>
+                <td style="padding:10px 12px;"><code>5, 12, 42</code></td>
+                <td style="padding:10px 12px;"><code>613 EE5</code>, <code>613 EE12</code>, <code>613 EE42</code></td>
+            </tr>
+            <tr>
+                <td style="padding:10px 12px; font-weight:700; color:var(--accent-docs, var(--accent));">Mixed</td>
+                <td style="padding:10px 12px;"><code>1-5, 8, 12-15</code></td>
+                <td style="padding:10px 12px;">10 labels: EE1&ndash;EE5, EE8, EE12&ndash;EE15</td>
+            </tr>
+        </table>
+
+        <div style="background:color-mix(in srgb, var(--accent-docs, var(--accent)), transparent 90%); border:1px solid color-mix(in srgb, var(--accent-docs, var(--accent)), transparent 60%); border-radius:8px; padding:12px 16px; margin:16px 0; font-size:13px; color:var(--text);">
+            <strong>&#128161; Tip:</strong> You can press <strong>Enter</strong> in the numbers field instead of clicking "Load Preview".
+        </div>
+
+        <h3>Step 5: Preview</h3>
+        <p>Click <strong>Load Preview</strong>. The system will look up all matching assets and display them in a table. This table uses the same columns as your main Asset Master grid &mdash; so if you've toggled or reordered columns, those settings carry over to the preview.</p>
+        <p>If some numbers don't match any asset, a yellow warning banner will list them (e.g. <em>"Not found: 613 EE999"</em>).</p>
+
+        <h3>Step 6: Select Template &amp; Print</h3>
+        <ol>
+            <li>Choose the label template from the <strong>Print Template</strong> dropdown.</li>
+            <li>Click <strong>&#128424; Send to Printer</strong>.</li>
+            <li>Confirm the dialog ("Send X asset(s) to the printer?").</li>
+            <li>A green success banner confirms how many jobs were created.</li>
+        </ol>
+        <p>The print jobs are now queued. The Print Server picks them up via MQTT within seconds and routes them to the configured printer via BarTender. Check the <a href="../va_print_admin.aspx" style="color:var(--accent-docs, var(--accent));">Print Admin</a> Status tab to monitor job progress.</p>
+
+        <!-- ═══════════════════════════════════════════════ -->
+        <!-- SERVER CONFIGURATION                            -->
+        <!-- ═══════════════════════════════════════════════ -->
+        <h2 style="margin-top:40px; padding-top:20px; border-top:2px solid #f59e0b;">&#128736; Server Configuration</h2>
+        <p>For printing to work, the following components must be configured on the server. This section covers API credentials and file locations that a system administrator needs to set up.</p>
+
+        <h3>Configuration Files</h3>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px 12px; color:var(--muted-docs);">File</th>
+                <th style="text-align:left; padding:10px 12px; color:var(--muted-docs);">Location</th>
+                <th style="text-align:left; padding:10px 12px; color:var(--muted-docs);">What to Configure</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px 12px; font-weight:700;"><code>web.config</code></td>
+                <td style="padding:10px 12px;"><code>C:\inetpub\wwwroot\iDash\web.config</code></td>
+                <td style="padding:10px 12px;">API credentials (Client ID &amp; Secret), API base URL, token URL</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px 12px; font-weight:700;"><code>appsettings.json</code></td>
+                <td style="padding:10px 12px;"><code>C:\inetpub\wwwroot\iDash\appsettings.json</code></td>
+                <td style="padding:10px 12px;">iDash API server settings: <code>WebClientId</code>, <code>WebClientSecret</code>, <code>AuthenticationServer</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px 12px; font-weight:700;"><code>printer_routing.json</code></td>
+                <td style="padding:10px 12px;"><code>C:\idash_prints\printer_routing.json</code></td>
+                <td style="padding:10px 12px;">Maps BarTender template filenames to Windows printer names</td>
+            </tr>
+            <tr>
+                <td style="padding:10px 12px; font-weight:700;"><code>.btw templates</code></td>
+                <td style="padding:10px 12px;"><code>C:\idash_prints\*.btw</code></td>
+                <td style="padding:10px 12px;">BarTender label layouts referenced by the <code>template</code> table</td>
+            </tr>
+        </table>
+
+        <h3>API Credentials &mdash; iDash Side (<code>web.config</code>)</h3>
+        <p>The iDash portal authenticates to the iDash API using OAuth 2.0 client credentials. These are stored in <code>web.config</code> under <code>&lt;appSettings&gt;</code>:</p>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px 12px; color:var(--muted-docs);">Key</th>
+                <th style="text-align:left; padding:10px 12px; color:var(--muted-docs);">Purpose</th>
+                <th style="text-align:left; padding:10px 12px; color:var(--muted-docs);">Example</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px 12px;"><code>UseRestApi</code></td>
+                <td style="padding:10px 12px;">Master switch to enable API integration</td>
+                <td style="padding:10px 12px;"><code>true</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px 12px;"><code>iDash_ApiBase</code></td>
+                <td style="padding:10px 12px;">Base URL of the iDash REST API</td>
+                <td style="padding:10px 12px;"><code>http://localhost/api</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px 12px;"><code>iDash_TokenUrl</code></td>
+                <td style="padding:10px 12px;">OAuth token endpoint</td>
+                <td style="padding:10px 12px;"><code>http://localhost/connect/token</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px 12px;"><code>iDash_ClientId</code></td>
+                <td style="padding:10px 12px;">OAuth Client ID (must match iDash server config)</td>
+                <td style="padding:10px 12px;"><code>v512</code></td>
+            </tr>
+            <tr>
+                <td style="padding:10px 12px;"><code>iDash_ClientSecret</code></td>
+                <td style="padding:10px 12px;">OAuth Client Secret (must match iDash server config)</td>
+                <td style="padding:10px 12px;"><code>&lt;generated-secret&gt;</code></td>
+            </tr>
+        </table>
+        <div style="background:color-mix(in srgb, #f59e0b, transparent 90%); border:1px solid color-mix(in srgb, #f59e0b, transparent 60%); border-radius:8px; padding:12px 16px; margin:16px 0; font-size:13px; color:var(--text);">
+            <strong>&#9888; Important:</strong> The <code>iDash_ClientId</code> and <code>iDash_ClientSecret</code> must match the values configured in the iDash API application. These are used for machine-to-machine authentication &mdash; the iDash server authenticates to the iDash API using the OAuth <code>client_credentials</code> grant type. If these don't match, all API-driven features will fail.
+        </div>
+
+        <h3>API Credentials &mdash; iDash server Side</h3>
+        <p>On the iDash API server, the corresponding credentials are configured in <strong>two places</strong>:</p>
+
+        <h4 style="color:var(--accent-docs, var(--accent));">1. Database: <code>applicationsetting</code> table</h4>
+        <p>The <code>applicationsetting</code> table (single-row) has two columns that define the web client credentials that the API server accepts:</p>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:1px solid var(--line);">
+                <th style="text-align:left; padding:8px; color:var(--muted-docs);">Column</th>
+                <th style="text-align:left; padding:8px; color:var(--muted-docs);">Purpose</th>
+                <th style="text-align:left; padding:8px; color:var(--muted-docs);">Default</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:8px;"><code>webclientid</code></td>
+                <td style="padding:8px;">The client ID the API expects for introspection/auth</td>
+                <td style="padding:8px;"><code>idash.web</code></td>
+            </tr>
+            <tr>
+                <td style="padding:8px;"><code>webclientsecret</code></td>
+                <td style="padding:8px;">The client secret the API expects</td>
+                <td style="padding:8px;"><code>901564A5-E7FE-42CB-B10D-61EF6A8F3654</code></td>
+            </tr>
+        </table>
+        <p>To update via SQL:</p>
+        <pre style="padding:12px 16px; border-radius:8px; background:var(--chip); border:1px solid var(--line); font-size:13px; color:var(--text);">UPDATE dbo.applicationsetting
+SET webclientid = 'your_client_id',
+    webclientsecret = 'your_client_secret';</pre>
+
+        <h4 style="color:var(--accent-docs, var(--accent));">2. Config File: <code>appsettings.json</code></h4>
+        <p>The iDash Web API application reads its config from <code>appsettings.json</code> (or overrides from the DB). The relevant keys under <code>ConfigSettings</code> are:</p>
+        <ul>
+            <li><code>"WebClientId"</code> &mdash; must match the <code>webclientid</code> in the database</li>
+            <li><code>"WebClientSecret"</code> &mdash; must match the <code>webclientsecret</code> in the database</li>
+            <li><code>"AuthenticationServer"</code> &mdash; the OAuth authority URL (e.g. <code>http://localhost</code>)</li>
+        </ul>
+        <p>If values are not set in the config file, the API defaults to <code>idash.web</code> / <code>901564A5-E7FE-42CB-B10D-61EF6A8F3654</code>.</p>
+
+        <h3>Credential Flow Diagram</h3>
+        <pre style="padding:14px 18px; border-radius:8px; background:var(--chip); border:1px solid var(--line); font-size:13px; color:var(--text); line-height:1.8;">
+  iDash web.config                     iDash API
+  ┌─────────────────────┐              ┌─────────────────────────────┐
+  │ iDash_ClientId  │─── must ────▶│ webclientid (DB)            │
+  │ iDash_ClientSec │    match     │ webclientsecret (DB)        │
+  │ iDash_TokenUrl  │─── calls ───▶│ /connect/token endpoint     │
+  │ iDash_ApiBase   │─── calls ───▶│ /api/* endpoints            │
+  └─────────────────────┘              └─────────────────────────────┘
+
+  OAuth Flow:
+  1. iDash sends POST to TokenUrl with client_credentials grant
+  2. iDash validates against webclientid/webclientsecret
+  3. Returns Bearer token (cached until expiry)
+  4. iDash includes Bearer token in all API requests</pre>
+
+        <h3>Database Tables for Printing</h3>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px 12px; color:var(--muted-docs);">Table</th>
+                <th style="text-align:left; padding:10px 12px; color:var(--muted-docs);">Purpose</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px 12px;"><code>dbo.template</code></td>
+                <td style="padding:10px 12px;">Maps template IDs to BarTender <code>.btw</code> filenames. The <code>name</code> column populates the template dropdown.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px 12px;"><code>dbo.printjob</code></td>
+                <td style="padding:10px 12px;">Print job queue. Each row = one label to print. <code>completed=0</code> means pending. The spooler sets it to <code>1</code> on success, <code>-1</code> on failure.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px 12px;"><code>dbo.asset</code></td>
+                <td style="padding:10px 12px;">Asset records &mdash; the <code>id</code> is stored as <code>printjob.recordid</code> so the spooler knows which asset data to inject into the label.</td>
+            </tr>
+            <tr>
+                <td style="padding:10px 12px;"><code>dbo.applicationsetting</code></td>
+                <td style="padding:10px 12px;">Global singleton settings table. Contains <code>webclientid</code> and <code>webclientsecret</code> for API authentication.</td>
+            </tr>
+        </table>
+
+        <h3>Print Spooler Prerequisites</h3>
+        <p>For labels to actually print after being submitted from iDash:</p>
+        <ol style="line-height:2;">
+            <li><strong>BarTender</strong> must be installed on the print server.</li>
+            <li><strong>Run_Bypass_Spooler.ps1</strong> must be running (polls the <code>printjob</code> table every 3 seconds).</li>
+            <li><strong>printer_routing.json</strong> must map the template's <code>.btw</code> filename to the correct Windows printer name.</li>
+            <li><strong>.btw template files</strong> must exist in <code>C:\idash_prints\</code> matching the <code>template.filename</code> values in the database.</li>
+        </ol>
+        <p>For detailed print server setup, see <a href="print_server_setup.html" style="font-weight:600;">&#128424; Print Server Setup &amp; Troubleshooting</a>.</p>
+
+        <!-- ═══════════════════════════════════════════════ -->
+        <!-- TROUBLESHOOTING                                 -->
+        <!-- ═══════════════════════════════════════════════ -->
+        <h2 style="margin-top:40px; padding-top:20px; border-top:2px solid #ef4444;">Troubleshooting</h2>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line);">
+                <th style="text-align:left; padding:10px 12px; color:var(--muted-docs);">Symptom</th>
+                <th style="text-align:left; padding:10px 12px; color:var(--muted-docs);">Cause</th>
+                <th style="text-align:left; padding:10px 12px; color:var(--muted-docs);">Fix</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px 12px;">"No prefix configured"</td>
+                <td style="padding:10px 12px;">Selected site has no assets with <code>EE</code> in their name</td>
+                <td style="padding:10px 12px;">Select a site that has EE-named assets, or check the company name starts with a station number</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px 12px;">"No templates found"</td>
+                <td style="padding:10px 12px;">The <code>template</code> table is empty or the query failed</td>
+                <td style="padding:10px 12px;">Insert at least one row into <code>dbo.template</code> with <code>name</code> and <code>filename</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line);">
+                <td style="padding:10px 12px;">Jobs created but labels don't print</td>
+                <td style="padding:10px 12px;">Spooler not running or printer not mapped</td>
+                <td style="padding:10px 12px;">Check <code>Run_Bypass_Spooler.ps1</code> is active and <code>printer_routing.json</code> has the template mapped</td>
+            </tr>
+            <tr>
+                <td style="padding:10px 12px;">API features failing (401/403)</td>
+                <td style="padding:10px 12px;">Client ID/Secret mismatch between <code>web.config</code> and iDash server</td>
+                <td style="padding:10px 12px;">Verify <code>iDash_ClientId</code> and <code>iDash_ClientSecret</code> match the values in the <code>applicationsetting</code> table</td>
+            </tr>
+        </table>
+
+        <div style="margin-top: 50px; padding-top: 20px; border-top:1px solid var(--line);">
+            <a href="index.aspx" style="font-weight: 600;">&larr; Back to Main Documentation</a>
+            &nbsp;&nbsp;&bull;&nbsp;&nbsp;
+            <a href="va_asset_master.html" style="font-weight: 600;">Asset Master Technical Docs</a>
+            &nbsp;&nbsp;&bull;&nbsp;&nbsp;
+            <a href="print_server_setup.html" style="font-weight: 600;">Print Server Setup</a>
+            &nbsp;&nbsp;&bull;&nbsp;&nbsp;
+            <a href="va_bartender_print_architecture.html" style="font-weight: 600; color:#ef4444;">BarTender Architecture &amp; Troubleshooting</a>
+        </div>
+    </div>
+    <footer style="margin-top: 40px; padding: 20px; border-top:1px solid var(--line); font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 12px; color:var(--muted-docs); display: flex; justify-content: space-between; align-items: center; background:var(--bg); max-width: 1400px; margin-left: auto; margin-right: auto;">
+        <div>iDash iDash Documentation</div>
+        <div>Created 2026-07-24</div>
+    </footer>
+</body>
+</html>

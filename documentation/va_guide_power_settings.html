@@ -1,0 +1,269 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Adjusting Antenna Power on the Zebra Sled Reader &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .screenshot-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+            align-items: flex-start;
+        }
+        .screenshot-wrap {
+            flex: 0 0 auto;
+            text-align: center;
+        }
+        .screenshot-wrap img {
+            max-height: 400px;
+            width: auto;
+            border-radius: 12px;
+            border: 2px solid var(--line);
+            box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+            display: block;
+        }
+        .screenshot-wrap figcaption {
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-top: 8px;
+            max-width: 200px;
+        }
+        .power-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin: 20px 0;
+        }
+        .power-card {
+            background: var(--chip);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 16px 18px;
+        }
+        .power-card h4 {
+            margin: 0 0 6px 0;
+            font-size: 0.9rem;
+            color: var(--accent);
+        }
+        .power-card .power-range {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .power-card p {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+
+    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
+    <br/><br/>
+
+    <!-- Hero -->
+    <div class="card">
+        <h1>&#128268; Adjusting Antenna Power on the Zebra Sled Reader</h1>
+        <p style="font-size:16px;">
+            The iDash app lets you control the RFID antenna power level for each scanning mode independently.
+            Lower power narrows the read range &mdash; useful in dense environments where you want to avoid reading
+            tags from adjacent rooms. Higher power extends range for large, open spaces.
+        </p>
+        <div class="alert-blue">
+            <strong>&#9432; Equipment Required</strong><br/>
+            Zebra TC53 mobile computer with Zebra Sled and the iDash app. Settings are stored per-device.
+        </div>
+        <h2 style="margin-top:28px;">Contents</h2>
+        <div class="toc">
+            <a href="#settings">Power Level Settings Explained</a>
+            <a href="#howto">How to Change Power Levels</a>
+            <a href="#recommendations">Recommended Settings</a>
+            <a href="#tips">Tips &amp; Notes</a>
+        </div>
+    </div>
+
+    <!-- Settings explained -->
+    <div class="card" id="settings">
+        <h2>Power Level Settings Explained</h2>
+        <p>
+            Power levels are set on a scale of <strong>1&ndash;100</strong>. The app has three independent power settings,
+            each controlling a different scanning mode:
+        </p>
+        <div class="power-grid">
+            <div class="power-card">
+                <h4>&#128225; Inventory Power Level</h4>
+                <div class="power-range">1&ndash;100</div>
+                <p>Controls RFID read range when performing room inventory scans using the <strong>top trigger</strong>. Default: <strong>100</strong>.</p>
+            </div>
+            <div class="power-card">
+                <h4>&#128203; Checkout Power Level</h4>
+                <div class="power-range">1&ndash;100</div>
+                <p>Controls read range during asset checkout workflows. Default: <strong>100</strong>.</p>
+            </div>
+            <div class="power-card">
+                <h4>&#128279; Associate &amp; Edit Power Level</h4>
+                <div class="power-range">1&ndash;100</div>
+                <p>Controls read range when associating RFID tags to assets or editing records. Kept low intentionally to read only the tag directly in front of you. Default: <strong>5</strong>.</p>
+            </div>
+        </div>
+        <div class="screenshot-row">
+            <figure class="screenshot-wrap">
+                <img src="img/power/image4.png" alt="App Settings screen showing Inventory Power 100, Checkout Power 100, Associate Power 5" />
+                <figcaption>Default settings: Inventory 100, Checkout 100, Associate 5</figcaption>
+            </figure>
+        </div>
+        <div class="alert-blue">
+            <strong>&#9432; Why is Associate Power so low?</strong><br/>
+            When pairing a physical RFID label to an asset record, you only want to read the one tag you are holding in front of the reader &mdash; not every tag in the room. Keeping this at <strong>5</strong> ensures precise, single-tag reads.
+        </div>
+    </div>
+
+    <!-- How To -->
+    <div class="card" id="howto">
+        <h2>How to Change Power Levels</h2>
+
+        <div class="step">
+            <div class="step-num sn-blue">1</div>
+            <div>
+                <strong>From any screen, tap the <em>MORE</em> tab</strong> at the top-right of the app navigation bar.
+            </div>
+        </div>
+        <div class="screenshot-row">
+            <figure class="screenshot-wrap">
+                <img src="img/power/image1.png" alt="Scan Room Location screen showing MORE tab at top" />
+                <figcaption>Tap the <strong>MORE</strong> tab</figcaption>
+            </figure>
+        </div>
+
+        <div class="step">
+            <div class="step-num sn-blue">2</div>
+            <div>
+                <strong>Scroll down the More menu</strong> to find <strong>APP SETTINGS</strong> near the bottom, then tap it.
+            </div>
+        </div>
+        <div class="screenshot-row">
+            <figure class="screenshot-wrap">
+                <img src="img/power/image2.png" alt="More menu top half showing Fixed V-Tags, Employees, Connect to Scanner, Choose Scanner" />
+                <figcaption>More menu &mdash; scroll down</figcaption>
+            </figure>
+            <figure class="screenshot-wrap">
+                <img src="img/power/image3.png" alt="More menu bottom half showing Software Connectivity, Read Tags, Log Out, App Settings" />
+                <figcaption>Tap <strong>APP SETTINGS</strong> at the bottom</figcaption>
+            </figure>
+        </div>
+
+        <div class="step">
+            <div class="step-num sn-blue">3</div>
+            <div>
+                <strong>Tap the power level field you want to change</strong> (e.g., <em>Inventory Power Level</em>).<br/>
+                A numeric keypad will appear. Clear the existing value and type your new number (1&ndash;100).
+            </div>
+        </div>
+        <div class="screenshot-row">
+            <figure class="screenshot-wrap">
+                <img src="img/power/image5.png" alt="App Settings with Inventory Power field active and keypad showing value 70 being entered" />
+                <figcaption>Tap the field, type new value (e.g., 70)</figcaption>
+            </figure>
+        </div>
+
+        <div class="step">
+            <div class="step-num sn-blue">4</div>
+            <div>
+                <strong>Tap the blue checkmark</strong> on the keypad (or tap done/return) to confirm the value.<br/>
+                Repeat for any other power levels you want to adjust.
+            </div>
+        </div>
+        <div class="screenshot-row">
+            <figure class="screenshot-wrap">
+                <img src="img/power/image6.png" alt="App Settings showing Inventory Power now set to 70" />
+                <figcaption>Value confirmed &mdash; field updates to new setting</figcaption>
+            </figure>
+        </div>
+
+        <div class="step">
+            <div class="step-num sn-green">5</div>
+            <div>
+                <strong>Tap <em>SAVE</em></strong> in the top-right corner of the App Settings screen.<br/>
+                You will be returned to the More menu and a <strong>"Settings updated"</strong> confirmation banner will appear at the bottom.
+            </div>
+        </div>
+        <div class="screenshot-row">
+            <figure class="screenshot-wrap">
+                <img src="img/power/image7.png" alt="More menu with Settings updated toast notification at bottom" />
+                <figcaption>"Settings updated" confirms save was successful</figcaption>
+            </figure>
+        </div>
+        <div class="alert-green">
+            <strong>&#9989; Settings take effect immediately.</strong> New power levels apply to your next scan &mdash; no app restart required.
+        </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="card" id="recommendations">
+        <h2>&#127919; Recommended Power Settings</h2>
+        <table>
+            <thead>
+                <tr><th>Scenario</th><th>Inventory Power</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Standard room inventory</strong></td>
+                    <td><strong>100</strong> (max)</td>
+                    <td>Best for most VA rooms. Reads all tags in a standard patient room without needing to get very close.</td>
+                </tr>
+                <tr>
+                    <td><strong>Dense environments</strong> (hallways, storage rooms packed with equipment)</td>
+                    <td><strong>50&ndash;70</strong></td>
+                    <td>Reduces bleed into adjacent areas. You may need to sweep more slowly or in closer passes.</td>
+                </tr>
+                <tr>
+                    <td><strong>Tag association / pairing</strong></td>
+                    <td>N/A</td>
+                    <td>Always use the <strong>Associate &amp; Edit Power Level</strong> (keep at <strong>5</strong>) &mdash; ensures only the single tag directly in front of the reader is picked up.</td>
+                </tr>
+                <tr>
+                    <td><strong>Large open bays or warehouses</strong></td>
+                    <td><strong>100</strong></td>
+                    <td>Full power. Walk the space in a grid pattern to ensure full coverage.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Tips -->
+    <div class="card" id="tips">
+        <h2>&#128161; Tips &amp; Notes</h2>
+        <ul>
+            <li><strong>Inventory Duration</strong> (also in App Settings, default 7) controls how many seconds the scanner actively reads per trigger squeeze. Increase it for slower sweeps; decrease it if you want faster per-location scans.</li>
+            <li><strong>Lower power &ne; fewer reads.</strong> In most VA environments, power 70&ndash;100 reads the same tags. The difference becomes noticeable in rooms sharing thin walls with adjacent tagged inventory.</li>
+            <li><strong>Settings are per-device.</strong> If multiple TC53 units are in use, each must be configured individually in App Settings.</li>
+            <li><strong>Do not set Associate power above 10</strong> unless specifically troubleshooting a pairing issue. Higher values will read multiple tags simultaneously, making single-tag association unreliable.</li>
+        </ul>
+        <div class="alert-blue">
+            <strong>&#9432; Related guides:</strong>
+            <ul style="margin:8px 0 0 0;">
+                <li><a href="va_batch_scan.html">Batch Mode Scanning Guide</a> &mdash; full offline inventory workflow</li>
+                <li><a href="va_guide_locate.html">How to Use the Locate Feature</a> &mdash; RFID Geiger-counter mode</li>
+            </ul>
+        </div>
+    </div>
+
+    <br/>
+    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
+    <br/><br/>
+
+</div>
+</body>
+</html>

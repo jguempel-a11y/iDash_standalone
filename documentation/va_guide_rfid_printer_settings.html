@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>RFID Printer Basic Settings &amp; Solutions &mdash; VA Asset Intelligence Hub</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <style>
+        .step-card { background: color-mix(in srgb, var(--text,#e2e8f0), transparent 97%); border: 1px solid var(--line,#2a3441); border-radius: 14px; padding: 28px; margin-bottom: 28px; }
+        .step-title { font-size: 19px; font-weight: 700; display: flex; align-items: center; margin-bottom: 10px; }
+        .step-num { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: var(--accent,#3b82f6); color: #fff; font-weight: 800; font-size: 15px; margin-right: 12px; flex-shrink: 0; }
+        .step-desc { color: var(--muted-docs,#8b95a5); font-size: 14px; line-height: 1.75; margin-bottom: 12px; }
+        .tip-box  { background: color-mix(in srgb,#10b981,transparent 88%); border: 1px solid rgba(16,185,129,.3); border-left: 4px solid #10b981; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #10b981; }
+        .warn-box { background: color-mix(in srgb,#f59e0b,transparent 88%); border: 1px solid rgba(245,158,11,.3); border-left: 4px solid #f59e0b; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #f59e0b; }
+        .info-box { background: color-mix(in srgb,#3b82f6,transparent 88%); border: 1px solid rgba(59,130,246,.3); border-left: 4px solid #3b82f6; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #3b82f6; }
+        .danger-box { background: color-mix(in srgb,#ef4444,transparent 88%); border: 1px solid rgba(239,68,68,.3); border-left: 4px solid #ef4444; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #ef4444; }
+        .section-divider { border: none; border-top: 2px solid var(--line,#2a3441); margin: 36px 0; }
+        .phase-header { font-size: 17px; font-weight: 800; margin: 28px 0 10px; padding: 10px 16px; border-radius: 10px; display: flex; align-items: center; gap: 10px; }
+        .ph-blue  { background: color-mix(in srgb,#3b82f6,transparent 88%); border: 1px solid rgba(59,130,246,.3); color: #3b82f6; }
+        .ph-green { background: color-mix(in srgb,#10b981,transparent 88%); border: 1px solid rgba(16,185,129,.3); color: #10b981; }
+        .ph-amber { background: color-mix(in srgb,#f59e0b,transparent 88%); border: 1px solid rgba(245,158,11,.3); color: #f59e0b; }
+        .model-badge { display: inline-block; padding: 3px 11px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-right: 4px; }
+        .mb-blue  { background: color-mix(in srgb,#3b82f6,transparent 82%); border: 1px solid #3b82f6; color: #3b82f6; }
+        .mb-green { background: color-mix(in srgb,#10b981,transparent 82%); border: 1px solid #10b981; color: #10b981; }
+        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+        @media (max-width: 700px) { .settings-grid { grid-template-columns: 1fr; } }
+        .settings-block { background: color-mix(in srgb, var(--text,#e2e8f0), transparent 94%); border: 1px solid var(--line,#2a3441); border-radius: 10px; padding: 16px 20px; }
+        .settings-block h4 { margin: 0 0 10px; font-size: 14px; font-weight: 800; color: var(--accent,#3b82f6); }
+        .settings-block ul { margin: 0; padding-left: 18px; }
+        .settings-block li { font-size: 13px; color: var(--muted-docs,#8b95a5); line-height: 1.8; }
+        .settings-block li strong { color: var(--text,#e2e8f0); }
+        .dir-badge { display: inline-block; padding: 2px 9px; border-radius: 6px; font-size: 11px; font-weight: 700; margin: 0 2px; }
+        .dir-minus { background: color-mix(in srgb,#ef4444,transparent 82%); border: 1px solid #ef4444; color: #ef4444; }
+        .dir-plus  { background: color-mix(in srgb,#10b981,transparent 82%); border: 1px solid #10b981; color: #10b981; }
+        code.nav { background: color-mix(in srgb,#3b82f6,transparent 85%); color: #3b82f6; padding: 2px 9px; border-radius: 6px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+        .ss { display: block; width: 100%; max-width: 820px; border-radius: 10px; border: 1px solid var(--line,#2a3441); box-shadow: 0 4px 20px rgba(0,0,0,.14); margin: 12px 0 4px; }
+        .ss-port { display: block; max-width: 340px; border-radius: 10px; border: 1px solid var(--line,#2a3441); box-shadow: 0 4px 20px rgba(0,0,0,.14); margin: 12px 0 4px; }
+        .ss-cap { font-size: .77rem; color: var(--muted-docs,#8b95a5); margin: 0 0 12px; font-style: italic; }
+        .ss-row { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; margin: 12px 0; }
+        .ss-col { display: flex; flex-direction: column; }
+    </style>
+</head>
+<body>
+<a href="index.aspx" class="back-link">&larr; Documentation Hub</a>
+<div class="doc-container">
+    <h1>&#128438; RFID Printer &mdash; Basic Settings &amp; Solutions</h1>
+    <p class="doc-subtitle">Step-by-step setup, media installation, and troubleshooting for the <strong>Zebra ZT411R</strong> and <strong>Zebra ZD621R</strong> RFID label printers.</p>
+    <div class="callout callout-info">
+        <strong>Scope of this guide.</strong> Covers the baseline printer settings for most VA RFID tag applications, how to install ribbon and label media on both printer models, how to connect to the network, and how to resolve the most common printing errors including VOID tags, misalignment, and media faults.
+    </div>
+    <div class="step-card" style="padding:20px 28px;">
+        <div class="step-title" style="margin-bottom:4px;">&#128196; Contents</div>
+        <ul style="margin:8px 0 0; padding-left:20px; columns:2; font-size:14px; color:var(--muted-docs); line-height:2.1;">
+            <li><a href="#prelim">Preliminary Settings</a></li>
+            <li><a href="#screen-cal">Screen Calibration</a></li>
+            <li><a href="#printer-settings">Print Quality &amp; Image Adjust</a></li>
+            <li><a href="#media-install">Media Installation</a></li>
+            <li><a href="#zd621-install">ZD621R &mdash; Ribbon &amp; Media</a></li>
+            <li><a href="#zt411-install">ZT411R &mdash; Ribbon &amp; Media</a></li>
+            <li><a href="#connect">Connect Printer</a></li>
+            <li><a href="#troubleshoot">Troubleshooting</a></li>
+            <li><a href="#alignment">Tag Misalignment</a></li>
+            <li><a href="#tearline">Tear Line Offset</a></li>
+            <li><a href="#voids">VOID Tags</a></li>
+        </ul>
+    </div>
+    <hr class="section-divider" id="prelim" />
+    <div class="phase-header ph-blue">&#9881; Section 1: Preliminary Settings</div>
+    <div class="step-card" id="screen-cal">
+        <div class="step-title"><span class="step-num">1</span> Open the Settings Menu</div>
+        <div class="step-desc">These are the <strong>baseline settings</strong> for most tag applications. Begin on the printer touch screen.</div>
+        <div class="ss-row">
+            <div class="ss-col">
+                <img class="ss-port" src="img/rfid_printer/image1.jpeg" alt="ZT411R home screen showing Print Status tab and Menu, Wizards, Shortcuts buttons" />
+                <p class="ss-cap">ZT411R home screen &mdash; press <strong>MENU</strong> to access settings.</p>
+            </div>
+            <div class="ss-col">
+                <img class="ss-port" src="img/rfid_printer/image2.jpeg" alt="ZT411R System menu showing Language, Program Language, Settings, Energy Saving" />
+                <p class="ss-cap">System menu &mdash; select <strong>Settings</strong>.</p>
+            </div>
+        </div>
+        <div class="step-desc" style="margin-top:8px;">From the Settings menu, run <strong>Screen Calibration</strong> and touch each of the five crosshairs as precisely as possible. Also set Time Format and Date/Time if needed.</div>
+        <img class="ss" src="img/rfid_printer/image3.jpeg" alt="Screen Calibration screen with five white crosshair targets and instruction to touch each crosshair to calibrate" />
+        <p class="ss-cap">Screen Calibration &mdash; touch each of the five crosshairs precisely. A stylus gives the best results. Repeat if touches still feel inaccurate.</p>
+        <div class="tip-box"><strong>&#128161; Precision matters:</strong> Poor calibration causes touches to register on wrong menu items. Re-run Screen Calibration if the screen feels off.</div>
+    </div>
+    <div class="step-card" id="printer-settings">
+        <div class="step-title"><span class="step-num">2</span> Configure Print Quality &amp; Image Adjust</div>
+        <div class="step-desc">Configure the following settings. Use the icon tabs at the top of the screen (gear = System, printer icon = Print settings).</div>
+        <div class="settings-grid">
+            <div class="settings-block">
+                <h4>&#128274; General Settings</h4>
+                <ul>
+                    <li><strong>Password Level:</strong> None</li>
+                    <li><strong>Power Up Action:</strong> No Motion</li>
+                    <li><strong>Head Close Action:</strong> Calibrate</li>
+                </ul>
+            </div>
+            <div class="settings-block">
+                <h4>&#128438; Print Quality</h4>
+                <ul>
+                    <li><strong>Darkness:</strong> <span class="model-badge mb-blue">ZT411R</span> 25 &nbsp;|&nbsp; <span class="model-badge mb-green">ZD621R</span> 20</li>
+                    <li><strong>Print Speed:</strong> 4</li>
+                    <li><strong>Print Type:</strong> Thermal Transfer</li>
+                    <li><strong>Media Type:</strong> Gap / Notch</li>
+                </ul>
+            </div>
+            <div class="settings-block">
+                <h4>&#128195; Image Adjust</h4>
+                <ul>
+                    <li><strong>Media Handling:</strong> Tear Off</li>
+                    <li><strong>Rotate Label:</strong> 0</li>
+                    <li><strong>Backfeed:</strong> N</li>
+                </ul>
+            </div>
+        </div>
+        <div class="ss-row" style="margin-top:18px;">
+            <div class="ss-col">
+                <img class="ss-port" src="img/rfid_printer/image4.jpeg" alt="Print Quality screen showing Darkness 10, Print Speed 6.0, Print Type Thermal Transfer, Media Type Gap/Notch, and Image Adjust link at bottom" />
+                <p class="ss-cap">Print Quality &mdash; set Darkness, Print Speed, Print Type, Media Type. Scroll down and tap <strong>Image Adjust</strong>.</p>
+            </div>
+            <div class="ss-col">
+                <img class="ss-port" src="img/rfid_printer/image5.jpeg" alt="Image Adjust screen showing Media Handling Tear Off, Tear Line Offset 0, Horizontal Label Offset 0, Vertical Label Offset 0, Rotate Label 0, Backfeed N" />
+                <p class="ss-cap">Image Adjust &mdash; set Media Handling to <strong>Tear Off</strong>, Rotate Label to <strong>0</strong>, Backfeed to <strong>N</strong>.</p>
+            </div>
+        </div>
+        <div class="warn-box"><strong>&#9888; Darkness differs by model.</strong> ZT411R = 25, ZD621R = 20. Using the wrong value produces prints that are too light or too dark.</div>
+    </div>
+    <hr class="section-divider" id="media-install" />
+    <div class="phase-header ph-green">&#128230; Section 2: Media Installation</div>
+    <div class="step-card">
+        <div class="step-title" style="margin-bottom:6px;">&#128221; Before You Begin</div>
+        <div class="step-desc">Both printer models have media installation diagrams printed on the inside of the printer door. Refer to those diagrams alongside the steps below.</div>
+    </div>
+    <div class="step-card" id="zd621-install">
+        <div class="step-title">
+            <span class="step-num" style="background:#10b981;">Z</span>
+            <span class="model-badge mb-green" style="font-size:15px; margin-left:4px;">ZD621R</span>
+            &nbsp;Ribbon &amp; Media Installation
+        </div>
+        <div class="step-desc" style="font-weight:700; margin-bottom:10px;">1 &mdash; Install the print ribbon</div>
+        <p class="step-desc">Install the small <strong>cardboard tube</strong> on the top ribbon spindle. Ensure the notch in the gear on the left aligns with the cut-out on the tube.</p>
+        <img class="ss" src="img/rfid_printer/image6.jpeg" alt="ZD621R cardboard tube on top ribbon spindle with yellow gear showing notch alignment with tube cut-out" />
+        <p class="ss-cap">Cardboard tube on the top spindle &mdash; the notch in the yellow gear (left side) aligns with the cut-out in the tube before seating it fully.</p>
+        <p class="step-desc" style="margin-top:12px;">Open the ribbon roll and install it on the <strong>rear tube</strong>. Pull the ribbon forward and wrap it around the front tube, winding it several times until tight and not slipping.</p>
+        <img class="ss" src="img/rfid_printer/image7.jpeg" alt="ZD621R ribbon threaded from rear supply tube to front take-up tube with label media roll visible on the right" />
+        <p class="ss-cap">Ribbon threaded from the rear supply roll, wrapped snugly around the front take-up tube. Keep the ribbon aligned with the rear tube throughout.</p>
+        <div class="step-desc" style="font-weight:700; margin-bottom:10px; margin-top:16px;">2 &mdash; Load the label media</div>
+        <p class="step-desc">Load the media roll <strong>labels facing up</strong>. Center the <strong>Gap Sensor</strong> over the label. For flag-tag material, slide the sensor left or right as needed. Thread labels under the alignment notches until at least one label extends out. Close the top &mdash; the printer auto-calibrates.</p>
+        <img class="ss" src="img/rfid_printer/image9.jpeg" alt="ZD621R gap sensor yellow piece positioned centrally over label material, labels loaded facing up under alignment notches" />
+        <p class="ss-cap">Gap sensor (yellow) centered on the label stock. Labels face up, at least one label extends beyond the printer before closing the cover.</p>
+        <div class="tip-box"><strong>&#128161; If Auto Media Calibrate fails:</strong> Run Manual Media Calibrate at <code class="nav">MENU &rsaquo; Settings &rsaquo; Media Calibrate</code>.</div>
+    </div>
+    <div class="step-card" id="zt411-install">
+        <div class="step-title">
+            <span class="step-num" style="background:#3b82f6;">Z</span>
+            <span class="model-badge mb-blue" style="font-size:15px; margin-left:4px;">ZT411R</span>
+            &nbsp;Ribbon &amp; Media Installation
+        </div>
+        <div class="step-desc" style="font-weight:700; margin-bottom:10px;">1 &mdash; Install the print ribbon</div>
+        <p class="step-desc">Release the print head by pulling the <strong>release lever</strong> to the rear.</p>
+        <img class="ss" src="img/rfid_printer/image10.jpeg" alt="ZT411R print head release lever (black handle) pulled to the rear, opening the print head area" />
+        <p class="ss-cap">Release lever (black handle, left side) pulled to the rear &mdash; opens the print head for ribbon threading.</p>
+        <p class="step-desc" style="margin-top:12px;">Slide the ribbon roll onto the <strong>top back roller</strong>.</p>
+        <img class="ss" src="img/rfid_printer/image12.jpeg" alt="ZT411R ribbon roll installed on the top back roller, dark ribbon visible with yellow hub" />
+        <p class="ss-cap">Ribbon roll on the top back roller. Follow the direction arrow printed inside the printer cabinet.</p>
+        <p class="step-desc" style="margin-top:12px;">Thread the ribbon under the print head, over the front top roller, then wrap it around the <strong>top middle roller</strong> several times until it no longer slips.</p>
+        <img class="ss" src="img/rfid_printer/image11.jpeg" alt="ZT411R ribbon wrapped tightly around top middle roller, ribbon path visible through the print head area" />
+        <p class="ss-cap">Ribbon wrapped snugly around the top middle roller. Close the print head then the door after loading media.</p>
+        <div class="step-desc" style="font-weight:700; margin-bottom:10px; margin-top:16px;">2 &mdash; Load the label media</div>
+        <p class="step-desc">Install the media roll <strong>labels up</strong> on the lower metal rail. Slide it all the way back, then push the peg against the roll.</p>
+        <img class="ss" src="img/rfid_printer/image15.jpeg" alt="ZT411R label media roll on the lower metal rail with silver peg flush against the roll to prevent lateral movement" />
+        <p class="ss-cap">Media roll on the lower rail, slid all the way back. Peg pushed flush against the roll to hold it in place.</p>
+        <p class="step-desc" style="margin-top:12px;">Pull media forward, under the guide rail and print head. Adjust the <strong>gap sensor</strong> left or right to line it up with the gap between labels.</p>
+        <img class="ss" src="img/rfid_printer/image17.jpeg" alt="ZT411R gap sensor with green LED indicator glowing, correctly aligned with the gap between labels" />
+        <p class="ss-cap">Gap sensor aligned over the label gap &mdash; the green LED confirms correct detection. Close the print head then the door; auto-calibration begins automatically.</p>
+        <div class="warn-box"><strong>&#9888; Gap sensor alignment:</strong> If the sensor is not centered on the label gap, calibration fails and VOID prints occur.</div>
+    </div>
+    <div class="step-card" id="connect">
+        <div class="step-title"><span class="step-num">3</span> Connect Printer to Network</div>
+        <div class="step-desc">Navigate to <code class="nav">MENU &rsaquo; Connections</code>, select your connection type, and follow the on-screen steps.</div>
+        <img class="ss-port" src="img/rfid_printer/image20.jpeg" alt="Connection menu showing Networks Unknown, Wired, Wi-Fi, Wired IPv6, Wi-Fi IPv6, and Bluetooth options" />
+        <p class="ss-cap">Connection menu &mdash; choose Wired, Wi-Fi, Wired IPv6, Wi-Fi IPv6, or Bluetooth depending on your site configuration.</p>
+        <div class="info-box"><strong>&#128279; MAC / IP Address:</strong> After selecting your connection type, the printer displays its MAC address and IP address. Record these for your network configuration records.</div>
+    </div>
+    <hr class="section-divider" id="troubleshoot" />
+    <div class="phase-header ph-amber">&#128295; Section 3: Troubleshooting</div>
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">4</span> Printer Does Not Print a Tag</div>
+        <div class="step-desc">Work through this checklist in order before escalating:</div>
+        <table class="doc-table">
+            <thead><tr><th style="width:5%">#</th><th>Check</th><th>Action</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td>Printer power</td><td>Confirm the printer is powered on and the display is active.</td></tr>
+                <tr><td>2</td><td>Correct printer selected</td><td>In iDash or BarTender, verify the correct printer name / IP is targeted for this job.</td></tr>
+                <tr><td>3</td><td>Clear printer cache</td><td>In Windows, open <strong>Devices and Printers</strong>, right-click the printer &rsaquo; <strong>See what's printing</strong>, then cancel all documents.</td></tr>
+                <tr><td>4</td><td>Network connectivity</td><td>Ping the printer IP or check connection status on its touch screen.</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="step-card" id="alignment">
+        <div class="step-title"><span class="step-num">5</span> Tag Is Misaligned</div>
+        <div class="step-desc" style="font-weight:700;">Vertical Label Offset &mdash; shifts print area up or down</div>
+        <div class="step-desc"><code class="nav">MENU &rsaquo; Printer Icon &rsaquo; Image Adjust &rsaquo; Vertical Label Offset</code></div>
+        <img class="ss-port" src="img/rfid_printer/image21.jpeg" alt="Vertical Label Offset screen showing value 20 with minus and plus buttons and slider ranging from -120 to 120" />
+        <p class="ss-cap">Vertical Label Offset &mdash; adjust until the print is centered vertically on the label.</p>
+        <table class="doc-table" style="margin-bottom:20px;">
+            <thead><tr><th style="width:140px">Button</th><th>Effect</th></tr></thead>
+            <tbody>
+                <tr><td><span class="dir-badge dir-minus">&#8722; Minus</span></td><td>Moves the printing area <strong>up</strong></td></tr>
+                <tr><td><span class="dir-badge dir-plus">+ Plus</span></td><td>Moves the printing area <strong>down</strong></td></tr>
+            </tbody>
+        </table>
+        <div class="step-desc" style="font-weight:700; margin-top:4px;">Horizontal Label Offset &mdash; shifts print area left or right</div>
+        <div class="step-desc"><code class="nav">MENU &rsaquo; Printer Icon &rsaquo; Image Adjust &rsaquo; Horizontal Label Offset</code></div>
+        <img class="ss-port" src="img/rfid_printer/image23.jpeg" alt="Horizontal Label Offset screen showing value -25 with minus and plus buttons and slider from -9999 to 9999" />
+        <p class="ss-cap">Horizontal Label Offset &mdash; adjust until the print is centered horizontally on the label.</p>
+        <table class="doc-table">
+            <thead><tr><th style="width:140px">Button</th><th>Effect</th></tr></thead>
+            <tbody>
+                <tr><td><span class="dir-badge dir-minus">&#8722; Minus</span></td><td>Moves the printing area to the <strong>right</strong></td></tr>
+                <tr><td><span class="dir-badge dir-plus">+ Plus</span></td><td>Moves the printing area to the <strong>left</strong></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="step-card" id="tearline">
+        <div class="step-title"><span class="step-num">6</span> Tear Line Offset</div>
+        <div class="step-desc">Aligns the label so it tears cleanly at the correct position after printing.</div>
+        <div class="info-box"><strong>Navigation:</strong> <code class="nav">MENU &rsaquo; Printer Icon &rsaquo; Image Adjust &rsaquo; Tear Line Offset</code></div>
+        <img class="ss-port" src="img/rfid_printer/image25.jpeg" alt="Tear Line Offset screen showing value 0 with minus and plus buttons and slider from -120 to 120" />
+        <p class="ss-cap">Tear Line Offset &mdash; negative pulls the label into the printer (earlier tear), positive pushes outward (later tear).</p>
+        <table class="doc-table" style="margin-bottom:20px;">
+            <thead><tr><th style="width:140px">Direction</th><th>Effect</th></tr></thead>
+            <tbody>
+                <tr><td><span class="dir-badge dir-minus">&#8722; Negative</span></td><td>Pulls the label <strong>into</strong> the printer (earlier tear)</td></tr>
+                <tr><td><span class="dir-badge dir-plus">+ Positive</span></td><td>Pushes the label <strong>outward</strong> (later tear)</td></tr>
+            </tbody>
+        </table>
+        <div class="settings-grid">
+            <div class="settings-block">
+                <h4><span class="model-badge mb-green">ZD621R</span> &mdash; Pull Upward to Tear</h4>
+                <p style="font-size:13px;color:var(--muted-docs);margin:0 0 10px;">Adjust so there is <strong>little to no gap</strong> between the printed tag and the tear bar.</p>
+                <img class="ss" src="img/rfid_printer/image22.jpeg" alt="ZD621R two properly printed RFID labels showing correct tear alignment with minimal gap to tear bar" />
+                <p class="ss-cap">Proper ZD621R result: little to no gap between the label and the tear bar.</p>
+            </div>
+            <div class="settings-block">
+                <h4><span class="model-badge mb-blue">ZT411R</span> &mdash; Pull Downward to Tear</h4>
+                <p style="font-size:13px;color:var(--muted-docs);margin:0 0 10px;">Adjust to line the label up with the <strong>tear-off bar</strong> (green arrow).</p>
+                <img class="ss" src="img/rfid_printer/image18.jpeg" alt="ZT411R two properly printed RFID labels correctly aligned with the tear-off bar" />
+                <p class="ss-cap">Proper ZT411R result: label aligned with the tear-off bar (green arrow on the tear strip).</p>
+            </div>
+        </div>
+    </div>
+    <div class="step-card" id="voids">
+        <div class="step-title"><span class="step-num">7</span> VOID Prints on Tag</div>
+        <div class="step-desc">When a tag prints with <strong>VOID</strong> across the label the printer detected an RFID encoding failure or media calibration problem. It intentionally marks the label invalid so it cannot be used.</div>
+        <img class="ss" src="img/rfid_printer/image28.jpeg" alt="Two RFID tags covered in repeating VOID text pattern with partial label content visible underneath, showing RFID encoding failure" />
+        <p class="ss-cap">VOID-marked labels &mdash; the printer covers the entire label with a VOID pattern when RFID encoding fails. <strong>Discard these labels &mdash; do not attempt to scan them.</strong></p>
+        <div class="danger-box"><strong>&#9888; Do not use VOID-marked tags.</strong> A VOID label has not been correctly encoded and will be unreadable or misidentified in the RFID system.</div>
+        <div class="step-desc" style="margin-top:16px; font-weight:700;">Resolution steps:</div>
+        <p class="step-desc"><strong>1. Check media calibration first.</strong> If the VOID print is off-center, the issue is media &mdash; not RFID. Go to <a href="#media-install">Section 2</a> and re-calibrate media. If print is centered, proceed to step 2.</p>
+        <p class="step-desc"><strong>2. Run RFID Calibration.</strong> Select the RFID icon tab, then tap <strong>RFID &rsaquo; RFID Calibrate</strong>.</p>
+        <div class="ss-row">
+            <div class="ss-col">
+                <img class="ss-port" src="img/rfid_printer/image29.jpeg" alt="Printer top menu bar with RFID icon tab highlighted in yellow" />
+                <p class="ss-cap">Tap the RFID icon (highlighted yellow) in the top menu tab bar.</p>
+            </div>
+            <div class="ss-col">
+                <img class="ss-port" src="img/rfid_printer/image30.jpeg" alt="RFID menu showing RFID Status RFID Ok, RFID Test, RFID Calibrate, RFID Read Power 16, RFID Write Power 16, RFID Antenna A4, RFID Valid Count 0" />
+                <p class="ss-cap">RFID menu &mdash; select <strong>RFID Calibrate</strong>. Note the Write Power value for step 3.</p>
+            </div>
+        </div>
+        <img class="ss" src="img/rfid_printer/image31.jpeg" alt="RFID Calibrate screen showing Before Calibrating instructions: sets optimal antenna and RFID power levels, verify media feeds one label correctly, then tap Start Calibration button" />
+        <p class="ss-cap">RFID Calibrate screen &mdash; read the instructions, press <strong>Start Calibration</strong>. Allow several minutes for the process to complete fully.</p>
+        <p class="step-desc"><strong>3. If VOIDs persist</strong> after RFID calibration, reduce <strong>RFID Write Power</strong> (shown in the RFID menu above). Excessive write power causes encoding errors on some tag types.</p>
+        <p class="step-desc"><strong>4. If the problem continues</strong>, verify the data sent to the label template is correct and complete. A missing or malformed field in the ZPL template causes the printer to void the tag.</p>
+        <div class="tip-box"><strong>&#128161; Quick diagnosis:</strong> VOID + off-center print &rarr; <strong>Media calibration issue.</strong> &nbsp;&nbsp; VOID + centered print &rarr; <strong>RFID encoding issue.</strong></div>
+    </div>
+    <hr class="section-divider" />
+    <h2><span class="section-num">&#128203;</span> Quick Reference &mdash; Navigation Paths</h2>
+    <table class="doc-table">
+        <thead><tr><th style="width:38%">Setting / Action</th><th>Menu Path</th></tr></thead>
+        <tbody>
+            <tr><td>Screen Calibration</td><td><code class="nav">MENU &rsaquo; Settings &rsaquo; Screen Calibration</code></td></tr>
+            <tr><td>Password Level / Power Up / Head Close</td><td><code class="nav">MENU &rsaquo; Settings</code></td></tr>
+            <tr><td>Darkness / Print Speed / Print Type / Media Type</td><td><code class="nav">MENU &rsaquo; Printer Icon &rsaquo; Print Quality</code></td></tr>
+            <tr><td>Media Handling / Rotate / Backfeed</td><td><code class="nav">MENU &rsaquo; Printer Icon &rsaquo; Image Adjust</code></td></tr>
+            <tr><td>Vertical Label Offset</td><td><code class="nav">MENU &rsaquo; Printer Icon &rsaquo; Image Adjust &rsaquo; Vertical Label Offset</code></td></tr>
+            <tr><td>Horizontal Label Offset</td><td><code class="nav">MENU &rsaquo; Printer Icon &rsaquo; Image Adjust &rsaquo; Horizontal Label Offset</code></td></tr>
+            <tr><td>Tear Line Offset</td><td><code class="nav">MENU &rsaquo; Printer Icon &rsaquo; Image Adjust &rsaquo; Tear Line Offset</code></td></tr>
+            <tr><td>RFID Calibration</td><td><code class="nav">MENU &rsaquo; RFID Icon &rsaquo; RFID &rsaquo; RFID Calibrate</code></td></tr>
+            <tr><td>RFID Write Power</td><td><code class="nav">MENU &rsaquo; RFID Icon &rsaquo; RFID &rsaquo; RFID Write Power</code></td></tr>
+            <tr><td>Network Connection Setup</td><td><code class="nav">MENU &rsaquo; Connections &rsaquo; [Connection Type]</code></td></tr>
+            <tr><td>Manual Media Calibration</td><td><code class="nav">MENU &rsaquo; Settings &rsaquo; Media Calibrate</code></td></tr>
+        </tbody>
+    </table>
+    <h2 style="margin-top:32px;"><span class="section-num">&#128295;</span> Troubleshooting Summary</h2>
+    <table class="doc-table">
+        <thead><tr><th style="width:34%">Issue</th><th>Likely Cause</th><th>Resolution</th></tr></thead>
+        <tbody>
+            <tr><td>Printer does not print</td><td>Power, wrong printer, cache, or network</td><td>4-step checklist in <a href="#troubleshoot">Section 3, Step 4</a>.</td></tr>
+            <tr><td>VOID + off-center print</td><td>Media not calibrated</td><td>Re-run media installation and calibration per <a href="#media-install">Section 2</a>.</td></tr>
+            <tr><td>VOID + centered print</td><td>RFID encoding error</td><td>Run RFID Calibration. If it persists, lower RFID Write Power.</td></tr>
+            <tr><td>Print too light or too dark</td><td>Incorrect Darkness value</td><td>ZT411R = 25, ZD621R = 20. Adjust in Print Quality.</td></tr>
+            <tr><td>Print shifted up or down</td><td>Vertical Label Offset</td><td>Image Adjust &rsaquo; Vertical Label Offset &mdash; minus = up, plus = down.</td></tr>
+            <tr><td>Print shifted left or right</td><td>Horizontal Label Offset</td><td>Image Adjust &rsaquo; Horizontal Label Offset &mdash; minus = right, plus = left.</td></tr>
+            <tr><td>Tag tears at wrong position</td><td>Tear Line Offset not set</td><td>ZD621R: little/no gap at tear bar. ZT411R: align with green arrow.</td></tr>
+            <tr><td>Auto calibration fails</td><td>Gap sensor misaligned or media not seated</td><td>Center sensor on label gap, re-seat media, run Manual Media Calibrate.</td></tr>
+            <tr><td>Ribbon slipping / not advancing</td><td>Ribbon not wrapped tightly</td><td>Re-install ribbon, wrapping take-up end multiple times until snug.</td></tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

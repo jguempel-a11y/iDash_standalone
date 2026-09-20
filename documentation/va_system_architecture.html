@@ -1,0 +1,376 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA SYSTEM ARCHITECTURE &mdash; iDash Master Architecture</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .arch-diagram {
+            background: var(--chip);
+            border: 1px solid var(--line-docs);
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'Cascadia Code', 'Consolas', monospace;
+            font-size: 12.5px;
+            line-height: 1.45;
+            color: var(--text-docs);
+            overflow-x: auto;
+            white-space: pre;
+            margin: 20px 0;
+        }
+        .arch-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 14px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+        .ab-tier1 { background: rgba(59,130,246,0.15); color: #3b82f6; border: 1px solid #3b82f6; }
+        .ab-tier2 { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid #10b981; }
+        .ab-tier3 { background: rgba(139,92,246,0.15); color: #8b5cf6; border: 1px solid #8b5cf6; }
+        .ab-tier4 { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid #f59e0b; }
+        .spec-table th { background: rgba(0,0,0,0.25); font-size: 12px; }
+        .spec-table td { font-size: 13px; vertical-align: top; }
+        .update-chip {
+            background: color-mix(in srgb, var(--accent2-docs), transparent 85%);
+            color: var(--accent2-docs);
+            border: 1px solid color-mix(in srgb, var(--accent2-docs), transparent 70%);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <a href="index.aspx" style="display:inline-flex; align-items:center; gap:6px; margin-bottom:16px; font-size:13.5px;">&larr; Back to Documentation Hub</a>
+
+    <!-- ══════════════════ HERO HEADER ══════════════════ -->
+    <div class="card" style="background: linear-gradient(135deg, var(--card-docs), rgba(46,168,255,0.06)); border-color: color-mix(in srgb, var(--accent-docs), transparent 65%);">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+            <div>
+                <span class="arch-badge ab-tier1" style="margin-bottom:8px;">Enterprise Architecture Specification</span>
+                <h1 style="margin:6px 0 10px 0;">&#128451; iDash System &amp; Integration Architecture</h1>
+                <p style="font-size:15px; color:var(--muted-docs); margin:0; max-width:820px; line-height:1.6;">
+                    Comprehensive architectural blueprint mapping all persistent state, multi-tier boundaries, integration services, database dependencies, hardware pipelines, and external configurations powering the <strong>iDash iDash Intelligence Hub</strong>.
+                </p>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+                <span class="update-chip">&#10004; Updated September 2026</span>
+                <span style="font-size:11.5px; color:var(--muted-docs); font-weight:600;">v2.9.0 Enterprise Edition</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════ ARCHITECTURAL TOPOLOGY ══════════════════ -->
+    <div class="card">
+        <h2>&#128506; System Topology: 4-Tier Zero-Footprint Model</h2>
+        <p style="color:var(--muted-docs); font-size:14px; line-height:1.6;">
+            iDash functions strictly as an <strong>enterprise web intelligence and presentation layer</strong>. It introduces zero workstation binaries, eliminates heavy client push cycles, and communicates with the underlying data store via non-blocking queries and decoupled service buses.
+        </p>
+
+        <div class="arch-diagram">
++====================================================================================================+
+|                                      TIER 1: FIELD & CLIENT EDGE                                    |
++----------------------------------------------------------------------------------------------------+
+|  [ Zebra TC53/TC58 Handhelds ]   [ Mobile Browsers / Carts ]    [ Fixed Portal Readers (RFID/IoT) ]|
+|  * Zebra DataWedge Keystroke/Intent * Edge / Chrome / Safari    * LLRP & MQTT Gateway Transit      |
+|  * Web Wave Inventory & Locator  * Dynamic Column Master Tables * Loading Docks / Room Portals     |
++----------------------------------------------------------------------------------------------------+
+                                      | HTTPS (Port 443/80)
+                                      v
++====================================================================================================+
+|                                    TIER 2: PRESENTATION & API HUB                                  |
++----------------------------------------------------------------------------------------------------+
+|  [ Microsoft IIS 10.0 ] &mdash; ASP.NET Framework 4.8 Web Application (/iDash)                          |
+|  * va_location_list.aspx  &bull; Location drill-down, customizable columns, &amp; label dispatch          |
+|  * va_asset_master.aspx   &bull; Fast server-side DataTables with draggable/saved column selector      |
+|  * va_rfid_locator.aspx   &bull; Real-time acoustic/visual RSSI proximity radar ("Geiger counter")    |
+|  * va_excel_print.aspx    &bull; Batch equipment import, auto-mapping, &amp; high-volume thermal print |
+|  * va_user_management.aspx &bull; Self-contained Zero-Trust RBAC + direct dbo.sysuser sync            |
+|  * WebMethods / REST AJAX &bull; JSON endpoints for print status, detail drawers, and audit logs      |
++----------------------------------------------------------------------------------------------------+
+         |                                |                                   |
+         v (Internal Loopback / REST)     v (ADO.NET / SQLClient)             v (SMTP / Relays)
++================================+ +==================================+ +=============================+
+|   TIER 3: SERVICES & PRINTING   | |     TIER 4: DATA & STATE         | | TIER 4: NOTIFICATIONS & DISK|
++================================+ +==================================+ +=============================+
+| * iDash core REST API      | | * Microsoft SQL Server           | | * Windows File System       |
+|   /api/PrintJobs &amp; OAuth2     | |   - dbo.v_asset (Reporting View) | |   - C:\VA_RFID\ (ENNX drop) |
+| * BarTender Preview Microservice| |   - dbo.asset (Master Entity)    | |   - C:\Logs\Serilog\        |
+|   Port 5180 (Node/PS Runner)   | |   - dbo.printjob (Print Queue)   | |   - App_Data/idash_users.json|
+| * BarTender Enterprise Engine  | |   - dbo.sysuser (Portal Sync)    | | * Local / Regional SMTP     |
+|   .btw templates &amp; encoding | |   - READ UNCOMMITTED isolation   | |   - Automated daily reports |
+| * Network Thermal Printers     | | * Zero Database Locks Guaranteed | |   - Real-time SMS alerts    |
++================================+ +==================================+ +=============================+
+        </div>
+    </div>
+
+    <!-- ══════════════════ 1. USER AUTHENTICATION & ZERO-TRUST RBAC ══════════════════ -->
+    <div class="card">
+        <h2>1. User Management, RBAC &amp; Zero-Trust Authentication</h2>
+        <p style="color:var(--muted-docs); font-size:14px;">
+            iDash employs an independent, zero-trust authentication boundary that protects the application without requiring domain join or Active Directory schema modifications. It also provides bi-directional user account provisioning into the underlying iDash database.
+        </p>
+        <table class="spec-table">
+            <thead>
+                <tr><th style="width:26%">Component / File</th><th>Architecture &amp; Operational Details</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>User Registry</strong><br><code>iDash/App_Data/idash_users.json</code></td>
+                    <td>
+                        Primary store for all iDash portal users. Contains SHA256 hashed passwords, assigned roles (<code>admin</code>, <code>user</code>, <code>readonly</code>), user display names, last login timestamps, and accepted digital user agreements.<br>
+                        <strong>Granular RBAC Fields:</strong>
+                        <ul style="margin:4px 0 0 16px; padding:0;">
+                            <li><code>SiteAccess</code>: Multi-tenant facility scoping dictionary (e.g. <code>{"517 Beckley": "full"}</code> or <code>{"*": "full"}</code>). Users are strictly partitioned to their assigned facility.</li>
+                            <li><code>TileAccess</code>: Array of permitted operational tiles (e.g. <code>["rpt_asset_master", "scan_inventory"]</code>). Any unlisted tile is completely hidden and inaccessible.</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Digital User Agreement Gate</strong><br><code>va_login.aspx</code> &bull; <code>UserManager.cs</code></td>
+                    <td>
+                        Enforces mandatory VA/federal computer system warning and digital terms sign-off prior to accessing operational tools. The sign-off timestamp is committed to <code>AgreementAcceptedDate</code> in <code>idash_users.json</code>, establishing full legal and audit defensibility.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>scanner user Sync Engine</strong><br><code>va_user_management.aspx.cs</code> &rarr; <code>CreateAwUserInternal()</code></td>
+                    <td>
+                        When creating or updating accounts in iDash, selecting <em>"Also create scanner account"</em> performs a direct cryptographic insert into <code>dbo.sysuser</code> using .NET Identity V3 SHA256 password hashing (<code>PRF=1</code>, 10,000 iterations). This allows administrators to provision handheld scanner logins and web portal logins from a single interface.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Quick Role Templates</strong><br><code>iDash/App_Data/user_templates.json</code></td>
+                    <td>
+                        Defines role templates (e.g. "VA Standard User", "Tag Team Operator", "System Administrator") allowing one-click assignment of predefined tile sets and facility scopes during user provisioning.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ══════════════════ 2. PRINTING SUBSYSTEM ══════════════════ -->
+    <div class="card">
+        <h2>2. Dual-Engine Printing &amp; RFID Encoding Architecture</h2>
+        <p style="color:var(--muted-docs); font-size:14px;">
+            The iDash printing subsystem integrates native iDash Print Server automation with direct BarTender REST capabilities. This dual-path architecture provides automated failover, label preview, and high-speed batch encoding.
+        </p>
+        <table class="spec-table">
+            <thead>
+                <tr><th style="width:26%">Subsystem Layer</th><th>Technical Implementation &amp; Routing Logic</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>iDash Print Server API</strong><br><code>App_Code/IdashApiHelper.cs</code></td>
+                    <td>
+                        Communicates with the local iDash core Print Server via authenticated REST endpoints (<code>GetApiBase()</code> &rarr; <code>/api/PrintJobs</code>, <code>/api/PrintTemplates</code>).<br>
+                        <strong>Auto-Site Resolution:</strong> Resolves company ID to matching print templates (e.g. template ID 19 for Beckley 517) and enqueues print jobs directly into the native print engine pipeline.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>BarTender Preview Microservice</strong><br><code>printing/Run_Preview_Service.ps1</code><br><code>App_Code/BarTenderApiHelper.cs</code></td>
+                    <td>
+                        A high-performance background preview microservice running on <code>http://localhost:5180</code>. When users click <em>Preview Tag</em> in `va_excel_print.aspx` or `va_location_list.aspx`, the service opens the corresponding BarTender template (<code>.btw</code>), applies sample asset data, renders an ultra-crisp base64 PNG, and serves it directly to the browser modal.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Template &amp; Printer Mappings</strong><br><code>iDash/print_mapping_config.json</code><br><code>va_print_mapping.aspx</code></td>
+                    <td>
+                        Maintains tag-type-to-template relationships (e.g. <code>IQ350</code> &rarr; <code>AW_Std_Small.btw</code>, <code>Large_Metal</code> &rarr; <code>AW_Metal_Asset.btw</code>) and binds target network thermal printers (Zebra ZT411, SATO) per facility site.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Interactive Location Printing</strong><br><code>va_location_list.aspx</code> &rarr; <code>SubmitPrintJobs()</code></td>
+                    <td>
+                        Enables operators to select any subset of assets from location manifests or age-filter buckets, choose an approved site template, and dispatch multi-tag print batches with instant visual progress badges.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ══════════════════ 3. DYNAMIC DATA VIEWS & STATE PERSISTENCE ══════════════════ -->
+    <div class="card">
+        <h2>3. Presentation Tier: Dynamic Columns &amp; Browser Persistence</h2>
+        <p style="color:var(--muted-docs); font-size:14px;">
+            iDash implements consumer-grade client responsiveness while maintaining enterprise state synchronization across sessions.
+        </p>
+        <table class="spec-table">
+            <thead>
+                <tr><th style="width:26%">State Domain</th><th>Mechanisms &amp; Storage Keys</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Location Asset Columns</strong><br><code>localStorage['iDash_LocAssets_Cols']</code></td>
+                    <td>
+                        Maintained by <code>va_location_list.aspx</code>. Allows operators to customize visible fields (Description, Model, Serial #, Manufacturer, RFID Tag, Location, CMR, Tag Type, Status, Days Since, Last Inv) with instant presets (Default, Show All, Compact) and zero page reloads.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Asset Master Grid Columns</strong><br><code>localStorage['AssetMasterCols']</code></td>
+                    <td>
+                        Maintained by <code>va_asset_master.aspx</code>. Supports full drag-and-drop column reordering and visibility toggles across 16 data attributes.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Active Facility Scoping</strong><br><code>localStorage['iDash_selectedSite']</code></td>
+                    <td>
+                        Synchronizes the currently selected facility (e.g. "517 Beckley", "512 Baltimore") across Master Catalog, Location Audits, and Statistics pages so operators never have to repeatedly select their facility.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Offline Field Queue</strong><br><code>localStorage['TagTeam_OfflineQueue']</code></td>
+                    <td>
+                        Employed by <code>va_tagteam_scan.aspx</code>. If network connectivity drops in shielded hospital basements or bunkers, scanned tag payloads are queued locally in browser storage and bulk-synchronized upon reconnection.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Tactical Locator State</strong><br><em>In-Memory DOM Only (Session Scoped)</em></td>
+                    <td>
+                        Used by <code>va_rfid_locator.aspx</code>. Proximity RSSI signal history, found/unfound counters, and Web Audio Geiger tones exist strictly in browser memory and purge on navigation, preserving zero forensic traces on shared mobile devices.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ══════════════════ 4. DATABASE INTEGRITY & CONCURRENCY ══════════════════ -->
+    <div class="card">
+        <h2>4. Database Concurrency: Non-Blocking Read Isolation</h2>
+        <p style="color:var(--muted-docs); font-size:14px;">
+            A core engineering priority of iDash is preventing contention on the primary iDash SQL Server transaction log.
+        </p>
+        <div class="info-box" style="margin-bottom:18px;">
+            <strong>Read-Uncommitted Isolation Policy:</strong> All heavy analytical and reporting queries executed by iDash explicitly declare:<br>
+            <code>SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;</code><br>
+            This guarantees that massive location summaries, CMR age-bucket aggregates, and catalog searches execute with zero shared-read locks, completely preventing table deadlocks with handheld scanner syncs or iDash core transactions.
+        </div>
+        <table class="spec-table">
+            <thead>
+                <tr><th style="width:26%">SQL Table / View</th><th>Access Mode &amp; iDash Functional Role</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong><code>dbo.v_asset</code></strong></td>
+                    <td>
+                        <strong>Read-Only</strong> &bull; Primary reporting view used by `va_asset_master.aspx`, `va_location_list.aspx`, and `va_asset_stats.aspx`. Evaluates <code>lastinventoried</code>, <code>text8</code> (CMR), <code>text2</code> (Model), <code>text3</code> (Serial), and <code>locationname</code>.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong><code>dbo.asset</code></strong></td>
+                    <td>
+                        <strong>Read / Write</strong> &bull; Updated during Excel equipment onboarding (`va_excel_print.aspx`), batch database updates (`va_dbupdate.aspx`), and direct barcode edit drawers.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong><code>dbo.printjob</code></strong></td>
+                    <td>
+                        <strong>Read / Write</strong> &bull; Standard queue table for print job submissions. Monitored by the background dispatchers and updated with completion status codes.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong><code>dbo.sysuser</code></strong></td>
+                    <td>
+                        <strong>Read / Write</strong> &bull; Manages handheld and administrative accounts. Controlled via `va_user_management.aspx`.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong><code>dbo.company</code></strong></td>
+                    <td>
+                        <strong>Read-Only</strong> &bull; Master site table mapping company IDs to facility names (e.g. 7 &rarr; "613 Martinsburg").
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ══════════════════ 5. BACKGROUND AUTOMATIONS & TASKS ══════════════════ -->
+    <div class="card">
+        <h2>5. Scheduled Automations &amp; Background Services</h2>
+        <p style="color:var(--muted-docs); font-size:14px;">
+            To avoid ASP.NET worker process idle timeouts, recurring enterprise workloads are decoupled into OS-level background processes and scheduled tasks.
+        </p>
+        <table class="spec-table">
+            <thead>
+                <tr><th style="width:26%">Task / Service</th><th>Trigger &amp; Functional Scope</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Daily Report Automator</strong><br><code>AutoReportRunner.ps1</code></td>
+                    <td>
+                        Triggered daily at 7:00 PM via Windows Task Scheduler. Invokes <code>va_report_automator_runner.aspx</code> to compile daily scan summaries, format Excel/text payloads, and dispatch them via SMTP to facility logistics officers. Configuration managed via <code>iDash/config/report_automation.json</code>.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>BarTender Preview Daemon</strong><br><code>Run_Preview_Service.ps1</code></td>
+                    <td>
+                        Runs continuously as a background service listening on port 5180. Interfaces with BarTender Print SDK to generate live label renderings without spinning up heavy desktop GUI instances.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Database Autoload Watcher</strong><br><code>va_autodbupdate.aspx</code></td>
+                    <td>
+                        Periodically inspects the <code>/autoload/</code> drop folder for differential <code>.bak</code> or <code>.sql</code> extracts from remote regional sites, executing automated database merges.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ══════════════════ 6. DISK STORAGE & LOGGING ══════════════════ -->
+    <div class="card">
+        <h2>6. File System Topology &amp; Diagnostics</h2>
+        <p style="color:var(--muted-docs); font-size:14px;">
+            File-based artifacts are strictly partitioned into predictable server directories for straightforward backup, migration, and diagnostic analysis.
+        </p>
+        <table class="spec-table">
+            <thead>
+                <tr><th style="width:26%">Directory Path</th><th>Content Type &amp; Lifecycle</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>C:\VA_RFID\ennx_live\saved\</code></td>
+                    <td>Historical text exports of ENNX inventory submissions generated by users and automated reporting runners.</td>
+                </tr>
+                <tr>
+                    <td><code>C:\va_rfid\excel_data\</code></td>
+                    <td>Default repository for master equipment spreadsheets processed by the Excel Import &amp; Print engine.</td>
+                </tr>
+                <tr>
+                    <td><code>C:\Logs\WebClient_log*.txt</code></td>
+                    <td>Diagnostic application logs written by Serilog. Captures API response timings, authentication failures, and SQL exceptions; viewable in real-time via `va_log_viewer.aspx`.</td>
+                </tr>
+                <tr>
+                    <td><code>iDash\App_Data\uploads\</code></td>
+                    <td>Ephemeral storage for browser-uploaded import spreadsheets with automatic session cleanup.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ══════════════════ FOOTER NAVIGATION ══════════════════ -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:24px; padding-top:16px; border-top:1px solid var(--line-docs);">
+        <a href="index.aspx" style="font-weight:600;">&larr; Back to Documentation Hub</a>
+        <a href="va_executive_summary.html" style="font-weight:600;">Read Executive Summary &rarr;</a>
+    </div>
+    <footer>
+        <span style="display:block; margin-top:16px; font-size:12px; color:var(--muted-docs);">
+            &copy; 2026 ID Integration Inc. &mdash; iDash Enterprise Architecture Documentation
+        </span>
+    </footer>
+</div>
+</body>
+</html>

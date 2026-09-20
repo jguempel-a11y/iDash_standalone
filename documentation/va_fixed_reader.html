@@ -1,0 +1,294 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Fixed Reader Dashboard &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<div class="wrap">
+
+    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
+    <br/><br/>
+
+    <div class="card">
+        <h1>&#128225; Fixed Reader Dashboard (<code>va_fixed_reader.aspx</code>)</h1>
+        <p style="font-size:16px;">
+            The Fixed Reader Dashboard is the real-time health and activity monitoring console for all
+            permanently-installed RFID readers at a facility. It answers three operational questions at a glance:
+            <em>are my readers online, are they detecting tags, and which locations are seeing the most traffic?</em>
+        </p>
+        <div class="alert-green">
+            <strong>&#9989; Live data &mdash; no page reload required.</strong><br/>
+            All data is fetched asynchronously via two API endpoints baked into the same page
+            (<code>?api=readers</code> and <code>?api=readerstats</code>). The page loads its shell instantly,
+            then populates each panel with animated counters as data arrives. Clicking <strong>Refresh</strong>
+            re-fetches both endpoints without reloading the page.
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Intended Audience</h2>
+        <table>
+            <thead><tr><th>Role</th><th>How They Use This Page</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>Biomedical / IT Staff</strong></td>
+                    <td>Primary users. Monitor reader online/offline status, identify hardware failures, and confirm readers are actively observing tags before and during inventory operations.</td>
+                </tr>
+                <tr>
+                    <td><strong>Supply / Logistics Supervisors</strong></td>
+                    <td>Use tag observation counts and top-location trends to understand passive inventory activity between manual scans &mdash; e.g., confirming equipment moved through a fixed reader zone.</td>
+                </tr>
+                <tr>
+                    <td><strong>VISN / Program Analysts</strong></td>
+                    <td>Use the Fixed vs. Mobile read breakdown to evaluate ROI on fixed reader infrastructure relative to handheld scanning effort.</td>
+                </tr>
+                <tr>
+                    <td><strong>iDash Administrators</strong></td>
+                    <td>Use alongside Reader Config to validate that newly registered readers are reporting correctly after installation.</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="alert-blue">
+            <strong>&#9432; Access Control</strong><br/>
+            This page requires the <code>rpt_fixed_reader</code> tile permission. Users without it will not see
+            the tile on the iDash hub and will be redirected if they navigate directly to the URL.
+            Tile assignments are managed in User Management (<code>va_user_management.aspx</code>).
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Page Sections</h2>
+
+        <h3>1. &nbsp;KPI Summary Row</h3>
+        <p>
+            Four at-a-glance metric cards displayed across the top. Values animate in with an eased counter when
+            they first load or when Refresh is clicked.
+        </p>
+        <table>
+            <thead><tr><th>Card</th><th>What It Shows</th><th>Source</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>Total Readers</strong></td>
+                    <td>All readers registered in iDash for the selected site. Sub-label shows total antenna count across all readers.</td>
+                    <td>iDash REST API &rarr; reader list</td>
+                </tr>
+                <tr>
+                    <td><strong>Online</strong></td>
+                    <td>Readers currently reporting <code>status = "Up"</code>. Sub-label shows percentage of total.</td>
+                    <td>iDash REST API &rarr; reader status</td>
+                </tr>
+                <tr>
+                    <td><strong>Offline</strong></td>
+                    <td>Readers reporting any status other than <code>"Up"</code>. Sub-label shows percentage of total.</td>
+                    <td>iDash REST API &rarr; reader status</td>
+                </tr>
+                <tr>
+                    <td><strong>Antennas</strong></td>
+                    <td>Total physical antenna ports connected across all readers. A single reader may have 2&ndash;8 antennas depending on model.</td>
+                    <td>iDash REST API &rarr; reader list</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="margin-top:28px;">2. &nbsp;Reader Status Overview</h3>
+        <p>
+            A proportional segmented bar showing the online/offline ratio, with a legend repeating raw counts
+            and percentages below it. Built purely from API response values &mdash; no SQL involved.
+        </p>
+        <div class="alert-blue">
+            <strong>&#9432; What "Offline" means operationally</strong><br/>
+            A reader shown as Offline has not successfully communicated with the iDash server during its last
+            expected check-in interval. This can mean a network failure, power loss, IP conflict, or firmware hang.
+            Biomedical should investigate any reader offline for more than one check-in cycle. See
+            <a href="va_reader_config.html">Reader Configuration docs</a> for IP address correction steps.
+        </div>
+
+        <h3 style="margin-top:28px;">3. &nbsp;Fixed Reader Tag Observations</h3>
+        <p>
+            Four time-windowed counters showing how many RFID tag observation events have been recorded by fixed
+            readers for the selected site. Sourced from <code>dbo.v_asset</code> filtered by
+            <code>lastinventoried</code> date, restricted to assets last read by a fixed reader device type.
+        </p>
+        <table>
+            <thead><tr><th>Window</th><th>Period</th><th>Use Case</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Today</strong></td><td>Midnight to now (server local time)</td><td>Confirms readers are detecting tags during active shift hours</td></tr>
+                <tr><td><strong>This Week</strong></td><td>Rolling 7 days</td><td>Weekly health check on passive inventory volume</td></tr>
+                <tr><td><strong>This Month</strong></td><td>Rolling 30 days</td><td>Monthly throughput summary for reporting</td></tr>
+                <tr><td><strong>3 Months</strong></td><td>Rolling 90 days</td><td>Trend baseline &mdash; a sustained drop here indicates a hardware or connectivity issue</td></tr>
+            </tbody>
+        </table>
+
+        <h3 style="margin-top:28px;">4. &nbsp;Inventory Reads by Device Type</h3>
+        <p>
+            A proportional segmented bar and legend breaking all inventory reads into three categories.
+            Answers: <em>what fraction of total inventory activity comes from fixed readers vs. handheld scanners?</em>
+        </p>
+        <table>
+            <thead><tr><th>Segment</th><th>Color</th><th>Meaning</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Fixed Reader</strong></td><td><span style="color:#10B981;">&#9632; Green</span></td><td>Assets whose last inventory event was written by a permanently-installed RFID reader (passive detection)</td></tr>
+                <tr><td><strong>Mobile Reader</strong></td><td><span style="color:#3B82F6;">&#9632; Blue</span></td><td>Assets scanned by a handheld or cart-mounted RFID reader during an active scan session</td></tr>
+                <tr><td><strong>Not Read</strong></td><td><span style="color:#F97316;">&#9632; Orange</span></td><td>Assets in the system with no <code>lastinventoried</code> value &mdash; never detected by any reader type</td></tr>
+            </tbody>
+        </table>
+
+        <h3 style="margin-top:28px;">5. &nbsp;Top Observed Locations &mdash; 30 Days</h3>
+        <p>
+            A ranked table of physical locations where the most RFID tag observations occurred in the rolling
+            30-day window. Location names come from <code>dbo.location.name</code> joined to
+            <code>dbo.v_asset.locationid</code>. The count represents observation events, not unique assets &mdash;
+            an asset passing a reader repeatedly counts each time.
+        </p>
+        <p>
+            Use this to identify <strong>high-traffic zones</strong> (receiving docks, corridors, ORs) and to
+            confirm readers in those zones are contributing meaningful volume. A previously busy location
+            dropping off the list may indicate a reader failure or physical relocation.
+        </p>
+
+        <h3 style="margin-top:28px;">6. &nbsp;Reader Inventory Table</h3>
+        <p>
+            A sortable, filterable table listing every registered fixed reader for the selected site.
+            Primary lookup tool for Biomedical and IT staff troubleshooting a specific device.
+        </p>
+        <table>
+            <thead><tr><th>Column</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Reader Name</strong></td><td>Friendly name as registered in iDash. Click column header to sort A&rarr;Z / Z&rarr;A. Filter box in row beneath header.</td></tr>
+                <tr><td><strong>Location</strong></td><td>Physical install location from <code>dbo.location</code>. Sortable and filterable.</td></tr>
+                <tr><td><strong>IP Address</strong></td><td>Network address in monospace font. Sortable and filterable. Use to access the reader's web UI or SSH console directly.</td></tr>
+                <tr><td><strong>Status</strong></td><td><span style="color:#10B981;">&#9679; Online</span> or <span style="color:#EF4444;">&#9679; Offline</span> badge. Derived from <code>status = "Up"</code> in the API response.</td></tr>
+                <tr><td><strong>Model</strong></td><td>Hardware model string from iDash (e.g., "Zebra FX9600"). Sortable.</td></tr>
+                <tr><td><strong>Last Seen</strong></td><td>Timestamp of the last successful reader-to-server communication. A stale timestamp with an Online status may indicate a reporting lag.</td></tr>
+                <tr><td><strong>Batch</strong></td><td>&#10003; if the reader accumulates reads and uploads them in bulk rather than streaming continuously.</td></tr>
+                <tr><td><strong>Update Loc</strong></td><td>&#10003; if the reader writes location updates to asset records when it observes a tag. When unchecked, observations are counted but asset location is not changed in iDash.</td></tr>
+            </tbody>
+        </table>
+        <p style="margin-top:12px;">
+            Sorting and filtering operate entirely client-side on the already-loaded dataset &mdash; no server
+            round-trip is required. Clearing a filter input restores all rows instantly.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>Site Selector</h2>
+        <p>
+            The dropdown in the page header filters the <strong>Tag Observations</strong>,
+            <strong>Device Type Breakdown</strong>, and <strong>Top Locations</strong> panels by facility
+            (<code>dbo.company</code>). The <strong>KPI Row</strong> and <strong>Reader Inventory Table</strong>
+            are populated from the iDash REST API, which is scoped to the credentials in Site Config &mdash;
+            the dropdown does not re-filter those panels.
+        </p>
+        <div class="alert-blue">
+            <strong>&#9432; Multi-site users</strong><br/>
+            Users assigned to more than one site see an "All My Sites" option. Single-site users have their
+            site auto-selected and the dropdown may be hidden. Users with no site assignment will see
+            "No sites assigned" and no SQL-panel data will load.
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>&#128679; Developer Notes</h2>
+
+        <h3>Architecture Overview</h3>
+        <p>
+            <code>va_fixed_reader.aspx</code> is a hybrid ASP.NET Web Forms + client-side SPA.
+            The code-behind (<code>va_fixed_reader.aspx.cs</code>) handles auth, site dropdown,
+            and two JSON API endpoints. The UI panels are populated entirely by <code>fetch()</code>
+            calls after <code>DOMContentLoaded</code>.
+        </p>
+
+        <h3>API Endpoints</h3>
+        <table>
+            <thead><tr><th>Querystring</th><th>Handler Method</th><th>Returns</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><code>?api=readers</code></td>
+                    <td><code>HandleReadersApi()</code></td>
+                    <td>
+                        JSON: <code>{ summary: { totalReaders, online, offline, pctOnline, pctOffline, totalAntennas }, readers: [...] }</code><br/>
+                        Proxies to the iDash REST API using credentials stored in <code>va_site_config</code>.
+                        Server-side proxy is required &mdash; iDash API has no CORS headers.
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>?api=readerstats&amp;companyid=N</code></td>
+                    <td><code>HandleReaderStatsApi()</code></td>
+                    <td>
+                        JSON: <code>{ tagReads: { today, week, month, quarter }, topLocations: [...], deviceReads: { fixed, mobile, notRead, pctFixed, pctMobile, pctNotRead } }</code><br/>
+                        Queries <code>dbo.v_asset</code> directly via SQL. Site-scoped by <code>companyid</code> parameter.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>iDash API Dependency</h3>
+        <p>
+            <code>?api=readers</code> requires a valid API base URL and credentials in Site Config
+            (<code>va_site_config.aspx</code>). If missing, the KPI row, status bar, and reader table show
+            an error. The SQL-powered panels (Tag Observations, Top Locations, Device Type) remain functional
+            independently because they query the local database directly.
+        </p>
+
+        <h3>Auth &amp; Authorization Chain</h3>
+        <ol>
+            <li><code>Session["IsAdminAuthenticated"]</code> check &rarr; redirect to <code>index.aspx</code> if false</li>
+            <li><code>UserManager.CanAccessTile(role, tiles, "rpt_fixed_reader")</code> &rarr; redirect to <code>index.aspx?err=access</code> if denied</li>
+            <li><code>UserManager.GetAllowedCompanyIds(Session, ConnStr)</code> &rarr; populates site dropdown; restricted users cannot traverse to unauthorized sites</li>
+        </ol>
+
+        <h3>Client-Side Data Flow</h3>
+        <ol>
+            <li><code>DOMContentLoaded</code> &rarr; <code>loadAll()</code></li>
+            <li><code>loadReaders()</code> and <code>loadTagStats()</code> fire in parallel</li>
+            <li><code>loadReaders()</code> calls <code>?api=readers</code> &rarr; populates KPI row, status bar, reader table</li>
+            <li><code>loadTagStats()</code> calls <code>?api=readerstats&amp;companyid=N</code> &rarr; populates tag windows, top locations, device breakdown</li>
+            <li>Header <strong>Refresh</strong> button re-calls <code>loadAll()</code> &mdash; no page reload</li>
+        </ol>
+
+        <h3>Sorting &amp; Filtering Internals</h3>
+        <p>
+            Reader data is stored in the module-scoped <code>readerData</code> JS array after the first load.
+            <code>sortTbl(th, colIdx)</code> sorts this array in place and re-renders via <code>renderReaderTable()</code>.
+            <code>filterTbl(colIdx, val)</code> creates a filtered copy without modifying <code>readerData</code>,
+            so clearing a filter box restores all rows without a network call.
+        </p>
+
+        <h3>Adding a New KPI Card</h3>
+        <ol>
+            <li>Add a <code>&lt;div class="glass kpi-card"&gt;</code> block to the <code>.kpi-row</code> container in the ASPX markup</li>
+            <li>Return the new value inside the <code>summary</code> object from <code>HandleReadersApi()</code> or <code>HandleReaderStatsApi()</code></li>
+            <li>Call <code>animVal('your-element-id', d.summary.yourField, 800)</code> in the corresponding JS fetch handler</li>
+        </ol>
+
+        <h3>Known Limitations</h3>
+        <ul>
+            <li>The reader table is not paginated. Sites with more than ~200 readers should add client-side pagination to <code>renderReaderTable()</code>.</li>
+            <li><code>?api=readers</code> adds server-side latency equal to the iDash API round-trip. If iDash is unreachable, reader panels fail while SQL panels succeed.</li>
+            <li><code>lastSeen</code> is an ISO-8601 UTC string. <code>formatDate()</code> converts it using the browser's local timezone, not the server's.</li>
+        </ul>
+
+        <h3>Related Pages &amp; Docs</h3>
+        <ul>
+            <li><a href="va_fixed_reader_setup.html"><strong>&#128225; Fixed Reader Setup &amp; Configuration Guide</strong></a> &mdash; complete end-to-end deployment guide with hardware config, MQTT setup, database alignment, and troubleshooting</li>
+            <li><a href="../va_reader_config.aspx">&#9881; Reader Configuration</a> &mdash; register, edit, delete readers in iDash</li>
+            <li><a href="va_reader_config.html">Reader Config Documentation</a> &mdash; setup and field reference</li>
+            <li><a href="../va_site_config.aspx">Site Configuration</a> &mdash; API credentials (base URL, username, password)</li>
+        </ul>
+    </div>
+
+    <br/>
+    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
+    <br/><br/>
+
+</div>
+</body>
+</html>

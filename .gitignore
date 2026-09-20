@@ -1,0 +1,66 @@
+# =========================
+# iDash .gitignore
+# =========================
+
+# --- Compiled binaries ---
+*.exe
+*.dll
+*.pdb
+*.cache
+
+# --- Visual Studio ---
+.vs/
+bin/
+obj/
+*.user
+*.suo
+
+# --- Data files (large / sensitive) ---
+*.xlsx
+*.csv
+*.bak
+
+# --- Logs ---
+logs/
+*.log
+
+# --- Temp & output ---
+temp/
+output.txt
+dir_listing.txt
+
+# --- OS files ---
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# --- Archives ---
+_Archive/
+
+# --- Downloads folder ---
+downloads/
+
+# --- Sensitive / config files (DO NOT COMMIT) ---
+web.config
+App_Data/idash_users.json
+dashboard/js/reader.json
+iDash/config/fhir/fhir_config.json
+iDash/config/fhir/fhir_push_log.json
+config/fhir/
+*.pfx
+*.pem
+*.key
+Generate-VA-RSA-Key.ps1
+
+# --- Local dev (gitignored so main branch stays clean) ---
+docker-compose.yml
+Dockerfile
+.dockerignore
+xsp4.log
+docker-entrypoint.sh
+
+# --- Private keys, scratch, and runtime state ---
+tools/idash_keys/
+scratch/
+App_Data/idash_clock_state.dat
+.agents/

@@ -1,0 +1,401 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>ENNX to VistA Push &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .badge-ennx { background: color-mix(in srgb, #e87722, transparent 85%); color: #e87722; border: 1px solid color-mix(in srgb, #e87722, transparent 70%); }
+        .badge-vista { background: color-mix(in srgb, var(--accent2-docs), transparent 85%); color: var(--accent2-docs); border: 1px solid color-mix(in srgb, var(--accent2-docs), transparent 70%); }
+        .badge-sql { background: color-mix(in srgb, var(--accent-docs), transparent 85%); color: var(--accent-docs); border: 1px solid color-mix(in srgb, var(--accent-docs), transparent 70%); }
+        .badge-security { background: color-mix(in srgb, var(--danger), transparent 85%); color: var(--danger); border: 1px solid color-mix(in srgb, var(--danger), transparent 70%); }
+        .step-card { background: rgba(0,0,0,0.15); border: 1px solid var(--line-docs); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+        .step-card h3 { margin-top: 0; color: var(--accent-docs); }
+        .step-num { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: #e87722; color: #fff; font-weight: 800; font-size: 1rem; margin-right: 10px; flex-shrink: 0; }
+        .pipe-arrow { text-align: center; font-size: 1.4rem; color: var(--muted-docs); margin: 8px 0; }
+        .field-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 16px 0; }
+        .field-table th { background: rgba(0,0,0,0.2); text-align: left; padding: 8px 12px; border-bottom: 2px solid var(--line-docs); font-weight: 600; text-transform: uppercase; font-size: 0.8rem; letter-spacing: .5px; }
+        .field-table td { padding: 8px 12px; border-bottom: 1px solid var(--line-docs); }
+        .field-table tr:hover td { background: rgba(99,102,241,0.06); }
+        .ennx-sample { background: rgba(0,0,0,0.2); border: 1px solid var(--line-docs); border-radius: 8px; padding: 16px; font-family: Consolas, monospace; font-size: 0.85rem; line-height: 1.6; white-space: pre; overflow-x: auto; }
+        .why-box { background: color-mix(in srgb, #e87722, transparent 92%); border-left: 6px solid #e87722; padding: 16px 20px; border-radius: 0 12px 12px 0; margin: 20px 0; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <a href="index.aspx">&larr; Back to Documentation Hub</a><br/><br/>
+
+    <!-- ======================================================= -->
+    <!-- HEADER                                                  -->
+    <!-- ======================================================= -->
+    <div class="card" style="background: linear-gradient(135deg, var(--card), rgba(232, 119, 34, 0.08));">
+        <h1>&#x1F4E1; ENNX &rarr; VistA Push</h1>
+        <div style="margin-bottom:12px;">
+            <span class="badge badge-ennx">&#x1F4E1; ENNX Scanner</span>
+            <span class="badge badge-vista">&#x1F3E5; VistA / AEMS/MERS</span>
+            <span class="badge badge-sql">&#x1F5C4; SQL MERGE Pipeline</span>
+            <span class="badge badge-security">&#x1F512; No PHI/PII</span>
+        </div>
+        <p>
+            Streamlined workflow that replaces the VA's manual copy/paste process for updating equipment
+            locations in AEMS/MERS after RFID scans. Takes ENNX scan session data from iDash, previews
+            the content, and pushes directly to the VA SQL Server via an automated MERGE pipeline.
+        </p>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- WHAT THIS REPLACES                                      -->
+    <!-- ======================================================= -->
+    <div class="card">
+        <h2>&#x1F504; What This Replaces</h2>
+        <div class="why-box">
+            <strong>Previous Manual Process (What VA Staff Did Before):</strong>
+            <ol style="margin-bottom:0;">
+                <li>Scanner operator performs RFID inventory scan at a VA facility</li>
+                <li>ENNX file is generated and saved to disk</li>
+                <li>VA staff <strong>manually opens</strong> the ENNX file</li>
+                <li>VA staff <strong>copies/pastes</strong> content into AEMS/MERS terminal</li>
+                <li>Each asset's location and inventory date is updated one at a time</li>
+            </ol>
+        </div>
+        <p><strong>Now:</strong> One button click. Select the scan session, review the ENNX, push to VistA.</p>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- ARCHITECTURE                                            -->
+    <!-- ======================================================= -->
+    <div class="card">
+        <h2>&#x1F3D7; Architecture &amp; Data Flow</h2>
+        <div class="ennx-sample" style="text-align: center; font-family: inherit; white-space: normal;">
+            <strong style="font-size:1.1rem;">Complete Pipeline</strong><br/><br/>
+            &#x1F4E1; <strong>ENNX Scanner</strong> (RFID read at facility)<br/>
+            &darr;<br/>
+            &#x1F4BE; <strong>iDash Live Scan</strong> (saves to <code>EnnxLiveSession</code> table)<br/>
+            &darr;<br/>
+            &#x1F4C4; <strong>Supply Chain Bridge</strong> (loads session, parses ENNX)<br/>
+            &darr;<br/>
+            &#x1F5C4; <strong>Local iDash DB</strong> (updates <code>text6</code>, <code>lastobservedlocation</code>, <code>lastinventoried</code>)<br/>
+            &darr;<br/>
+            &#x1F680; <strong>VA SQL Server</strong> (<code>OITPORSQL016</code> &rarr; <code>AWAssetSync</code> via MERGE)
+        </div>
+
+        <h3>Key Database Tables</h3>
+        <table class="field-table">
+            <tr><th>Table</th><th>Server</th><th>Purpose</th></tr>
+            <tr><td><code>dbo.EnnxLiveSession</code></td><td>Local iDash</td><td>Stores completed ENNX scan sessions (raw text + metadata)</td></tr>
+            <tr><td><code>dbo.asset</code></td><td>Local iDash</td><td>Master asset table. Updated with new locations from ENNX scan</td></tr>
+            <tr><td><code>dbo.AWPushStaging</code></td><td>VA SQL (OITPORSQL016)</td><td>Temporary staging table for MERGE. Created then dropped each push</td></tr>
+            <tr><td><code>dbo.AWAssetSync</code></td><td>VA SQL (OITPORSQL016)</td><td>Persistent VA sync table. MERGE upserts on <code>rfidtag</code></td></tr>
+        </table>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- ENNX FORMAT                                             -->
+    <!-- ======================================================= -->
+    <div class="card">
+        <h2>&#x1F4C4; ENNX File Format</h2>
+        <p>The ENNX format is a simple line-based text file generated by RFID scanners. It encodes which assets were scanned at which locations.</p>
+
+        <div class="ennx-sample">ENNX                    &larr; Header (always first line)
+ID                       &larr; Identifier line
+SP 2-223                 &larr; Location (room/space identifier)
+512 EE12345              &larr; Asset scanned at SP 2-223
+512 EE12346              &larr; Another asset at SP 2-223
+SP 2-224                 &larr; Next location
+512 EE12400              &larr; Asset scanned at SP 2-224
+512 EE12401              &larr; Another asset at SP 2-224
+***END***^7              &larr; Trailer with total line count (ID + locations + assets)</div>
+
+        <h3>Parsing Rules</h3>
+        <table class="field-table">
+            <tr><th>Line Pattern</th><th>Meaning</th><th>Example</th></tr>
+            <tr><td><code>ENNX</code></td><td>File header &mdash; skip</td><td><code>ENNX</code></td></tr>
+            <tr><td><code>ID</code></td><td>Identifier line &mdash; skip</td><td><code>ID</code></td></tr>
+            <tr><td><code>SP*</code></td><td>Location/room identifier</td><td><code>SP 2-223</code>, <code>SP A-101B</code></td></tr>
+            <tr><td><code>512 EE*</code> or <code>512EE*</code></td><td>Asset name (VA EE-number format)</td><td><code>512 EE12345</code></td></tr>
+            <tr><td><code>***END***^N</code></td><td>Trailer with total line count (ID + locations + assets). Parser skips any line starting with <code>***END***</code></td><td><code>***END***^7</code></td></tr>
+        </table>
+
+        <p>
+            <strong>Asset number extraction:</strong> The parser extracts digits after <code>EE</code> to create a numeric match key.
+            For example, <code>512 EE12345</code> yields asset number <code>12345</code>, which is matched against the
+            <code>asset.name</code> column using a <code>LIKE '%EE12345'</code> pattern.
+        </p>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- 3-STEP WORKFLOW                                         -->
+    <!-- ======================================================= -->
+    <div class="card">
+        <h2>&#x1F6E0; 3-Step Workflow</h2>
+
+        <div class="step-card">
+            <h3><span class="step-num">1</span> Select ENNX Scan Session</h3>
+            <p>Choose a scanner (user) and scan date from the dropdowns, then click <strong>&#x1F50D; Load Sessions</strong>.</p>
+            <ul>
+                <li>The <strong>Scanner (User)</strong> dropdown is populated from distinct <code>CreatedBy</code> values in <code>EnnxLiveSession</code></li>
+                <li>The <strong>Scan Date</strong> filter matches against <code>CreatedLocal</code></li>
+                <li>Results show in a grid with SessionId, Date/Time, Station, Scanner, and Summary</li>
+                <li>Click <strong>&#x1F4C4; Load</strong> on any row to load that session's ENNX text</li>
+            </ul>
+        </div>
+
+        <div class="pipe-arrow">&darr;</div>
+
+        <div class="step-card">
+            <h3><span class="step-num">2</span> Preview ENNX Content</h3>
+            <p>The loaded ENNX content appears in a read-only preview textarea. Stats are displayed in the Session Info panel:</p>
+            <ul>
+                <li><strong>Assets in ENNX</strong> &mdash; total count of asset lines (512 EE*)</li>
+                <li><strong>Locations</strong> &mdash; unique location count (SP*)</li>
+                <li><strong>Scan Date</strong> &mdash; when the session was created</li>
+            </ul>
+            <p>Optionally click <strong>&#x1F4C4; Download ENNX File</strong> to save a copy.</p>
+        </div>
+
+        <div class="pipe-arrow">&darr;</div>
+
+        <div class="step-card">
+            <h3><span class="step-num">3</span> Push to VistA</h3>
+            <p>Click <strong>&#x1F680; Push to VistA</strong> to execute the full 7-step pipeline:</p>
+            <table class="field-table">
+                <tr><th>Step</th><th>Action</th><th>Details</th></tr>
+                <tr><td>1</td><td>Parse ENNX</td><td>Extracts asset&rarr;location mappings from ENNX text</td></tr>
+                <tr><td>2</td><td>Match in iDash</td><td>Finds each asset by EE number in local <code>dbo.asset</code></td></tr>
+                <tr><td>3</td><td>Update local DB</td><td>Sets <code>text6</code>, <code>lastobservedlocation</code>, <code>text17</code>, <code>lastinventoried</code></td></tr>
+                <tr><td>4</td><td>Connect to VA SQL</td><td>Opens connection to VA server using configured credentials</td></tr>
+                <tr><td>5</td><td>Stage data</td><td>INSERTs matched assets into <code>dbo.AWPushStaging</code></td></tr>
+                <tr><td>6</td><td>MERGE</td><td>Upserts into <code>dbo.AWAssetSync</code> on <code>rfidtag</code></td></tr>
+                <tr><td>7</td><td>Cleanup</td><td>Drops staging table</td></tr>
+            </table>
+            <p>Each step displays a green checkmark (&#x2705;) on success, amber warning (&#x26A0;) for skipped items, or red error (&#x274C;) on failure.</p>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- LOCAL ASSET UPDATE FIELDS                               -->
+    <!-- ======================================================= -->
+    <div class="card">
+        <h2>&#x1F5C4; Fields Updated in Local iDash DB</h2>
+        <p>When the push runs, these fields are updated on each matched asset in <code>dbo.asset</code>:</p>
+        <table class="field-table">
+            <tr><th>Column</th><th>Value</th><th>Purpose</th></tr>
+            <tr><td><code>text6</code></td><td>New location from ENNX (SP line)</td><td>Current scanned location</td></tr>
+            <tr><td><code>lastobservedlocation</code></td><td>Same as text6</td><td>Standard location field</td></tr>
+            <tr><td><code>text17</code></td><td>UTC timestamp (yyyy-MM-dd HH:mm:ss)</td><td>Tag date/time with time included</td></tr>
+            <tr><td><code>lastinventoried</code></td><td>UTC DateTime</td><td>Inventory timestamp</td></tr>
+            <tr><td><code>lastmodified</code></td><td>UTC DateTime</td><td>Record modification timestamp</td></tr>
+            <tr><td><code>lastmodifiedby</code></td><td><code>ENNX_VISTA_PUSH</code></td><td>Audit trail of who/what modified</td></tr>
+        </table>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- VA SQL CONNECTION                                       -->
+    <!-- ======================================================= -->
+    <div class="card">
+        <h2>&#x2699; VA SQL Connection Configuration</h2>
+        <p>The VA SQL connection settings are in the right panel of Step 3. These persist in <code>config/fhir/aems_config.json</code>.</p>
+        <table class="field-table">
+            <tr><th>Field</th><th>Default</th><th>Persisted?</th></tr>
+            <tr><td>VA SQL Server</td><td><code>OITPORSQL016.R01.MED.VA.GOV</code></td><td>Yes</td></tr>
+            <tr><td>Database</td><td><code>VAAssetSync</code></td><td>Yes</td></tr>
+            <tr><td>Username</td><td><code>vadbuser</code></td><td>Yes</td></tr>
+            <tr><td>Password</td><td>&mdash;</td><td><strong>No</strong> (security: must re-enter each session)</td></tr>
+            <tr><td>File Share Path</td><td><code>\\vhavanapprfidp\...</code></td><td>Yes</td></tr>
+        </table>
+
+        <div class="why-box">
+            <strong>&#x1F512; Security Note:</strong> The VA SQL password is <strong>never saved</strong> to disk.
+            It must be entered each time the user accesses the page. This is by design to prevent
+            credential exposure on the web server filesystem.
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- PREREQUISITES                                           -->
+    <!-- ======================================================= -->
+    <div class="card">
+        <h2>&#x2705; Prerequisites</h2>
+        <ul>
+            <li><strong>EnnxLiveSession table:</strong> Must exist in the local iDash database. Created automatically the first time an ENNX Live Scan session is saved via <a href="va_ennx_live_scan.html">ENNX Live Scan</a>.</li>
+            <li><strong>Network access:</strong> The web server must be able to reach <code>OITPORSQL016.R01.MED.VA.GOV</code> on port 1433 (SQL Server). VPN or internal network required.</li>
+            <li><strong>VA SQL credentials:</strong> Valid <code>vadbuser</code> account with INSERT/UPDATE/CREATE/DROP permissions on the <code>VAAssetSync</code> database.</li>
+            <li><strong>Completed ENNX scans:</strong> At least one ENNX Live Scan session must have been saved to SQL for the session picker to have data.</li>
+        </ul>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- MERGE LOGIC                                             -->
+    <!-- ======================================================= -->
+    <div class="card">
+        <h2>&#x1F504; MERGE Logic (Upsert Pattern)</h2>
+        <p>The SQL MERGE uses <code>rfidtag</code> as the match key:</p>
+        <div class="ennx-sample">MERGE dbo.AWAssetSync AS tgt
+USING dbo.AWPushStaging AS src
+  ON tgt.[rfidtag] = src.[rfidtag]
+
+WHEN MATCHED THEN
+  UPDATE SET
+    tgt.[name] = src.[name],
+    tgt.[lastobservedlocation] = src.[lastobservedlocation],
+    tgt.[lastobservedtime] = src.[lastobservedtime],
+    tgt.[lastinventoried] = src.[lastinventoried],
+    ... (all 26 columns)
+
+WHEN NOT MATCHED BY TARGET THEN
+  INSERT ([id], [name], ...) VALUES (src.[id], src.[name], ...)</div>
+
+        <h3>Columns Pushed (26 total)</h3>
+        <div style="column-count: 3; font-size: 0.85rem; font-family: Consolas, monospace;">
+            <div>id</div><div>name</div><div>description</div><div>rfidtag</div>
+            <div>assettype</div><div>lastobservedlocation</div><div>lastobservedtime</div>
+            <div>checkinstatus</div><div>text1</div><div>text2</div><div>text3</div>
+            <div>text4</div><div>text5</div><div>text6</div><div>text7</div>
+            <div>text8</div><div>text9</div><div>text10</div><div>text11</div>
+            <div>text12</div><div>text19</div><div>text20</div><div>companyid</div>
+            <div>lastinventoried</div><div>lastmodified</div><div>listvalue1</div>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- TROUBLESHOOTING                                         -->
+    <!-- ======================================================= -->
+    <div class="card">
+        <h2>&#x1F527; Troubleshooting</h2>
+        <table class="field-table">
+            <tr><th>Error</th><th>Cause</th><th>Fix</th></tr>
+            <tr>
+                <td><code>EnnxLiveSession table does not exist</code></td>
+                <td>No ENNX scan has ever been saved to SQL on this site</td>
+                <td>Perform an ENNX Live Scan and click "Save Session" to create the table</td>
+            </tr>
+            <tr>
+                <td><code>No sessions found for the selected filters</code></td>
+                <td>No scans match the selected user/date</td>
+                <td>Try "All Users" and a broader date, or check if scans were saved to disk only</td>
+            </tr>
+            <tr>
+                <td><code>No assets found in ENNX content</code></td>
+                <td>ENNX text doesn't contain valid "512 EE*" lines</td>
+                <td>Verify the scan file format &mdash; may be a different station prefix</td>
+            </tr>
+            <tr>
+                <td><code>Fill in all VA SQL connection fields</code></td>
+                <td>Password or other connection fields are empty</td>
+                <td>Enter VA SQL credentials in the right panel. Password must be entered each session</td>
+            </tr>
+            <tr>
+                <td><code>Error connecting to VA SQL Server</code></td>
+                <td>Network/firewall blocking port 1433, or bad credentials</td>
+                <td>Verify VPN is connected, firewall allows 1433, credentials are correct</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- FUTURE: FILEMAN                                         -->
+    <!-- ======================================================= -->
+    <div class="card">
+        <h2>&#x1F52E; Future: Direct VistA Integration via FileMan</h2>
+        <p>
+            The current pipeline pushes data to a <strong>SQL staging area</strong> (<code>AWAssetSync</code> on the VA SQL Server).
+            VA staff or scheduled processes then import this data into VistA's core database.
+        </p>
+        <p>
+            VistA uses <strong>VA FileMan 22.2</strong> as its database layer (built on MUMPS/M). The FileMan Developer's Guide
+            (May 2018, Patch DI*22.2*10) documents APIs that could enable direct integration in a future phase:
+        </p>
+
+        <table class="field-table">
+            <tr><th>FileMan API</th><th>Purpose</th><th>Relevance</th></tr>
+            <tr><td><code>UPDATE^DIE()</code></td><td>Updates records in FileMan files</td><td>Could directly update AEMS/MERS equipment records</td></tr>
+            <tr><td><code>FILE^DDMP()</code></td><td>Data Import from external sources</td><td>Could import ENNX/TSV data directly into VistA</td></tr>
+            <tr><td><code>FIND^DIC()</code></td><td>Record lookup by cross-reference</td><td>Find existing equipment to update</td></tr>
+            <tr><td><code>$$FIND1^DIC()</code></td><td>Single record finder</td><td>Locate specific asset by EE number</td></tr>
+            <tr><td><code>EXPORT^DDXP()</code></td><td>Data Export</td><td>Pull current VistA data for comparison/validation</td></tr>
+            <tr><td><code>$$GET1^DIQ()</code></td><td>Data Retriever (single field)</td><td>Read current equipment field values</td></tr>
+            <tr><td><code>GETS^DIQ()</code></td><td>Data Retriever (multiple fields)</td><td>Bulk read equipment data</td></tr>
+        </table>
+
+        <div class="why-box">
+            <strong>&#x26A0; Requirements for Direct VistA Access:</strong>
+            <ul style="margin-bottom:0;">
+                <li><strong>RPC Broker</strong> or <strong>VistaLink</strong> endpoint access</li>
+                <li><strong>FileMan file numbers</strong> for AEMS/MERS equipment tables</li>
+                <li><strong>Security keys</strong> and access codes (DUZ, DIC("A"))</li>
+                <li><strong>VA approval</strong> for external system write access</li>
+            </ul>
+        </div>
+
+        <h3>Reference: VA SQLI (SQL Interface)</h3>
+        <p>
+            VA FileMan's SQLI module (Patch DI*21.0*38) provides a relational mapping layer over VistA's
+            hierarchical MUMPS globals. This creates SQL-compatible views of FileMan data, enabling
+            potential interoperability between our SQL pipeline and VistA's native storage.
+        </p>
+        <p>
+            <strong>Key SQLI components:</strong>
+        </p>
+        <ul>
+            <li><strong>SQLI_TABLE_ELEMENT</strong> &mdash; maps FileMan fields to SQL columns</li>
+            <li><strong>SQLI_DATA_TYPE</strong> &mdash; maps MUMPS data types to SQL types</li>
+            <li><strong>SQLI_DOMAIN</strong> &mdash; groups related tables</li>
+            <li><strong>SQLI_KEY_FORMAT</strong> &mdash; defines primary/foreign key relationships</li>
+        </ul>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- SOURCE FILES                                            -->
+    <!-- ======================================================= -->
+    <div class="card">
+        <h2>&#x1F4C1; Source Files</h2>
+        <table class="field-table">
+            <tr><th>File</th><th>Purpose</th></tr>
+            <tr><td><code>va_fhir_bridge.aspx</code></td><td>Page markup &mdash; AEMS/MERS Push tab with 3-step ENNX workflow</td></tr>
+            <tr><td><code>va_fhir_bridge.aspx.cs</code></td><td>Code-behind &mdash; ENNX session loading, parsing, and push pipeline</td></tr>
+            <tr><td><code>config/fhir/aems_config.json</code></td><td>VA SQL connection configuration (password excluded)</td></tr>
+            <tr><td><code>va_ennx_live_scan.aspx</code></td><td>ENNX Live Scan page (source of ENNX sessions)</td></tr>
+            <tr><td><code>va_ennx_location_update.sql</code></td><td>Original ENNX location update SQL (reference for field mappings)</td></tr>
+        </table>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- REVISION HISTORY                                        -->
+    <!-- ======================================================= -->
+    <div class="card">
+        <h2>&#x1F4DD; Revision History</h2>
+        <table class="field-table">
+            <tr><th>Date</th><th>Version</th><th>Change</th><th>Author</th></tr>
+            <tr>
+                <td>2026-07-07</td>
+                <td>1.0</td>
+                <td>
+                    Initial implementation: ENNX &rarr; VistA push on Supply Chain Bridge page.
+                    Replaced old bulk-export company push with session-based ENNX workflow.
+                    Added FileMan reference section for future direct VistA integration.
+                </td>
+                <td>iDash Development</td>
+            </tr>
+            <tr>
+                <td>2026-07-09</td>
+                <td>1.1</td>
+                <td>
+                    ENNX format consistency: Added missing <code>ID</code> line to sample,
+                    corrected <code>***END***</code> trailer to show <code>***END***^N</code>
+                    total count format matching actual scanner output. Reordered parsing
+                    rules to match line order in file (ENNX, ID, SP, assets, END).
+                </td>
+                <td>iDash Development</td>
+            </tr>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>

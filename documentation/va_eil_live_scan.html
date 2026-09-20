@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>EIL Live Scan &amp; Reconciliation (Mobile RFID Optimized) &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .badge-db   { background: color-mix(in srgb, var(--accent2-docs), transparent 85%); color: var(--accent2-docs); border: 1px solid color-mix(in srgb, var(--accent2-docs), transparent 70%); }
+        .badge-file { background: color-mix(in srgb, var(--accent-docs), transparent 85%); color: var(--accent-docs); border: 1px solid color-mix(in srgb, var(--accent-docs), transparent 70%); }
+        .badge-new  { background: color-mix(in srgb, var(--warn-docs), transparent 85%); color: var(--warn-docs); border: 1px solid color-mix(in srgb, var(--warn-docs), transparent 70%); }
+        .badge-archived { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.4); }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+        <a href="index.aspx">&larr; Back to Documentation Hub</a>
+        <div style="display:flex; gap:8px;">
+            <a href="../va_eil_live_scan.aspx" class="badge badge-db" style="text-decoration:none; font-weight:700; padding:6px 12px; border-radius:8px;">&#9654; Open EIL Live Scan</a>
+            <a href="va_eil_live_scan_legacy.html" class="badge badge-archived" style="text-decoration:none; font-weight:700; padding:6px 12px; border-radius:8px;">&#128214; Legacy Docs</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h1>&#128203; EIL Live Scan &amp; Reconciliation (Mobile RFID Optimized)</h1>
+        <div style="margin-bottom:12px; display:flex; gap:8px; flex-wrap:wrap;">
+            <span class="badge badge-db">&#10004; Direct Database Commit</span>
+            <span class="badge badge-file">&#9993; Email Export &amp; Excel Report</span>
+            <span class="badge badge-new">&#9889; Mobile RFID Optimized (v2.0)</span>
+            <span class="badge badge-db">&#128100; Operator Auth Synchronized</span>
+        </div>
+        <p style="font-size:16px;margin:0;">
+            The <strong>EIL Live Scan &amp; Reconciliation</strong> module is a high-speed, mobile-optimized asset accountability tool designed for Zebra mobile RFID handhelds and web workstations. It loads targeted Equipment Item Lists (EIL / CMR) into an interactive checklist, cross-references physical sweeps in real-time, compiles government-ready ENNX export structures, and <strong>directly commits updated inventory locations and timestamps to the iDash database</strong>.
+        </p>
+    </div>
+
+    <!-- 09/12/2026 ARCHITECTURE MODERNIZATION -->
+    <div class="card">
+        <h2>Version 2.0 Major Update (09/12/2026)</h2>
+        <p>
+            Upgraded to match the unified high-performance scanning architecture of <code>va_inventory.aspx</code>, <code>va_universal_ennx.aspx</code>, and <code>va_ennx_live_scan.aspx</code>:
+        </p>
+        <table>
+            <tr><th>Component</th><th>Modern Implementation</th><th>Benefit</th></tr>
+            <tr>
+                <td><strong>Unified Skinny Toolbar &amp; Sign-In</strong></td>
+                <td>Top status bar matching <code>va_inventory.aspx</code> with operator badge (<code>&#128100; Gary Moe</code>), technician modal sign-in, theme toggle, and hub link.</td>
+                <td>Consistent universal look-and-feel across all mobile scanning screens; operator identity automatically tagged on all committed assets.</td>
+            </tr>
+            <tr>
+                <td><strong>Default Site &amp; Station Lock</strong></td>
+                <td>Auto-selects and locks the technician's assigned facility (e.g. <code>517 Beckley</code>), paired side-by-side with <code>&#128274; Station: 517</code> badge.</td>
+                <td>Eliminates manual station selection errors and prevents accidental cross-site inventory assignment.</td>
+            </tr>
+            <tr>
+                <td><strong>Single-Line EIL Search &amp; Load</strong></td>
+                <td>EIL / CMR autocomplete search and <code>Load EIL</code> action consolidated onto a single compact line directly beneath the site row.</td>
+                <td>Zero screen clutter; instantly populates the targeted equipment checklist without pushing the scanner card down.</td>
+            </tr>
+            <tr>
+                <td><strong>Direct Database "Commit Scans"</strong></td>
+                <td>Replaced passive text saving with active database execution: updates <code>dbo.asset.text6</code> (location), <code>lastinventoried = SYSDATETIMEOFFSET()</code>, <code>lastmodifiedby</code>, <code>lastmodified</code>, and inserts an audit record into <code>dbo.EnnxLiveSession</code>.</td>
+                <td>Scanned rooms and reconciled CMR items immediately reflect in iDash master reports and inventory history.</td>
+            </tr>
+            <tr>
+                <td><strong>Mobile Streamlined Workflow</strong></td>
+                <td>Retired WebSerial, browser download blobs, and server disk file writes in favor of direct database commits and automated email distribution.</td>
+                <td>Zero clutter for technicians on mobile handhelds; prevents local file management headaches.</td>
+            </tr>
+            <tr>
+                <td><strong>Single-Row Counts &amp; Filter Tabs</strong></td>
+                <td>Replaced bulky KPI cards with a compact, sticky single row featuring <code>All</code>, <code>Locations</code>, <code>Assets</code>, <code>Duplicates</code>, <code>Total Scans</code>, and <code>Active Loc</code>.</td>
+                <td>Maximizes vertical screen real-estate for the live scan feed on mobile screens.</td>
+            </tr>
+            <tr>
+                <td><strong>4-Color Stream Feed &amp; Live Checklist</strong></td>
+                <td>Visual feed (Blue for Location, Green for Asset, Orange for Duplicate, Pink for Ignored) paired with live Pending vs. Found badge counters.</td>
+                <td>Instant feedback for technicians walking rooms and sweeping inventory tags.</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- STEP-BY-STEP WORKFLOW -->
+    <div class="card">
+        <h2>EIL Field Sweep Workflow</h2>
+
+        <div class="step"><span class="step-num sn-blue">1</span><div>
+            <strong>Verify Operator &amp; Site:</strong> Confirm your technician name is displayed in the top bar (e.g., <code>&#128100; Gary Moe</code>). Your assigned VA facility is auto-selected and locked.
+        </div></div>
+
+        <div class="step"><span class="step-num sn-blue">2</span><div>
+            <strong>Load EIL / CMR Checklist:</strong> Type or select the targeted CMR from the <strong>EIL / CMR</strong> input and tap <strong>Load EIL</strong>. The checklist table populates with all assigned equipment and sets pending status.
+        </div></div>
+
+        <div class="step"><span class="step-num sn-blue">3</span><div>
+            <strong>Scan a Location Barcode:</strong> Pull the scanner trigger or scan a room barcode starting with <code>SP</code> (e.g., <code>SP009-BD. 8A</code>). The room is highlighted in blue and set as the active location.
+        </div></div>
+
+        <div class="step"><span class="step-num sn-blue">4</span><div>
+            <strong>Sweep Equipment Asset Tags:</strong> Pull the RFID trigger or scan asset barcodes. All matched tags turn green (<code>Found</code>) in the EIL checklist and populate with their new room location.
+        </div></div>
+
+        <div class="step"><span class="step-num sn-green">5</span><div>
+            <strong>Commit Scans to Database:</strong> Tap <strong>&#128190; Commit Scans to Database</strong>. All scanned assets are immediately updated with their new room location (<code>text6</code>) and current inventory timestamp. An audit row is logged with the session payload.
+        </div></div>
+
+        <div class="step"><span class="step-num sn-green">6</span><div>
+            <strong>Email ENNX File &amp; Report:</strong> Tap <strong>&#9993; Email ENNX &amp; Report</strong> to dispatch the formatted ENNX text file along with the full EIL reconciliation Excel report directly to inventory administrators.
+        </div></div>
+    </div>
+
+    <!-- ARCHIVED LEGACY PAGE -->
+    <div class="card">
+        <h2>Legacy Page Reference</h2>
+        <p>
+            The original postback-based EIL scanner with WebSerial USB support and local disk saving has been preserved and archived at:
+        </p>
+        <p>
+            <a href="../va_eil_live_scan_legacy.aspx" class="badge badge-archived" style="text-decoration:none; font-size:13px; font-weight:700;">&#9654; Open Archived Legacy Page (va_eil_live_scan_legacy.aspx)</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>

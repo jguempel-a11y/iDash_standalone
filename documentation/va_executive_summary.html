@@ -1,0 +1,483 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>iDash — Overview &amp; Capabilities</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .exec-hero {
+            background: linear-gradient(135deg, color-mix(in srgb, var(--accent-docs), transparent 90%), var(--card-docs));
+            border: 1px solid color-mix(in srgb, var(--accent-docs), transparent 60%);
+            border-radius: 16px;
+            padding: 32px 28px;
+            margin-bottom: 24px;
+        }
+        .exec-pill {
+            display: inline-block;
+            background: color-mix(in srgb, var(--accent-docs), transparent 85%);
+            color: var(--accent-docs);
+            border: 1px solid color-mix(in srgb, var(--accent-docs), transparent 70%);
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+        }
+        .hero-bullets {
+            margin: 14px 0 0 0;
+            padding-left: 20px;
+            color: var(--muted-docs);
+            font-size: 14.5px;
+            line-height: 1.6;
+        }
+        .hero-bullets li {
+            margin-bottom: 6px;
+        }
+        .hero-bullets li strong {
+            color: var(--text-docs);
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin: 20px 0 28px 0;
+        }
+        @media (max-width: 900px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 500px) { .stat-grid { grid-template-columns: 1fr; } }
+        .stat-box {
+            background: var(--chip);
+            border: 1px solid var(--line-docs);
+            border-radius: 12px;
+            padding: 16px 18px;
+            text-align: center;
+        }
+        .stat-val {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--accent-docs);
+            line-height: 1.1;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--muted-docs);
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+        .slide-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin: 18px 0 28px 0;
+        }
+        @media (max-width: 900px) { .slide-grid { grid-template-columns: 1fr; } }
+        .slide-card {
+            background: var(--card-docs);
+            border: 1px solid var(--line-docs);
+            border-radius: 14px;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            border-top: 4px solid var(--accent-docs);
+        }
+        .slide-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-docs);
+            margin-bottom: 2px;
+        }
+        .slide-role {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--accent-docs);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 12px;
+        }
+        .slide-bullets {
+            margin: 0;
+            padding-left: 18px;
+            color: var(--muted-docs);
+            font-size: 13.5px;
+            line-height: 1.55;
+            flex: 1;
+        }
+        .slide-bullets li {
+            margin-bottom: 8px;
+        }
+        .slide-bullets li strong {
+            color: var(--text-docs);
+        }
+        .slide-badge {
+            margin-top: 14px;
+            align-self: flex-start;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: color-mix(in srgb, var(--accent2-docs), transparent 85%);
+            color: var(--accent2-docs);
+            border: 1px solid color-mix(in srgb, var(--accent2-docs), transparent 70%);
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+        .capabilities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+            margin: 18px 0 28px 0;
+        }
+        .cap-card {
+            background: var(--chip);
+            border: 1px solid var(--line-docs);
+            border-radius: 12px;
+            padding: 18px 20px;
+        }
+        .cap-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-docs);
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--line-docs);
+        }
+        .compare-table th { background: rgba(0,0,0,0.25); font-size: 12px; }
+        .compare-table td { font-size: 13px; vertical-align: middle; }
+        .tag-pass {
+            display: inline-block;
+            background: rgba(16,185,129,0.15);
+            border: 1px solid #10b981;
+            color: #10b981;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+        .tag-fail {
+            display: inline-block;
+            background: rgba(239,68,68,0.15);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+        .back-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--muted-docs);
+            text-decoration: none;
+        }
+        .back-nav:hover { color: var(--accent-docs); }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <a href="index.aspx" class="back-nav">&larr; Back to Documentation Hub</a>
+
+        <!-- ══════════════════ HERO SECTION (SLIDE 1) ══════════════════ -->
+        <div class="exec-hero">
+            <div class="exec-pill">Executive Briefing</div>
+            <h1 style="font-size:2rem; margin-bottom:10px; color:var(--text-docs);">
+                iDash: Fast, Practical Asset Tracking That Just Works
+            </h1>
+            <p style="font-size:15px; color:var(--muted-docs); line-height:1.5; max-width:880px; margin-bottom:10px;">
+                A clean, browser-based front-end for iDash designed for medical centers and military installations where inventory needs to be fast, accurate, and low-maintenance.
+            </p>
+            <ul class="hero-bullets">
+                <li><strong>Zero Workstation Footprint:</strong> Runs entirely in Microsoft Edge and Chrome with nothing installed on user PCs.</li>
+                <li><strong>Built for Field Crews:</strong> Works on standard mobile carts and Zebra handheld RFID readers.</li>
+                <li><strong>Secure On-Premises Architecture:</strong> Operates 100% inside your firewall with zero external cloud dependencies.</li>
+                <li><strong>Immediate Value:</strong> Replaces weeks of manual clipboard audits with rapid RFID room sweeps.</li>
+            </ul>
+        </div>
+
+        <!-- ══════════════════ METRICS AT A GLANCE ══════════════════ -->
+        <div class="stat-grid">
+            <div class="stat-box">
+                <div class="stat-val">Minutes</div>
+                <div class="stat-label">Full Room Audit Speed</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val">0 MB</div>
+                <div class="stat-label">User Workstation Install</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val">1,000+</div>
+                <div class="stat-label">Tags Counted Per Minute</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val">100%</div>
+                <div class="stat-label">Role &amp; Site Isolated</div>
+            </div>
+        </div>
+
+        <!-- ══════════════════ THREE STAKEHOLDERS (SLIDE 2) ══════════════════ -->
+        <h2>Built for the People Who Actually Use and Approve It</h2>
+        <p style="color:var(--muted-docs); font-size:14px; margin-bottom:14px;">
+            Software rollouts succeed when they solve the distinct day-to-day priorities of the supply team, security reviewers, and IT administrators:
+        </p>
+
+        <div class="slide-grid">
+            <!-- Property Custodian -->
+            <div class="slide-card">
+                <div class="slide-title">The Supply Officer &amp; Property Custodian</div>
+                <div class="slide-role">Army Lieutenant / VA Chief of Logistics</div>
+                <ul class="slide-bullets">
+                    <li><strong>Daily Challenge:</strong> Weeks spent walking wards with clipboards to locate missing gear before annual audits.</li>
+                    <li><strong>iDash Solution:</strong> Point-and-wave room audits count hundreds of items in seconds.</li>
+                    <li><strong>Target Finder:</strong> Built-in acoustic Geiger counter beeps faster as you get closer to lost equipment.</li>
+                    <li><strong>One-Click Reporting:</strong> Instant CMR reconciliation reports with formatted Excel downloads.</li>
+                </ul>
+                <div class="slide-badge">Audit-Ready at All Times</div>
+            </div>
+
+            <!-- Information Security Officer -->
+            <div class="slide-card" style="border-top-color: #3b82f6;">
+                <div class="slide-title">The Information Security Officer (ISO)</div>
+                <div class="slide-role">VA ISO / Cyber Reviewer</div>
+                <ul class="slide-bullets">
+                    <li><strong>Daily Challenge:</strong> Preventing unauthorized outbound connections, risky desktop agents, and data leaks.</li>
+                    <li><strong>iDash Solution:</strong> 100% on-premises execution inside your secure intranet boundary.</li>
+                    <li><strong>Access Control:</strong> Strict role-based permissions (RBAC) separated by facility and job function.</li>
+                    <li><strong>Compliance Ready:</strong> Section 508 accessibility, NIST SP 800-53 controls, and clean open-source licensing.</li>
+                </ul>
+                <div class="slide-badge">Simple Security Clearance</div>
+            </div>
+
+            <!-- IT Administrator -->
+            <div class="slide-card" style="border-top-color: #10b981;">
+                <div class="slide-title">The IT &amp; OIT Administrator</div>
+                <div class="slide-role">Systems Administrator / OIT Team</div>
+                <ul class="slide-bullets">
+                    <li><strong>Daily Challenge:</strong> Avoiding heavy software pushes, registry corruption, and database lockups.</li>
+                    <li><strong>iDash Solution:</strong> Pure web presentation layer running on standard Microsoft IIS and ASP.NET.</li>
+                    <li><strong>Safe Database Queries:</strong> Uses non-blocking read queries (READ UNCOMMITTED) that never freeze active SQL tables.</li>
+                    <li><strong>Zero Push Tickets:</strong> Users simply open a browser shortcut; no client software to patch or maintain.</li>
+                </ul>
+                <div class="slide-badge">Zero Desktop Push</div>
+            </div>
+        </div>
+
+        <!-- ══════════════════ CORE CAPABILITIES (SLIDE 3) ══════════════════ -->
+        <h2>Core Capabilities: Everyday Tools for the Field</h2>
+        <div class="capabilities-grid">
+            <div class="cap-card">
+                <div class="cap-title">Wave-and-Walk Room Audits</div>
+                <ul class="slide-bullets">
+                    <li>Sweep a handheld RFID reader across a room; items populate on screen in real time.</li>
+                    <li>Verified assets turn green, missing items stay highlighted, and misplaced items flag immediately.</li>
+                    <li>Completes full room inventories in under 60 seconds.</li>
+                </ul>
+            </div>
+
+            <div class="cap-card">
+                <div class="cap-title">Acoustic Geiger Counter Locator</div>
+                <ul class="slide-bullets">
+                    <li>Enter any asset tag or description to initiate targeted tracking.</li>
+                    <li>On-screen signal strength meter paired with audio beeps that speed up as you approach.</li>
+                    <li>Finds items concealed behind drywall, above ceiling tiles, or inside closed cabinets.</li>
+                </ul>
+            </div>
+
+            <div class="cap-card">
+                <div class="cap-title">Offline Field Scanning (Batch Mode)</div>
+                <ul class="slide-bullets">
+                    <li>Built for basements, radiology suites, and RF-shielded rooms without Wi-Fi.</li>
+                    <li>Crews keep scanning without connection drops or app errors.</li>
+                    <li>Automatically syncs and reconciles with the master database once back in coverage.</li>
+                </ul>
+            </div>
+
+            <div class="cap-card">
+                <div class="cap-title">Browser-Based RFID Label Printing</div>
+                <ul class="slide-bullets">
+                    <li>Encode and print EPC Gen 2 smart labels directly from your web browser.</li>
+                    <li>Print from search results, location lists, or Excel spreadsheet import batches.</li>
+                    <li>Live visual label preview eliminates print errors without needing dedicated print workstations.</li>
+                </ul>
+            </div>
+
+            <div class="cap-card">
+                <div class="cap-title">Customizable Views &amp; Excel Reports</div>
+                <ul class="slide-bullets">
+                    <li>Users pick the exact columns they need (Serial Number, Model, Description, Location, Tag ID).</li>
+                    <li>Column choices and filters save automatically for future sessions.</li>
+                    <li>One-click export produces clean, supervisor-ready Excel workbooks.</li>
+                </ul>
+            </div>
+
+            <div class="cap-card">
+                <div class="cap-title">Automated Portal &amp; Chokepoint Tracking</div>
+                <ul class="slide-bullets">
+                    <li>Connects to fixed RFID portal readers at loading docks and department entrances.</li>
+                    <li>Automatically logs timestamped asset transit events without manual scanning.</li>
+                    <li>Detects unauthorized equipment movement between facility areas.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ══════════════════ ARCHITECTURE FOR IT (SLIDE 4) ══════════════════ -->
+        <h2>Why Your IT Team Will Appreciate It</h2>
+        <div class="card" style="background:var(--chip);">
+            <ul class="slide-bullets" style="font-size:14px; line-height:1.7;">
+                <li><strong>Zero Client Software:</strong> Pure browser-native HTML5, CSS, and JavaScript. Runs on Microsoft Edge, Google Chrome, and Zebra mobile browsers. Nothing to package, push, or patch on workstations.</li>
+                <li><strong>Standard Microsoft Stack:</strong> Deploys on standard Microsoft Windows Server IIS and ASP.NET. Fits cleanly into existing agency and military hosting environments.</li>
+                <li><strong>Non-Blocking Database Access:</strong> Connects directly to the existing iDash SQL Server database using non-blocking read isolation (<code>READ UNCOMMITTED</code>). Analytical queries and searches will never lock active tables or degrade database performance.</li>
+                <li><strong>Strictly On-Premises Boundary:</strong> 100% of data and application logic resides within your internal network. Zero external cloud dependencies, zero third-party analytics, and zero outbound internet requirements.</li>
+                <li><strong>Standard Hardware Protocols:</strong> Compatible with standard EPC Class 1 Gen 2 UHF RFID readers, Zebra DataWedge, standard network label printers (Zebra, SATO), and MQTT sensor messaging.</li>
+            </ul>
+        </div>
+
+        <!-- ══════════════════ COMPLIANCE & GOVERNANCE (SLIDE 5) ══════════════════ -->
+        <h2>Security, Governance &amp; Compliance Highlights</h2>
+        <div class="card">
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th>Security Domain</th>
+                        <th>iDash Architecture</th>
+                        <th>Standard Met</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Endpoint Attack Surface</strong></td>
+                        <td>Zero desktop binaries, zero background agent services, zero registry changes.</td>
+                        <td>NIST SP 800-53 (AC-2)</td>
+                        <td><span class="tag-pass">Compliant</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Role-Based Access (RBAC)</strong></td>
+                        <td>Strict multi-facility boundaries and tile-level permissions based on user role.</td>
+                        <td>Least Privilege (AC-6)</td>
+                        <td><span class="tag-pass">Compliant</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Data Boundary Sovereignty</strong></td>
+                        <td>Operates 100% on-premises inside the internal network with zero external cloud dependencies.</td>
+                        <td>FISMA High / On-Prem</td>
+                        <td><span class="tag-pass">Compliant</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Accountability &amp; Audit</strong></td>
+                        <td>Mandatory user agreement gate, active session tracking, and timestamped audit logs.</td>
+                        <td>Audit &amp; Accountability (AU-2)</td>
+                        <td><span class="tag-pass">Compliant</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Accessibility (Section 508)</strong></td>
+                        <td>High-contrast color ratios, full keyboard navigation, and screen reader compatibility.</td>
+                        <td>Section 508 / WCAG 2.0 AA</td>
+                        <td><span class="tag-pass">Compliant</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Software Supply Chain</strong></td>
+                        <td>Full Software Bill of Materials (SBOM); 100% permissive open source (ClosedXML MIT); zero GPL copyleft.</td>
+                        <td>Executive Order 14028</td>
+                        <td><span class="tag-pass">Compliant</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>VA OIT TRM Alignment</strong></td>
+                        <td>Core components (<a href="https://www.oit.va.gov/Services/TRM/SearchPage.aspx" target="_blank" rel="noopener noreferrer" style="color:var(--accent2-docs); font-weight:600;">iDash</a>, <a href="https://www.oit.va.gov/Services/TRM/SearchPage.aspx" target="_blank" rel="noopener noreferrer" style="color:var(--accent2-docs); font-weight:600;">BarTender</a>, <a href="https://www.oit.va.gov/Services/TRM/SearchPage.aspx" target="_blank" rel="noopener noreferrer" style="color:var(--accent2-docs); font-weight:600;">RabbitMQ</a>, SQL Server, .NET) are recognized within the Technical Reference Model.</td>
+                        <td>VA OIT TRM Authorized</td>
+                        <td><span class="tag-pass">Authorized</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ══════════════════ COMPARATIVE MATRIX (SLIDE 6) ══════════════════ -->
+        <h2>How iDash Compares</h2>
+        <div class="card">
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th>Capability</th>
+                        <th style="color:var(--muted-docs);">Paper &amp; 1D Barcodes</th>
+                        <th style="color:var(--muted-docs);">Legacy Thick-Client ERP</th>
+                        <th style="color:var(--accent-docs);">iDash iDash Hub</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Audit Speed</strong></td>
+                        <td>10–20 items per minute (one-by-one barcode scans)</td>
+                        <td>Slow, manual line-by-line keyboard entry</td>
+                        <td><strong style="color:var(--accent-docs);">1,000+ items per minute (wave scan)</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Locating Missing Items</strong></td>
+                        <td><span class="tag-fail">Manual search</span> Walk room to room searching shelves</td>
+                        <td><span class="tag-fail">Report only</span> Flags item as missing with no direction</td>
+                        <td><span class="tag-pass">Geiger counter</span> Live acoustic &amp; signal meter guidance</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Workstation Setup</strong></td>
+                        <td>Paper forms and clipboards</td>
+                        <td><span class="tag-fail">Heavy install</span> Client software pushed to every PC</td>
+                        <td><span class="tag-pass">Zero install</span> Open web browser and start working</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Basements &amp; Dead Zones</strong></td>
+                        <td><span class="tag-fail">Paper notes</span> Handwritten notes re-typed later</td>
+                        <td><span class="tag-fail">Crashes</span> App freezes when Wi-Fi signal drops</td>
+                        <td><span class="tag-pass">Batch mode</span> Scans offline and syncs automatically</td>
+                    </tr>
+                    <tr>
+                        <td><strong>User Experience</strong></td>
+                        <td>Clunky keypad scanners</td>
+                        <td>Complex nested menus and visual bloat</td>
+                        <td><span class="tag-pass">Simple tiles</span> Clean dashboard tailored to user role</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tag Printing</strong></td>
+                        <td>Standalone PC station and manual software</td>
+                        <td>Disconnected batch export jobs</td>
+                        <td><span class="tag-pass">1-Click print</span> Direct browser print &amp; encode with preview</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ══════════════════ EXECUTIVE TAKEAWAY (SLIDE 7) ══════════════════ -->
+        <div class="card" style="border-left: 6px solid var(--accent-docs); background: color-mix(in srgb, var(--accent-docs), transparent 94%);">
+            <h3 style="margin-top:0; color:var(--text-docs);">Executive Takeaway</h3>
+            <ul class="slide-bullets" style="font-size:14px; line-height:1.6; margin-bottom:18px;">
+                <li><strong>For Field Teams:</strong> Replaces weeks of manual barcode audits with rapid RFID room sweeps and acoustic item locating.</li>
+                <li><strong>For Security &amp; ISOs:</strong> Zero workstation agents, 100% on-premises execution, strict role separation, and clean open-source licensing.</li>
+                <li><strong>For IT &amp; OIT:</strong> Standard IIS and SQL Server deployment with zero PC installations, zero maintenance tickets, and non-blocking database queries.</li>
+            </ul>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <a href="../index.aspx" class="chip" style="background:var(--accent-docs); color:#fff; padding:8px 20px; font-size:13px; text-decoration:none;">
+                    Open iDash
+                </a>
+                <a href="va_system_architecture.html" class="chip" style="background:var(--chip); border:1px solid var(--line-docs); color:var(--text-docs); padding:8px 20px; font-size:13px; text-decoration:none;">
+                    View Technical Architecture
+                </a>
+                <a href="va_security_readiness_review.html" class="chip" style="background:var(--chip); border:1px solid var(--line-docs); color:var(--text-docs); padding:8px 20px; font-size:13px; text-decoration:none;">
+                    View Security Review
+                </a>
+                <a href="va_commercial_licensing_sbom.html" class="chip" style="background:var(--chip); border:1px solid var(--line-docs); color:var(--text-docs); padding:8px 20px; font-size:13px; text-decoration:none;">
+                    View SBOM &amp; TRM Details
+                </a>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

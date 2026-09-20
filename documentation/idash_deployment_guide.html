@@ -1,0 +1,548 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>IDASH DEPLOYMENT GUIDE &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<div class="wrap">
+    <a href="index.aspx">&larr; Back to Documentation Hub</a><br/><br/>
+
+    <div class="card">
+        <h1>&#128640; iDash Complete Deployment Guide</h1>
+        <p style="font-size:16px;margin:0;">
+            This is the step-by-step technical playbook for recreating the iDash portal on a new Windows Server.
+            It assumes the engineer has basic experience with IIS, SQL Server Management Studio (SSMS), and Windows Task Scheduler.
+        </p>
+        <div class="info">
+            <strong>Prerequisites:</strong> Windows Server (2016+), IIS with ASP.NET 4.8 enabled, and SQL Server (or Express) with the <code>iDash</code> database. The database can be either restored from an existing <code>.mdf</code> / <code>.bak</code>, or a completely fresh installation (new DB) which can be seeded using iDash's built-in ingestion tools.
+        </div>
+        <div class="alert-green" style="margin-top:14px;">
+            <strong>&#9889; Shortcut:</strong> After completing Steps 1&ndash;2 (file copy and IIS setup), the
+            <strong>Site Configuration</strong> page (<code>va_site_config.aspx</code>) provides a graphical form
+            to complete Steps 3&ndash;4 without manually editing <code>web.config</code>. It writes changes directly
+            and includes a built-in deployment checklist. Navigate to
+            <code>http://localhost/iDash/va_site_config.aspx</code> after first boot.
+        </div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="step">
+        <div class="num">1</div>
+        <div class="step-body">
+            <h3 style="margin-top:0;">File System Placement &amp; Directory Scaffolding</h3>
+            <p>iDash operates out of the web root, but relies on several external directories for logging, print spooling, and file drop-offs.</p>
+            <ol>
+                <li>Copy the entire <code>iDash</code> folder into your web root: <code>C:\inetpub\wwwroot\iDash\iDash</code>.</li>
+                <li>Ensure the <code>IIS_IUSRS</code> group has <strong>Read &amp; Execute</strong> permissions on this folder, and <strong>Write</strong> permissions on the following subdirectories:
+                    <ul>
+                        <li><code>iDash/App_Data/</code> &mdash; user account storage (<code>idash_users.json</code>)</li>
+                        <li><code>iDash/config/</code> &mdash; email recipients and report automation settings (JSON files)</li>
+                        <li><code>iDash/logs/</code> &mdash; login audit trail (<code>login_audit.jsonl</code>) and application-level log output</li>
+                        <li><code>iDash/uploads/incoming/</code> &mdash; customer/employee file uploads via the Downloads &amp; Uploads page</li>
+                    </ul>
+                </li>
+                <li>Create the following essential external folders on the server:
+                    <ul>
+                        <li><code>C:\VA_RFID\ennx_live\saved\auto\</code> (For automated and manual ENNX exports)</li>
+                        <li><code>C:\inetpub\wwwroot\iDash\autoload\</code> (The drop folder for <code>.bak</code> or <code>.sql</code> sync files)</li>
+                        <li><code>C:\Logs\</code> (For Serilog diagnostic output)</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step">
+        <div class="num">2</div>
+        <div class="step-body">
+            <h3 style="margin-top:0;">IIS Application Configuration</h3>
+            <p>iDash requires a specific IIS configuration. Each item below corresponds to a real requirement in <code>web.config</code> or in the IIS server setup. Missing any of these is the most common cause of deployment failures.</p>
+
+            <h4>2a. Install Required Windows Features</h4>
+            <p>Run in an elevated PowerShell (or use <strong>Server Manager &rarr; Add Roles and Features</strong>):</p>
+            <pre>Install-WindowsFeature Web-Server, Web-Asp-Net45, Web-ISAPI-Ext, Web-ISAPI-Filter, Web-Default-Doc, Web-Static-Content, Web-Http-Errors, Web-Http-Logging, Web-Stat-Compression, Web-Filtering</pre>
+            <p>The critical role is <code>Web-Asp-Net45</code> (ASP.NET 4.8). Without it, all <code>.aspx</code> pages return <strong>HTTP 500.21</strong> or <strong>HTTP 404</strong>.</p>
+
+            <h4>2b. Create the Application Pool</h4>
+            <ol>
+                <li>In IIS Manager, create a new Application Pool named <code>iDash</code> (or reuse an existing one).</li>
+                <li>Set <strong>.NET CLR Version</strong> to <code>v4.0</code>.</li>
+                <li>Set <strong>Managed Pipeline Mode</strong> to <strong>Integrated</strong>.</li>
+                <li>Under <strong>Advanced Settings &rarr; Process Model &rarr; Identity</strong>, set to <code>ApplicationPoolIdentity</code> (default) or a dedicated service account. Ensure this account has write access to the subdirectories listed in Step 1.</li>
+                <li>Set <strong>Start Mode</strong> to <code>AlwaysRunning</code> if you need background auto-update tasks to wake without a browser hit (optional but recommended).</li>
+            </ol>
+
+            <h4>2c. Create the Web Application</h4>
+            <ol>
+                <li>Right-click <strong>Default Web Site</strong> (or your site) &rarr; <strong>Add Application</strong>.</li>
+                <li>Set Alias to <code>iDash</code>, Physical Path to <code>C:\inetpub\wwwroot\iDash\iDash</code>.</li>
+                <li>Assign to the pool created in 2b.</li>
+            </ol>
+            <div class="warn">
+                <strong>&#9888; Do NOT just add a Virtual Directory.</strong> iDash must be an <strong>Application</strong> (not a virtual directory) so IIS loads its own <code>web.config</code>.
+            </div>
+
+            <h4>2d. Install the .NET Core Hosting Bundle (for the iDash REST API)</h4>
+            <p>The <code>web.config</code> contains an <code>aspNetCore</code> handler that routes <code>/api/*</code> to
+            <code>iDash.Web.dll</code>. This requires the <strong>.NET Core Hosting Bundle</strong> to be installed on the server.
+            Without it IIS returns <strong>HTTP 500.19</strong> or <strong>HTTP 500.0 - ANCM In-Process Handler Load Failure</strong>.</p>
+            <pre>winget install Microsoft.DotNet.HostingBundle</pre>
+            <p>After installing, run <code>iisreset</code> from an elevated command prompt.</p>
+            <div class="info">
+                <strong>Note:</strong> If you do not use the iDash REST API (i.e., <code>UseRestApi</code> is <code>false</code> in <code>web.config</code>), remove or comment out the <code>&lt;aspNetCore&gt;</code> element and the <code>aspNetCore</code> handler from <code>web.config</code> to avoid requiring the hosting bundle.
+            </div>
+
+            <h4>2e. Handler Registration &mdash; The Dual-Pipeline Setup</h4>
+            <p>The <code>web.config</code> registers two handlers inside <code>&lt;system.webServer&gt;&lt;handlers&gt;</code>:</p>
+            <table>
+                <tr><th>Handler Name</th><th>Path</th><th>Module</th><th>Purpose</th></tr>
+                <tr>
+                    <td><code>ASPClassic</code></td>
+                    <td><code>*.aspx</code></td>
+                    <td><code>IsapiModule</code> via <code>aspnet_isapi.dll</code></td>
+                    <td>All iDash <code>.aspx</code> pages (ASP.NET 4.8 WebForms)</td>
+                </tr>
+                <tr>
+                    <td><code>aspNetCore</code></td>
+                    <td><code>/api/*</code></td>
+                    <td><code>AspNetCoreModuleV2</code></td>
+                    <td>iDash REST API (<code>iDash.Web.dll</code>)</td>
+                </tr>
+            </table>
+            <div class="warn">
+                <strong>&#9888; classicMode preCondition:</strong> The <code>ASPClassic</code> handler has <code>preCondition="classicMode,runtimeVersionv4.0,bitness64"</code>. Despite the name, this works in Integrated pipeline &mdash; the <code>classicMode</code> preCondition here refers to the ISAPI integration mode, not the IIS pipeline mode. Do <strong>not</strong> change the Application Pool to Classic mode.
+            </div>
+
+            <h4>2f. machineKey &mdash; Required for ViewState Stability</h4>
+            <p>The <code>web.config</code> includes a static <code>&lt;machineKey&gt;</code>. This prevents the
+            <strong>"Validation of ViewState MAC failed"</strong> error that occurs when the application pool
+            recycles and regenerates a new runtime key (which invalidates all in-flight form submissions).</p>
+            <p>The key is already set in the deployed <code>web.config</code>. If you rebuild <code>web.config</code>
+            from scratch, generate new keys using:
+            <a href="https://www.allkeysgenerator.com/Random/ASP-Net-MachineKey-Generator.aspx" target="_blank">ASP.NET MachineKey Generator</a>
+            or PowerShell:</p>
+            <pre>(New-Object System.Security.Cryptography.RNGCryptoServiceProvider).GetBytes($b = [byte[]]::new(64)); [Convert]::ToBase64String($b)</pre>
+
+            <h4>2g. Request Size Limits</h4>
+            <p>iDash handles large file uploads (database files, data CSVs). The <code>web.config</code> sets limits at two levels:</p>
+            <table>
+                <tr><th>Setting</th><th>Location</th><th>Value</th><th>Covers</th></tr>
+                <tr><td><code>maxRequestLength</code></td><td><code>&lt;httpRuntime&gt;</code></td><td>1 GB (1048576 KB)</td><td>ASP.NET request body cap</td></tr>
+                <tr><td><code>maxAllowedContentLength</code></td><td><code>&lt;requestLimits&gt;</code></td><td>1 GB (1073741824 bytes)</td><td>IIS kernel-level cap</td></tr>
+                <tr><td><code>executionTimeout</code></td><td><code>&lt;httpRuntime&gt;</code></td><td>900 seconds</td><td>Max time for a single request</td></tr>
+            </table>
+            <p>These are global defaults. <code>va_data_import.aspx</code> has its own tighter override (50 MB, 600s) because it processes 47K-row data files rather than full database backups.</p>
+
+            <h4>2h. Per-Page RequestValidation Overrides</h4>
+            <p>Two pages bypass the global <code>requestValidationMode="4.0"</code> setting via <code>&lt;location&gt;</code> blocks:</p>
+            <ul>
+                <li><code>va_autodbupdate.aspx</code> &mdash; uses <code>requestValidationMode="2.0"</code> so that raw SQL code containing <code>&lt;</code> and <code>&gt;</code> characters can be saved without ASP.NET throwing a <strong>"A potentially dangerous Request.Form value was detected"</strong> error.</li>
+                <li><code>va_data_import.aspx</code> &mdash; has an elevated <code>maxRequestLength</code> (50 MB) and <code>maxAllowedContentLength</code> for large data file uploads.</li>
+            </ul>
+            <p>These <code>&lt;location&gt;</code> blocks are already present in the deployed <code>web.config</code>. If you re-create <code>web.config</code> manually, these must be included or those pages will error.</p>
+
+            <h4>2i. MIME Type Addition</h4>
+            <p>The <code>web.config</code> adds the <code>.avif</code> MIME type (<code>image/avif</code>) under <code>&lt;staticContent&gt;</code>. IIS does not include this by default. Without it, any <code>.avif</code> image assets return <strong>HTTP 404</strong>.</p>
+
+            <h4>2j. JSON AJAX Payload Size</h4>
+            <p><code>maxJsonLength</code> is set to <code>2147483644</code> (max int) in <code>&lt;system.web.extensions&gt;</code>. Without this, ScriptManager-driven AJAX calls that return large datasets (asset tables, report data) throw a <strong>"JSON serialization exceeded maxJsonLength"</strong> exception visible only in the browser console.</p>
+        </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step">
+        <div class="num">3</div>
+        <div class="step-body">
+            <h3 style="margin-top:0;">Web.config &amp; Environment Configuration</h3>
+            <p>
+                You must point the application to the new local database, SMTP relay, and API credentials.
+                <strong>The recommended way is to use the <a href="../va_site_config.aspx">Site Configuration</a> page</strong>
+                (<code>va_site_config.aspx</code>), which provides a form-based UI for all of these settings.
+                Alternatively, you can edit <code>web.config</code> directly.
+            </p>
+
+            <h4>3a. Database Connection</h4>
+            <p>Under <code>&lt;connectionStrings&gt;</code>, update the <code>iDash</code> connection string:</p>
+            <pre>Data Source=.\sqlexpress;Database=iDash;User ID=idashadmin;Password=idashadmin;Encrypt=False;TrustServerCertificate=True;Connect Timeout=30</pre>
+            <p>Change <code>Data Source</code> to your SQL Server instance, <code>User ID</code> and <code>Password</code> to your SQL credentials.</p>
+
+            <h4>3b. API / OAuth Credentials</h4>
+            <div class="warn" style="margin-bottom:14px;">
+                <strong>&#9888; Read these values FROM iDash BEFORE you fill them in here.</strong><br/>
+                The <code>iDash_ClientId</code> and <code>iDash_ClientSecret</code> are not values
+                you choose for iDash &mdash; they are values that the iDash API server already has, stored in
+                the <code>dbo.applicationsetting</code> table. iDash must be configured to <em>match</em> them.<br/><br/>
+                To retrieve them, run this on the iDash SQL Server:
+                <pre style="margin:8px 0 0; padding:10px; border-radius:6px; font-size:12px;">USE [idash];
+SELECT webclientid, webclientsecret FROM dbo.applicationsetting;</pre>
+                Copy the returned values into the fields below.
+                If the table has never been customized, the defaults are
+                <code>idash.web</code> / <code>901564A5-E7FE-42CB-B10D-61EF6A8F3654</code>
+                &mdash; but <strong>always verify directly</strong>, never assume defaults.
+                See <a href="va_network_guidelines.html#sec-oauth">Network Guidelines &mdash; Section 7</a>
+                for the full credential setup guide including how to change them.
+            </div>
+            <p>Under <code>&lt;appSettings&gt;</code>, update the following keys:</p>
+            <table>
+                <tr><th>Key</th><th>Example Value</th><th>Purpose</th></tr>
+                <tr><td><code>iDash_ApiBase</code></td><td><code>http://localhost/api</code></td><td>REST API base URL</td></tr>
+                <tr><td><code>iDash_TokenUrl</code></td><td><code>http://localhost/connect/token</code></td><td>OAuth 2.0 token endpoint</td></tr>
+                <tr><td><code>iDash_ClientId</code></td><td><code>idash.web</code> <em>(read from DB)</em></td><td>OAuth client ID (must match <code>webclientid</code> in iDash DB)</td></tr>
+                <tr><td><code>iDash_ClientSecret</code></td><td><em>(read from DB)</em></td><td>OAuth client secret (must match <code>webclientsecret</code> in iDash DB)</td></tr>
+            </table>
+
+            <h4>3c. Email / SMTP Settings</h4>
+            <p>These keys control how iDash sends automated reports and admin alerts:</p>
+            <table>
+                <tr><th>Key</th><th>Example Value</th><th>Purpose</th></tr>
+                <tr><td><code>SMTP_Host</code></td><td><code>smtp.office365.com</code></td><td>SMTP server hostname</td></tr>
+                <tr><td><code>SMTP_Port</code></td><td><code>587</code></td><td>SMTP port (usually 587 for TLS)</td></tr>
+                <tr><td><code>SMTP_User</code></td><td><code>visn5@id-integration.com</code></td><td>SMTP authentication username</td></tr>
+                <tr><td><code>SMTP_Password</code></td><td>(account password)</td><td>SMTP authentication password</td></tr>
+                <tr><td><code>SMTP_FromEmail</code></td><td><code>visn5@id-integration.com</code></td><td>Sender email address</td></tr>
+                <tr><td><code>SMTP_FromName</code></td><td><code>iDash Reports</code></td><td>Sender display name</td></tr>
+            </table>
+
+            <div class="warn">
+                <strong>&#9888; Do NOT store email recipients in web.config.</strong>
+                Email recipients are stored separately in <code>config/email_recipients.json</code> and managed
+                through the <strong>Report Automation</strong> UI (<code>va_report_automation.aspx</code>).
+                Writing to <code>web.config</code> at runtime triggers an IIS application pool recycle which
+                destroys all active user sessions.
+                See <a href="va_email_recipient_storage.html">Email Recipient Storage</a> for details.
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step">
+        <div class="num">4</div>
+        <div class="step-body">
+            <h3 style="margin-top:0;">Migrating External State (Users, Configs &amp; Recipients)</h3>
+            <p>iDash uses JSON files outside the SQL database to manage users, email recipients, and report settings. Moving the SQL database alone will NOT move these.</p>
+
+            <table>
+                <tr><th>File</th><th>Purpose</th><th>What Happens If Missing</th></tr>
+                <tr>
+                    <td><code>App_Data/idash_users.json</code></td>
+                    <td>All portal user accounts, passwords (SHA-256), roles, site permissions, and tile access</td>
+                    <td>A default <code>idashadmin</code> account is auto-created. All other users are lost.</td>
+                </tr>
+                <tr>
+                    <td><code>config/email_recipients.json</code></td>
+                    <td>Global email recipient list for automated reports and admin alerts</td>
+                    <td>Auto-migrated from <code>web.config</code> <code>EmailRecipients</code> key on first access (one-time). If neither exists, no recipients are configured.</td>
+                </tr>
+                <tr>
+                    <td><code>config/report_automation.json</code></td>
+                    <td>Report automation settings: enable/disable, scheduled time, subject format, Excel field selections</td>
+                    <td>Defaults are used (enabled, 19:00, standard fields).</td>
+                </tr>
+                <tr>
+                    <td><code>print_mapping_config.json</code></td>
+                    <td>Maps tag type strings (e.g., <code>IQ350</code>) to BarTender template IDs for the web UI print buttons</td>
+                    <td>Print buttons will have no template mapping and will fail silently.</td>
+                </tr>
+                <tr>
+                    <td><code>logs/login_audit.jsonl</code></td>
+                    <td>Login audit trail &mdash; every sign-in attempt (success/failure) with timestamp, username, IP, and role</td>
+                    <td>Auto-created on first login. No history will be available until a user signs in. Auto-trims at 90 days or 5,000 entries.</td>
+                </tr>
+                <tr>
+                    <td><code>uploads/incoming/</code></td>
+                    <td>Customer and employee file uploads submitted through the Downloads &amp; Uploads page</td>
+                    <td>Upload section still works but files will fail to save if the directory does not exist or lacks write permissions.</td>
+                </tr>
+            </table>
+
+            <div class="warn">
+                <strong>Important:</strong> The IIS AppPool identity (<code>IIS_IUSRS</code>) must have <strong>write permissions</strong>
+                to <code>App_Data/</code>, <code>config/</code>, <code>logs/</code>, and <code>uploads/incoming/</code>, as the web portal reads and writes these files directly during normal operation.
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step">
+        <div class="num">5</div>
+        <div class="step-body">
+            <h3 style="margin-top:0;">One-Time Company Setup SQL</h3>
+            <p>
+                Each site needs a company record in the database so that imported assets map to the correct facility.
+                The <strong>Site Configuration</strong> page (<code>va_site_config.aspx</code>) includes a built-in
+                SQL executor for this &mdash; enter the station number and site name, then click Execute.
+            </p>
+            <p>Alternatively, run in SSMS:</p>
+            <pre>USE [iDash];
+IF NOT EXISTS (SELECT 1 FROM dbo.company WHERE SUBSTRING(name,1,3) = '649')
+    INSERT INTO dbo.company (name) VALUES ('649 San Diego');</pre>
+            <p>Replace <code>649</code> and <code>San Diego</code> with the actual 3-digit station number and site name. This is safe to re-run &mdash; uses <code>IF NOT EXISTS</code>.</p>
+        </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step">
+        <div class="num">6</div>
+        <div class="step-body">
+            <h3 style="margin-top:0;">Print Server Bypass Spooler Setup</h3>
+            <p>iDash does not use the legacy iDash Print Server Service. It uses a standalone PowerShell spooler to avoid Session 0 BarTender crashes.</p>
+            <div class="info" style="margin-bottom:14px;">
+                <strong>&#128193; Spooler Location:</strong> All spooler files are stored <em>inside</em> the iDash deployment under
+                <code>iDash\printing\</code> &mdash; i.e., <code>C:\inetpub\wwwroot\iDash\printing\</code>.
+                This keeps everything in one deployment package (no separate folder to create or migrate).
+                Files present: <code>Run_Bypass_Spooler.ps1</code>, <code>printer_routing.json</code>, and all <code>*.btw</code> BarTender templates.
+            </div>
+            <div class="warn" style="margin-bottom:14px;">
+                <strong>&#9888; Web Root Security Note:</strong> Because <code>printing\</code> is inside the IIS web root,
+                IIS <em>could</em> serve <code>Run_Bypass_Spooler.ps1</code> as a plain text download if a browser requests it directly.
+                IIS does <strong>not</strong> execute <code>.ps1</code> files &mdash; there is no code execution risk.
+                However, to prevent the script source from being viewable, add a <code>web.config</code> deny rule
+                in the <code>printing\</code> folder, or ensure the VA network firewall restricts direct web access to the server.
+                The <code>.btw</code> files are proprietary BarTender binaries and are not a concern.
+            </div>
+            <ol>
+                <li>The spooler files are already in place at <code>C:\inetpub\wwwroot\iDash\printing\</code> as part of the iDash deployment. No separate copy step is needed.</li>
+                <li>Edit <code>printer_routing.json</code> in <code>iDash\printing\</code>. You must change the target printer names to match the <strong>exact Windows Printer names</strong> installed on this specific server (e.g., "Zebra ZD420"). The spooler reads this file from <code>$PSScriptRoot</code> on every print job, so it must stay co-located with the script.</li>
+                <li>Open <strong>Task Scheduler</strong> and create a new task named <code>iDash Print Spooler</code>.</li>
+                <li>Configure the task to run: <strong>"Run only when user is logged on"</strong> (Critical: Do NOT check "Run whether user is logged on or not", as this places it in Session 0 and BarTender will hang).</li>
+                <li>Set the Trigger to <strong>"At log on"</strong> for a dedicated service account.</li>
+                <li>Set the Action to Start a Program: <code>powershell.exe</code> with arguments: <code>-WindowStyle Hidden -File "C:\inetpub\wwwroot\iDash\printing\Run_Bypass_Spooler.ps1"</code>.</li>
+                <li>Start the task manually to begin polling the SQL <code>printjob</code> table.</li>
+            </ol>
+            <div class="info">
+                <strong>Full details:</strong> See the <a href="print_server_setup.html">Print Server Setup &amp; Troubleshooting Guide</a> for expanded BarTender SDK, template, and hardware routing configuration.
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 7 -->
+    <div class="step">
+        <div class="num">7</div>
+        <div class="step-body">
+            <h3 style="margin-top:0;">Background Automations (Task Scheduler)</h3>
+            <p>iDash uses Windows Task Scheduler to drive background jobs without relying on IIS application pool sleep cycles.</p>
+            <ol>
+                <li><strong>Auto Database Update:</strong> Creates a task to ingest <code>.bak</code> files dropped by field servers.<br/>
+                    <em>Action:</em> <code>powershell.exe -Command "Invoke-WebRequest -Uri 'http://localhost/iDash/va_autodbupdate.aspx'"</code><br/>
+                    <em>Trigger:</em> Daily, repeated every 10 minutes indefinitely.
+                </li>
+                <li><strong>Daily Report Automation:</strong> Generates and emails the daily ENNX and Excel reports to all recipients in <code>config/email_recipients.json</code>.<br/>
+                    <em>Action:</em> <code>powershell.exe -Command "Invoke-WebRequest -Uri 'http://localhost/iDash/va_report_automator_runner.aspx'"</code><br/>
+                    <em>Trigger:</em> Daily at 19:00 (7:00 PM), or whatever time is configured in <code>config/report_automation.json</code>.
+                </li>
+            </ol>
+            <div class="warn">
+                <strong>Note:</strong> The report automation schedule time shown in the <code>va_report_automation.aspx</code> UI
+                is informational only. The actual execution is triggered by Windows Task Scheduler, so the trigger
+                time must match what you configured above.
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 8 -->
+    <div class="step">
+        <div class="num">8</div>
+        <div class="step-body">
+            <h3 style="margin-top:0;">Database Seeding / Importing Initial Data</h3>
+            <p>If you are deploying against a completely fresh, empty iDash database, you must seed it with initial site data before running reports. iDash provides built-in tools for this, allowing you to bypass SQL Server Management Studio.</p>
+            <ol>
+                <li><strong>Two-Pass Import Workflow:</strong> Open <code>va_dbupdate.aspx</code> (Manual DB Update tile in Admin Tools). Upload the VA data file. Run the <strong>Enrichment script (Pass 1)</strong> then <strong>Standard script (Pass 2)</strong>. See the <a href="va_dbupdate.html">DB Update documentation</a> for the full procedure.</li>
+                <li><strong>Auto Database Update (Field Sync):</strong> The <code>va_autodbupdate.aspx</code> engine polls the <code>C:\inetpub\wwwroot\iDash\autoload\</code> directory for large <code>.bak</code> backup files or SQL scripts dropped by remote field servers. It safely restores these databases into temporary SQL tables, merges the new assets, and cleans up after itself.</li>
+                <li><em>For detailed technical specifics on the cross-database merge architecture and the background polling scripts used, read the <a href="va_field_sync.html">Field Server Sync Documentation</a>.</em></li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- STEP 9 -->
+    <div class="step">
+        <div class="num">9</div>
+        <div class="step-body">
+            <h3 style="margin-top:0;">First Boot &amp; Verification</h3>
+            <p>Verify the deployment is successful through the iDash diagnostic tools.</p>
+            <ol>
+                <li>Navigate to <code>http://localhost/iDash/index.aspx</code> in your browser.</li>
+                <li>Log in using the <code>idashadmin</code> account (or whichever admin account was migrated in Step 4).</li>
+                <li>Verify the status bar at the top of the Hub shows <strong style="color:#10b981;">&#9679; CONNECTED</strong> and the correct server machine name. If it shows DISCONNECTED, your database connection string (Step 3a) is wrong.</li>
+                <li>Open the <strong>IIS &amp; App Log Analyzer</strong> tile (<code>va_log_viewer.aspx</code>) and check for SQL connection failures or authentication errors. Switch to the <strong>Login Audit</strong> tab to confirm your login was recorded.</li>
+                <li>Open the <strong>User Management</strong> tile (<code>va_user_management.aspx</code>) and verify the Login History card at the bottom shows your sign-in entry &mdash; this confirms <code>logs/login_audit.jsonl</code> is writable.</li>
+                <li>Open the <strong>Print Mapping</strong> tile (<code>va_print_mapping.aspx</code>) and confirm your <code>print_mapping_config.json</code> loaded successfully.</li>
+                <li>Open the <strong>Report Automation</strong> tile (<code>va_report_automation.aspx</code>) and verify the email recipient list is populated. Try adding and removing a test recipient to confirm the JSON file storage is working (you should <strong>not</strong> be logged out).</li>
+                <li>Open the <strong>Downloads &amp; Uploads</strong> tile (<code>va_downloads.aspx</code>) and try uploading a small test file to confirm the <code>uploads/incoming/</code> directory has write permissions.</li>
+                <li>Navigate to the <strong>Site Configuration</strong> page (<code>va_site_config.aspx</code>) and review the built-in deployment checklist at the bottom of the page to confirm each item is complete.</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- QUICK REFERENCE -->
+    <div class="card" style="margin-top:40px;">
+        <h2>&#128203; Configuration File Quick Reference</h2>
+        <p>iDash uses two types of configuration storage. Understanding which is which prevents session-loss bugs.</p>
+        <table>
+            <tr><th>Storage</th><th>Files</th><th>When It Changes</th><th>App Pool Recycle?</th></tr>
+            <tr>
+                <td><strong>web.config</strong></td>
+                <td>Database connection, API credentials, SMTP server, feature flags</td>
+                <td>Once per deployment (initial setup)</td>
+                <td style="color:#ef4444;"><strong>YES</strong> &mdash; all sessions destroyed</td>
+            </tr>
+            <tr>
+                <td><strong>config/*.json</strong></td>
+                <td><code>email_recipients.json</code>, <code>report_automation.json</code></td>
+                <td>Frequently (users add/remove recipients, toggle reports)</td>
+                <td style="color:#10b981;"><strong>NO</strong> &mdash; sessions preserved</td>
+            </tr>
+            <tr>
+                <td><strong>App_Data/*.json</strong></td>
+                <td><code>idash_users.json</code></td>
+                <td>When users are created/edited/deleted</td>
+                <td style="color:#10b981;"><strong>NO</strong> &mdash; sessions preserved</td>
+            </tr>
+            <tr>
+                <td><strong>Root JSON configs</strong></td>
+                <td><code>print_mapping_config.json</code></td>
+                <td>When print template mappings are modified</td>
+                <td style="color:#10b981;"><strong>NO</strong> &mdash; sessions preserved</td>
+            </tr>
+            <tr>
+                <td><strong>logs/*.jsonl</strong></td>
+                <td><code>login_audit.jsonl</code></td>
+                <td>Every login attempt (auto-trimmed at 90d / 5K entries)</td>
+                <td style="color:#10b981;"><strong>NO</strong> &mdash; sessions preserved</td>
+            </tr>
+            <tr>
+                <td><strong>uploads/incoming/</strong></td>
+                <td>Customer-uploaded files + <code>.info.txt</code> manifests</td>
+                <td>When customers/employees upload files via Downloads &amp; Uploads page</td>
+                <td style="color:#10b981;"><strong>NO</strong> &mdash; sessions preserved</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- WEBSERIAL HTTPS NOTE -->
+    <div class="card" style="margin-top:20px;">
+        <h2>&#128268; WebSerial USB Scanning &mdash; HTTPS Prerequisite</h2>
+        <p>
+            As of 07/25/2026, six iDash scanning modules support the <strong>WebSerial API</strong> for connecting USB RFID readers
+            and serial devices directly through the browser (Chrome or Edge). This feature <strong>requires HTTPS</strong>
+            (or <code>localhost</code>) to function.
+        </p>
+        <table>
+            <tr><th>Module</th><th>File</th></tr>
+            <tr><td>ENNX Live Scan</td><td><code>va_ennx_live_scan.aspx</code></td></tr>
+            <tr><td>EIL Live Scan</td><td><code>va_eil_live_scan.aspx</code></td></tr>
+            <tr><td>Universal ENNX Creator</td><td><code>va_universal_ennx.aspx</code></td></tr>
+            <tr><td>VA Site Inventory</td><td><code>va_inventory.aspx</code></td></tr>
+            <tr><td>RFID Asset Locator <strong>(07/24/2026)</strong></td><td><code>va_rfid_locator.aspx</code> &mdash; client-side JS, continuous serial connection, tag normalization applied to serial reads identically to keyboard reads</td></tr>
+            <tr><td>Fixed Reader Config <em>(API mgmt, no WebSerial)</em></td><td><code>va_reader_config.aspx</code> &mdash; manages fixed readers via REST API; WebSerial does not apply</td></tr>
+        </table>
+        <div class="alert alert-warn">
+            <strong>&#9888; Deployment Impact:</strong> If the IIS site is configured with HTTP only (no SSL binding),
+            the WebSerial section on each page will display &quot;Not Available&quot; &mdash; but all other scanning
+            (keyboard, DataWedge) continues to work normally. To enable WebSerial, configure an HTTPS binding with a
+            valid SSL certificate in IIS Site Bindings.
+        </div>
+        <p>
+            <strong>Why:</strong> WebSerial eliminates the need for DataWedge or COM-port relay middleware by letting the browser
+            talk directly to USB serial ports. It requires no software installation on client machines. The HTTPS requirement is a
+            browser security policy (not an iDash requirement) &mdash; Chromium enforces it for all &quot;powerful features&quot;
+            that access hardware.
+        </p>
+    </div>
+
+    <!-- IIS TROUBLESHOOTING -->
+    <div class="card" style="margin-top:20px;">
+        <h2>&#128736; IIS Troubleshooting Quick Reference</h2>
+        <p>These are the most common IIS errors seen during iDash deployments and their fixes.</p>
+        <table>
+            <tr><th>Error</th><th>Cause</th><th>Fix</th></tr>
+            <tr>
+                <td><strong>HTTP 500.21</strong> &mdash; Handler &quot;ASPClassic&quot; has a bad module</td>
+                <td>ASP.NET 4.8 is not registered with IIS</td>
+                <td>Run: <code>%windir%\Microsoft.NET\Framework64\v4.0.30319\aspnet_regiis.exe -ir</code> then <code>iisreset</code></td>
+            </tr>
+            <tr>
+                <td><strong>HTTP 500.19</strong> &mdash; Cannot read configuration file</td>
+                <td>Missing IIS module (often <code>AspNetCoreModuleV2</code> not installed)</td>
+                <td>Install the .NET Core Hosting Bundle (Step 2d) then <code>iisreset</code></td>
+            </tr>
+            <tr>
+                <td><strong>HTTP 500.0 &mdash; ANCM In-Process Handler Load Failure</strong></td>
+                <td>Hosting Bundle installed but wrong version, or <code>iDash.Web.dll</code> missing</td>
+                <td>Verify the .NET runtime version the DLL targets. Check <code>stdoutLogFile</code> in <code>web.config</code> (<code>logs\stdout*.log</code>) for the exact error.</td>
+            </tr>
+            <tr>
+                <td><strong>HTTP 404</strong> on <code>.aspx</code> pages</td>
+                <td>iDash was added as a Virtual Directory instead of an Application, OR <code>Web-Asp-Net45</code> feature not installed</td>
+                <td>Convert Virtual Directory to Application in IIS Manager. Run <code>Install-WindowsFeature Web-Asp-Net45</code>.</td>
+            </tr>
+            <tr>
+                <td><strong>Validation of ViewState MAC failed</strong></td>
+                <td>App pool recycled and regenerated machine keys mid-session, or <code>&lt;machineKey&gt;</code> is missing from <code>web.config</code></td>
+                <td>Ensure the static <code>&lt;machineKey&gt;</code> block is present in <code>web.config</code> (Step 2f).</td>
+            </tr>
+            <tr>
+                <td><strong>A potentially dangerous Request.Form value was detected</strong> on <code>va_autodbupdate.aspx</code></td>
+                <td>The <code>&lt;location&gt;</code> override for <code>requestValidationMode="2.0"</code> is missing</td>
+                <td>Add the <code>&lt;location path="va_autodbupdate.aspx"&gt;</code> block from the reference <code>web.config</code> (Step 2h).</td>
+            </tr>
+            <tr>
+                <td><strong>Maximum request length exceeded</strong> on large uploads</td>
+                <td>Either <code>maxRequestLength</code> (ASP.NET) or <code>maxAllowedContentLength</code> (IIS) is at default (4 MB / 30 MB)</td>
+                <td>Set both in <code>web.config</code> as documented in Step 2g. Both must be increased &mdash; one alone is not enough.</td>
+            </tr>
+            <tr>
+                <td><strong>JSON serialization exceeded maxJsonLength</strong></td>
+                <td>The <code>&lt;jsonSerialization maxJsonLength&gt;</code> element is missing from <code>&lt;system.web.extensions&gt;</code></td>
+                <td>Add the <code>&lt;system.web.extensions&gt;</code> block from the reference <code>web.config</code> (Step 2j).</td>
+            </tr>
+            <tr>
+                <td><strong>HTTP 404 on <code>.avif</code> images</strong></td>
+                <td>IIS does not include <code>.avif</code> in its default MIME map</td>
+                <td>Add <code>&lt;mimeMap fileExtension=".avif" mimeType="image/avif" /&gt;</code> under <code>&lt;staticContent&gt;</code> (Step 2i).</td>
+            </tr>
+            <tr>
+                <td><strong>Access denied / 500 writing to App_Data, config, logs</strong></td>
+                <td>IIS AppPool identity lacks Write permission on those subdirectories</td>
+                <td>Grant <code>IIS_IUSRS</code> (or the AppPool identity) Write access to <code>App_Data\</code>, <code>config\</code>, <code>logs\</code>, <code>uploads\incoming\</code> (Step 1).</td>
+            </tr>
+            <tr>
+                <td><strong>WebSerial shows &quot;Not Available&quot;</strong></td>
+                <td>Site is HTTP-only; WebSerial requires HTTPS (or localhost)</td>
+                <td>Add an HTTPS binding with a valid SSL certificate in IIS Site Bindings (Step WebSerial section above).</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ADDITIONAL RESOURCES -->
+    <div class="card" style="margin-top:20px;">
+        <h2>&#128218; Additional Resources</h2>
+        <ul>
+            <li><a href="va_site_config.html">Site Configuration Documentation</a> &mdash; The one-stop deployment wizard with built-in checklist (Step 3 UI alternative).</li>
+            <li><a href="va_db_restore.html">Database Restore Tool</a> &mdash; Restoring a backup to a new server, including automatic schema migration for older backups.</li>
+            <li><a href="va_database_setup.html">Database Setup Guide</a> &mdash; Creating the schema from scratch if you don't have a .bak file.</li>
+            <li><a href="va_system_architecture.html">External State &amp; Dependencies Map</a> &mdash; A deeper dive into all files that live outside the SQL database.</li>
+            <li><a href="print_server_setup.html">Print Server Setup Guide</a> &mdash; Expanded troubleshooting for BarTender issues in Step 6.</li>
+            <li><a href="va_email_recipient_storage.html">Email Recipient Storage</a> &mdash; Technical details on the JSON-based email storage and why it replaced web.config.</li>
+            <li><a href="va_dbupdate.html">Database Update Workflows</a> &mdash; Full two-pass import workflow documentation for Step 8.</li>
+            <li><a href="idash_architecture_rationale.html">Architecture Rationale &amp; Developer Handoff</a> &mdash; The complete technical map of how iDash works.</li>
+        </ul>
+    </div>
+
+    <div style="margin-top:20px;"><a href="index.aspx">&larr; Back to Documentation Hub</a></div>
+    <footer>
+        <span style="display:block; margin-top:20px; padding-top:15px; border-top:1px solid var(--line); font-size:12px; color:var(--muted-docs);">
+            &copy; 2026 ID Integration Inc. &mdash; iDash Deployment Guide &mdash; Last updated July 27, 2026
+        </span>
+    </footer>
+</div>
+</body>
+</html>

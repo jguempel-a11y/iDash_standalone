@@ -1,0 +1,257 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA EIL LIVE SCAN &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .badge-db   { background: color-mix(in srgb, var(--accent2-docs), transparent 85%); color: var(--accent2-docs); border: 1px solid color-mix(in srgb, var(--accent2-docs), transparent 70%); }
+        .badge-file { background: color-mix(in srgb, var(--accent-docs), transparent 85%); color: var(--accent-docs); border: 1px solid color-mix(in srgb, var(--accent-docs), transparent 70%); }
+        .badge-new  { background: color-mix(in srgb, var(--warn-docs), transparent 85%); color: var(--warn-docs); border: 1px solid color-mix(in srgb, var(--warn-docs), transparent 70%); }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <a href="index.aspx">&larr; Back to Documentation Hub</a><br/><br/>
+
+    <div class="card">
+        <h1>&#128203; EIL Live Scan &amp; Reconciliation</h1>
+        <div style="margin-bottom:12px;">
+            <span class="badge badge-db">Database Connected</span>
+            <span class="badge badge-file">Disk / Email / SQL Export</span>
+            <span class="badge badge-new">Updated 09/09/2026</span>
+        </div>
+        <p style="font-size:16px;margin:0;">
+            The <strong>EIL Live Scan</strong> module is a structured accountability reconciliation tool. It loads a targeted
+            Equipment Item List (EIL) filtered by VA station and CMR number into an interactive scanning grid. Technicians
+            physically walk through the facility, scan equipment barcodes against the live checklist, and the system simultaneously
+            builds a fully formatted ENNX export payload ready for government system submission.
+        </p>
+    </div>
+
+    <!-- CHANGELOG -->
+    <div class="card">
+        <h2>Changelog</h2>
+        <h3>09/09/2026 &mdash; Tab Title Fix, Alphanumeric Validation &amp; Client Blob Download</h3>
+        <p>
+            Fixed browser tab title mismatch (was showing &quot;ENNX Live Scan&quot;), aligned barcode regex to allow alphanumeric suffixes across all VA sites, and added direct client-side Blob download.
+        </p>
+        <table>
+            <tr><th>Change</th><th>Detail</th></tr>
+            <tr>
+                <td><strong>Tab Title Fixed</strong></td>
+                <td>Changed HTML <code>&lt;title&gt;</code> from generic &quot;ENNX Live Scan&quot; to &quot;EIL Live Scan &amp; Reconciliation&quot; to eliminate confusion between the two distinct live scan tools.</td>
+            </tr>
+            <tr>
+                <td><strong>Client-Side Blob Download</strong></td>
+                <td>&quot;Download ENNX&quot; now downloads directly via an HTML5 Blob anchor, bypassing the server postback and protecting scans from offline loss.</td>
+            </tr>
+            <tr>
+                <td><strong>Alphanumeric Barcode Regex</strong></td>
+                <td>Updated regex to allow letter suffixes (e.g. <code>512 EE12345A</code>). Replaced silent cross-site drop with a non-blocking UI warning.</td>
+            </tr>
+        </table>
+
+        <h3>07/03/2026 &mdash; WebSerial USB RFID Reader Support</h3>
+        <p>
+            Added WebSerial API support. Users can now connect a USB-tethered RFID reader (or any serial device)
+            directly through Chrome or Edge without requiring DataWedge or a separate scanning application.
+        </p>
+        <table>
+            <tr><th>Change</th><th>Detail</th></tr>
+            <tr>
+                <td><strong>New: WebSerial section</strong></td>
+                <td>Collapsible panel at the bottom of the scan controls panel. Contains Open/Close Port buttons and live connection status. Collapsed by default.</td>
+            </tr>
+            <tr>
+                <td><strong>New: Serial read loop</strong></td>
+                <td>Opens a browser-selected serial port (115200 baud, 8N1, hardware flow control), buffers incoming data, splits on newlines, and feeds each line into the existing <code>handleScan()</code> function. All EIL reconciliation, EPC filtering, de-dupe, and location detection apply automatically.</td>
+            </tr>
+            <tr>
+                <td><strong>Fix: Focus stealing</strong></td>
+                <td>Updated auto-focus logic to respect the WebSerial section's expand/collapse and button elements.</td>
+            </tr>
+        </table>
+        <div class="alert alert-info">
+            <strong>&#8505; Prerequisite:</strong> WebSerial requires the page to be served over <strong>HTTPS</strong>
+            (or <code>localhost</code>). If the site is served over plain HTTP, the WebSerial section will display
+            &quot;Not Available&quot; but keyboard/DataWedge scanning continues normally.
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>EIL Scan vs. ENNX Live Scan &mdash; Key Difference</h2>
+        <table>
+            <tr><th>Feature</th><th>EIL Live Scan</th><th>ENNX Live Scan</th></tr>
+            <tr><td>Starting point</td><td>Specific CMR parts list from database</td><td>Open scan &mdash; no predefined list</td></tr>
+            <tr><td>Primary goal</td><td>Reconcile scanned items against known expected list</td><td>Capture all scanned assets in a session</td></tr>
+            <tr><td>Visual checklist</td><td>Yes &mdash; expected vs. found status per row</td><td>No predefined expected list</td></tr>
+            <tr><td>Site requirement</td><td>Station + CMR selection required</td><td>Station selection required</td></tr>
+            <tr><td>Best for</td><td>Targeted accountability audits per CMR</td><td>General inventory capture sweeps</td></tr>
+        </table>
+    </div>
+
+    <!-- SUPPORTED INPUT METHODS -->
+    <div class="card">
+        <h2>Supported Input Methods</h2>
+        <p>
+            EIL Live Scan accepts scan input via two methods. Both feed into the same <code>handleScan()</code>
+            function, so all EIL reconciliation, EPC filtering, de-dupe, and ENNX assembly logic applies identically
+            regardless of how the barcode data enters the page.
+        </p>
+        <table>
+            <tr><th>Method</th><th>How It Works</th><th>Requirements</th></tr>
+            <tr>
+                <td><strong>Keyboard / DataWedge</strong></td>
+                <td>Scans are typed or injected into the scan input field by a keyboard-wedge device (e.g., Zebra TC53 / RFD40 with DataWedge). ENTER key triggers processing. The page auto-focuses the scan input to capture DataWedge keystroke output.</td>
+                <td>Any browser. DataWedge configured with ENTER suffix.</td>
+            </tr>
+            <tr>
+                <td><strong>WebSerial (USB)</strong></td>
+                <td>A USB RFID reader or serial device is connected directly to the browser via the WebSerial API. Data is buffered and split on newline characters. Each complete line is passed to the same <code>handleScan()</code> function used by keyboard input.</td>
+                <td>Chrome or Edge. HTTPS (or localhost). Expand the &quot;WebSerial&quot; section and click &quot;Select/Open Serial Port&quot;.</td>
+            </tr>
+        </table>
+
+        <h3>Why WebSerial?</h3>
+        <p>
+            Traditional barcode/RFID scanning in a browser requires a middleware layer (DataWedge, COM-port relay app, or a
+            native mobile app) to translate serial data into keyboard events. <strong>WebSerial eliminates that middleware</strong>
+            by letting the browser talk directly to the USB serial port. This means:
+        </p>
+        <ul>
+            <li><strong>No extra software:</strong> No DataWedge profile, no COM-port relay, no native app installation.</li>
+            <li><strong>Any USB serial device:</strong> Works with any reader that outputs newline-terminated data over a serial/USB-serial connection.</li>
+            <li><strong>Zero configuration:</strong> The browser prompts the user to select their serial port &mdash; no driver setup, no port number guessing.</li>
+            <li><strong>Same scan pipeline:</strong> Data from the serial port flows through the exact same <code>handleScan()</code> function, so all EIL reconciliation, EPC filtering, de-dupe logic, and ENNX assembly apply automatically.</li>
+        </ul>
+
+        <h3>How WebSerial Works (Technical Flow)</h3>
+        <ol>
+            <li>User clicks <strong>&quot;Select/Open Serial Port&quot;</strong> inside the collapsible WebSerial panel.</li>
+            <li>The browser displays its native serial port picker dialog (a security requirement &mdash; no port is accessed without explicit user interaction).</li>
+            <li>Once a port is selected, JavaScript opens it with the parameters below and starts an asynchronous read loop.</li>
+            <li>Incoming bytes are decoded as UTF-8 and appended to a line buffer. When a newline (<code>\n</code>) is detected, the complete line is trimmed and passed to <code>handleScan()</code>.</li>
+            <li>The scan is processed identically to a keyboard scan &mdash; EIL reconciliation, EPC filtering, de-dupe, and ENNX assembly all apply.</li>
+            <li>The serial connection stays open until the user clicks <strong>&quot;Close Port&quot;</strong> or navigates away from the page.</li>
+        </ol>
+
+        <h3>WebSerial Port Configuration</h3>
+        <table>
+            <tr><th>Parameter</th><th>Value</th></tr>
+            <tr><td>Baud Rate</td><td><code>115200</code></td></tr>
+            <tr><td>Data Bits</td><td><code>8</code></td></tr>
+            <tr><td>Parity</td><td><code>None</code></td></tr>
+            <tr><td>Stop Bits</td><td><code>1</code></td></tr>
+            <tr><td>Flow Control</td><td><code>Hardware</code></td></tr>
+            <tr><td>Buffer Size</td><td><code>1024 bytes</code></td></tr>
+        </table>
+        <div class="alert alert-warn">
+            <strong>&#9888; Note:</strong> These serial parameters are currently hardcoded. If your reader uses different
+            settings (e.g., 9600 baud or no flow control), the code-behind will need to be updated.
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Step-by-Step User Workflow</h2>
+
+        <div class="step"><span class="num">1</span><div>
+            <strong>Select Site (Station):</strong> Choose the VA facility from the <strong>Site</strong> dropdown.
+            The station code (first 3 digits of the site name, e.g., <code>512</code>) filters all subsequent queries to that station's records.
+        </div></div>
+
+        <div class="step"><span class="num">2</span><div>
+            <strong>Select EIL / CMR:</strong> After selecting the site, the <strong>EIL</strong> dropdown auto-populates with all
+            distinct CMR numbers (<code>text8</code> field) for that station. Select the CMR you are reconciling &mdash; this defines
+            the expected set of equipment for the audit.
+        </div></div>
+
+        <div class="step"><span class="num">3</span><div>
+            <strong>Review the EIL Checklist Grid:</strong> The page renders a live grid of all assets tied to the selected CMR,
+            showing each asset's barcode, description, current location, and reconciliation status
+            (<span style="color:#10b981;">Found</span> / <span style="color:#f59e0b;">Not Yet Scanned</span>).
+        </div></div>
+
+        <div class="step"><span class="num">4</span><div>
+            <strong>Scan Equipment Barcodes:</strong> Focus the scan input field and use your barcode scanner. As each barcode
+            is matched against the EIL grid, its row immediately updates to <strong style="color:#10b981;">Found</strong> and the
+            item is appended to the ENNX payload in memory.
+        </div></div>
+
+        <div class="step"><span class="num">5</span><div>
+            <strong>Export the ENNX Report:</strong> When scanning is complete, choose your export method:
+            <ul style="margin-top:8px;">
+                <li><strong>Save to Session (SQL):</strong> Inserts the ENNX payload and metadata into <code>ennx_session</code> for audit trail.</li>
+                <li><strong>Save to Disk:</strong> Writes <code>.ennx.txt</code> to <code>C:\VA_RFID\ennx_live\saved\</code> on the server.</li>
+                <li><strong>Download:</strong> Triggers a browser download of the <code>.ennx.txt</code> file.</li>
+                <li><strong>Email:</strong> Sends the ENNX file as an attachment via the iDash <code>EmailHelper</code> service.</li>
+            </ul>
+        </div></div>
+
+        <div class="warn">
+            <strong>&#9888; Note:</strong> Barcodes scanned that do <em>not</em> exist in the selected CMR are still captured in the ENNX payload
+            and flagged as <em>extra items</em>. This supports discovery of misplaced or unregistered assets during an audit.
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Technical Architecture</h2>
+        <p>
+            On page load, <code>LoadCompanies()</code> populates the site dropdown from <code>dbo.company</code>.
+            When a site is selected, <code>LoadEIL()</code> runs a <code>SELECT DISTINCT a.text8</code> query joined
+            to <code>dbo.company</code> via <code>companyid</code>, restricting to the chosen station code.
+            Scan state is held in the hidden field <code>HidEnnx</code> &mdash; a JSON-encoded accumulator that grows
+            with each successful scan. On export, this value is decoded server-side and written to the chosen destination.
+        </p>
+        <table>
+            <tr><th>Component</th><th>File</th><th>Role</th></tr>
+            <tr><td>Frontend UI</td><td><code>va_eil_live_scan.aspx</code></td><td>Scan input, EIL grid, export buttons</td></tr>
+            <tr><td>Backend Logic</td><td><code>va_eil_live_scan.aspx.cs</code></td><td>EIL loading, session save, file write, email dispatch</td></tr>
+            <tr><td>Scan State</td><td>Hidden field <code>HidEnnx</code></td><td>Accumulates ENNX payload in client memory</td></tr>
+            <tr><td>Session Storage</td><td>SQL table <code>ennx_session</code></td><td>Persistent audit record of completed sessions</td></tr>
+            <tr><td>Disk Output</td><td><code>C:\VA_RFID\ennx_live\saved\</code></td><td>File system archive of ENNX exports</td></tr>
+            <tr><td>Email Service</td><td><code>EmailHelper</code> (App_Code)</td><td>SMTP attachment dispatch</td></tr>
+            <tr><td>WebSerial</td><td>JS <code>serialOpenClose()</code>, <code>serialClose()</code></td><td>USB serial port read loop, buffers data, feeds <code>handleScan()</code></td></tr>
+        </table>
+
+        <h3>Key Database Fields</h3>
+        <table>
+            <tr><th>DB Column</th><th>Meaning</th><th>Usage</th></tr>
+            <tr><td><code>text8</code></td><td>CMR Number</td><td>EIL dropdown population &amp; reconciliation key</td></tr>
+            <tr><td><code>name</code></td><td>EE Barcode</td><td>Matched against scanned input</td></tr>
+            <tr><td><code>description</code></td><td>Asset Description</td><td>Displayed in checklist grid</td></tr>
+            <tr><td><code>text6</code></td><td>Current Location (SP code)</td><td>Shown in grid; included in ENNX export</td></tr>
+            <tr><td><code>companyid</code></td><td>Site Link</td><td>Restricts records to selected station</td></tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Access &amp; Security</h2>
+        <div class="ok">
+            Access is controlled via the iDash tile-key model. Users must have the <code>scan_eil</code> tile key granted
+            in their <code>TileAccess</code> profile. See <a href="va_user_management.html">User Management</a> for details.
+        </div>
+        <p>
+            All SQL queries use parameterized <code>ADO.NET SqlParameter</code> commands to prevent injection. Exceptions are
+            caught and surfaced via <code>ShowMsg()</code> with sanitized messages only &mdash; raw SQL errors are never exposed to the browser.
+        </p>
+        <p>
+            The WebSerial feature requires explicit user interaction to grant the browser permission to access a serial port.
+            No serial ports are accessed automatically. The permission does not persist across sessions.
+        </p>
+    </div>
+
+    <div style="margin-top:20px;"><a href="index.aspx">&larr; Back to Documentation Hub</a></div>
+    <footer>
+        <span>&copy; 2026 ID Integration Inc. &mdash; iDash Documentation</span>
+        <span>iDash EIL Live Scan &mdash; Last updated 07/03/2026</span>
+    </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>VA ENNX &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <div class="container">
+        <h1>VA iDash - ENNX Export</h1>
+        <div style="margin-bottom: 30px; display: flex; align-items: center;">
+            <div style="margin-right: 15px; color:var(--muted-docs); font-size: 14px;">Integrations:</div>
+            
+            <span class='badge badge-db'>Database Connected</span>
+            <span class='badge' style='background:#7c3aed;color:#ede9fe;border:1px solid #a78bfa;'>Updated 2026-07-01</span>
+        </div>
+
+        <h2>Module Purpose</h2>
+        <p>Generates, previews, downloads, and emails ENNX text files for government system synchronization. Supports per-user, per-site, and date-range filtering to produce either individual technician payloads or a unified daily master file.</p>
+
+        <h2>Technical Operation</h2>
+        <p>The system renders the UI through <code>va_ennx.aspx</code> with a code-behind at <code>va_ennx.aspx.cs</code>. It queries <code>dbo.asset</code> directly (with a <code>LEFT JOIN</code> on <code>dbo.location</code> for location names) using parameterized ADO.NET commands. The Site and User dropdowns are populated dynamically on page load and on any date or site change, showing only records relevant to the selected time window.</p>
+
+        <h2>Global Master Export (ALL USERS Bypass)</h2>
+        <p>By default, the ENNX logic enforces strict user ownership mapping (matching <code>LASTMODIFIEDBY</code>) so technicians only generate payloads for assets they physically tagged.<br><br>The <b>-- ALL USERS --</b> option at the top of the User dropdown bypasses this filter and queries across all technicians for the selected date range and site &mdash; enabling administrators to build a single unified daily master payload without manually stitching together individual files.</p>
+
+        <h2>Date Ranges &amp; Dynamic Dropdown Scoping</h2>
+        <p><b>Date Ranges:</b> Fill out both <b>From Date</b> and <b>To Date</b> to span multiple days. Leave <b>To Date</b> empty for a single-day report.<br><br>
+        <b>Dynamic Scoping (updated 2026-04-13):</b> Changing either date field immediately triggers a postback that reloads both the <b>Site</b> and <b>User</b> dropdowns. Only sites and users that have actual scan activity within the specified date range are shown &mdash; the previous behavior of showing all activity from the last 30 days regardless of the date fields has been removed.<br><br>
+        <b>Site Filtration:</b> Selecting a site further narrows the User dropdown to only technicians who scanned at that station in that period. The ENNX data query also applies the site filter at the database level.</p>
+
+        <h2>OIT &amp; No-Data Items in Excel Export</h2>
+        <p>When the <b>Include OIT &amp; No-Data in Excel</b> checkbox is checked (default: checked), the Excel export
+           and email attachment include two additional sections after the main ENNX grid data:</p>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <tr style="border-bottom:2px solid var(--line-docs);">
+                <th style="padding:8px; text-align:left;">Section</th>
+                <th style="padding:8px; text-align:left;">Header Color</th>
+                <th style="padding:8px; text-align:left;">What It Contains</th>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line-docs);">
+                <td style="padding:8px;"><strong>&#9888; OIT Items Scanned</strong></td>
+                <td style="padding:8px;">Yellow (#FFF3CD)</td>
+                <td style="padding:8px;">Assets with CMR/EIL (<code>text8</code>) starting with <code>78</code>.
+                    These belong to a different VA installation and are excluded from the ENNX text output
+                    but tracked here for awareness.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--line-docs);">
+                <td style="padding:8px;"><strong>&#10006; No Data Items</strong></td>
+                <td style="padding:8px;">Red (#F8D7DA)</td>
+                <td style="padding:8px;">Assets scanned but not found in the database (description = <code>(Not Found in DB)</code>
+                    or <code>New Asset Found (Offline Sync)</code>). Created as stubs by TagTeam Scan when scanning
+                    barcodes with no matching DB record.</td>
+            </tr>
+        </table>
+        <p>Both sections query <code>dbo.asset</code> using the same date range and site filter as the main ENNX query.
+           The ENNX text preview is <strong>not affected</strong> &mdash; these sections appear only in the Excel file.
+           Uncheck the box to exclude them.</p>
+
+        <h3 style="margin-top:20px;">Preview Before Export</h3>
+        <p>Two dedicated preview buttons allow the team to inspect OIT and No-Data items <strong>before</strong>
+           generating the Excel file or emailing:</p>
+        <ul>
+            <li><strong style="color:#f59e0b;">Show OIT Assets</strong> &mdash; Queries and displays all OIT items
+                (CMR starting with 78) in a yellow-bordered preview panel. Shows asset name, description, CMR,
+                location, tag date, and user for each item.</li>
+            <li><strong style="color:#ef4444;">Show No Data Assets</strong> &mdash; Queries and displays all
+                No-Data items in a red-bordered preview panel. Shows asset name, description, location, tag date,
+                and user for each item.</li>
+        </ul>
+        <p>Preview panels appear inline on the page when clicked and can be reviewed alongside the main ENNX
+           text preview. The previews use the same date range and site filter as the main report.</p>
+
+        <h2>Source Architecture</h2>
+        <p>
+            Frontend: <code>va_ennx.aspx</code><br/>
+            Backend: <code>va_ennx.aspx.cs</code>
+        </p>
+
+        <h2>Change Log</h2>
+
+        <!-- 2026-07-01 -->
+        <div style="background:var(--chip);border:1px solid var(--line);border-radius:8px;padding:16px 20px;margin-top:12px;">
+            <div style="color:#10b981;font-weight:700;font-size:13px;margin-bottom:8px;">2026-07-01</div>
+            <ul style="display:block;padding-left:18px;list-style:disc;">
+                <li style="background:none;border:none;padding:4px 0;transform:none;"><strong>Critical Fix: <code>dbo.v_asset</code> &rarr; <code>dbo.asset</code></strong> &mdash; All four SQL queries (sites dropdown, users dropdown, CMR/EIL dropdown, and main ENNX data) were changed from querying the <code>v_asset</code> view to the <code>asset</code> table directly. The <code>v_asset</code> view uses INNER JOINs (on company, location, etc.) that filter out assets missing those foreign-key relationships. This caused assets marked as tagged in TagTeam Scan to <strong>not appear</strong> in the ENNX report. A <code>LEFT JOIN dbo.location</code> was added to the main query to preserve the location name column.</li>
+                <li style="background:none;border:none;padding:4px 0;transform:none;"><strong>Bug Fix: <code>AddWithValue</code> parameter typing</strong> &mdash; The <code>Run()</code> helper method was creating properly-typed <code>SqlParameter</code> objects (e.g., <code>SqlDbType.Date</code>) and then discarding them by passing values through <code>AddWithValue</code>, which re-infers types. Changed to clone the original parameters with their explicit types preserved. Also fixed null handling: <code>null</code> values now send <code>DBNull.Value</code> instead of empty string (which caused date conversion errors).</li>
+                <li style="background:none;border:none;padding:4px 0;transform:none;"><strong>Bug Fix: <code>WITH(NOLOCK)</code> removed</strong> &mdash; The main ENNX data query used <code>WITH(NOLOCK)</code> while the dropdown queries did not. Removed for consistency and to prevent potential issues on complex views.</li>
+                <li style="background:none;border:none;padding:4px 0;transform:none;"><strong>New Feature: OIT &amp; No-Data in Excel</strong> &mdash; New checkbox <strong>"Include OIT &amp; No-Data in Excel"</strong> (defaults checked). When enabled, the Excel export and email attachment include two extra sections: OIT items (CMR starts with 78) in a yellow-highlighted table, and No-Data items (assets not found in DB when scanned) in a red-highlighted table. These are Excel-only and do not affect the ENNX text preview or download.</li>
+                <li style="background:none;border:none;padding:4px 0;transform:none;"><strong>New Feature: OIT &amp; No-Data Preview Buttons</strong> &mdash; Two new buttons (<strong style="color:#f59e0b;">Show OIT Assets</strong> and <strong style="color:#ef4444;">Show No Data Assets</strong>) allow the team to preview these items inline on the page before generating the Excel report or emailing. Each opens a styled text preview panel showing asset name, description, CMR (for OIT), location, tag date, and user. Matches the same pattern used in TagTeam Scan.</li>
+                <li style="background:none;border:none;padding:4px 0;transform:none;"><strong>Diagnostic: empty result messaging</strong> &mdash; When "Build ENNX" returns zero rows, the page now shows a clear diagnostic message with the exact filter values used (date, site, user) to help troubleshoot.</li>
+                <li style="background:none;border:none;padding:4px 0;transform:none;"><strong>Connection string resilience</strong> &mdash; <code>ConnStr</code> now dynamically resolves the active connection string. Displays a clear error if the connection string is missing entirely.</li>
+            </ul>
+        </div>
+
+        <!-- 2026-04-13 -->
+        <div style="background:var(--chip);border:1px solid var(--line);border-radius:8px;padding:16px 20px;margin-top:12px;">
+            <div style="color:#10b981;font-weight:700;font-size:13px;margin-bottom:8px;">2026-04-13</div>
+            <ul style="display:block;padding-left:18px;list-style:disc;">
+                <li style="background:none;border:none;padding:4px 0;transform:none;">Site and User dropdowns now filter by the <strong>selected date range</strong> instead of a fixed 30-day lookback window.</li>
+                <li style="background:none;border:none;padding:4px 0;transform:none;"><code>TxtEnnxDate</code> and <code>TxtEnnxDateTo</code> now have <code>AutoPostBack="true"</code> &mdash; changing either date immediately refreshes both dropdowns.</li>
+                <li style="background:none;border:none;padding:4px 0;transform:none;">New <code>GetDateRange()</code> helper centralizes date parsing, defaulting to today when fields are blank.</li>
+                <li style="background:none;border:none;padding:4px 0;transform:none;">New <code>LoadSitesDropdown()</code> method separates site loading from user loading for independent refreshes.</li>
+                <li style="background:none;border:none;padding:4px 0;transform:none;">CMR/EIL dropdown also now scoped to the selected date range (was also previously hardcoded to &minus;30 days).</li>
+            </ul>
+        </div>
+
+        
+        <!-- ============================================================ -->
+        <!-- ENNX HISTORY PAGE - Updated 08/21/2026                       -->
+        <!-- ============================================================ -->
+        <h2 style="margin-top:40px;padding-top:20px;border-top:2px solid var(--accent-docs,var(--accent));">&#128202; ENNX History Page &mdash; Updates 08/21/2026</h2>
+        <p>The <code>ennxhistory.aspx</code> page shows a historical log of all ENNX scans. The following improvements were made:</p>
+        <ul>
+            <li>
+                <div style="color:#10b981;font-weight:bold;font-size:15px;">&#128203; Client-Side Column Sorting</div>
+                All columns in the history table are now sortable client-side (no postback). Smart type detection identifies numeric, date, and string columns automatically. Click a header to sort; click again to reverse.
+            </li>
+            <li>
+                <div style="color:#2ea8ff;font-weight:bold;font-size:15px;">&#127775; Redesigned Sticky Header</div>
+                Both <code>va_ennx.aspx</code> and <code>ennxhistory.aspx</code> received a professional sticky gradient header with consolidated navigation pills and centralized branding. Navigation pills are visually aligned and properly spaced.
+            </li>
+            <li>
+                <div style="color:#f59e0b;font-weight:bold;font-size:15px;">&#9888; Portability Fix</div>
+                Removed <code>UserManager.FilterCompanyDropdown()</code> dependency from <code>va_prime_excel_tracking_sheet.aspx</code> which caused a <code>CS0117</code> compilation error when copied to systems where that method does not exist. Replaced with inline company filtering using <code>GetAllowedCompanyIds()</code>.
+            </li>
+        </ul>
+        <h3>Tagged vs. Not Tagged &mdash; Field Clarification</h3>
+        <p>The <strong>Tagged</strong> status uses <code>a.text18 = '1'</code> across all ENNX and Asset Master reports. <strong>This is not the same as <code>rfidtag</code></strong>. Any report or filter that needs to distinguish tagged assets must use <code>text18</code>.</p>
+<div style="margin-top: 50px; padding-top: 20px; border-top:1px solid var(--line);">
+            <a href="index.aspx" style="font-weight: 600;">&larr; Back to Main Documentation</a>
+        </div>
+    </div>
+    <footer style="margin-top: 40px; padding: 20px; border-top:1px solid var(--line); font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 12px; color:var(--muted-docs); display: flex; justify-content: space-between; align-items: center; background:var(--bg); max-width: 1400px; margin-left: auto; margin-right: auto;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
+        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
+        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <span>&copy; 2026 ID Integration Inc.</span>
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 14px; opacity: 0.9;">
+    </div>
+</footer>
+</body>
+</html>
+

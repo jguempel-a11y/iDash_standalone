@@ -1,0 +1,762 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Fixed Reader Setup &amp; Configuration Guide &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .step-num { display:inline-block;width:28px;height:28px;line-height:28px;text-align:center;background:var(--accent,#3B82F6);color:#fff;border-radius:50%;font-weight:700;font-size:13px;margin-right:8px; }
+        .cmd { background:var(--code-bg,#1e293b);color:#e2e8f0;padding:14px 18px;border-radius:10px;font-family:'Cascadia Code','Fira Code',monospace;font-size:13px;overflow-x:auto;margin:10px 0;line-height:1.6; }
+        .cmd .comment { color:#94a3b8; }
+        .field-table td:first-child { font-weight:600;white-space:nowrap; }
+        img.screenshot { max-width:100%;border:1px solid var(--line,#e2e8f0);border-radius:10px;margin:12px 0;box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+        .toc { background:var(--card-bg,#f8fafc);border:1px solid var(--line,#e2e8f0);border-radius:12px;padding:20px 28px;margin:16px 0; }
+        .toc ol { margin:0;padding-left:20px; }
+        .toc li { margin:4px 0; }
+        .db-col { font-family:'Cascadia Code','Fira Code',monospace;font-size:12px;background:rgba(59,130,246,0.1);padding:2px 6px;border-radius:4px; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+
+    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
+    <br/><br/>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- TITLE -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h1>&#128225; Fixed Reader Setup &amp; Configuration Guide</h1>
+        <p style="font-size:16px;">
+            Complete end-to-end guide for deploying a Zebra FX9600 (or compatible) fixed RFID reader with
+            iDash and iDash. Covers hardware setup, MQTT broker configuration, antenna registration,
+            database alignment, and the Asset Master "Fixed Reader Report" feature.
+        </p>
+        <div class="alert-green">
+            <strong>&#9989; Deployment Validated</strong><br/>
+            This guide was written during a live production deployment of a Zebra FX9600 (FX9600_F78C85)
+            on 2026-08-25. All steps have been tested and verified.
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- TABLE OF CONTENTS -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>Table of Contents</h2>
+        <div class="toc">
+            <ol>
+                <li><a href="#prereqs">Prerequisites &amp; Architecture</a></li>
+                <li><a href="#hardware">Hardware Setup (Zebra FX9600)</a></li>
+                <li><a href="#mqtt">MQTT Broker Configuration</a></li>
+                <li><a href="#reader-config">Reader Registration in iDash / iDash</a></li>
+                <li><a href="#antenna">Antenna Configuration</a></li>
+                <li><a href="#db-alignment">Database Alignment (Company, Tags, vtagid)</a></li>
+                <li><a href="#verification">Verification &amp; Troubleshooting</a></li>
+                <li><a href="#asset-master">Asset Master &mdash; Fixed Reader Report</a></li>
+                <li><a href="#db-reference">Database Column Reference</a></li>
+                <li><a href="#dev-notes">Developer Notes</a></li>
+                <li><a href="#lessons">Lessons Learned</a></li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 1. PREREQUISITES -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="card" id="prereqs">
+        <h2>1. Prerequisites &amp; Architecture</h2>
+
+        <h3>System Architecture</h3>
+        <p>The fixed reader data flow follows this pipeline:</p>
+        <div class="cmd">
+            <span class="comment">FX9600 Reader</span> &rarr; <span class="comment">MQTT (port 1883 TCP)</span> &rarr; <span class="comment">RabbitMQ 4.3.5</span> &rarr; <span class="comment">iDash AntennaLocationService</span> &rarr; <span class="comment">SQL Database</span> &rarr; <span class="comment">iDash Dashboard</span>
+        </div>
+        <div class="alert-green">
+            <strong>&#9989; Updated Aug 2026:</strong> Fixed reader tag data now routes through <strong>RabbitMQ 4.3.5</strong> on port 1883 (TCP).
+            The iDash embedded broker (port 8883/TLS) remains in use for label printing only.
+            See <a href="va_rabbitmq_setup.html" style="color:#10b981;">RabbitMQ Setup Guide</a> for installation details.
+        </div>
+
+        <h3>Required Components</h3>
+        <table>
+            <thead><tr><th>Component</th><th>Version / Requirement</th><th>Notes</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Zebra FX9600</strong></td><td>Firmware 3.x+</td><td>Or any MQTT-capable RFID reader</td></tr>
+                <tr><td><strong>iDash Web Portal</strong></td><td>Current (Kestrel-hosted)</td><td>Includes built-in MQTT broker on port 8883 (used for printing only)</td></tr>
+                <tr><td><strong>RabbitMQ</strong></td><td>4.3.5 + Erlang 27.3.4</td><td>MQTT broker for fixed reader tag data on port 1883 (TCP). <a href="va_rabbitmq_setup.html">Setup Guide</a></td></tr>
+                <tr><td><strong>SQL Server Express</strong></td><td>2019+</td><td>Local instance <code>.\sqlexpress</code></td></tr>
+                <tr><td><strong>TLS Certificate</strong></td><td>PFX format</td><td>Used by iDash broker (port 8883) for printing. Not needed for RabbitMQ on 1883.</td></tr>
+                <tr><td><strong>Network</strong></td><td>Port 1883 open</td><td>Firewall must allow MQTT/TCP between reader and server. See <a href="va_rabbitmq_setup.html#sec-firewall">firewall requirements</a>.</td></tr>
+            </tbody>
+        </table>
+
+        <div class="alert-blue">
+            <strong>&#9432; No Redis Required</strong><br/>
+            iDash can function without Redis. Set <code>"UseRedis": false</code> in
+            <code>appsettings.json</code>. Tag lookups will fall back to direct SQL queries via
+            <code>IAssetRepository.GetByVTagId()</code>. Redis is an optional performance cache, not a dependency.
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 2. HARDWARE SETUP -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="card" id="hardware">
+        <h2>2. Hardware Setup (Zebra FX9600)</h2>
+
+        <h3><span class="step-num">1</span> Physical Installation</h3>
+        <ul>
+            <li>Mount the FX9600 in the target location (doorway, corridor, supply room)</li>
+            <li>Connect antennas to ports 1&ndash;4 (or 1&ndash;8 for 8-port models)</li>
+            <li>Connect Ethernet cable to your facility network</li>
+            <li>Power on and wait for boot (LED indicators should stabilize)</li>
+        </ul>
+
+        <h3><span class="step-num">2</span> Access the Reader Web UI</h3>
+        <p>
+            Navigate to the reader's IP address in a browser: <code>https://192.168.x.x</code>
+        </p>
+        <img src="images/fr_fx9600_webui.png" alt="FX9600 Web Interface" class="screenshot" />
+        <p>Default credentials: <code>admin</code> / <code>change</code> (change on first login).</p>
+
+        <h3><span class="step-num">3</span> Configure the MQTT Endpoint</h3>
+        <p>Navigate to <strong>Communication &rarr; Endpoints</strong> in the FX9600 web UI.</p>
+
+        <h4>Connection Tab</h4>
+        <img src="images/fr_mqtt_endpoint_connection.png" alt="MQTT Endpoint Connection Settings" class="screenshot" />
+        <table class="field-table">
+            <thead><tr><th>Field</th><th>Value</th><th>Notes</th></tr></thead>
+            <tbody>
+                <tr><td>Endpoint Type</td><td>MQTT</td><td>&mdash;</td></tr>
+                <tr><td>Server Address</td><td><code>192.168.x.x</code> (iDash server IP)</td><td>The IP of your iDash/iDash server</td></tr>
+                <tr><td>Port</td><td><code>8883</code></td><td>TLS port. iDash MQTT broker listens here.</td></tr>
+                <tr><td>Security</td><td>TLS</td><td>Must match iDash cert configuration</td></tr>
+                <tr><td>Username</td><td><code>fx9600_f78c85</code></td><td>Must match iDash reader username (lowercase, underscores OK, NO SPACES)</td></tr>
+                <tr><td>Password</td><td><code>FX9600mqtt2026!</code></td><td>Must match iDash reader password</td></tr>
+            </tbody>
+        </table>
+
+        <div class="alert-amber">
+            <strong>&#9888; Critical Naming Rules</strong><br/>
+            <ul style="margin:4px 0 0 0;">
+                <li><strong>NO SPACES</strong> in usernames, topic names, or reader names</li>
+                <li>Use underscores (<code>_</code>) to separate words</li>
+                <li>The username on the FX9600 must <em>exactly</em> match the username stored in the iDash <code>reader</code> table</li>
+                <li>The reader name (<code>physicalid</code>) should match the FX9600's identity string</li>
+            </ul>
+        </div>
+
+        <h4>Topics Tab</h4>
+        <img src="images/fr_mqtt_endpoint_topics1.png" alt="MQTT Endpoint Topics" class="screenshot" />
+        <table class="field-table">
+            <thead><tr><th>Topic</th><th>Value</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td>Control Topic</td><td><code>gateway/cmd/FX9600_F78C85</code></td><td>iDash sends commands to the reader on this topic. Must match <span class="db-col">mqttcontroltopic</span> in the <code>reader</code> table.</td></tr>
+                <tr><td>Tag Data Topic</td><td><code>gateway/data/FX9600_F78C85</code></td><td>Reader publishes tag read events here</td></tr>
+                <tr><td>Management Topic</td><td><code>gateway/mgmt/FX9600_F78C85</code></td><td>Heartbeat and status messages</td></tr>
+            </tbody>
+        </table>
+
+        <h3><span class="step-num">4</span> Enable Tag Reads</h3>
+        <p>
+            In the FX9600 web UI, go to <strong>Operation Mode</strong> and set the reader to <strong>Autonomous</strong>
+            or <strong>Inventory</strong> mode. Ensure at least one antenna port is enabled and set to an appropriate
+            power level for your deployment area.
+        </p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 3. MQTT BROKER -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="card" id="mqtt">
+        <h2>3. MQTT Broker Configuration</h2>
+
+        <h3>iDash Built-in MQTT Broker</h3>
+        <p>
+            iDash Web Portal includes a built-in MQTT broker that starts automatically with the Kestrel process.
+            It listens on port <strong>8883</strong> (TLS) using the certificate at:
+        </p>
+        <div class="cmd">c:\inetpub\wwwroot\iDash.WebClient\mycert.pfx</div>
+
+        <p>You can verify the broker is running by checking the log at startup:</p>
+        <div class="cmd">
+            <span class="comment"># Look for this line in C:\Logs\WebClient_log*.txt</span><br/>
+            Starting MQTT Server with encryption on port 8883 from PFX c:\...\mycert.pfx<br/>
+            MQTT Server start successful? True
+        </div>
+
+        <h3>TLS Certificate Requirements</h3>
+        <ul>
+            <li>Must be in PFX format</li>
+            <li>The FX9600 must trust the CA that signed the certificate, OR have certificate validation disabled (for self-signed certs, the FX9600 has a "Validate Certificate" checkbox in the MQTT endpoint settings)</li>
+            <li>If using a self-signed cert, uncheck "Validate Server Certificate" on the FX9600</li>
+        </ul>
+
+        <img src="images/fr_reader_config_certs.png" alt="Certificate configuration" class="screenshot" />
+
+        <h3>Verifying MQTT Connectivity</h3>
+        <p>After configuring the reader, verify the TCP connection is established:</p>
+        <div class="cmd">
+            <span class="comment"># PowerShell &mdash; check for MQTT connection from reader IP</span><br/>
+            netstat -ano | Select-String "8883.*192.168.4.47"<br/><br/>
+            <span class="comment"># Expected output:</span><br/>
+            TCP&nbsp;&nbsp;192.168.4.48:8883&nbsp;&nbsp;192.168.4.47:55030&nbsp;&nbsp;ESTABLISHED&nbsp;&nbsp;42428
+        </div>
+
+        <div class="alert-green">
+            <strong>&#9989; Heartbeat Verification</strong><br/>
+            Once connected, the FX9600 sends periodic heartbeat messages on the management topic.
+            The iDash <code>reader.lastseen</code> column updates with each heartbeat.
+            If <code>lastseen</code> is more than 5 minutes stale, the reader has disconnected.
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 4. READER REGISTRATION -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="card" id="reader-config">
+        <h2>4. Reader Registration in iDash / iDash</h2>
+
+        <h3>Automatic Registration</h3>
+        <p>
+            When a reader connects to the MQTT broker for the first time, iDash automatically creates a
+            <code>reader</code> record in the database. However, critical fields often need manual correction:
+        </p>
+
+        <h3>Reader Table Fields</h3>
+        <table class="field-table">
+            <thead><tr><th>Column</th><th>Required Value</th><th>Notes</th></tr></thead>
+            <tbody>
+                <tr><td><span class="db-col">name</span></td><td><code>FX9600_F78C85</code></td><td>Display name. Must match physical ID.</td></tr>
+                <tr><td><span class="db-col">physicalid</span></td><td><code>FX9600_F78C85</code></td><td>Reader's hardware identity. Used for MQTT topic routing.</td></tr>
+                <tr><td><span class="db-col">ipaddress</span></td><td><code>192.168.4.47</code></td><td>Reader's network IP. Can be <code>0.0.0.0</code> for MQTT-only readers.</td></tr>
+                <tr><td><span class="db-col">username</span></td><td><code>fx9600_f78c85</code></td><td>MQTT auth username. Must match FX9600 endpoint config. <strong>NO SPACES.</strong></td></tr>
+                <tr><td><span class="db-col">password</span></td><td><code>FX9600mqtt2026!</code></td><td>MQTT auth password. Must match FX9600 endpoint config.</td></tr>
+                <tr><td><span class="db-col">mqttcontroltopic</span></td><td><code>gateway/cmd/FX9600_F78C85</code></td><td>Control topic. Must match FX9600 topic config. <strong>NO SPACES.</strong></td></tr>
+                <tr><td><span class="db-col">companyid</span></td><td><code>7</code></td><td>Must match the company of the tags you want to detect. See <a href="#db-alignment">Section 6</a>.</td></tr>
+                <tr><td><span class="db-col">devicesettings</span></td><td><code>UpdateLocation=Yes|TagTimeout=60</code></td><td>Pipe-delimited. <code>UpdateLocation=Yes</code> enables location updates on tag reads.</td></tr>
+                <tr><td><span class="db-col">deviceregistered</span></td><td><code>1</code> (True)</td><td>Must be true for the reader to process tags.</td></tr>
+            </tbody>
+        </table>
+
+        <div class="alert-amber">
+            <strong>&#9888; Warning: iDash UI May Overwrite SQL Changes</strong><br/>
+            If you manually correct reader settings via SQL, do NOT subsequently edit the reader via the
+            iDash Angular UI (<code>http://localhost/#!/admin/editreader/21</code>). Saving from the UI
+            overwrites fields like <code>username</code>, <code>password</code>, and <code>devicesettings</code>
+            with whatever is in the form &mdash; which may be blank.
+        </div>
+
+        <h3>Manual SQL Registration</h3>
+        <p>If auto-registration doesn't populate fields correctly:</p>
+        <div class="cmd">
+            <span class="comment">-- Update reader with correct MQTT credentials and settings</span><br/>
+            UPDATE reader SET<br/>
+            &nbsp;&nbsp;name = 'FX9600_F78C85',<br/>
+            &nbsp;&nbsp;physicalid = 'FX9600_F78C85',<br/>
+            &nbsp;&nbsp;ipaddress = '192.168.4.47',<br/>
+            &nbsp;&nbsp;username = 'fx9600_f78c85',<br/>
+            &nbsp;&nbsp;password = 'FX9600mqtt2026!',<br/>
+            &nbsp;&nbsp;mqttcontroltopic = 'gateway/cmd/FX9600_F78C85',<br/>
+            &nbsp;&nbsp;devicesettings = 'UpdateLocation=Yes|TagTimeout=60',<br/>
+            &nbsp;&nbsp;deviceregistered = 1,<br/>
+            &nbsp;&nbsp;companyid = 7<br/>
+            WHERE id = 21;
+        </div>
+
+        <h3>iDash Reader Configuration Page</h3>
+        <p>
+            iDash provides a reader configuration UI at <code>va_reader_config.aspx</code>. This page can add
+            antennas, update reader names, and toggle Update Location on/off. For full documentation see
+            <a href="va_reader_config.html">Reader Configuration Documentation</a>.
+        </p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 5. ANTENNA CONFIGURATION -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="card" id="antenna">
+        <h2>5. Antenna Configuration</h2>
+
+        <p>
+            Each reader needs at least one antenna record in the <code>antenna</code> table. Without it,
+            iDash may not process tag reads from the reader.
+        </p>
+
+        <h3>Adding via iDash Reader Config UI</h3>
+        <p>Navigate to <code>va_reader_config.aspx</code> &rarr; click your reader &rarr; "Add Antenna".</p>
+
+        <h3>Adding via SQL</h3>
+        <div class="cmd">
+            <span class="comment">-- Insert antenna for reader ID 21</span><br/>
+            INSERT INTO antenna (readerid, antennanumber, locationid, companyid)<br/>
+            VALUES (21, 1, 40912, 7);<br/>
+            <br/>
+            <span class="comment">-- Verify</span><br/>
+            SELECT * FROM antenna WHERE readerid = 21;
+        </div>
+
+        <div class="alert-blue">
+            <strong>&#9432; Location &amp; Company Must Match</strong><br/>
+            The antenna's <code>companyid</code> and <code>locationid</code> must be consistent with
+            the reader's company and a valid location within that company. Mismatched company IDs will
+            prevent tag lookups from finding matching assets.
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 6. DATABASE ALIGNMENT -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="card" id="db-alignment">
+        <h2>6. Database Alignment (Company, Tags, vtagid)</h2>
+
+        <div class="alert-amber">
+            <strong>&#9888; This is the #1 cause of "Tag Not Provisioned" errors</strong><br/>
+            iDash tag lookups are scoped by company AND require the <span class="db-col">vtagid</span>
+            field to be populated. If either condition is not met, tags will be logged as "Tag Not Provisioned"
+            even though they exist in the <code>asset</code> table.
+        </div>
+
+        <h3>Company Alignment</h3>
+        <p>
+            The reader's <span class="db-col">companyid</span> must match the
+            <span class="db-col">companyid</span> of the assets you want it to detect.
+            iDash queries: <code>WHERE vtagid = @tag AND companyid = @readerCompany</code>
+        </p>
+        <p>
+            If your reader is in Company 7 but your tags are in Company 6, <strong>every tag read will fail</strong>.
+            Either move the reader to the correct company or move the test tags.
+        </p>
+
+        <h3>vtagid Population</h3>
+        <p>
+            iDash uses <span class="db-col">vtagid</span> &mdash; not <span class="db-col">rfidtag</span>
+            &mdash; as the primary lookup key for real-time tag processing. If your assets were imported
+            with only the <code>rfidtag</code> column populated, you must copy the values to <code>vtagid</code>:
+        </p>
+        <div class="cmd">
+            <span class="comment">-- Populate vtagid from rfidtag for all assets that need it</span><br/>
+            UPDATE asset<br/>
+            SET vtagid = rfidtag<br/>
+            WHERE rfidtag IS NOT NULL<br/>
+            &nbsp;&nbsp;AND rfidtag != ''<br/>
+            &nbsp;&nbsp;AND (vtagid IS NULL OR vtagid = '');<br/>
+            <br/>
+            <span class="comment">-- Result: Updated 536,080 assets</span>
+        </div>
+
+        <div class="alert-blue">
+            <strong>&#9432; Why both rfidtag and vtagid?</strong><br/>
+            <ul style="margin:4px 0 0 0;">
+                <li><span class="db-col">rfidtag</span> &mdash; The physical RFID tag's EPC value. Used for mobile scanning and display.</li>
+                <li><span class="db-col">vtagid</span> &mdash; The virtual tag ID used by the real-time event processing engine (BatchBeaconWorker). This is the lookup key for fixed reader observations.</li>
+            </ul>
+            For simple deployments (no BLE/GPS V-Tags), set <code>vtagid = rfidtag</code>.
+        </div>
+
+        <h3>iDash API Client Company Scope</h3>
+        <p>
+            The iDash API client (configured in <code>web.config</code> as <code>iDash_ClientId</code>)
+            is scoped to a specific company in the <code>clientapp</code> table. The API will only return
+            readers and assets belonging to that company.
+        </p>
+        <div class="cmd">
+            <span class="comment">-- Check API client company scope</span><br/>
+            SELECT clientid, companyid FROM clientapp WHERE clientid = 'v512';<br/>
+            <span class="comment">-- Result: companyid = 7</span>
+        </div>
+        <p>
+            If the reader is moved to a different company, the API client's <code>companyid</code> must also
+            be updated, or the iDash dashboard will show "No readers found."
+        </p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 7. VERIFICATION -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="card" id="verification">
+        <h2>7. Verification &amp; Troubleshooting</h2>
+
+        <h3>Step-by-Step Verification</h3>
+        <table>
+            <thead><tr><th>Step</th><th>How to Check</th><th>Expected Result</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>1. MQTT Connection</strong></td>
+                    <td><code>netstat -ano | Select-String "8883"</code></td>
+                    <td>ESTABLISHED connection from reader IP</td>
+                </tr>
+                <tr>
+                    <td><strong>2. Heartbeat</strong></td>
+                    <td><code>SELECT lastseen FROM reader WHERE id = 21</code></td>
+                    <td>Timestamp within last 2 minutes</td>
+                </tr>
+                <tr>
+                    <td><strong>3. Tag Reads Arriving</strong></td>
+                    <td>Check <code>C:\Logs\WebClient_log*.txt</code></td>
+                    <td>Lines with "Tag with ID" or successful processing</td>
+                </tr>
+                <tr>
+                    <td><strong>4. Asset Matching</strong></td>
+                    <td><code>SELECT lastobservedtime FROM asset WHERE vtagid = 'your-tag-epc'</code></td>
+                    <td>Recent timestamp (not NULL)</td>
+                </tr>
+                <tr>
+                    <td><strong>5. iDash Dashboard</strong></td>
+                    <td>Navigate to <code>va_fixed_reader.aspx</code></td>
+                    <td>Reader shows Online, tag observation counts > 0</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <img src="images/fr_dashboard_online.png" alt="Fixed Reader Dashboard showing reader online" class="screenshot" />
+
+        <h3>Common Errors &amp; Fixes</h3>
+
+        <h4>&#10060; "Tag with ID xxxxxx is not in the database"</h4>
+        <table>
+            <thead><tr><th>Cause</th><th>Fix</th></tr></thead>
+            <tbody>
+                <tr><td><span class="db-col">vtagid</span> is empty</td><td>Run <code>UPDATE asset SET vtagid = rfidtag WHERE ...</code></td></tr>
+                <tr><td>Company mismatch</td><td>Ensure reader and asset have the same <span class="db-col">companyid</span></td></tr>
+                <tr><td>Tag genuinely not in DB</td><td>Asset needs to be imported first. Tags like <code>E280117...</code> are factory EPCs that may not be provisioned.</td></tr>
+            </tbody>
+        </table>
+
+        <h4>&#10060; "Tag Not Provisioned" events in the <code>event</code> table</h4>
+        <p>Same root causes as above. Check the <span class="db-col">rfidtag</span> column in the event record, then query:</p>
+        <div class="cmd">
+            SELECT id, companyid, vtagid, rfidtag FROM asset<br/>
+            WHERE vtagid = 'THE_TAG_EPC' OR rfidtag = 'THE_TAG_EPC';
+        </div>
+
+        <h4>&#10060; Reader shows as "Offline" in iDash</h4>
+        <ol>
+            <li>Verify MQTT TCP connection: <code>netstat -ano | Select-String "8883"</code></li>
+            <li>Check reader <span class="db-col">lastseen</span> timestamp &mdash; if stale, the reader disconnected</li>
+            <li>Check <span class="db-col">connectionstatus</span> in the reader table</li>
+            <li>After an IIS restart, the MQTT broker restarts and the reader must reconnect (may take 1&ndash;2 minutes)</li>
+        </ol>
+
+        <h4>&#10060; Duplicate readers appearing</h4>
+        <p>
+            iDash auto-registers a new reader record each time an unrecognized device connects via MQTT.
+            After an IIS restart, if credentials/physicalid don't match the existing record, a duplicate is created.
+            Delete the duplicate via the API:
+        </p>
+        <div class="cmd">
+            <span class="comment"># Delete duplicate reader via iDash REST API</span><br/>
+            DELETE /api/readers/?ids=23&amp;madeBy=iDash
+        </div>
+
+        <h4>&#10060; LICENSE KEY ERROR</h4>
+        <p>
+            <code>"License only allows for 5 companies but 7 companies are found"</code> &mdash; this does not block
+            tag processing but will appear in logs. Contact InfiniDTech support for a license key update.
+        </p>
+
+        <h4>&#10060; After IIS Restart, no tags are being processed</h4>
+        <ol>
+            <li>Wait 60&ndash;90 seconds for the MQTT broker to restart and the reader to reconnect</li>
+            <li>Verify the MQTT TCP connection re-established</li>
+            <li>If the in-memory tag cache was invalidated, an IIS restart rebuilds it at startup</li>
+        </ol>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 8. ASSET MASTER INTEGRATION -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="card" id="asset-master">
+        <h2>8. Asset Master &mdash; Fixed Reader Report</h2>
+
+        <p>
+            The Asset Master page (<code>va_asset_master.aspx</code>) includes a <strong>&#128225; Fixed Reader Report</strong>
+            button that instantly filters the grid to show only assets observed by a fixed reader.
+        </p>
+
+        <h3>New Columns</h3>
+        <table>
+            <thead><tr><th>Column</th><th>DB Field</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>Last Observed</strong></td>
+                    <td><span class="db-col">lastobservedtime</span></td>
+                    <td>Date/time the fixed reader last detected this asset's RFID tag. Displays with full time (e.g., 08/25/2026 9:55 AM).</td>
+                </tr>
+                <tr>
+                    <td><strong>Observed Location</strong></td>
+                    <td><span class="db-col">lastobservedlocation</span></td>
+                    <td>The location name where the reader observed the asset (from the antenna's assigned location).</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>Both columns are hidden by default. Enable them via the COLUMNS bar or click the Fixed Reader Report button (which auto-enables them).</p>
+
+        <h3>Fixed Reader Report Toggle</h3>
+        <p>
+            The green <strong>&#128225; Fixed Reader Report</strong> button in the page header acts as a toggle:
+        </p>
+        <ul>
+            <li><strong>Click once</strong> &rarr; Activates the filter. Button turns amber with a checkmark. A time range dropdown appears.</li>
+            <li><strong>Click again</strong> &rarr; Deactivates the filter. Button returns to green. All assets shown.</li>
+        </ul>
+
+        <h3>Time Range Options</h3>
+        <table>
+            <thead><tr><th>Option</th><th>SQL Filter</th><th>Use Case</th></tr></thead>
+            <tbody>
+                <tr><td>Today</td><td><code>lastobservedtime >= CAST(GETDATE() AS DATE)</code></td><td>Current shift validation</td></tr>
+                <tr><td>This Week</td><td><code>lastobservedtime >= DATEADD(DAY, -7, GETDATE())</code></td><td>Weekly activity review</td></tr>
+                <tr><td>This Month</td><td><code>lastobservedtime >= DATEADD(MONTH, -1, GETDATE())</code></td><td>Monthly inventory report (default)</td></tr>
+                <tr><td>All Time</td><td><code>lastobservedtime IS NOT NULL</code></td><td>Complete history of all reader-observed assets</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Export &amp; Reporting</h3>
+        <p>
+            The Fixed Reader Report filter is fully integrated with Export Excel. When the filter is active:
+        </p>
+        <ul>
+            <li>Click <strong>&#128190; Export Excel</strong> &rarr; downloads an XLSX with only the filtered assets</li>
+            <li>The export respects all active filters (site, status, CMR, location) <em>plus</em> the fixed reader time range</li>
+            <li>The Last Observed and Observed Location columns are included in the export</li>
+        </ul>
+
+        <div class="alert-green">
+            <strong>&#9989; Inventory Tool Use Case</strong><br/>
+            Clients can use the Fixed Reader Report as a passive inventory tool:
+            <ol style="margin:4px 0 0 0;">
+                <li>Select a site from the company dropdown</li>
+                <li>Click &#128225; Fixed Reader Report</li>
+                <li>Select "This Month" (or preferred range)</li>
+                <li>Export to Excel for the ENNX inventory report</li>
+            </ol>
+            This creates an inventory report of all assets the fixed readers have observed, without requiring
+            manual scanning. Sort by "Last Observed" descending to see the most recently detected assets first.
+        </div>
+
+        <h3>Detail Panel Enhancement</h3>
+        <p>
+            When clicking on an asset row, the detail panel now includes a <strong>"Fixed Reader Observation"</strong>
+            section showing:
+        </p>
+        <ul>
+            <li><strong>Last Observed:</strong> Full date/time of the last reader detection</li>
+            <li><strong>Observed Location:</strong> The location where it was seen</li>
+        </ul>
+        <p>Assets never observed by a reader will show "Not observed" in gray.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 9. DATABASE REFERENCE -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="card" id="db-reference">
+        <h2>9. Database Column Reference</h2>
+
+        <h3>Asset Table &mdash; Fixed Reader Fields</h3>
+        <table>
+            <thead><tr><th>Column</th><th>Type</th><th>Set By</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><span class="db-col">lastobservedtime</span></td><td>datetimeoffset</td><td>BatchBeaconWorker</td><td>UTC timestamp of the most recent fixed reader observation</td></tr>
+                <tr><td><span class="db-col">lastobservedlocation</span></td><td>nvarchar</td><td>BatchBeaconWorker</td><td>Location name from the reader's antenna assignment</td></tr>
+                <tr><td><span class="db-col">readerid</span></td><td>int (FK)</td><td>BatchBeaconWorker</td><td>ID of the reader that last observed this asset</td></tr>
+                <tr><td><span class="db-col">vtagid</span></td><td>nvarchar</td><td>Import / SQL</td><td>Primary lookup key for real-time tag matching. Must equal <code>rfidtag</code> for simple deployments.</td></tr>
+                <tr><td><span class="db-col">rfidtag</span></td><td>nvarchar</td><td>Import</td><td>Physical RFID tag EPC value. Used for display and mobile scanning.</td></tr>
+                <tr><td><span class="db-col">vtaglastseen</span></td><td>datetimeoffset</td><td>BatchBeaconWorker</td><td>V-Tag last seen timestamp (similar to lastobservedtime but for V-Tag processing)</td></tr>
+                <tr><td><span class="db-col">vtaglastmoved</span></td><td>datetimeoffset</td><td>BatchBeaconWorker</td><td>Timestamp of last location change detected by a reader</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Reader Table</h3>
+        <table>
+            <thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><span class="db-col">id</span></td><td>int (PK)</td><td>Auto-increment reader ID</td></tr>
+                <tr><td><span class="db-col">name</span></td><td>nvarchar</td><td>Display name</td></tr>
+                <tr><td><span class="db-col">physicalid</span></td><td>nvarchar</td><td>Hardware identity string (from MQTT client ID)</td></tr>
+                <tr><td><span class="db-col">ipaddress</span></td><td>nvarchar</td><td>Network IP (can be 0.0.0.0 for MQTT-only)</td></tr>
+                <tr><td><span class="db-col">username</span></td><td>nvarchar</td><td>MQTT authentication username</td></tr>
+                <tr><td><span class="db-col">password</span></td><td>nvarchar</td><td>MQTT authentication password</td></tr>
+                <tr><td><span class="db-col">mqttcontroltopic</span></td><td>nvarchar</td><td>MQTT topic for sending commands to the reader</td></tr>
+                <tr><td><span class="db-col">companyid</span></td><td>int (FK)</td><td>Company scope &mdash; determines which assets the reader can match</td></tr>
+                <tr><td><span class="db-col">lastseen</span></td><td>datetimeoffset</td><td>Last heartbeat timestamp</td></tr>
+                <tr><td><span class="db-col">connectionstatus</span></td><td>nvarchar</td><td>"Connected" or "Disconnected"</td></tr>
+                <tr><td><span class="db-col">devicesettings</span></td><td>nvarchar</td><td>Pipe-delimited settings (e.g., <code>UpdateLocation=Yes|TagTimeout=60</code>)</td></tr>
+                <tr><td><span class="db-col">deviceregistered</span></td><td>bit</td><td>Must be true (1) for tag processing</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Event Table</h3>
+        <table>
+            <thead><tr><th>Column</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><span class="db-col">eventtype</span></td><td>"Tag Not Provisioned" = tag read but no matching asset found</td></tr>
+                <tr><td><span class="db-col">rfidtag</span></td><td>The EPC of the unmatched tag</td></tr>
+                <tr><td><span class="db-col">eventtime</span></td><td>When the event occurred</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 10. DEVELOPER NOTES -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="card" id="dev-notes">
+        <h2>10. Developer Notes</h2>
+
+        <h3>Tag Processing Pipeline (BatchBeaconWorker)</h3>
+        <p>The tag processing pipeline in iDash works as follows:</p>
+        <ol>
+            <li>FX9600 publishes a tag read message on the data topic via MQTT</li>
+            <li>iDash <code>MessageInterceptor</code> receives the message and queues it for processing</li>
+            <li><code>BatchBeaconWorker</code> dequeues the tag and calls <code>dataCache.GetAssetByVTag(tagId)</code></li>
+            <li>If <code>UseRedis: false</code>, the cache falls through to <code>IAssetRepository.GetByVTagId(companyId, vtagId)</code></li>
+            <li>If a matching asset is found:
+                <ul>
+                    <li>Updates <span class="db-col">lastobservedtime</span>, <span class="db-col">lastobservedlocation</span>, <span class="db-col">readerid</span></li>
+                    <li>If <code>UpdateLocation=Yes</code> in reader settings, also updates <span class="db-col">locationid</span></li>
+                </ul>
+            </li>
+            <li>If no match: calls <code>InsertTagNotProvisioned(vTagID, rfidTag)</code> &rarr; creates an event record</li>
+        </ol>
+
+        <h3>Key DLL References</h3>
+        <table>
+            <thead><tr><th>Assembly</th><th>Relevant Classes</th></tr></thead>
+            <tbody>
+                <tr><td><code>iDash.Web.dll</code></td><td><code>BatchBeaconWorker</code>, <code>RedisDataCache</code>, <code>MessageInterceptor</code></td></tr>
+                <tr><td><code>iDash.Repository.dll</code></td><td><code>EventRepository</code> (InsertTagNotProvisioned), <code>AssetRepository</code> (GetByVTagId, GetByRfidTag)</td></tr>
+                <tr><td><code>iDash.Repository.Interface.dll</code></td><td><code>IAssetRepository</code>, <code>IEventRepository</code></td></tr>
+            </tbody>
+        </table>
+
+        <h3>Files Modified for Fixed Reader Report</h3>
+        <table>
+            <thead><tr><th>File</th><th>Changes</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><code>va_asset_master.aspx</code></td>
+                    <td>
+                        <ul>
+                            <li>Added <code>lastobservedtime</code> and <code>lastobservedlocation</code> to <code>ALL_COLS</code> array</li>
+                            <li>Added &#128225; Fixed Reader Report toggle button with time range dropdown</li>
+                            <li>Added <code>toggleFixedReaderReport()</code> and <code>applyFixedReaderRange()</code> JS functions</li>
+                            <li>Added date+time rendering for <code>lastobservedtime</code> (full timestamp with AM/PM)</li>
+                            <li>Added "Fixed Reader Observation" section to detail panel</li>
+                            <li>Added <code>fixedReader</code> to export URL params</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>va_asset_master.aspx.cs</code></td>
+                    <td>
+                        <ul>
+                            <li>Added <code>fixedReader</code> parameter to <code>SearchAssets</code> WebMethod</li>
+                            <li>Added SQL WHERE clause with time range switch (today/week/month/all)</li>
+                            <li>Added <code>lastobservedtime</code> and <code>lastobservedlocation</code> to <code>colLabels</code> and <code>MapKeyToColumn</code></li>
+                            <li>Added fixed reader filter to <code>HandleExport()</code></li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Configuration Files</h3>
+        <table>
+            <thead><tr><th>File</th><th>Key Settings</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><code>appsettings.json</code></td>
+                    <td><code>"UseRedis": false</code> &mdash; disables Redis, uses direct SQL lookups</td>
+                </tr>
+                <tr>
+                    <td><code>web.config</code></td>
+                    <td><code>iDash_ClientId</code>, <code>iDash_ClientSecret</code> &mdash; API credentials scoped to a company</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 11. LESSONS LEARNED -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="card" id="lessons">
+        <h2>11. Lessons Learned</h2>
+
+        <p>Key insights from the 2026-08-25 deployment:</p>
+
+        <table>
+            <thead><tr><th>#</th><th>Lesson</th><th>Impact</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td><strong>vtagid must be populated.</strong> The BatchBeaconWorker looks up assets by <code>vtagid</code>, not <code>rfidtag</code>. Empty <code>vtagid</code> = "Tag Not Provisioned" for every read.</td>
+                    <td>536K assets had empty vtagid. Required bulk SQL update.</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td><strong>Company IDs must match.</strong> Reader company must equal asset company. API client company must equal reader company.</td>
+                    <td>Mismatched company caused zero tag matches and "No readers found" in iDash.</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td><strong>NO SPACES in MQTT fields.</strong> Usernames, topic names, and reader names must not contain spaces. Use underscores.</td>
+                    <td>Spaces in username/topic caused MQTT auth failures.</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td><strong>iDash UI can overwrite SQL changes.</strong> Editing a reader via the iDash Angular UI resets manually configured SQL fields.</td>
+                    <td>Lost credentials and device settings twice.</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td><strong>Duplicate readers on IIS restart.</strong> After an IIS restart, the MQTT broker restarts. If the reader reconnects before the old record is updated, iDash may auto-register a duplicate.</td>
+                    <td>Required deleting duplicate reader records.</td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td><strong>Redis is optional.</strong> <code>UseRedis: false</code> in appsettings.json is a valid production configuration. No need to install Redis.</td>
+                    <td>Simplified deployment &mdash; no third-party dependencies.</td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td><strong>LLRP conflicts.</strong> If another LLRP client is connected to the FX9600, new connections will fail with "There is already a connected LLRP client." Use MQTT mode instead of LLRP.</td>
+                    <td>Resolved by using MQTT endpoint exclusively.</td>
+                </tr>
+                <tr>
+                    <td>8</td>
+                    <td><strong>IP address can be 0.0.0.0 for MQTT.</strong> Since the reader connects to the server (not the other way around), the reader's IP in iDash is for display only when using MQTT.</td>
+                    <td>Simplifies config for DHCP-assigned readers.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- RELATED DOCS -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h2>Related Documentation</h2>
+        <ul>
+            <li><a href="va_fixed_reader.html">&#128225; Fixed Reader Dashboard</a> &mdash; monitoring page documentation</li>
+            <li><a href="va_reader_config.html">&#9881; Reader Configuration</a> &mdash; iDash reader management UI</li>
+            <li><a href="va_mqtt_config.html">&#128268; MQTT Configuration</a> &mdash; MQTT broker settings</li>
+            <li><a href="va_mqtt_architecture.html">&#128736; MQTT Architecture</a> &mdash; deep-dive into the MQTT pipeline</li>
+            <li><a href="va_asset_master.html">&#128203; Asset Master</a> &mdash; full Asset Master documentation</li>
+            <li><a href="va_site_config.html">&#9881; Site Configuration</a> &mdash; API credentials and company setup</li>
+        </ul>
+    </div>
+
+    <br/>
+    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
+    <br/><br/>
+
+</div>
+</body>
+</html>

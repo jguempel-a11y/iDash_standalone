@@ -1,0 +1,19 @@
+{
+  "name": "Tag Team Scan – iDash",
+  "short_name": "TagTeam Scan",
+  "description": "Rapidly scan and correct asset data offline or online.",
+  "start_url": "./va_tagteam_scan.aspx",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "Assets/branding/rfid.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

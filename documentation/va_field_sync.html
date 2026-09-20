@@ -1,0 +1,782 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA FIELD SYNC &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<div class="wrap">
+
+    <a href="index.aspx">&larr; Back to Documentation Hub</a>
+    <br/><br/>
+
+    <div class="card">
+        <h1>&#128257; Field Server Sync &mdash; Technical Reference</h1>
+        <p style="font-size:16px;">
+            The Field Server Sync pipeline pulls live asset data from a field VISN server
+            into a central executive reporting database &mdash; automatically, nightly.
+            A <code>.bak</code> file from the field server's iDash database is restored to a local
+            <strong>staging-only</strong> database, and a cross-database merge then applies all changed
+            and new asset <em>rows</em> to the live reporting database using the existing table structure.
+        </p>
+
+        <div class="alert-green">
+            <strong>&#9989; Deployment Status &mdash; Active &mdash; VISN5 Baltimore (512)</strong><br/>
+            This pipeline is <strong>live and fully automated</strong> for VISN5 Baltimore. The field server
+            at <code>visn5baltimore</code> uploads a nightly <code>.bak</code> to a shared OneDrive folder at
+            <strong>5:30 PM</strong>. The central iDash server pulls it down at <strong>6:00 PM</strong> and
+            places it in the watch folder &mdash; where iDash picks it up automatically. No manual steps required.
+        </div>
+
+        <div class="alert-green">
+            <strong>&#9989; iDash database &mdash; Zero Schema Changes</strong><br/>
+            This process <strong>never modifies the iDash database schema</strong> in any way.
+            No tables are created or dropped. No columns are added. No stored procedures, views, or indexes
+            are altered. The merge reads and writes only <em>data rows</em> into the existing
+            <code>dbo.asset</code>, <code>dbo.location</code>, and <code>dbo.company</code> tables
+            that iDash already owns and manages. The iDash application continues to function
+            identically before and after any sync.
+        </div>
+
+        <div class="alert-purple">
+            <strong>&#128257; What this is NOT</strong><br/>
+            This is <em>not</em> a full database restore. It never replaces or wipes the central database.
+            It is a selective, field-comparison merge that only applies data that is actually different
+            between the field server and the central database.
+            Existing records in the central database are preserved &mdash; the merge never overwrites
+            a populated field with a blank value.
+        </div>
+    </div>
+
+    <!-- WHY THIS EXISTS -->
+    <div class="card">
+        <h2>Why This Exists</h2>
+        <p>
+            The VA RFID asset tracking project deploys iDash field servers at individual VISN medical centers
+            (e.g., Baltimore 512, Martinsburg 613, Beckley 517). Each field server has its own local iDash database
+            with asset and location data specific to that site.
+        </p>
+        <p>
+            <strong>The problem:</strong> Executive leadership needs a single consolidated view of all assets across all
+            VISN sites for reporting, KPI tracking, and tagging progress. But each field server is isolated &mdash;
+            there's no built-in multi-site aggregation in iDash.
+        </p>
+        <p>
+            <strong>The solution:</strong> This sync pipeline pulls nightly backups from each field server into a
+            central reporting database. The merge is non-destructive, additive, and fully automated. The result is
+            a single <code>idash</code> database that contains assets from all VISN sites, enabling cross-site
+            dashboards like <a href="../va_site_maps.aspx">Site Maps</a>, <a href="../va_asset_stats.aspx">Asset Statistics</a>,
+            and the executive KPI tiles on the iDash hub.
+        </p>
+    </div>
+
+    <!-- ARCHITECTURE -->
+    <div class="card">
+        <h2>1. Architecture Overview</h2>
+        <div class="flow">
+            <div class="flow-box">&#128196;<br/>Field Server<br/><small style="color:var(--muted-docs);">visn5baltimore</small></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-box">&#128228;<br/>.bak Export<br/><small style="color:var(--muted-docs);">AW_DB_BACKUP\backup</small></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-box" style="border-color:#a855f7;">&#9729;&#65039;<br/>OneDrive<br/><small style="color:var(--muted-docs);">AW_Backups (shared)</small></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-box" style="border-color:#a855f7;">&#128193;<br/>Watch Folder<br/><small style="color:var(--muted-docs);">va_sync\incoming</small></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-box" style="border-color:#f59e0b;">&#128257;<br/>Restore<br/><small style="color:var(--muted-docs);">idash_staging</small></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-box" style="border-color:#10b981;">&#128202;<br/>Merge<br/><small style="color:var(--muted-docs);">idash (live)</small></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-box" style="border-color:#2ea8ff;">&#128084;<br/>Executive<br/><small style="color:var(--muted-docs);">Reports &amp; KPIs</small></div>
+        </div>
+
+        <h3>Two-Stage Process</h3>
+        <table>
+            <tr><th>Stage</th><th>What happens</th><th>Database target</th></tr>
+            <tr><td><strong>Stage 1 &mdash; Restore</strong></td>
+                <td>The <code>.bak</code> is restored to <code>idash_staging</code> using <code>RESTORE DATABASE ... WITH REPLACE, MOVE</code>.
+                    The staging database is completely overwritten each run &mdash; it is a scratch database and holds no permanent data.</td>
+                <td><code>idash_staging</code></td></tr>
+            <tr><td><strong>Stage 2 &mdash; Merge</strong></td>
+                <td><code>va_field_sync_merge.sql</code> runs cross-database queries against
+                    <code>idash_staging.dbo.asset</code> and <code>idash.dbo.asset</code>.
+                    It syncs companies, locations, updates changed assets, and inserts new ones.</td>
+                <td><code>idash</code> (live)</td></tr>
+        </table>
+    </div>
+
+    <!-- MERGE LOGIC -->
+    <div class="card">
+        <h2>2. Merge Logic &mdash; What Gets Updated and Why</h2>
+        <p>The merge SQL compares <strong>actual field values</strong> between the staging and central databases to determine what has changed:</p>
+
+        <div class="alert-amber">
+            <strong>&#9888; Critical Design Decision: Field Comparison, Not Timestamps</strong><br/>
+            The field server's <code>.bak</code> export does <strong>not</strong> reliably set the <code>lastmodified</code>
+            column &mdash; it is often <code>NULL</code> in the backup. An earlier version of this merge used
+            <code>WHERE s.lastmodified &gt; m.lastmodified</code> as the update condition, which caused
+            <strong>zero rows to match</strong> even when thousands of assets had real data differences.
+            <br/><br/>
+            As of July 2026, the merge now compares the actual data fields (text6&ndash;20, description,
+            rfidtag, listvalue1, lastinventoried) to detect changes. This correctly identifies all assets
+            that differ between the field and central databases, regardless of timestamp state.
+        </div>
+
+        <table>
+            <tr><th>Operation</th><th>Condition</th><th>Fields affected</th></tr>
+            <tr>
+                <td><strong>Companies synced</strong></td>
+                <td>Station number prefix (first 3 chars of company name) in staging not matched in central</td>
+                <td>New company row created in central</td>
+            </tr>
+            <tr>
+                <td><strong>Locations synced</strong></td>
+                <td>Location name + company combo in staging not in central</td>
+                <td>New location row inserted; company ID re-mapped by station prefix</td>
+            </tr>
+            <tr>
+                <td><strong>Assets UPDATED</strong></td>
+                <td>Any tagging field differs: text6&ndash;20, description, rfidtag, listvalue1, or lastinventoried is newer</td>
+                <td>All text, list, date, status, and descriptor fields &mdash; never overwrites a populated field with blank</td>
+            </tr>
+            <tr>
+                <td><strong>Assets INSERTED</strong></td>
+                <td>Asset name + company not found in central, and no RFID tag collision</td>
+                <td>Full asset row inserted; locationid re-linked by name after insert</td>
+            </tr>
+            <tr>
+                <td><strong>Location IDs re-linked</strong></td>
+                <td>After all updates/inserts</td>
+                <td>Auto-assigned IDs differ between servers &mdash; linked by location name after merge</td>
+            </tr>
+        </table>
+
+        <h3 style="margin-top:20px;">Company ID Mapping</h3>
+        <p>
+            Field servers and the central database have <strong>different auto-increment IDs</strong> for companies.
+            For example, "512 Baltimore" might be <code>companyid = 2</code> on the field server but <code>companyid = 6</code> on the
+            central server. The merge maps between them using the <strong>first 3 characters of the company name</strong>
+            (the station number): <code>SUBSTRING(mc.name,1,3) = SUBSTRING(sc.name,1,3)</code>.
+        </p>
+        <p>
+            This means company names in the central database must start with the station number (e.g., "512 Baltimore", "613 Martinsburg").
+            The field server's company name is typically just the number (e.g., "512").
+        </p>
+
+        <div class="alert-green">
+            <strong>&#9989; Safety: Central data is never blindly overwritten</strong><br/>
+            If the central database has a value in a field and the field server's record has a blank,
+            the central value is preserved. The merge uses <code>CASE WHEN NULLIF(RTRIM(s.field),'') IS NOT NULL THEN s.field ELSE m.field END</code>
+            on every text column &mdash; meaning blanks and NULLs from the field are ignored, and only
+            actual populated values flow through.
+        </div>
+    </div>
+
+    <!-- PAGE BUTTONS REFERENCE -->
+    <div class="card">
+        <h2>3. Page Buttons &mdash; What Each One Does</h2>
+        <p>The <a href="../va_field_sync.aspx">Field Sync page</a> has four action buttons plus automation controls. Here's what each one does:</p>
+
+        <h3 style="color:#a855f7;">&#128269; Preview Sync (Dry Run)</h3>
+        <div class="step-box">
+            <strong>Reads only. Makes zero changes to any database.</strong><br/><br/>
+            Runs <code>SELECT COUNT(*)</code> queries against both the staging and central databases to calculate:
+            <ul>
+                <li><strong>Locations to Add</strong> &mdash; location names in staging not yet in central</li>
+                <li><strong>Assets to Update</strong> &mdash; existing assets with field-level differences (text6&ndash;20, description, rfidtag, etc.)</li>
+                <li><strong>Assets to Insert</strong> &mdash; brand-new assets not yet in the central database</li>
+                <li><strong>Errors</strong> &mdash; should always be 0 on a clean run</li>
+            </ul>
+            <strong>Requires:</strong> The staging database must already exist (run Restore BAK Only first if it doesn't).<br/>
+            <strong>When to use:</strong> Always run this before committing. It tells you exactly what will change.
+        </div>
+
+        <h3 style="color:#10b981;">&#9654; Full Sync (Restore + Merge)</h3>
+        <div class="step-box" style="border-color:#10b981;">
+            <strong>The one-click option for daily syncs.</strong><br/><br/>
+            Does both stages in sequence:
+            <ol>
+                <li>Restores the selected <code>.bak</code> file to <code>idash_staging</code> (overwrites any existing staging data)</li>
+                <li>Runs the full merge SQL (<code>va_field_sync_merge.sql</code>) to push changes into the live <code>idash</code> database</li>
+                <li>Moves the processed <code>.bak</code> to <code>va_sync\processed\</code> with a timestamp suffix</li>
+            </ol>
+            <strong>Duration:</strong> 1&ndash;5 minutes depending on database size (176K+ assets takes ~2 minutes).<br/>
+            <strong>When to use:</strong> Normal daily/nightly sync. This is what the automated scheduled task runs.
+        </div>
+
+        <h3>&#128196; Restore BAK Only</h3>
+        <div class="step-box">
+            <strong>Loads the .bak into staging without touching the live database.</strong><br/><br/>
+            Restores the selected <code>.bak</code> file to <code>idash_staging</code> using
+            <code>RESTORE DATABASE ... WITH REPLACE, MOVE</code>. The staging database is completely
+            overwritten. The live <code>idash</code> database is not touched at all.
+            <br/><br/>
+            <strong>When to use:</strong> When you want to inspect the field server's data before merging.
+            After restoring, you can:
+            <ul>
+                <li>Run <strong>Preview</strong> to see what would change</li>
+                <li>Query <code>idash_staging</code> directly in SSMS to inspect data</li>
+                <li>Run <strong>Merge Only</strong> when you're satisfied</li>
+            </ul>
+        </div>
+
+        <h3 style="color:#a855f7;">&#128256; Merge Only</h3>
+        <div class="step-box" style="border-color:#a855f7;">
+            <strong>Merges from the currently loaded staging database without re-restoring.</strong><br/><br/>
+            Runs <code>va_field_sync_merge.sql</code> against the existing <code>idash_staging</code>
+            database. Skips the restore step entirely.
+            <br/><br/>
+            <strong>Requires:</strong> A staging database must already be loaded (via Restore BAK Only or a previous Full Sync).<br/>
+            <strong>When to use:</strong> After a Restore-only + Preview workflow. Also useful if you need to re-run the merge
+            after fixing the merge SQL or troubleshooting.
+        </div>
+
+        <h3>&#128472; Automation Buttons</h3>
+        <table>
+            <tr><th>Button</th><th>What it does</th></tr>
+            <tr>
+                <td><strong>Create / Update Task</strong></td>
+                <td>Writes the PowerShell trigger script (<code>run_field_sync.ps1</code>) and attempts to register a Windows
+                    Scheduled Task that runs daily at the specified time. The task calls
+                    <code>va_field_sync.aspx?auto=1</code> via HTTP loopback. If IIS lacks admin rights, it shows
+                    the <code>schtasks</code> command to run manually from an elevated prompt.</td>
+            </tr>
+            <tr>
+                <td><strong>Run Task Now</strong></td>
+                <td>Manually triggers the scheduled task. Equivalent to what happens at the scheduled time.
+                    Useful for testing automation without waiting for the schedule.</td>
+            </tr>
+            <tr>
+                <td><strong>Remove Task</strong></td>
+                <td>Unregisters the scheduled task from Windows Task Scheduler. Does not delete the script files.</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- RECOMMENDED WORKFLOW -->
+    <div class="card">
+        <h2>4. Recommended Workflow</h2>
+        <p>For the safest sync experience, follow this sequence:</p>
+
+        <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+                <strong>Check that a <code>.bak</code> is in the watch folder</strong>
+                <p>The BAK File Selection panel shows all <code>.bak</code> files detected in <code>C:\VA_RFID\va_sync\incoming</code>.
+                    If no file is listed, either wait for the nightly OneDrive pull, or manually copy one in.
+                    You can also enter a full path manually and click <strong>Copy to Watch Folder</strong>.</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+                <strong>Click <span style="color:#3b82f6;">Restore BAK Only</span></strong>
+                <p>This loads the field data into the staging database without touching the live DB. Takes 1&ndash;2 minutes.</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+                <strong>Click <span style="color:#a855f7;">Preview Sync (Dry Run)</span></strong>
+                <p>Review the numbers. You should see a non-zero count for "Assets to Update" if the field server
+                    has any changes. If all zeros, the data is already in sync (or the wrong .bak was loaded).</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+                <strong>Click <span style="color:#a855f7;">Merge Only</span></strong>
+                <p>Since the staging DB is already loaded from step 2, this applies the changes without re-restoring.
+                    Check the Last Sync Results panel for the final counts.</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-body">
+                <strong>Verify in dashboards</strong>
+                <p>Open <a href="../va_site_maps.aspx">Site Maps</a> or <a href="../va_asset_stats.aspx">Asset Statistics</a>
+                    and confirm the new data is reflected in the KPIs and tagging numbers.</p>
+            </div>
+        </div>
+
+        <div class="alert-blue">
+            <strong>&#8505; Shortcut for routine syncs:</strong> If you trust the data (e.g., this is a nightly automated run),
+            you can skip steps 2&ndash;4 and just click <strong>Full Sync (Restore + Merge)</strong>. This does everything in one click.
+            The automated scheduled task uses this one-click path.
+        </div>
+    </div>
+
+    <!-- FOLDER SETUP -->
+    <div class="card">
+        <h2>5. Folder Structure &amp; File Locations</h2>
+        <table>
+            <tr><th>Folder / Path</th><th>Machine</th><th>Purpose</th></tr>
+            <tr><td><code>C:\VA_RFID\AW_DB_BACKUP\backup\</code></td><td>visn5baltimore</td><td>Source &mdash; <code>.bak</code> files generated by iDash reside here.</td></tr>
+            <tr><td><code>C:\Users\visn5\OneDrive - ID Integration Inc\AW_Backups\</code></td><td>visn5baltimore</td><td>OneDrive upload destination &mdash; shared folder visible to central server.</td></tr>
+            <tr><td><code>C:\Users\john\OneDrive - ID Integration Inc\VISN5 Baltimore (512)'s files - AW_Backups\</code></td><td>Central (LINGCOD)</td><td>OneDrive sync path on central server &mdash; source for the pull script.</td></tr>
+            <tr><td><code>C:\VA_RFID\va_sync\incoming\</code></td><td>Central (LINGCOD)</td><td>Watch folder &mdash; iDash picks up the latest <code>.bak</code> automatically.</td></tr>
+            <tr><td><code>C:\VA_RFID\va_sync\processed\</code></td><td>Central (LINGCOD)</td><td>After a successful Full Sync, the processed <code>.bak</code> is moved here with a timestamp suffix.</td></tr>
+            <tr><td><code>C:\VA_RFID\va_sync\staging_db\</code></td><td>Central (LINGCOD)</td><td>SQL Server physical files for <code>idash_staging</code> (.mdf / .ldf). Created automatically.</td></tr>
+            <tr><td><code>C:\VA_RFID\va_sync\va_field_sync.log</code></td><td>Central (LINGCOD)</td><td>Append-only log of all sync runs, timestamps, and record counts.</td></tr>
+            <tr><td><code>C:\VA_RFID\va_sync\autosync_error.log</code></td><td>Central (LINGCOD)</td><td>Error log from the scheduled task &mdash; captures any failures from the nightly automation.</td></tr>
+            <tr><td><code>C:\VA_RFID\va_sync\run_field_sync.ps1</code></td><td>Central (LINGCOD)</td><td>PowerShell script called by the scheduled task &mdash; auto-generated by the Create Task button.</td></tr>
+        </table>
+
+        <h3 style="margin-top:20px;">&#128197; Scheduled Tasks &mdash; Live Automation (VISN5 Baltimore)</h3>
+        <table>
+            <tr><th>Task Name</th><th>Machine</th><th>Schedule</th><th>Script</th><th>Action</th></tr>
+            <tr>
+                <td><strong>AW Backup to OneDrive</strong></td>
+                <td>visn5baltimore</td>
+                <td>Daily 5:30 PM</td>
+                <td><code>C:\VA_RFID\CopyBackup.bat</code></td>
+                <td>xcopy <code>*.bak</code> from <code>AW_DB_BACKUP\backup</code> &rarr; OneDrive <code>AW_Backups</code></td>
+            </tr>
+            <tr>
+                <td><strong>Pull AW Backup from OneDrive</strong></td>
+                <td>Central (LINGCOD / john)</td>
+                <td>Daily 6:00 PM</td>
+                <td><code>downloads\Scripts\GetCart_512_AWbackup.ps1</code></td>
+                <td>Copies latest <code>.bak</code> from OneDrive shared folder &rarr; <code>va_sync\incoming</code></td>
+            </tr>
+            <tr>
+                <td><strong>iDash Field Sync Auto-Process</strong></td>
+                <td>Central (LINGCOD)</td>
+                <td>Daily 6:15 PM</td>
+                <td><code>C:\VA_RFID\va_sync\run_field_sync.ps1</code></td>
+                <td>Calls <code>va_field_sync.aspx?auto=1</code> via HTTP loopback &mdash; runs Full Sync if any .bak is in the watch folder</td>
+            </tr>
+        </table>
+        <div class="alert-blue">
+            <strong>&#8505; 30-Minute + 15-Minute Pipeline</strong><br/>
+            <strong>5:30 PM</strong> &mdash; Field server uploads .bak to OneDrive<br/>
+            <strong>6:00 PM</strong> &mdash; Central server pulls from OneDrive to watch folder (30-min gap for OneDrive cloud sync)<br/>
+            <strong>6:15 PM</strong> &mdash; iDash runs Full Sync (15-min gap for file copy completion)<br/>
+            If OneDrive sync is slow due to file size (~300&ndash;400 MB), increase the gap by adjusting task times.
+        </div>
+
+        <h3 style="margin-top:20px;">Setup Scripts</h3>
+        <table>
+            <tr><th>Script</th><th>Purpose</th></tr>
+            <tr><td><code>C:\VA_RFID\AW_Backup_Setup_VISN5.ps1</code></td><td>One-shot setup for the field server &mdash; creates batch file and registers the 5:30 PM upload task. Run once as Administrator.</td></tr>
+            <tr><td><code>C:\VA_RFID\AW_Backup_Setup.ps1</code></td><td>Generic portable setup script &mdash; auto-detects logged-in user, validates paths, registers upload task.</td></tr>
+            <tr><td><code>C:\VA_RFID\CopyBackup.bat</code></td><td>Simple xcopy launcher called by the upload task on the field server.</td></tr>
+            <tr><td><code>downloads\Scripts\GetCart_512_AWbackup.ps1</code></td><td>Pull script on central server &mdash; copies all <code>.bak</code> files from OneDrive shared folder into <code>va_sync\incoming</code>.</td></tr>
+            <tr><td><code>C:\VA_RFID\va_sync\setup_field_sync_task.cmd</code></td><td>Batch file to register the iDash Field Sync scheduled task from an elevated prompt. Auto-generated by the page.</td></tr>
+        </table>
+    </div>
+
+    <!-- PERMISSIONS -->
+    <div class="card">
+        <h2>6. Prerequisites &amp; Permissions</h2>
+        <div class="alert-green">
+            <strong>&#9989; Only One Permission Change Required &mdash; Ever</strong><br/>
+            The <strong>only</strong> setup action needed on the SQL Server is granting
+            <code>idashadmin</code> the ability to create a database so it can restore the
+            <code>.bak</code> to a local staging DB. Run this <strong>once</strong> as SA:
+            <pre style="margin-top:10px;">ALTER SERVER ROLE [dbcreator] ADD MEMBER [idashadmin];</pre>
+            That is the complete list of permission changes. Nothing else is granted, altered, or elevated.
+            The <code>idashadmin</code> login already has read/write access to <code>idash</code>
+            as part of the standard iDash installation &mdash; no change needed there.
+        </div>
+
+        <h3>Filesystem Permissions</h3>
+        <table>
+            <tr><th>Folder</th><th>Required ACL</th><th>Why</th></tr>
+            <tr>
+                <td><code>C:\VA_RFID\va_sync\</code></td>
+                <td><code>IIS_IUSRS</code> &mdash; Modify (M)</td>
+                <td>IIS must write log files, the PowerShell script, and manage the incoming/processed subfolders.
+                    Without this, clicking Create Task or running sync produces "Access Denied".</td>
+            </tr>
+            <tr>
+                <td><code>C:\VA_RFID\va_sync\staging_db\</code></td>
+                <td>SQL Server service account &mdash; Full Control</td>
+                <td>SQL Server writes the MDF/LDF files here during RESTORE DATABASE.</td>
+            </tr>
+        </table>
+
+        <div class="alert-amber">
+            <strong>&#9888; OneDrive / Network Paths and IIS</strong><br/>
+            The IIS worker process (<code>IIS AppPool\iDash</code> or <code>IIS_IUSRS</code>) runs under
+            a restricted service account that <strong>cannot access user-profile folders</strong> like
+            <code>C:\Users\john\OneDrive</code> or network shares (<code>\\server\share</code>).
+            <br/><br/>
+            If you enter a manual .bak path pointing to OneDrive, the page will show "Cannot access manual BAK path"
+            with a specific error message. The solution is to either:
+            <ul>
+                <li>Click <strong>Copy to Watch Folder</strong> (which copies the file to the watch folder using the current user's credentials)</li>
+                <li>Manually copy the <code>.bak</code> file into <code>C:\VA_RFID\va_sync\incoming\</code> using File Explorer</li>
+            </ul>
+        </div>
+
+        <h3>What the Permission Allows</h3>
+        <table>
+            <tr><th>Permission</th><th>What it enables</th><th>Risk</th></tr>
+            <tr>
+                <td><code>dbcreator</code> server role</td>
+                <td>Allows <code>RESTORE DATABASE</code> to create the <code>idash_staging</code>
+                    scratch database on this server only</td>
+                <td><strong style="color:#10b981;">Low</strong> &mdash; local server only</td>
+            </tr>
+            <tr>
+                <td>Existing <code>idash</code> db_owner</td>
+                <td>Already in place from iDash install &mdash; allows INSERT/UPDATE rows in
+                    <code>dbo.asset</code>, <code>dbo.location</code>, <code>dbo.company</code></td>
+                <td><strong style="color:#10b981;">No change</strong></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- FILES INVOLVED -->
+    <div class="card">
+        <h2>7. Source Files Reference</h2>
+        <table>
+            <tr><th>File</th><th>Purpose</th></tr>
+            <tr>
+                <td><code>va_field_sync.aspx</code></td>
+                <td>The UI page &mdash; BAK file selection, buttons, preview results, sync log viewer, and automation controls.</td>
+            </tr>
+            <tr>
+                <td><code>va_field_sync.aspx.cs</code></td>
+                <td>Code-behind &mdash; all server-side logic: BAK restore, merge execution, preview queries,
+                    scheduled task management, and log management.</td>
+            </tr>
+            <tr>
+                <td><code>va_field_sync_merge.sql</code></td>
+                <td>The merge SQL script &mdash; 6 steps: verify staging, sync companies, sync locations,
+                    update changed assets, insert new assets, re-link location IDs. Returns a summary row
+                    with counts. This file is read and executed batch-by-batch on merge.</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- FIRST-TIME SETUP -->
+    <div class="card">
+        <h2>8. Step-by-Step: First-Time Setup</h2>
+        <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+                <strong>Grant dbcreator role to the SQL login</strong>
+                <p>Run on the central SQL Server as SA: <code>ALTER SERVER ROLE [dbcreator] ADD MEMBER [idashadmin];</code></p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+                <strong>Grant IIS_IUSRS Modify access to the sync folder</strong>
+                <p>From an elevated Command Prompt:<br/>
+                <code>icacls "C:\VA_RFID\va_sync" /grant "IIS_IUSRS:(OI)(CI)M" /T</code></p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+                <strong>Create the incoming folder on the central server</strong>
+                <p><code>mkdir C:\VA_RFID\va_sync\incoming</code> &mdash; or let iDash create it automatically on first page load.</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+                <strong>Copy a <code>.bak</code> from the field server into the incoming folder</strong>
+                <p>Use a network share, SFTP, OneDrive, or manual copy for the first test run.</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-body">
+                <strong>Open <a href="../va_field_sync.aspx">va_field_sync.aspx</a> from Admin Tools</strong>
+                <p>Verify the <code>.bak</code> appears in the BAK File Selection panel. Confirm staging DB status shows.</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">6</div>
+            <div class="step-body">
+                <strong>Click "Preview Sync (Dry Run)" first</strong>
+                <p>Run Restore BAK Only, then Preview, to see how many assets would be updated.
+                    If the numbers look right, proceed to Merge Only.</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">7</div>
+            <div class="step-body">
+                <strong>Verify results in executive reports</strong>
+                <p>Open <a href="../va_site_maps.aspx">Site Maps</a> or <a href="../va_asset_stats.aspx">Asset Statistics</a>
+                and confirm asset counts, locations, and scan dates reflect the field server's latest data.</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">8</div>
+            <div class="step-body">
+                <strong>Schedule nightly automation</strong>
+                <p>On the field sync page, enter a daily run time (e.g., <code>18:15</code>) and click
+                <strong>Create / Update Task</strong>. If IIS lacks admin rights, the page will display the
+                exact <code>schtasks</code> command to run from an elevated Command Prompt.<br/><br/>
+                On the <strong>field server</strong>: run <code>AW_Backup_Setup_VISN5.ps1</code> once as Administrator
+                to set up the 5:30 PM upload task.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- TROUBLESHOOTING -->
+    <div class="card">
+        <h2>9. Troubleshooting</h2>
+        <table>
+            <tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+            <tr>
+                <td>Preview shows 0 / 0 / 0 / 0</td>
+                <td>Either the staging DB doesn't exist, or the data is already in sync, or the
+                    wrong .bak was loaded (e.g., 512 Baltimore when you expected 613 Martinsburg)</td>
+                <td>Check the staging DB company name: <code>SELECT name FROM idash_staging.dbo.company</code>.
+                    Make sure you loaded the right field server's backup.</td>
+            </tr>
+            <tr>
+                <td>"Access Denied" on Create Task</td>
+                <td>IIS_IUSRS lacks write access to <code>C:\VA_RFID\va_sync</code></td>
+                <td>Run: <code>icacls "C:\VA_RFID\va_sync" /grant "IIS_IUSRS:(OI)(CI)M" /T</code></td>
+            </tr>
+            <tr>
+                <td>Manual BAK path not accepted</td>
+                <td>IIS worker can't read OneDrive / user profile / network paths</td>
+                <td>Click <strong>Copy to Watch Folder</strong>, or manually copy the .bak to <code>va_sync\incoming</code></td>
+            </tr>
+            <tr>
+                <td>Scheduled task runs but nothing syncs</td>
+                <td>No <code>.bak</code> in the watch folder at run time</td>
+                <td>Verify the OneDrive pull task runs before the sync task. Check <code>autosync_error.log</code>.</td>
+            </tr>
+            <tr>
+                <td>SSL/TLS trust error in autosync_error.log</td>
+                <td>The PS1 script was using <code>https://</code> instead of <code>http://</code></td>
+                <td>Click <strong>Create / Update Task</strong> to regenerate the script with the correct HTTP URL.</td>
+            </tr>
+            <tr>
+                <td>Restore fails with "file not accessible"</td>
+                <td>SQL Server service account can't access the .bak file or the staging_db folder</td>
+                <td>Ensure the SQL Server service account has read access to the incoming folder and
+                    write access to the staging_db folder.</td>
+            </tr>
+            <tr>
+                <td>Task runs as wrong user (e.g., "printspooler")</td>
+                <td>Task was registered under the wrong account</td>
+                <td>Re-register with: <code>schtasks /create /tn "iDash Field Sync Auto-Process" /tr "powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\VA_RFID\va_sync\run_field_sync.ps1" /sc daily /st 18:15 /ru SYSTEM /rl HIGHEST /f</code><br/>
+                    Must be run from an elevated Command Prompt.</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- SQL SERVICE ACCOUNT & SHARE PERMISSIONS -->
+    <div class="card">
+        <h2>10. SQL Server Service Account &amp; Network Share Permissions</h2>
+        <p>
+            When SQL Server needs to read or write files on a <strong>network share</strong> (e.g., restoring a <code>.bak</code>
+            from <code>\\server\share\</code>, or writing an export to a shared folder), the SQL Server <em>service account</em>
+            must have NTFS file-system permissions <strong>AND</strong> SMB share-level permissions on that path.
+            This section explains how to identify which account SQL Server runs as, and how to grant it the correct access.
+        </p>
+
+        <div class="alert-blue">
+            <strong>&#128161; Why this matters for Field Sync</strong><br/>
+            The field sync pipeline restores <code>.bak</code> files from a watch folder. If that folder is on a different
+            server or a network share, SQL Server's <code>RESTORE DATABASE</code> command will fail with
+            <em>"Operating system error 5 (Access is denied)"</em> unless the SQL service account has read access to the
+            <code>.bak</code> file AND write access to the staging database folder.
+        </div>
+
+        <h3>Step 1: Identify the SQL Server Service Account</h3>
+        <p>There are three methods to find which Windows account runs your SQL Server instance:</p>
+
+        <h4>Method A: Services Console (GUI)</h4>
+        <ol>
+            <li>Press <kbd>Win+R</kbd>, type <code>services.msc</code>, press Enter</li>
+            <li>Scroll to <strong>SQL Server (SQLEXPRESS)</strong> or <strong>SQL Server (MSSQLSERVER)</strong></li>
+            <li>Right-click &rarr; <strong>Properties</strong> &rarr; <strong>Log On</strong> tab</li>
+            <li>The account is shown in the <strong>"This account"</strong> field</li>
+        </ol>
+        <div class="alert-green">
+            <strong>&#9989; Common values you'll see:</strong><br/>
+            <code>NT Service\MSSQL$SQLEXPRESS</code> &mdash; Virtual Service Account (default install)<br/>
+            <code>NT AUTHORITY\NETWORK SERVICE</code> &mdash; Built-in service account<br/>
+            <code>DOMAIN\svc_sqlserver</code> &mdash; Domain service account (enterprise)<br/>
+            <code>.\LocalUser</code> &mdash; Local user account
+        </div>
+
+        <h4>Method B: PowerShell (Fastest)</h4>
+        <p>Run this in an elevated PowerShell prompt:</p>
+        <pre style="background:var(--chip-docs); border:1px solid var(--line-docs); padding:14px; border-radius:8px; overflow-x:auto; font-size:13px;">
+<code># Find all SQL Server service accounts on this machine
+Get-WmiObject Win32_Service | Where-Object {
+    $_.Name -like "MSSQL*" -or $_.Name -like "SQLAgent*"
+} | Select-Object Name, StartName, State | Format-Table -AutoSize</code></pre>
+        <p>Example output:</p>
+        <pre style="background:var(--chip-docs); border:1px solid var(--line-docs); padding:14px; border-radius:8px; overflow-x:auto; font-size:13px;">
+<code>Name                StartName                        State
+----                ---------                        -----
+MSSQL$SQLEXPRESS    NT Service\MSSQL$SQLEXPRESS      Running
+SQLAgent$SQLEXPRESS NT Service\SQLAgent$SQLEXPRESS    Running</code></pre>
+
+        <h4>Method C: From SQL Server (T-SQL)</h4>
+        <p>Run this query in SSMS or <code>sqlcmd</code>:</p>
+        <pre style="background:var(--chip-docs); border:1px solid var(--line-docs); padding:14px; border-radius:8px; overflow-x:auto; font-size:13px;">
+<code>-- Returns the Windows account running the SQL Server service
+EXEC xp_regread
+    @rootkey = 'HKEY_LOCAL_MACHINE',
+    @key = 'SYSTEM\CurrentControlSet\Services\MSSQL$SQLEXPRESS',
+    @value_name = 'ObjectName';
+
+-- Alternative (simpler)
+SELECT servicename, service_account
+FROM sys.dm_server_services;</code></pre>
+
+        <h3>Step 2: Grant NTFS File System Permissions</h3>
+        <p>
+            The SQL service account needs <strong>NTFS permissions</strong> on the actual folder on disk.
+            This applies whether the folder is local or on a remote server.
+        </p>
+
+        <h4>GUI Method</h4>
+        <ol>
+            <li>Navigate to the shared folder on the <strong>remote server</strong></li>
+            <li>Right-click the folder &rarr; <strong>Properties</strong> &rarr; <strong>Security</strong> tab</li>
+            <li>Click <strong>Edit</strong> &rarr; <strong>Add</strong></li>
+            <li>Click <strong>Object Types</strong> and ensure <strong>Computers</strong> is checked (for virtual service accounts)</li>
+            <li>Click <strong>Locations</strong> and select the SQL server's domain or machine</li>
+            <li>Enter the account name (see table below) and click <strong>Check Names</strong></li>
+            <li>Grant <strong>Read &amp; Execute</strong> (for .bak reads) or <strong>Modify</strong> (for writes)</li>
+        </ol>
+
+        <h4>PowerShell Method (on the file server)</h4>
+        <pre style="background:var(--chip-docs); border:1px solid var(--line-docs); padding:14px; border-radius:8px; overflow-x:auto; font-size:13px;">
+<code># Grant the SQL server's computer account Read/Write to the share folder
+# Replace YOURSERVER$ with the SQL server's hostname + dollar sign
+$path = "D:\SharedBackups\va_sync"
+$acl = Get-Acl $path
+$rule = New-Object System.Security.AccessControl.FileSystemAccessRule(
+    "DOMAIN\YOURSERVER$",     # or "DOMAIN\svc_sqlserver" for domain accounts
+    "Modify",                  # Read, Write, Modify, or FullControl
+    "ContainerInherit,ObjectInherit",
+    "None",
+    "Allow"
+)
+$acl.AddAccessRule($rule)
+Set-Acl $path $acl</code></pre>
+
+        <h3>Step 3: Grant SMB Share-Level Permissions</h3>
+        <p>
+            <strong>In addition to NTFS</strong>, the share itself has a separate ACL. Both must allow access.
+        </p>
+
+        <h4>GUI Method</h4>
+        <ol>
+            <li>On the file server, right-click the shared folder &rarr; <strong>Properties</strong> &rarr; <strong>Sharing</strong> tab</li>
+            <li>Click <strong>Advanced Sharing</strong> &rarr; <strong>Permissions</strong></li>
+            <li>Add the same account with <strong>Change</strong> permission (or <strong>Full Control</strong>)</li>
+        </ol>
+
+        <h4>PowerShell Method</h4>
+        <pre style="background:var(--chip-docs); border:1px solid var(--line-docs); padding:14px; border-radius:8px; overflow-x:auto; font-size:13px;">
+<code># Grant the SQL server machine account share-level Change permission
+Grant-SmbShareAccess -Name "va_sync" `
+    -AccountName "DOMAIN\YOURSERVER$" `
+    -AccessRight Change -Force</code></pre>
+
+        <h3>Account Type Reference</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Service Account Type</th>
+                    <th>How it appears</th>
+                    <th>What to add to share permissions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Virtual Service Account</strong> (default)</td>
+                    <td><code>NT Service\MSSQL$SQLEXPRESS</code></td>
+                    <td>Use the <strong>computer account</strong>: <code>DOMAIN\SERVERNAME$</code><br/>
+                        Virtual service accounts authenticate over the network as the machine account.</td>
+                </tr>
+                <tr>
+                    <td><strong>Network Service</strong></td>
+                    <td><code>NT AUTHORITY\NETWORK SERVICE</code></td>
+                    <td>Use the <strong>computer account</strong>: <code>DOMAIN\SERVERNAME$</code><br/>
+                        Same behavior &mdash; authenticates as the machine on the network.</td>
+                </tr>
+                <tr>
+                    <td><strong>Local System</strong></td>
+                    <td><code>NT AUTHORITY\SYSTEM</code></td>
+                    <td>Use the <strong>computer account</strong>: <code>DOMAIN\SERVERNAME$</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Domain Service Account</strong></td>
+                    <td><code>DOMAIN\svc_sqlserver</code></td>
+                    <td>Use that exact account: <code>DOMAIN\svc_sqlserver</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Local User</strong></td>
+                    <td><code>.\sqluser</code></td>
+                    <td>&#9888; <strong>Cannot access network shares.</strong> Must change SQL to run under a domain account or use the computer account.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Quick Verification Test</h3>
+        <p>After granting permissions, verify from SSMS on the SQL Server:</p>
+        <pre style="background:var(--chip-docs); border:1px solid var(--line-docs); padding:14px; border-radius:8px; overflow-x:auto; font-size:13px;">
+<code>-- Test if SQL Server can read from the network path
+EXEC xp_cmdshell 'dir \\fileserver\va_sync\incoming';
+
+-- If xp_cmdshell is disabled, enable it temporarily:
+EXEC sp_configure 'show advanced options', 1; RECONFIGURE;
+EXEC sp_configure 'xp_cmdshell', 1; RECONFIGURE;
+-- Run your test, then disable it:
+EXEC sp_configure 'xp_cmdshell', 0; RECONFIGURE;</code></pre>
+
+        <div class="alert-purple">
+            <strong>&#9888; Common Gotchas</strong><br/>
+            <strong>1. Two layers of permissions.</strong> Both NTFS (Security tab) AND Share permissions must allow access. The most restrictive wins.<br/><br/>
+            <strong>2. Virtual Service Accounts use the computer account on the network.</strong> You cannot add <code>NT Service\MSSQL$SQLEXPRESS</code> to a remote share &mdash; it's a local-only identity. Add <code>DOMAIN\SERVERNAME$</code> instead.<br/><br/>
+            <strong>3. Workgroup (non-domain) servers cannot authenticate to domain shares.</strong> Both servers must be on the same domain, or you must use matching local accounts with identical passwords on both machines.<br/><br/>
+            <strong>4. After changing permissions, restart the SQL Server service.</strong> Token-based permission changes may not take effect until the service restarts.
+        </div>
+
+        <h3>Field Sync Specific Paths</h3>
+        <table>
+            <thead>
+                <tr><th>Path</th><th>Permission Needed</th><th>Why</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>C:\VA_RFID\va_sync\incoming</code></td>
+                    <td>Read</td>
+                    <td>SQL Server reads <code>.bak</code> files for <code>RESTORE DATABASE</code></td>
+                </tr>
+                <tr>
+                    <td><code>C:\VA_RFID\va_sync\staging_db</code></td>
+                    <td>Read + Write</td>
+                    <td>SQL Server writes restored <code>.mdf</code> / <code>.ldf</code> files here</td>
+                </tr>
+                <tr>
+                    <td>Remote share (e.g., <code>\\visn5baltimore\backups</code>)</td>
+                    <td>Read</td>
+                    <td>If restoring directly from a network path (no local copy)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="text-align:center;color:var(--muted-docs);font-size:12px;margin-top:40px;">
+        VA Asset Intelligence Hub Documentation &copy; 2026<br/>
+        Last updated: July 21, 2026 &mdash; Added Section 10: SQL Server Service Account &amp; Network Share Permissions guide.
+        and corrected merge logic documentation (field comparison vs. timestamp).
+    </div>
+</div>
+</body>
+</html>

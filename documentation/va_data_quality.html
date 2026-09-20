@@ -1,0 +1,169 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Data Quality Command Center &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <div class="wrap">
+        <a href="index.aspx" class="back-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Back to Documentation Hub
+        </a>
+
+        <div class="card" style="background: linear-gradient(135deg, var(--card), rgba(239, 68, 68, 0.05));">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+                <h1>&#9989; Data Quality Command Center</h1>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <a href="../va_data_quality.aspx" style="background:var(--accent-docs); color:#fff; padding:6px 16px; border-radius:20px; font-size:12px; font-weight:700; text-decoration:none;">Open Live Page &rarr;</a>
+                </div>
+            </div>
+            <div style="margin: 12px 0 20px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <span class="chip" style="background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">Database Connected</span>
+                <span class="chip" style="background:color-mix(in srgb, #3b82f6 15%, transparent); border:1px solid #3b82f6; color:#3b82f6;">AJAX Live Preview</span>
+                <span class="chip" style="background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">Scoring Algorithm</span>
+                <span class="chip" style="background:color-mix(in srgb, #ef4444 15%, transparent); border:1px solid #ef4444; color:#ef4444;">Excel Export</span>
+            </div>
+            <p style="color:var(--muted-docs); font-size:16px; line-height:1.6; max-width:850px;">
+                The <strong>Data Quality Command Center</strong> (<code>va_data_quality.aspx</code>) provides comprehensive data health auditing, automated anomaly detection, weighted scoring (0&ndash;100), and interactive drill-down previews across 600,000+ VA equipment records.
+            </p>
+        </div>
+
+        <!-- SECTION 1: PURPOSE & ROLE -->
+        <div class="card">
+            <h2>1. Purpose &amp; Operational Role</h2>
+            <p>
+                Accurate RFID tracking and VistA/AEMS-MERS reconciliation depend directly on consistent metadata. Data anomalies &mdash; such as missing EIL/CMR identifiers, blank locations, unconventional asset naming, or obsolete status values &mdash; prevent handheld scanners from loading room lists and cause false ENNX discrepancies.
+            </p>
+            <p>
+                The Data Quality Command Center identifies, categorizes, and quantifies these data defects in real time, giving VISN leadership and site data administrators an immediate, objective grade on data readiness.
+            </p>
+        </div>
+
+        <!-- SECTION 2: SCORING ALGORITHM -->
+        <div class="card">
+            <h2>2. Data Quality Scoring Algorithm</h2>
+            <p>
+                The overall data quality score is calculated on a 0 to 100 scale using a weighted penalty formula based on four key integrity dimensions:
+            </p>
+            <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse; margin-top:12px; font-size:14px;">
+                    <thead>
+                        <tr style="border-bottom:2px solid var(--line-docs); text-align:left;">
+                            <th style="padding:10px 14px;">Dimension</th>
+                            <th style="padding:10px 14px;">Weight</th>
+                            <th style="padding:10px 14px;">Severity</th>
+                            <th style="padding:10px 14px;">Detection Logic</th>
+                            <th style="padding:10px 14px;">Operational Impact</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom:1px solid var(--line-docs);">
+                            <td style="padding:10px 14px;"><strong>Missing EIL / CMR</strong></td>
+                            <td style="padding:10px 14px; font-weight:700; color:#ef4444;">40 pts</td>
+                            <td style="padding:10px 14px;"><span class="chip" style="background:rgba(239,68,68,0.15); color:#ef4444;">High</span></td>
+                            <td style="padding:10px 14px;"><code>text8 IS NULL OR text8 = ''</code></td>
+                            <td style="padding:10px 14px;">Cannot be grouped into CMR inventory batches; fails VistA sync.</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--line-docs);">
+                            <td style="padding:10px 14px;"><strong>Missing Location</strong></td>
+                            <td style="padding:10px 14px; font-weight:700; color:#f59e0b;">25 pts</td>
+                            <td style="padding:10px 14px;"><span class="chip" style="background:rgba(245,158,11,0.15); color:#f59e0b;">High</span></td>
+                            <td style="padding:10px 14px;"><code>locationid IS NULL</code></td>
+                            <td style="padding:10px 14px;">Cannot be verified during room sweeps; always flagged as misplaced.</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--line-docs);">
+                            <td style="padding:10px 14px;"><strong>Malformed EE Name</strong></td>
+                            <td style="padding:10px 14px; font-weight:700; color:#f59e0b;">25 pts</td>
+                            <td style="padding:10px 14px;"><span class="chip" style="background:rgba(245,158,11,0.15); color:#f59e0b;">Medium</span></td>
+                            <td style="padding:10px 14px;">Name does not match <code>[Station] EE[0-9]+</code> standard</td>
+                            <td style="padding:10px 14px;">Fails barcode lookup rules and handheld scanner regex matchers.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:10px 14px;"><strong>Status Not 'In Use'</strong></td>
+                            <td style="padding:10px 14px; font-weight:700; color:#10b981;">10 pts</td>
+                            <td style="padding:10px 14px;"><span class="chip" style="background:rgba(16,185,129,0.15); color:#10b981;">Low</span></td>
+                            <td style="padding:10px 14px;"><code>listvalue1 &lt;&gt; 'In Use'</code> (5% allowance)</td>
+                            <td style="padding:10px 14px;">Indicates assets marked as Disposed, Turn-In, or Storage still in active tables.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <h3 style="margin-top:24px; font-size:16px;">Letter Grade Thresholds</h3>
+            <ul style="color:var(--text-docs); line-height:1.8;">
+                <li><strong style="color:#10b981;">A &mdash; Excellent (90&ndash;100):</strong> Clean data; ready for full production automation.</li>
+                <li><strong style="color:#10b981;">B &mdash; Good (80&ndash;89):</strong> Minor metadata gaps; safe for operational inventory sweeps.</li>
+                <li><strong style="color:#f59e0b;">C &mdash; Fair (70&ndash;79):</strong> Moderate naming or CMR deficiencies; remediation recommended.</li>
+                <li><strong style="color:#f97316;">D &mdash; Poor (60&ndash;69):</strong> Significant location or EIL omissions; impacts field scanning accuracy.</li>
+                <li><strong style="color:#ef4444;">F &mdash; Critical (&lt; 60):</strong> Major structural defects; requires immediate database reconciliation.</li>
+            </ul>
+        </div>
+
+        <!-- SECTION 3: KEY CAPABILITIES -->
+        <div class="card">
+            <h2>3. Core Features &amp; Workflow</h2>
+            <ul>
+                <li>
+                    <strong>Facility &amp; Company Filtering:</strong>
+                    Dropdown allows filtering data quality metrics across all sites or targeting a specific medical center (e.g., 512 Perry Point, 540 Clarksburg, 613 Martinsburg). Multi-tenant permissions restrict users to their authorized sites.
+                </li>
+                <li>
+                    <strong>Interactive AJAX Data Previews:</strong>
+                    Each issue card features a <strong>Preview (Top 50)</strong> toggle that loads records via fast JSON API (<code>va_data_quality.aspx?api=preview</code>) without refreshing the entire page. Includes inline client-side column filtering.
+                </li>
+                <li>
+                    <strong>Bulk Excel Export:</strong>
+                    Clicking <strong>Export All</strong> downloads a full multi-tab or combined Excel spreadsheet containing all flagged records for offline remediation and field coordination.
+                </li>
+                <li>
+                    <strong>Direct Hub Integration:</strong>
+                    Accessible from the <strong>Reports</strong> section of the main iDash portal (<code>index.aspx</code>) and integrated with Asset Master search filters.
+                </li>
+            </ul>
+        </div>
+
+        <!-- SECTION 4: SOURCE FILES -->
+        <div class="card">
+            <h2>4. Source File Registry</h2>
+            <table style="width:100%; border-collapse:collapse; font-size:14px;">
+                <thead>
+                    <tr style="border-bottom:2px solid var(--line-docs); text-align:left;">
+                        <th style="padding:8px 12px;">Component</th>
+                        <th style="padding:8px 12px;">File</th>
+                        <th style="padding:8px 12px;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px 12px;">Frontend UI</td>
+                        <td style="padding:8px 12px;"><code>va_data_quality.aspx</code></td>
+                        <td style="padding:8px 12px;">Command Center interface with SVG gauge ring, issue cards, and preview table.</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid var(--line-docs);">
+                        <td style="padding:8px 12px;">Backend C# Logic</td>
+                        <td style="padding:8px 12px;"><code>va_data_quality.aspx.cs</code></td>
+                        <td style="padding:8px 12px;">SQL aggregation queries, site filtering, JSON preview API, and Excel export.</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px 12px;">Documentation</td>
+                        <td style="padding:8px 12px;"><code>documentation/va_data_quality.html</code></td>
+                        <td style="padding:8px 12px;">Technical documentation, scoring formulas, and user guide.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="text-align:center; color:var(--muted-docs); font-size:12px; margin-top:40px;">
+            iDash Documentation &middot; ID Integration Inc. &copy; 2026 ID Integration Inc.
+        </div>
+    </div>
+</body>
+</html>

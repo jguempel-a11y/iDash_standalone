@@ -1,0 +1,868 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>API REFERENCE &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .endpoint { background:var(--chip); border:1px solid var(--line); border-radius:10px; padding:16px; margin-bottom:12px; }
+        .endpoint .method { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:4px; margin-right:8px; font-family:monospace; }
+        .endpoint .method.get { background:color-mix(in srgb,#10b981 20%,transparent); color:#10b981; border:1px solid #10b981; }
+        .endpoint .method.post { background:color-mix(in srgb,#3b82f6 20%,transparent); color:#3b82f6; border:1px solid #3b82f6; }
+        .endpoint .method.put { background:color-mix(in srgb,#f59e0b 20%,transparent); color:#f59e0b; border:1px solid #f59e0b; }
+        .endpoint .method.delete { background:color-mix(in srgb,#ef4444 20%,transparent); color:#ef4444; border:1px solid #ef4444; }
+        .endpoint .path { font-family:monospace; font-weight:600; font-size:14px; }
+        .endpoint .desc { font-size:13px; color:var(--muted); margin-top:6px; }
+        .endpoint .used-in { font-size:11px; color:var(--muted); margin-top:6px; }
+        .endpoint .used-in a { color:var(--accent); text-decoration:none; }
+        .endpoint .params { margin-top:10px; font-size:12px; }
+        .endpoint .params table { width:100%; border-collapse:collapse; }
+        .endpoint .params th { text-align:left; font-weight:600; padding:4px 8px; border-bottom:1px solid var(--line); }
+        .endpoint .params td { padding:4px 8px; border-bottom:1px solid var(--line); font-size:12px; }
+        .endpoint .params code { background:color-mix(in srgb,var(--accent) 10%,transparent); padding:1px 4px; border-radius:3px; font-size:11px; }
+        .api-section { margin-top:40px; margin-bottom:20px; }
+        .api-section h3 { margin-bottom:4px; }
+        .base-url { background:var(--chip); border:1px solid var(--line); border-radius:8px; padding:10px 14px; font-family:monospace; font-size:13px; margin:10px 0 16px 0; }
+        .example-block { background:var(--preview-bg); border:1px solid var(--line); border-radius:8px; padding:12px; margin:8px 0; font-family:monospace; font-size:12px; white-space:pre-wrap; overflow-x:auto; }
+        .badge-live { background:color-mix(in srgb,#10b981 15%,transparent); color:#10b981; border:1px solid #10b981; }
+        .badge-deprecated { background:color-mix(in srgb,#ef4444 15%,transparent); color:#ef4444; border:1px solid #ef4444; }
+        .badge-direct { background:color-mix(in srgb,#3b82f6 15%,transparent); color:#3b82f6; border:1px solid #3b82f6; }
+        .badge-sec { background:color-mix(in srgb,#10b981 18%,transparent); color:#10b981; border:1px solid #10b981; font-weight:700; }
+        .badge-zebra { background:color-mix(in srgb,#8b5cf6 18%,transparent); color:#8b5cf6; border:1px solid #8b5cf6; font-weight:700; }
+        .compliance-card { background:var(--chip); border:1px solid var(--line); border-left:4px solid #10b981; border-radius:10px; padding:16px; margin-bottom:14px; }
+        .compliance-card h4 { margin:0 0 6px 0; font-size:14px; color:var(--text); display:flex; align-items:center; gap:8px; }
+        .compliance-card p { font-size:12.5px; color:var(--muted); line-height:1.6; margin:0; }
+    </style>
+</head>
+<body>
+    <div style="display:flex; gap:8px; padding:12px 32px; background:var(--card); border-bottom:1px solid var(--line); flex-wrap:wrap; font-size:13px;">
+        <a href="../index.aspx" style="color:var(--accent); text-decoration:none; font-weight:600;">&#8962; Hub</a>
+        <span style="color:var(--muted);">&bull;</span>
+        <a href="index.aspx" style="color:var(--accent); text-decoration:none; font-weight:600;">&#128196; All Docs</a>
+    </div>
+    <div class="container">
+        <h1>&#128268; API Reference</h1>
+        <div style="margin-bottom:30px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span class="badge" style="background:color-mix(in srgb,#3b82f6 15%,transparent); color:#3b82f6; border:1px solid #3b82f6;">Reference</span>
+            <span class="badge" style="background:color-mix(in srgb,#10b981 15%,transparent); color:#10b981; border:1px solid #10b981;">Living Document</span>
+            <span class="badge badge-zebra">&#128225; Zebra TC530e / RFD40 Handheld Ready</span>
+            <span class="badge badge-sec">&#128274; NIST &amp; Section 508 Compliant</span>
+            <span class="badge" style="background:color-mix(in srgb,#0ea5e9 15%,transparent); color:#0ea5e9; border:1px solid #0ea5e9;">Production Ready 09/2026</span>
+        </div>
+
+        <p>
+            Comprehensive reference for every external API, mobile device scanning pipeline, and internal WebMethod consumed by iDash. Includes endpoint URLs, methods, authentication, request/response formats, Zebra handheld scanning pipelines (DataWedge &amp; Enterprise Browser), and federal compliance standards (NIST SP 800-53, Section 508). This is the single source of truth for API integration.
+        </p>
+
+        <!-- TABLE OF CONTENTS -->
+        <div style="background:var(--chip); border:1px solid var(--line); border-radius:12px; padding:18px; margin-bottom:30px;">
+            <strong>Contents</strong>
+            <ul style="margin:8px 0 0 0; padding-left:20px; line-height:2;">
+                <li><a href="#sec-idash">iDash REST API</a> &mdash; Asset CRUD, printing, readers, scanners</li>
+                <li><a href="#sec-zebra">Zebra IoT Connector REST API</a> &mdash; FX9600 fixed reader management</li>
+                <li><a href="#sec-zebra-mobile">Zebra Handheld &amp; Mobile Scanning APIs</a> &mdash; TC530e, RFD40/RFD90, DataWedge &amp; EB</li>
+                <li><a href="#sec-rabbitmq">RabbitMQ Management API</a> &mdash; Broker monitoring</li>
+                <li><a href="#sec-fhir">VA FHIR / VistA API</a> &mdash; Clinical data bridge</li>
+                <li><a href="#sec-idash-internal">iDash Internal APIs</a> &mdash; AJAX endpoints within iDash pages</li>
+                <li><a href="#sec-mobile-inventory">Mobile Inventory &amp; Real-Time Sweep WebMethods</a> &mdash; va_inventory.aspx &amp; va_zebra_browser_test.aspx</li>
+                <li><a href="#sec-mobile-handlers">Mobile Live Scan &amp; Remote Import Handlers</a> &mdash; LiveScanHandler.ashx &amp; va_remote_import.ashx</li>
+                <li><a href="#sec-mqtt">MQTT Topics</a> &mdash; Pub/sub topics for tag data and print notifications</li>
+                <li><a href="#sec-compliance">Security, Authorization &amp; Federal Compliance Standards</a> &mdash; NIST SP 800-53, Section 508 &amp; Audit</li>
+            </ul>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- iDash API -->
+        <!-- ============================================================ -->
+        <div class="api-section" id="sec-idash">
+            <h2>&#128279; iDash REST API</h2>
+            <p>The iDash API is a .NET Web API hosted in the same IIS application pool as the iDash web portal.
+               It provides CRUD operations for assets, readers, antennas, print jobs, and user accounts.</p>
+
+            <div class="base-url">
+                <strong>Base URL:</strong> http://localhost/api<br/>
+                <strong>Auth:</strong> OAuth 2.0 Client Credentials (per-site <code>clientapp</code> entries in DB)<br/>
+                <strong>Token Endpoint:</strong> <code>POST /api/oauth/token</code><br/>
+                <strong>Content-Type:</strong> application/json
+            </div>
+
+            <h3>Authentication</h3>
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="path">/api/oauth/token</span>
+                <div class="desc">Obtain an OAuth 2.0 bearer token using client credentials. Each site has its own <code>clientapp</code> entry
+                    (e.g., <code>idash_540</code>, <code>idash_517</code>) so the token carries the correct <code>cmpid</code> claim.</div>
+                <div class="params">
+                    <strong>Request Body</strong> (form-urlencoded):
+                    <table>
+                        <tr><th>Parameter</th><th>Value</th></tr>
+                        <tr><td><code>grant_type</code></td><td><code>client_credentials</code></td></tr>
+                        <tr><td><code>client_id</code></td><td>e.g. <code>idash_512</code></td></tr>
+                        <tr><td><code>client_secret</code></td><td>From <code>dbo.clientapp.secret</code></td></tr>
+                    </table>
+                    <strong style="display:block;margin-top:8px;">Response:</strong>
+                    <div class="example-block">{ "access_token": "eyJ...", "token_type": "bearer", "expires_in": 86400 }</div>
+                </div>
+                <div class="used-in">Used in: <a href="../App_Code/IdashApiHelper.cs">IdashApiHelper.cs</a></div>
+            </div>
+
+            <h3>Print Jobs</h3>
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="path">/api/printjob/print</span>
+                <div class="desc">Create a print job, generate RFID tag, insert <code>dbo.printjob</code> row, and notify the native Print Server via MQTT on port 8883.
+                    <br/><strong style="color:#10b981;">✔ Active Native Pipeline:</strong> iDash uses this endpoint as the primary printing mechanism via <code>IdashApiHelper.SubmitPrintJob()</code>, providing 100% independent server-side label printing without external scripts. Automatic database fallback is included if the API is offline.</div>
+                <div class="params">
+                    <strong>Request Body</strong> (JSON):
+                    <div class="example-block">{
+  "id": -1,
+  "recordID": 12345,
+  "templateID": 7,
+  "tableName": "Asset",
+  "useWithService": ""
+}</div>
+                    <strong>Response:</strong> Print job ID (integer) on success, or error message string.
+                </div>
+                <div class="used-in">
+                    Used in: <a href="../App_Code/IdashApiHelper.cs">IdashApiHelper.cs</a> (Asset Master, Excel Print, Tag Team Scan, Print Admin)<br/>
+                    <span class="badge badge-get" style="background:var(--accent); color:#fff; font-size:10px;">Primary Print Engine</span>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/api/PrintJobs/New</span>
+                <div class="desc">Returns uncompleted print jobs (<code>completed=0</code>). Used by administrative tools to monitor pending queues.</div>
+                <div class="used-in">Used by: Print Queue Admin & Diagnostics</div>
+            </div>
+
+            <h3>Readers</h3>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/api/readers/</span>
+                <div class="desc">List all registered fixed readers. Returns reader name, model, IP, location, company, last seen, and status.</div>
+                <div class="used-in">Used in: <a href="../va_reader_config.aspx">va_reader_config.aspx</a>, <a href="../va_fixed_reader.aspx">va_fixed_reader.aspx</a></div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/api/readers/{id}</span>
+                <div class="desc">Get a specific reader by database ID.</div>
+                <div class="used-in">Used in: <a href="../va_reader_config.aspx">va_reader_config.aspx</a></div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/api/readers/Unregistered</span>
+                <div class="desc">List readers that have connected to the MQTT broker but are not yet registered in <code>dbo.reader</code>.
+                    Used during initial reader setup to auto-discover new hardware.</div>
+                <div class="used-in">Used in: <a href="../va_reader_config.aspx">va_reader_config.aspx</a> (auto-discover feature)</div>
+            </div>
+
+            <h3>Antennas</h3>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/api/antennas/Count</span>
+                <div class="desc">Get the total count of registered antennas across all readers.</div>
+                <div class="used-in">Used in: <a href="../va_fixed_reader.aspx">va_fixed_reader.aspx</a></div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/api/antennas/Reader/{readerId}</span>
+                <div class="desc">Get all antennas for a specific reader. Returns port number, location mapping, and configuration.</div>
+                <div class="used-in">Used in: <a href="../va_reader_config.aspx">va_reader_config.aspx</a></div>
+            </div>
+
+            <h3>Health</h3>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/api/health</span>
+                <div class="desc">Basic health check. Returns 200 OK if the API is running.</div>
+                <div class="used-in">Used in: <a href="../va_reader_config.aspx">va_reader_config.aspx</a>, <a href="../va_system_diagnostics.aspx">va_system_diagnostics.aspx</a></div>
+            </div>
+
+            <h3>Assets</h3>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/api/asset/{id}</span>
+                <div class="desc">Get a single asset record by ID. Returns full asset fields including name, description, EIL, tag data, location.</div>
+                <div class="used-in">Used in: <a href="../va_system_diagnostics.aspx">va_system_diagnostics.aspx</a> (batch test simulation)</div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- ZEBRA IoT CONNECTOR API -->
+        <!-- ============================================================ -->
+        <div class="api-section" id="sec-zebra">
+            <h2>&#128225; Zebra IoT Connector REST API</h2>
+            <p>Local REST API running on each Zebra FX9600 fixed reader. Provides hardware management, configuration,
+               firmware updates, and tag-reading control. Accessed via the reader's IP address.</p>
+            <p><strong>Official Docs:</strong>
+                <a href="https://zebradevs.github.io/rfid-ziotc-docs/_static/api/redoc-static.html" target="_blank">Zebra IoT Connector API Reference</a> |
+                <a href="https://zebradevs.github.io/rfid-ziotc-docs/schemas/raw_mqtt_payloads/commands/index.html" target="_blank">MQTT Command Schemas</a>
+            </p>
+
+            <div class="base-url">
+                <strong>Base URL:</strong> https://{reader-ip}/api/v1 (e.g. https://192.168.4.47/api/v1)<br/>
+                <strong>Auth:</strong> JWT &mdash; obtained via Basic Auth on <code>/cloud/localRestLogin</code><br/>
+                <strong>TLS:</strong> Self-signed certificate (accept in browser or use <code>ServerCertificateValidationCallback</code>)<br/>
+                <strong>Default Credentials:</strong> <code>admin</code> / <code>change</code> (factory default)
+            </div>
+
+            <h3>Authentication</h3>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/cloud/localRestLogin</span>
+                <div class="desc">Authenticate with HTTP Basic Auth. Returns a JWT token used for all subsequent calls.
+                    Token should be sent as <code>Authorization: Bearer {jwt}</code>.</div>
+                <div class="params">
+                    <strong>Headers:</strong>
+                    <div class="example-block">Authorization: Basic {base64(username:password)}
+Content-Type: application/json</div>
+                    <strong>Response:</strong>
+                    <div class="example-block">{ "message": "Login successful", "token": "eyJ..." }</div>
+                </div>
+                <div class="used-in">Used in: <a href="../va_reader_config.aspx">va_reader_config.aspx</a> (Hardware Intelligence panel)</div>
+            </div>
+
+            <h3>Status &amp; Version</h3>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/cloud/version</span>
+                <div class="desc">Get firmware version, model, serial number, MAC address, and radio firmware version.</div>
+                <div class="params">
+                    <strong>Response:</strong>
+                    <div class="example-block">{
+  "FirmwareVersion": "3.12.22",
+  "HardwareId": "FX9600F78C85",
+  "ModelName": "FX9600",
+  "RadioFirmware": "2.6.4.240",
+  "RadioSerialNumber": "...",
+  "EthernetMacAddress": "84:24:8D:F7:8C:85"
+}</div>
+                </div>
+                <div class="used-in">Used in: <a href="../va_reader_config.aspx">va_reader_config.aspx</a> <span class="badge badge-live" style="font-size:10px;">Live</span></div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/cloud/status</span>
+                <div class="desc">Get real-time reader status: CPU usage, memory, flash storage, uptime, radio state, temperature.</div>
+                <div class="params">
+                    <strong>Response:</strong>
+                    <div class="example-block">{
+  "CPUUtilization": "12%",
+  "MemFreeKB": 89400,
+  "FlashFreeKB": 112500,
+  "Uptime": "14 days, 3:22:15",
+  "RadioState": "CONNECTED",
+  "TemperatureC": 42
+}</div>
+                </div>
+                <div class="used-in">Used in: <a href="../va_reader_config.aspx">va_reader_config.aspx</a> <span class="badge badge-live" style="font-size:10px;">Live</span></div>
+            </div>
+
+            <h3>Network &amp; Configuration</h3>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/cloud/network</span>
+                <div class="desc">Get current network configuration: IP, subnet, gateway, DNS, DHCP status.</div>
+                <div class="used-in">Used in: <a href="../va_reader_config.aspx">va_reader_config.aspx</a></div>
+            </div>
+            <div class="endpoint">
+                <span class="method put">PUT</span>
+                <span class="path">/cloud/network</span>
+                <div class="desc">Update network settings. Can change IP address, subnet mask, gateway, DNS servers. <strong>Use with caution</strong> &mdash; changing IP will disconnect the reader.</div>
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span><span class="method put">PUT</span>
+                <span class="path">/cloud/hostname</span>
+                <div class="desc">Get or set the reader's hostname.</div>
+                <div class="used-in">Used in: <a href="../va_reader_config.aspx">va_reader_config.aspx</a></div>
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span><span class="method put">PUT</span>
+                <span class="path">/cloud/ntpServer</span>
+                <div class="desc">Get or configure the NTP time server.</div>
+                <div class="used-in">Used in: <a href="../va_reader_config.aspx">va_reader_config.aspx</a></div>
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span><span class="method put">PUT</span>
+                <span class="path">/cloud/timeZone</span>
+                <div class="desc">Get or set the reader's timezone.</div>
+                <div class="used-in">Used in: <a href="../va_reader_config.aspx">va_reader_config.aspx</a></div>
+            </div>
+
+            <h3>Reader Control</h3>
+            <div class="endpoint">
+                <span class="method put">PUT</span>
+                <span class="path">/cloud/start</span>
+                <div class="desc">Start tag reading with current operating mode and antenna configuration.</div>
+                <div class="used-in">Used in: <a href="../va_reader_config.aspx">va_reader_config.aspx</a></div>
+            </div>
+            <div class="endpoint">
+                <span class="method put">PUT</span>
+                <span class="path">/cloud/stop</span>
+                <div class="desc">Stop tag reading.</div>
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span><span class="method put">PUT</span>
+                <span class="path">/cloud/mode</span>
+                <div class="desc">Get or set the operating mode: <code>SIMPLE</code>, <code>INVENTORY</code>, <code>PORTAL</code>, <code>CONVEYOR</code>, <code>CUSTOM</code>, <code>DIRECTIONALITY</code>.
+                    PUT also configures antennas, transmit power, RSSI filters, and tag metadata fields.</div>
+                <div class="params">
+                    <strong>PUT Body Example</strong> (set inventory mode with antenna 1 at 30 dBm):
+                    <div class="example-block">{
+  "type": "INVENTORY",
+  "antennas": [{"antennaId": 1, "transmitPowerCdBm": 3000}],
+  "filter": {"match": "EPC", "operation": "NONE"},
+  "tagMetaData": ["EPC", "ANTENNA_ID", "PEAK_RSSI", "LAST_SEEN_TIME"]
+}</div>
+                </div>
+                <div class="used-in">Used in: <a href="../va_reader_config.aspx">va_reader_config.aspx</a></div>
+            </div>
+
+            <h3>GPIO</h3>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/cloud/gpi</span>
+                <div class="desc">Get general purpose input port states.</div>
+                <div class="used-in">Used in: <a href="../va_reader_config.aspx">va_reader_config.aspx</a></div>
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span><span class="method put">PUT</span>
+                <span class="path">/cloud/gpo</span>
+                <div class="desc">Get or set general purpose output port states (HIGH/LOW).</div>
+                <div class="used-in">Used in: <a href="../va_reader_config.aspx">va_reader_config.aspx</a></div>
+            </div>
+
+            <h3>Firmware &amp; Config</h3>
+            <div class="endpoint">
+                <span class="method put">PUT</span>
+                <span class="path">/cloud/os</span>
+                <div class="desc">Push firmware update from an HTTP URL. The reader downloads and installs the firmware file, then reboots.</div>
+                <div class="params">
+                    <strong>PUT Body:</strong>
+                    <div class="example-block">{ "httpURL": "http://192.168.4.48:8888/FX9600_RFID_v3.12.22.zip" }</div>
+                </div>
+                <div class="used-in">Used in: <a href="../va_reader_config.aspx">va_reader_config.aspx</a> (Firmware Push feature)</div>
+            </div>
+            <div class="endpoint">
+                <span class="method put">PUT</span>
+                <span class="path">/cloud/revertbackOS</span>
+                <div class="desc"><strong>Rollback firmware</strong> to the previous version stored on the secondary partition.
+                    Extremely valuable for recovering from bad firmware updates without physical access.</div>
+            </div>
+            <div class="endpoint">
+                <span class="method put">PUT</span>
+                <span class="path">/cloud/reboot</span>
+                <div class="desc">Reboot the reader. Returns immediately; reader takes ~60 seconds to come back online.</div>
+                <div class="used-in">Used in: <a href="../va_reader_config.aspx">va_reader_config.aspx</a></div>
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span><span class="method put">PUT</span>
+                <span class="path">/cloud/config</span>
+                <div class="desc">Backup or restore the complete reader configuration as a JSON blob. GET returns the current config; PUT restores a previously saved config.</div>
+                <div class="used-in">Used in: <a href="../va_reader_config.aspx">va_reader_config.aspx</a> (Backup &amp; Restore)</div>
+            </div>
+
+            <h3>Diagnostics &amp; Logs</h3>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/cloud/logs/{logType}</span>
+                <div class="desc">Pull reader logs. Log types: <code>syslog</code>, <code>radioPacketLog</code>, <code>RgErrorLog</code>, <code>RgWarningLog</code>, <code>RcLog</code>.</div>
+                <div class="used-in">Used in: <a href="../va_reader_config.aspx">va_reader_config.aspx</a></div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- ZEBRA HANDHELD & MOBILE SCANNING ARCHITECTURE -->
+        <!-- ============================================================ -->
+        <div class="api-section" id="sec-zebra-mobile">
+            <h2>&#128241; Zebra Handheld &amp; Mobile Scanning Architecture</h2>
+            <p>Direct hardware-level integration for handheld RFID sweeps and barcode scans across VA medical facilities. Designed specifically for <strong>Zebra TC53 / TC530e Touch Computers</strong> coupled with <strong>RFD40 Standard / Premium Plus or RFD90 Ultra-Rugged UHF RFID Sleds</strong> (via 8-pin eConnex mount), as well as Zebra MC3300x mobile computers.</p>
+
+            <div class="base-url">
+                <strong>Target Platforms:</strong> Zebra TC530e, TC53, TC26, MC3300x + RFD40/RFD90 UHF RFID Sleds<br/>
+                <strong>Ingestion Modes:</strong> Zebra DataWedge (Keystroke &amp; Intent Output), Zebra Enterprise Browser (EB) JS API<br/>
+                <strong>Sweep Performance:</strong> 30–50 tags/sec continuous trigger hold with 0ms UI lag (Synchronous in-memory matching)<br/>
+                <strong>EPC Normalization:</strong> VA EE Formats (<code>^(\d{3})EE([A-Z0-9]+)$</code>) with automatic <code>FF</code> checksum stripping
+            </div>
+
+            <h3>Zebra DataWedge Ingestion Pipeline</h3>
+            <div class="endpoint">
+                <span class="method post">KEYSTROKE / INTENT</span>
+                <span class="path">DataWedge Profile: "idash_portal"</span>
+                <div class="desc">
+                    Zebra DataWedge intercepts hardware trigger events from the barcode imager or RFD40 RFID sled, buffers the scanned payload, and delivers it to the active browser input field or broadcast intent receiver.
+                    <br/><strong style="color:#10b981;">✔ Zero-Flicker Hardware Buffer:</strong> Configured with 5ms inter-character delay and Enter/CR (<code>\n</code>) suffix. The input field in <code>va_inventory.aspx</code> captures continuous tag bursts while user holds the trigger, passing tokens directly to the in-memory lookup table.
+                </div>
+                <div class="params">
+                    <strong>DataWedge Profile Configuration:</strong>
+                    <table>
+                        <tr><th>Setting</th><th>Required Value</th><th>Purpose</th></tr>
+                        <tr><td>Profile Name</td><td><code>idash_portal</code></td><td>Associated with Chrome / Zebra Enterprise Browser package</td></tr>
+                        <tr><td>Barcode Input</td><td>Enabled (Code 39, Code 128, DataMatrix, QR)</td><td>Scans room barcodes (<code>SP...</code>) &amp; asset serials</td></tr>
+                        <tr><td>RFID Input</td><td>Enabled (RFD40/RFD90 eConnex)</td><td>Continuous EPC streaming on trigger hold</td></tr>
+                        <tr><td>Keystroke Output</td><td>Enabled (Action: Send Enter / <code>\n</code>)</td><td>Delivers tag stream to focused DOM input</td></tr>
+                        <tr><td>Intent Output</td><td>Action: <code>com.idash.idash.SCAN</code></td><td>Background headless capture (optional)</td></tr>
+                    </table>
+                </div>
+                <div class="used-in">Used in: <a href="../va_inventory.aspx">va_inventory.aspx</a>, <a href="../va_zebra_browser_test.aspx">va_zebra_browser_test.aspx</a></div>
+            </div>
+
+            <h3>Zebra Enterprise Browser (EB) JavaScript APIs</h3>
+            <div class="endpoint">
+                <span class="method get">JS API</span>
+                <span class="path">EB.Barcode / EB.RFID</span>
+                <div class="desc">Native hardware control within Zebra Enterprise Browser runtime. Bypasses keystroke emulation for direct programmatic control over illumination, beeper volume, and sled antenna transmit power.</div>
+                <div class="params">
+                    <strong>EB JavaScript Invocation Example:</strong>
+                    <div class="example-block">// Enable Barcode Scanner with hardware callback
+EB.Barcode.enable({
+    allDecoders: true,
+    picklistMode: 'hardware'
+}, function(scanResult) {
+    if (scanResult && scanResult.data) {
+        processTag(scanResult.data);
+    }
+});
+
+// Configure RFD40 UHF Sled Transmit Power (1000 - 3000 cdm = 10 - 30 dBm)
+if (window.EB && EB.RFID) {
+    EB.RFID.setAntennaPower(2700); // 27 dBm standard room sweep
+}</div>
+                </div>
+                <div class="used-in">Used in: <a href="../va_zebra_browser_test.aspx">va_zebra_browser_test.aspx</a>, <a href="../va_zebra_browser_test_2.aspx">va_zebra_browser_test_2.aspx</a></div>
+            </div>
+
+            <h3>In-Memory Tag Normalization &amp; Auto-Location Switching</h3>
+            <div class="endpoint">
+                <span class="method get">RULE ENGINE</span>
+                <span class="path">Synchronous Tag &amp; Location Matcher</span>
+                <div class="desc">
+                    Client-side token parser executes in sub-millisecond memory time. Automatically distinguishes location barcodes from asset tags, normalizes EPC hex into human-readable VA asset names, and detects misplaced equipment.
+                </div>
+                <div class="params">
+                    <strong>Parsing Rules:</strong>
+                    <table>
+                        <tr><th>Pattern</th><th>Classification</th><th>Action Taken</th></tr>
+                        <tr><td><code>SP*</code> (e.g. <code>SP008-BD. 8A</code>)</td><td>Location / Room Barcode</td><td>Instantly updates room selection &amp; fetches room manifest via <code>LoadLocationAssets</code></td></tr>
+                        <tr><td><code>^(\d{3})EE([A-Z0-9]+)$</code></td><td>VA EPC Tag (Compact)</td><td>Normalizes to <code>{Site} EE{Core}</code>, strips trailing <code>FF</code> checksum byte</td></tr>
+                        <tr><td><code>E280116060...</code></td><td>Raw SGTIN-96 / Gen2 EPC</td><td>Maps to database asset record via <code>a.rfidtag</code> index</td></tr>
+                        <tr><td>Alphanumeric / Serial</td><td>Manufacturer Serial Number</td><td>Matches against <code>a.text3</code> or <code>a.text8</code></td></tr>
+                    </table>
+                </div>
+                <div class="used-in">Used in: <a href="../va_inventory.aspx">va_inventory.aspx</a>, <a href="../va_zebra_browser_test.aspx">va_zebra_browser_test.aspx</a></div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- RABBITMQ MANAGEMENT API -->
+        <!-- ============================================================ -->
+        <div class="api-section" id="sec-rabbitmq">
+            <h2>&#128007; RabbitMQ Management API</h2>
+            <p>HTTP API provided by the RabbitMQ management plugin. Used by iDash to monitor broker health,
+               connection counts, and queue depths. Proxied through <code>va_site_config.aspx</code> to avoid CORS issues.</p>
+
+            <div class="base-url">
+                <strong>Base URL:</strong> http://localhost:15672/api<br/>
+                <strong>Auth:</strong> HTTP Basic Auth (<code>guest:guest</code> default)<br/>
+                <strong>iDash Proxy:</strong> <code>va_site_config.aspx?api=rmq&amp;path={endpoint}</code>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/api/overview</span>
+                <div class="desc">Broker overview: Erlang version, RabbitMQ version, message rates, queue totals, connection counts.</div>
+                <div class="used-in">Used in: <a href="../va_site_config.aspx">va_site_config.aspx</a> (RabbitMQ Broker Status panel)</div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/api/connections</span>
+                <div class="desc">List all active MQTT/AMQP connections. Shows client ID, connected since, channel count, state.</div>
+                <div class="used-in">Used in: <a href="../va_site_config.aspx">va_site_config.aspx</a></div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/api/queues</span>
+                <div class="desc">List all queues with message counts, consumer counts, and message rates.</div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- FHIR / VISTA API -->
+        <!-- ============================================================ -->
+        <div class="api-section" id="sec-fhir">
+            <h2>&#127973; VA FHIR / VistA API</h2>
+            <p>Integration with the VA Lighthouse FHIR API for clinical data. Used by the FHIR Bridge module
+               to cross-reference asset data with patient/location information from VistA.</p>
+
+            <div class="base-url">
+                <strong>Base URL:</strong> https://sandbox-api.va.gov/services/fhir/v0/r4 (sandbox)<br/>
+                <strong>Auth:</strong> OAuth 2.0 &mdash; <code>POST /oauth2/{tenant}/v1/token</code><br/>
+                <strong>Scopes:</strong> <code>launch patient/*.read</code>
+            </div>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="path">/oauth2/{tenant}/v1/token</span>
+                <div class="desc">Obtain access token for FHIR API calls. Uses client credentials or authorization code flow.</div>
+                <div class="used-in">Used in: <a href="../va_fhir_bridge.aspx">va_fhir_bridge.aspx</a></div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- iDASH INTERNAL APIs -->
+        <!-- ============================================================ -->
+        <div class="api-section" id="sec-idash-internal">
+            <h2>&#128736; iDash Internal APIs</h2>
+            <p>AJAX endpoints built into iDash pages. These are query-string-based APIs on <code>.aspx</code> pages
+               that return JSON. No external dependencies &mdash; they query the database directly.</p>
+
+            <div class="base-url">
+                <strong>Base URL:</strong> http://localhost/iDash<br/>
+                <strong>Auth:</strong> iDash session cookie (no separate auth needed)<br/>
+                <strong>Format:</strong> <code>{page}.aspx?api={command}&amp;{params}</code>
+            </div>
+
+            <h3>Asset Master</h3>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/iDash/va_asset_master.aspx?api=detail&amp;id={assetId}</span>
+                <div class="desc">Get full detail for a single asset including all fields, tag data, and metadata.</div>
+            </div>
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="path">/iDash/va_asset_master.aspx?api=update&amp;id={assetId}</span>
+                <div class="desc">Update asset fields (inline edit from the detail drawer).</div>
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/iDash/va_asset_master.aspx?api=locationhistory&amp;id={assetId}</span>
+                <div class="desc">Get location history timeline for an asset.</div>
+            </div>
+
+            <h3>Site Config</h3>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/iDash/va_site_config.aspx?api=rmq&amp;path={endpoint}</span>
+                <div class="desc">Server-side proxy to RabbitMQ Management API. Avoids CORS by routing through the ASP.NET backend.</div>
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/iDash/va_site_config.aspx?api=svc&amp;cmd=status</span>
+                <div class="desc">Get status of all managed services: RabbitMQ, Print Server, IIS (W3SVC), Antenna Service.</div>
+            </div>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/iDash/va_site_config.aspx?api=svc&amp;cmd=restartAll</span>
+                <div class="desc">Restart all services in order: RabbitMQ &rarr; IIS &rarr; Print Server.</div>
+            </div>
+
+            <h3>License Manager</h3>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/iDash/va_license_manager.aspx?action=api&amp;cmd=getAll</span>
+                <div class="desc">Get all license-consuming registrations: readers, servers, users, scanners, MQTT clients.</div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- MOBILE INVENTORY & REAL-TIME SWEEP WEBMETHODS -->
+        <!-- ============================================================ -->
+        <div class="api-section" id="sec-mobile-inventory">
+            <h2>&#128225; Mobile Inventory &amp; Real-Time Sweep WebMethods</h2>
+            <p>Server-side AJAX WebMethods exposed on <code>va_inventory.aspx</code> and <code>va_zebra_browser_test.aspx</code>. Executed via standard HTTP <code>POST</code> with <code>Content-Type: application/json</code>. Every call enforces active session state and site-level isolation.</p>
+
+            <div class="base-url">
+                <strong>Base URL:</strong> http://localhost/iDash/va_inventory.aspx/{Method}<br/>
+                <strong>Alternative:</strong> http://localhost/iDash/va_zebra_browser_test.aspx/{Method}<br/>
+                <strong>Auth:</strong> Session Cookie (<code>IsAdminAuthenticated = true</code> &amp; <code>IdashSiteAccess</code> claim)<br/>
+                <strong>Content-Type:</strong> application/json; charset=utf-8
+            </div>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="path">/iDash/va_inventory.aspx/GetSessionState</span>
+                <div class="desc">Verify mobile operator session, identify assigned VA facility, and resolve user permissions.</div>
+                <div class="params">
+                    <strong>Request Body:</strong> <code>{}</code><br/>
+                    <strong>Response:</strong>
+                    <div class="example-block">{
+  "success": true,
+  "isLoggedIn": true,
+  "username": "jguempel",
+  "displayName": "John Guempel",
+  "role": "admin",
+  "sites": [
+    { "id": 517, "name": "517 San Antonio" }
+  ]
+}</div>
+                </div>
+                <div class="used-in">Used in: <a href="../va_inventory.aspx">va_inventory.aspx</a>, <a href="../va_zebra_browser_test.aspx">va_zebra_browser_test.aspx</a></div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="path">/iDash/va_inventory.aspx/GetLocations</span>
+                <div class="desc">Retrieve distinct room and location codes for the active VA facility.</div>
+                <div class="params">
+                    <strong>Request Body:</strong> <code>{ "siteId": 517 }</code><br/>
+                    <strong>Response:</strong> <code>{ "success": true, "locations": ["SP008-BD. 8A", "SP020-BD. 8A", "SP104-BD. 1"], "siteId": 517 }</code>
+                </div>
+                <div class="used-in">Used in: <a href="../va_inventory.aspx">va_inventory.aspx</a>, <a href="../va_zebra_browser_test.aspx">va_zebra_browser_test.aspx</a></div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="path">/iDash/va_inventory.aspx/LoadLocationAssets</span>
+                <div class="desc">
+                    Fetch full room manifest. Returns all 20 VA text database fields (<code>text1</code> through <code>text20</code>), RFID tags, serial numbers, and last inventoried dates. The client hashes these records into memory for zero-latency trigger sweeps.
+                </div>
+                <div class="params">
+                    <strong>Request Body:</strong>
+                    <div class="example-block">{ "locationName": "SP008-BD. 8A", "siteId": 517 }</div>
+                    <strong>Response:</strong>
+                    <div class="example-block">{
+  "success": true,
+  "location": "SP008-BD. 8A",
+  "total": 42,
+  "assets": [
+    {
+      "id": 10244,
+      "name": "517 EE10244",
+      "rfidtag": "517EE10244FF",
+      "serialnumber": "SAW-99120",
+      "cmr": "241",
+      "tagtype": "Metal Mount",
+      "dblocation": "SP008-BD. 8A",
+      "description": "SAWS: CAST",
+      "text1": "Zimmer Patient Care Systems",
+      "text7": "517",
+      "lastinventoried": "2026-09-09 14:22:00"
+    }
+  ]
+}</div>
+                </div>
+                <div class="used-in">Used in: <a href="../va_inventory.aspx">va_inventory.aspx</a>, <a href="../va_zebra_browser_test.aspx">va_zebra_browser_test.aspx</a></div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="path">/iDash/va_inventory.aspx/ProcessScan</span>
+                <div class="desc">
+                    Real-time single scan resolution against database indexes. Determines if asset is expected in the current room, misplaced from another room, or unregistered.
+                </div>
+                <div class="params">
+                    <strong>Request Body:</strong>
+                    <div class="example-block">{
+  "scanData": "517EE10244FF",
+  "currentLocation": "SP008-BD. 8A",
+  "siteId": 517
+}</div>
+                    <strong>Response:</strong>
+                    <div class="example-block">{
+  "success": true,
+  "found": true,
+  "isExpected": true,
+  "id": 10244,
+  "name": "517 EE10244",
+  "dbLocation": "SP008-BD. 8A",
+  "serialnumber": "SAW-99120",
+  "description": "SAWS: CAST"
+}</div>
+                </div>
+                <div class="used-in">Used in: <a href="../va_inventory.aspx">va_inventory.aspx</a>, <a href="../va_zebra_browser_test.aspx">va_zebra_browser_test.aspx</a></div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="path">/iDash/va_inventory.aspx/CommitInventory</span>
+                <div class="desc">
+                    Commit reconciled room inventory to the database in one atomic transaction. Updates <code>lastinventoried</code> to current timestamp, reassigns <code>locationid</code> and <code>text6</code> to the swept room, and records operator attribution (<code>lastmodifiedby</code>).
+                </div>
+                <div class="params">
+                    <strong>Request Body:</strong>
+                    <div class="example-block">{
+  "locationName": "SP008-BD. 8A",
+  "scanDataJson": "[{\"id\":10244},{\"id\":10246}]",
+  "siteId": 517,
+  "username": "jdoe"
+}</div>
+                    <strong>Response:</strong>
+                    <div class="example-block">{ "success": true, "committed": 2, "location": "SP008-BD. 8A", "siteId": 517, "user": "jdoe" }</div>
+                </div>
+                <div class="used-in">Used in: <a href="../va_inventory.aspx">va_inventory.aspx</a>, <a href="../va_zebra_browser_test.aspx">va_zebra_browser_test.aspx</a></div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- MOBILE LIVE SCAN & REMOTE IMPORT HANDLERS -->
+        <!-- ============================================================ -->
+        <div class="api-section" id="sec-mobile-handlers">
+            <h2>&#128230; Mobile Live Scan &amp; Remote Import Handlers</h2>
+            <p>HTTP handlers (<code>.ashx</code>) powering mobile session persistence, external scan synchronization, and batch data ingest.</p>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="path">/iDash/api/LiveScanHandler.ashx?action=save</span>
+                <div class="desc">
+                    Persist a completed mobile scanning session. Stores station number, operator identity, UTC start/end timestamps, summary metrics, raw scan payload, and generated ENNX file content.
+                    <br/><strong style="color:#10b981;">✔ Security Enforcement:</strong> Requires authenticated session (<code>IRequiresSessionState</code>); unauthenticated requests return <code>HTTP 401 Unauthorized</code>.
+                </div>
+                <div class="params">
+                    <strong>Request Body:</strong>
+                    <div class="example-block">{
+  "station": "517",
+  "summary": "Total: 120 | Found: 114 | Misplaced: 4 | Missing: 2",
+  "startedUtc": "2026-09-12T16:00:00Z",
+  "endedUtc": "2026-09-12T16:24:30Z",
+  "json": "[{...full scan manifest...}]",
+  "ennx": "H 517 09/12/26...\r\nD 517 EE10244...\r\n"
+}</div>
+                    <strong>Response:</strong> <code>{ "success": true, "sessionId": 319, "message": "Live scan session saved successfully" }</code>
+                </div>
+                <div class="used-in">Used in: <a href="../va_inventory.aspx">va_inventory.aspx</a>, <a href="../va_universal_ennx.aspx">va_universal_ennx.aspx</a>, Live Scan Drawer</div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="path">/iDash/api/va_remote_import.ashx</span>
+                <div class="desc">
+                    Secure automated ingestion endpoint for mobile scanners and external cart sync tools. Accepts JSON arrays or CSV batch uploads.
+                    <br/><strong style="color:#10b981;">✔ Fail-Closed Policy:</strong> Validates <code>X-Api-Key</code> header against <code>RemoteImportKey</code> in <code>web.config</code>. Returns <code>HTTP 503</code> if unconfigured or <code>HTTP 401</code> if key is invalid.
+                </div>
+                <div class="params">
+                    <strong>Headers:</strong>
+                    <div class="example-block">X-Api-Key: {configured-remote-import-key}
+Content-Type: application/json</div>
+                    <strong>Response:</strong> <code>{ "status": "OK", "recordsProcessed": 850, "inserted": 12, "updated": 838 }</code>
+                </div>
+                <div class="used-in">Used in: External scanner synchronization, Cart sync hub, Batch ingest utilities</div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/iDash/api/v_asset.ashx</span>
+                <div class="desc">Export full asset view data as JSON for offline mobile client synchronization. Enforces active session authentication.</div>
+                <div class="used-in">Used in: Offline mobile cache pre-fetching</div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- MQTT TOPICS -->
+        <!-- ============================================================ -->
+        <div class="api-section" id="sec-mqtt">
+            <h2>&#128268; MQTT Topics</h2>
+            <p>Publish/subscribe topics used for real-time tag data and system notifications. Two separate brokers are in use.</p>
+
+            <h3>RabbitMQ Broker (port 1883)</h3>
+            <div class="base-url">
+                <strong>Broker:</strong> 127.0.0.1:1883 (non-TLS)<br/>
+                <strong>External Clients:</strong> FX9600 reader (192.168.4.47), iDash AntennaLocationService
+            </div>
+            <div class="endpoint">
+                <span class="method post">PUB</span>
+                <span class="path">reader/#</span>
+                <div class="desc">Tag read events published by fixed readers. JSON payload contains EPC, antenna port, RSSI, timestamp.
+                    The <code>AntennaLocationService</code> subscribes to this topic and updates <code>dbo.asset.locationid</code> based on antenna-to-location mappings.</div>
+                <div class="params">
+                    <strong>Example Payload:</strong>
+                    <div class="example-block">{
+  "data": {
+    "idHex": "E280116060000209AB...",
+    "reads": [{
+      "antennaPort": 2,
+      "peakRssi": -45,
+      "timestamp": "2026-09-01T15:30:00Z"
+    }]
+  }
+}</div>
+                </div>
+            </div>
+
+            <h3>API Embedded Broker (port 8883)</h3>
+            <div class="base-url">
+                <strong>Broker:</strong> 127.0.0.1:8883 (TLS)<br/>
+                <strong>Clients:</strong> Print Server (MasterPrint credentials)<br/>
+                <strong>Note:</strong> iDash no longer uses this broker for printing (Sept 2026)
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- FEDERAL SECURITY, AUTHORIZATION & COMPLIANCE -->
+        <!-- ============================================================ -->
+        <div class="api-section" id="sec-compliance">
+            <h2>&#128737; Security, Authorization &amp; Federal Compliance Standards</h2>
+            <p>Every API endpoint, mobile scanner integration, and background service in iDash is designed to satisfy federal information security mandates (NIST SP 800-53 Rev. 5), Veterans Affairs directives, and Section 508 accessibility guidelines.</p>
+
+            <div class="compliance-card">
+                <h4><span class="badge-sec">NIST AC-3</span> Authorization Consistency &amp; Fail-Closed Session Enforcement</h4>
+                <p>All directly invokable <code>.ashx</code> HTTP handlers (<code>LiveScanHandler.ashx</code>, <code>v_asset.ashx</code>) and AJAX WebMethods implement <code>IRequiresSessionState</code>. Unauthenticated requests are rejected immediately with <code>HTTP 401 Unauthorized</code>. The remote import handler (<code>va_remote_import.ashx</code>) enforces a strict fail-closed policy requiring an explicit <code>X-Api-Key</code> header matching <code>web.config</code>.</p>
+            </div>
+
+            <div class="compliance-card">
+                <h4><span class="badge-sec">NIST SC-4</span> Multi-Tenant Facility Isolation (Site Boundary Protection)</h4>
+                <p>SQL queries dynamically inject site boundary checks via <code>UserManager.GetAllowedCompanyIds()</code>. Mobile scanner operators are restricted strictly to their assigned VA medical center or station (e.g. Station 517, 540, 613). Cross-facility data queries or cross-site asset commits are blocked at the database abstraction layer.</p>
+            </div>
+
+            <div class="compliance-card">
+                <h4><span class="badge-sec">NIST AU-2 / AU-12</span> Full Operator Audit Trails &amp; Timestamping</h4>
+                <p>Every inventory sweep commit permanently updates <code>lastinventoried = SYSDATETIMEOFFSET()</code>, <code>lastmodifiedby = @username</code>, and <code>lastmodifieddate = SYSDATETIMEOFFSET()</code> in <code>dbo.asset</code>. Operator logins and access attempts are recorded in <code>dbo.login_audit</code> with client IP, timestamp, role, and authentication outcome.</p>
+            </div>
+
+            <div class="compliance-card">
+                <h4><span class="badge-sec">Section 508</span> Accessibility &amp; Mobile Scanner Ergonomics</h4>
+                <p>Scanning pages use a 4-color status identification model (Green = Found, Orange = Missing, Purple = Misplaced, Slate = Unregistered) supplemented by distinct typography, icons, and auditory tone synthesizers. Viewports are responsive and optimized for Zebra 720x1440 handheld displays with swipeable cards and touch targets exceeding 48x48px.</p>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- ARCHITECTURE DIAGRAM -->
+        <!-- ============================================================ -->
+        <h2 style="margin-top:40px;">&#127959; Architecture Overview</h2>
+        <div class="example-block" style="font-size:13px; line-height:1.6;">
+<strong>MOBILE SCANNING &amp; RECONCILIATION (Zebra TC53 / RFD40)</strong>
+  Zebra Hardware &rarr; DataWedge Keystroke / EB JS API &rarr; In-Memory Hash O(1) Match &rarr; CommitInventory &rarr; UPDATE dbo.asset
+  Dependencies: Local Wi-Fi / VPN | Session Auth | Fail-Closed Fallback
+
+<strong>LIVE SCAN SESSIONS &amp; ENNX EXPORT</strong>
+  Zebra Handheld &rarr; POST LiveScanHandler.ashx &rarr; LiveScanService &rarr; dbo.livescan_session + Universal ENNX
+  Dependencies: Authenticated Session | SQL Storage
+
+<strong>FIXED READER OBSERVATIONS</strong>
+  FX9600 &rarr; RabbitMQ :1883 &rarr; AntennaLocationService &rarr; UPDATE dbo.asset (lastobservedtime, lastobservedlocation)
+  Dependencies: RabbitMQ only | API: not used
+
+<strong>READER MANAGEMENT</strong>
+  iDash &rarr; Zebra IoT REST API (https://{reader-ip}/api/v1/cloud/*)
+  Dependencies: Reader network access | JWT auth
+
+<strong>PRINTING (iDash Native Engine)</strong>
+  iDash &rarr; POST /api/printjob/print &rarr; iDash API &rarr; Native Print Server &rarr; BarTender / Zebra ZPL
+  Fallback: Direct INSERT dbo.printjob (100% independent server-side pipeline)
+        </div>
+
+        <!-- FOOTER -->
+        <div style="margin-top:40px; padding-top:16px; border-top:1px solid var(--line); color:var(--muted); font-size:12px;">
+            <strong>Maintained by:</strong> iDash Development Team<br/>
+            <strong>Created / Updated:</strong> September 2026<br/>
+            <strong>Sources:</strong>
+            <a href="https://techdocs.zebra.com/datawedge/latest/guide/about/" target="_blank">Zebra DataWedge TechDocs</a> |
+            <a href="https://techdocs.zebra.com/enterprise-browser/latest/guide/about/" target="_blank">Zebra Enterprise Browser API</a> |
+            <a href="https://zebradevs.github.io/rfid-ziotc-docs/_static/api/redoc-static.html" target="_blank">Zebra IoT Connector API</a> |
+            <a href="https://www.rabbitmq.com/docs/management" target="_blank">RabbitMQ Management</a> |
+            <a href="https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final" target="_blank">NIST SP 800-53 Rev. 5</a> |
+            <a href="https://www.section508.gov/" target="_blank">Section 508 Standards</a>
+        </div>
+    </div>
+</body>
+</html>

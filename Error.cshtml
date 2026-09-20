@@ -1,0 +1,37 @@
+@model AspNet.Security.OpenIdConnect.Primitives.OpenIdConnectResponse
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Authentication Error";
+}
+
+<div class="container" style="margin-top: 50px;">
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="panel panel-danger">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><strong>Authentication Error</strong></h3>
+                </div>
+                <div class="panel-body">
+                    @if (Model != null)
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            <h4><strong>Error:</strong> @Model.Error</h4>
+                            <p>@Model.ErrorDescription</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            <p>An unexpected authentication error occurred.</p>
+                        </div>
+                    }
+                    <hr />
+                    <div class="text-right">
+                        <a href="/account/login" class="btn btn-primary">Go to Login</a>
+                        <a href="/" class="btn btn-default">Return to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

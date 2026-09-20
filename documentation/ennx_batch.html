@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>ENNX BATCH &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <div class="container">
+        <h1>iDash ENNX Batch Diagnostics</h1>
+        <div style="margin-bottom: 30px; display: flex; align-items: center;">
+            <div style="margin-right: 15px; color:var(--muted-docs); font-size: 14px;">Integrations:</div>
+            
+            <span class='badge badge-db'>Database Connected</span>
+        </div>
+        
+        <h2>Module Purpose</h2>
+        <p>Generates, reviews, or filters dedicated ENNX export report logic for government system synchronization.</p>
+
+        <h2>Technical Operation</h2>
+        <p>The system primarily renders the user interface through the web endpoint <code>ennx_batch.aspx</code>. It securely queries the iDash SQL database using inline ADO.NET connections (<code>SqlConnection</code>), leveraging configured network credentials to safely retrieve or update asset tracking records. </p>
+        
+        <h2>Source Architecture</h2>
+        <p>
+            Frontend Structure: <code>ennx_batch.aspx</code><br/>
+            Backend Processing: <code>ennx_batch.aspx.cs</code>
+        </p>
+        
+        <h2>Change Log</h2>
+        <div style="background:var(--chip);border:1px solid var(--line);border-radius:8px;padding:16px 20px;margin-top:12px;">
+            <div style="color:#10b981;font-weight:700;font-size:13px;margin-bottom:8px;">2026-07-01</div>
+            <ul style="display:block;padding-left:18px;list-style:disc;">
+                <li style="background:none;border:none;padding:4px 0;transform:none;"><strong>Critical Fix: <code>dbo.v_asset</code> &rarr; <code>dbo.asset</code></strong> &mdash; Changed both the summary query and the <code>GetAssetsForDay()</code> detail query from <code>dbo.v_asset</code> to <code>dbo.asset</code>. The <code>v_asset</code> view uses INNER JOINs that filter out assets missing company or location foreign-key relationships, causing recently-scanned assets to not appear in batch reports. The existing <code>LEFT JOIN dbo.location</code> was preserved.</li>
+                <li style="background:none;border:none;padding:4px 0;transform:none;"><strong>Fix: <code>a.locationname</code> column removed</strong> &mdash; The <code>locationname</code> column only exists on the <code>v_asset</code> view (via a join). Replaced <code>ISNULL(l.name, a.locationname)</code> with <code>ISNULL(l.name, a.text16)</code> (LocationTagged) and removed <code>a.locationname</code> from the <code>COALESCE</code> fallback in the ORDER BY clause.</li>
+            </ul>
+        </div>
+
+        <div style="margin-top: 50px; padding-top: 20px; border-top:1px solid var(--line);">
+            <a href="index.aspx" style="font-weight: 600;">&larr; Back to Main Documentation</a>
+        </div>
+    </div>
+    <footer style="margin-top: 40px; padding: 20px; border-top:1px solid var(--line); font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 12px; color:var(--muted-docs); display: flex; justify-content: space-between; align-items: center; background:var(--bg); max-width: 1400px; margin-left: auto; margin-right: auto;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
+        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
+        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <span>&copy; 2026 ID Integration Inc.</span>
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 14px; opacity: 0.9;">
+    </div>
+</footer>
+</body>
+</html>
+

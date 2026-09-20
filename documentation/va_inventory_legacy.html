@@ -1,0 +1,705 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>VA INVENTORY (LEGACY / ARCHIVED) &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .badge-new { background: color-mix(in srgb, var(--warn-docs), transparent 85%); color: var(--warn-docs); border: 1px solid color-mix(in srgb, var(--warn-docs), transparent 70%); }
+        .badge-retired { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); font-weight: 700; padding: 3px 8px; border-radius: 4px; font-size: 11px; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <a href="index.aspx">&larr; Back to Documentation Hub</a> &bull; <a href="va_inventory.html" style="color:#10b981; font-weight:bold;">&rarr; View Current (New) VA Inventory Documentation</a>
+        <br/><br/>
+
+        <div class="alert alert-warn" style="border-left: 5px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 14px 18px; margin-bottom: 20px;">
+            <strong style="color:#ef4444; font-size: 14px;">&#9888; ARCHIVED / RETIRED COMPONENT DOCUMENTATION:</strong><br />
+            This document describes the legacy postback-based <code>va_inventory_legacy.aspx</code> (formerly <code>va_inventory.aspx</code>). 
+            This legacy implementation has been retired and preserved for historical reference and backup purposes.<br />
+            The active production sweeping interface is now the new high-performance, client-side <strong><a href="va_inventory.html" style="color:var(--accent-docs); font-weight:bold;">va_inventory.aspx</a></strong> (supporting 30&ndash;50 tags/sec, $O(1)$ memory lookup, centralized site column visibility, and high-contrast styling).
+        </div>
+
+        <!-- OVERVIEW -->
+        <div class="card">
+            <h1>VA Site Inventory &mdash; Legacy Version (Location Sweep)</h1>
+            <p><strong>File:</strong> <code>va_inventory_legacy.aspx</code> / <code>va_inventory_legacy.aspx.cs</code></p>
+            <p><strong>Database Interaction:</strong> Read / Write (ASP.NET PostBack Engine)</p>
+            <p><strong>Status:</strong> <span class="badge-retired">RETIRED &amp; ARCHIVED (September 2026)</span> &mdash; Preserved for audit &amp; fallback.</p>
+            <p><strong>Purpose:</strong> Legacy postback-driven location reconciliation. Each scanned barcode triggered a server postback, requiring offline queues in localStorage when network connectivity dropped.</p>
+
+            <div style="margin-bottom:12px;">
+                <span class="badge badge-retired">Archived as va_inventory_legacy.aspx</span>
+            </div>
+
+            <div class="toc">
+                <a href="#changelog">Changelog</a>
+                <a href="#rfid-mode">RFID Mode Behaviour &amp; Input Handling</a>
+                <a href="#batch-mode">Batch Scanning Mode (RFID Sweeps)</a>
+                <a href="#scan-filters">Scan Filters (All 8)</a>
+                <a href="#move-assets">Moving Assets &mdash; Full Workflow</a>
+                <a href="#queue-mode">Queue Mode (Deferred Moves)</a>
+                <a href="#status-legend">Status Badge Legend</a>
+                <a href="#sql-ref">SQL Reference</a>
+                <a href="#offline">Offline Mode</a>
+                <a href="#webserial">WebSerial USB Input</a>
+                <a href="#export">Export &amp; Reporting Safeguards</a>
+                <a href="#refresh">Refresh App Data</a>
+            </div>
+        </div>
+
+        <!-- CHANGELOG -->
+        <div class="card" id="changelog">
+            <h2>Changelog</h2>
+            <h3>09/09/2026 &mdash; Offline Resilience &amp; Multi-Site Barcode Standardization</h3>
+            <p>
+                Comprehensive hardening of offline room sweeps and barcode validation across all VA sites:
+            </p>
+            <table>
+                <tr><th>Change</th><th>Detail</th></tr>
+                <tr>
+                    <td><strong>Fixed Offline Queue &amp; Sync</strong></td>
+                    <td>Replaced buggy copied logic with dedicated <code>Inventory_OfflineQueue</code> in <code>localStorage</code>. Implemented robust server-side sync handler in <code>va_inventory.aspx.cs</code> via <code>?action=sync</code> supporting batched JSON payloads, automatic location/operator assignment, and DB reconciliation.</td>
+                </tr>
+                <tr>
+                    <td><strong>Real-Time Offline Visual Feedback</strong></td>
+                    <td>When scanning offline, assets present in the current room checklist immediately update their status badge to <span class="badge badge-blue">Found (Pending)</span> with row highlighting, matching online sweep behavior without requiring network postback.</td>
+                </tr>
+                <tr>
+                    <td><strong>3-Digit Station Barcode Validation</strong></td>
+                    <td>Strictly enforces standardized 3-digit station prefix (<code>^\d{3} EE\w+$</code>) across both client-side JavaScript and C# code-behind. Includes site-prefix mismatch warning alerts if scanned barcode prefix differs from the selected VA facility. Substation resolution is performed via system DB lookups.</td>
+                </tr>
+                <tr>
+                    <td><strong>Active XHR Connectivity Probe &amp; Enter Interception</strong></td>
+                    <td>Replaced passive <code>navigator.onLine</code> with an active 4-second XHR HEAD probe checking actual IIS and SQL connectivity. Added Enter-key scanner interception on <code>TxtAssetScan</code> and <code>TxtLocationScan</code> to prevent browser form-submit network failure screens when Wi-Fi drops.</td>
+                </tr>
+                <tr>
+                    <td><strong>State Persistence</strong></td>
+                    <td>Selected Site, Operator, and active Room Location are saved to <code>localStorage</code> and restored automatically on page load or post-sync reload.</td>
+                </tr>
+            </table>
+
+            <h3>07/03/2026 &mdash; WebSerial USB RFID Reader Support</h3>
+            <p>
+                Added WebSerial API support. Users can now connect a USB-tethered RFID reader (or any serial device)
+                directly through Chrome or Edge without requiring DataWedge or a separate scanning application.
+            </p>
+            <table>
+                <tr><th>Change</th><th>Detail</th></tr>
+                <tr>
+                    <td><strong>New: WebSerial section</strong></td>
+                    <td>Collapsible panel below the "Scan Asset Barcode" field. Contains Open/Close Port buttons and live connection status. Collapsed by default.</td>
+                </tr>
+                <tr>
+                    <td><strong>New: Serial read &rarr; postback</strong></td>
+                    <td>Opens a browser-selected serial port (115200 baud, 8N1, hardware flow control), buffers incoming data, and when a complete line is received, sets <code>TxtAssetScan.value</code> and fires <code>__doPostBack('TxtAssetScan', '')</code> to trigger the same server-side processing as a keyboard scan.</td>
+                </tr>
+            </table>
+
+            <div class="alert alert-warn">
+                <strong>&#9888; Important difference from ENNX scanners:</strong> Unlike the ENNX Live Scan, EIL Live Scan, and Universal ENNX Creator
+                (which are fully client-side), this page uses <strong>ASP.NET AutoPostBack</strong>. Each scan triggers a full page reload.
+                The serial connection will close after each scan and must be manually reopened.
+            </div>
+        </div>
+
+
+        <!-- &mdash;&mdash;&mdash;& RFID MODE &mdash;&mdash;&mdash;& -->
+        <div class="card" id="rfid-mode">
+            <h2>RFID Mode Behaviour &amp; Input Handling</h2>
+
+            <div class="alert alert-info">
+                <strong>How RFID input works:</strong> The page does <strong>not</strong> use a hardware RFID SDK.
+                The TC53 / RFD40 RFID scanner is configured in <em>keyboard-wedge</em> mode &mdash; it emulates a keyboard and
+                fires the decoded EPC/barcode string directly into whichever text field currently has focus, terminated
+                by a carriage return (Enter). ASP.NET's <code>AutoPostBack="true"</code> on both scan fields intercepts
+                that Enter and immediately submits the form &mdash; no button click required.
+            </div>
+
+            <h3>The Two Scan Fields</h3>
+            <table>
+                <tr><th>Field</th><th>ID</th><th>Accepts</th><th>Trigger</th></tr>
+                <tr>
+                    <td><strong>Location Scan</strong></td>
+                    <td><code>TxtLocationScan</code></td>
+                    <td>Room/space barcodes only (e.g. <code>SP1234</code>)</td>
+                    <td><code>OnTextChanged &larr;&rsquo; BtnSetLocation_Click</code> &mdash; fires on every Enter/tab-out</td>
+                </tr>
+                <tr>
+                    <td><strong>Asset Scan</strong></td>
+                    <td><code>TxtAssetScan</code></td>
+                    <td>Asset/equipment barcodes (e.g. <code>EE123456</code>)</td>
+                    <td><code>OnTextChanged &larr;&rsquo; BtnAddAsset_Click</code> &mdash; fires on every Enter/tab-out</td>
+                </tr>
+            </table>
+
+            <h3>Prefix / Postfix Stripping &mdash; Does It Happen?</h3>
+            <p>
+                <strong>No prefix or postfix is stripped by the application code.</strong> The raw string delivered by the
+                scanner is used as-is after a single <code>.Trim().ToUpper()</code> call. There is no GS1, AIM, or custom
+                symbology prefix-removal logic at the application layer.
+            </p>
+            <div class="alert alert-warn">
+                <strong>Scanner-level stripping only.</strong> If your TC53 / RFD40 profile is configured with a prefix or suffix
+                in the DataWedge or RFID config, those characters will be stripped by the device firmware <em>before</em> the
+                string reaches the browser. The application itself never sees them. If barcodes arrive with unexpected leading
+                characters, the fix is in the DataWedge profile on the device &mdash; not in this application.
+            </div>
+
+            <h3>What the Application Does to Each Scanned String</h3>
+            <table>
+                <tr><th>Step</th><th>Code</th><th>Effect</th></tr>
+                <tr>
+                    <td>Upper-case</td>
+                    <td><code>.ToUpper()</code></td>
+                    <td>All comparisons are case-insensitive. <code>ee123456</code> and <code>EE123456</code> are identical.</td>
+                </tr>
+                <tr>
+                    <td>Trim whitespace</td>
+                    <td><code>.Trim()</code></td>
+                    <td>Leading/trailing spaces and newlines from the scanner Enter key are removed.</td>
+                </tr>
+                <tr>
+                    <td>Empty guard</td>
+                    <td><code>if (string.IsNullOrWhiteSpace(barcode)) return;</code></td>
+                    <td>A blank scan (e.g. double-trigger with nothing in the field) is silently ignored &mdash; no error, no postback effect.</td>
+                </tr>
+                <tr>
+                    <td>DB lookup exact match</td>
+                    <td><code>WHERE name = @Name</code></td>
+                    <td>The processed string is matched exactly against <code>asset.name</code>. No LIKE or fuzzy matching.</td>
+                </tr>
+            </table>
+
+            <h3>What Is Silently Ignored</h3>
+            <ul>
+                <li><strong>Empty / whitespace-only scans</strong> &mdash; the field guard returns immediately with no error.</li>
+                <li><strong>Duplicate asset scans</strong> &mdash; if the asset is already in the grid and already has a non-pending final status (<code>Found</code>, <code>Moved Here</code>), it is re-promoted to the top and its status is updated to <code>Found (Pending)</code> again &mdash; it does not create a second row.</li>
+            </ul>
+
+            <h3>What Is Actively Rejected (Errors Shown)</h3>
+            <ul>
+                <li>Location scanned into Asset field (detected by pattern &mdash; see Filter 3 below)</li>
+                <li>Asset scanned into Location field (the <code>EE</code> substring check)</li>
+                <li>Barcode not found in <code>dbo.asset</code></li>
+                <li>Asset belonging to a different <code>companyid</code> (different VA site)</li>
+                <li>Location not found in <code>dbo.location</code> for the selected site</li>
+                <li>Scan attempted without Operator or Site selected</li>
+            </ul>
+        </div>
+
+
+        <!-- ————— BATCH SCAN MODE ————— -->
+        <div class="card" id="batch-mode">
+            <h2>Batch Scanning Mode (RFID Sweeps)</h2>
+            <p>
+                The <strong>&#128225; Batch Mode</strong> button toggles high-speed RFID burst mode. In standard Web Forms, every barcode or tag scan immediately initiates an HTTP POST reload (<code>AutoPostBack</code>). When using handheld RFID readers (such as a Zebra RFD40 or TC53 sled) that detect multiple tags per second, single-item postbacks can overwhelm the browser and drop scans.
+            </p>
+            <table>
+                <tr><th>Feature</th><th>Normal Mode (Default)</th><th>&#128225; Batch Mode ON</th></tr>
+                <tr>
+                    <td><strong>Trigger &amp; Postback</strong></td>
+                    <td>Fires immediate HTTP POST page reload on <em>every single scan</em>.</td>
+                    <td><strong>Suppresses all postbacks.</strong> Scans are held in an in-memory client queue (<code>_batchQueue</code>).</td>
+                </tr>
+                <tr>
+                    <td><strong>RFID Sweep Speed</strong></td>
+                    <td>1 tag at a time (wait for page reload before next scan).</td>
+                    <td><strong>Continuous trigger hold.</strong> Sweep shelves, carts, or cabinets at 20+ tags per second with zero UI latency.</td>
+                </tr>
+                <tr>
+                    <td><strong>Deduplication</strong></td>
+                    <td>Deduplicated on the server during postback.</td>
+                    <td><strong>Instant client deduplication</strong> &mdash; identical tags repeatedly read by the RFID field are filtered immediately.</td>
+                </tr>
+                <tr>
+                    <td><strong>Audio &amp; Visual Feedback</strong></td>
+                    <td>Page refresh chime / visual reload.</td>
+                    <td>Audio beep on each new unique tag + live counter (e.g. <code>24 tags queued</code>) with preview chips.</td>
+                </tr>
+                <tr>
+                    <td><strong>Commit to Server</strong></td>
+                    <td>Automatic per tag.</td>
+                    <td>Click <strong>Submit Batch</strong> to send all queued tags in a single JSON payload for server reconciliation.</td>
+                </tr>
+            </table>
+
+            <h3>Batch Submission Results</h3>
+            <p>
+                When <strong>Submit Batch</strong> is clicked, the server processes all tags sequentially via <code>ProcessBarcode()</code> and outputs an aggregated summary:
+            </p>
+            <div class="alert alert-ok">
+                <strong>Batch complete: 28 processed</strong> (24 found in-place, 4 new/moved, 0 not in DB, 0 wrong site).
+            </div>
+            <p>
+                All found and moved assets appear in the grid as <span class="badge badge-blue">Found (Pending)</span> or <span class="badge badge-yellow">Moved Here (Pending)</span> ready for the final <strong>Commit Scans</strong>.
+            </p>
+        </div>
+
+
+        <!-- ————— SCAN FILTERS ————— -->
+        <div class="card" id="scan-filters">
+            <h2>RFID Scan Filters &mdash; All 8 Explained</h2>
+            <p>
+                Every scan passes through a layered filter chain. Filters 1&ndash;6 are hard-rejects (nothing enters session).
+                Filter 7 is a soft display filter only.
+            </p>
+
+            <div class="alert alert-ok">
+                <strong>Filter Order:</strong> Operator guard &larr;&rsquo; Site guard &larr;&rsquo; Location format &larr;&rsquo; Location cross-site DB check &larr;&rsquo; Asset existence &larr;&rsquo; Asset cross-site &larr;&rsquo; CMR display filter.
+            </div>
+
+            <h3>Filter 1 &mdash; Operator Required</h3>
+            <table>
+                <tr><th>Applies to</th><td>Both Location and Asset scans</td></tr>
+                <tr><th>Source</th><td><code>BtnSetLocation_Click</code> &amp; <code>BtnAddAsset_Click</code></td></tr>
+                <tr><th>Logic</th><td><code>DdlEmpl.SelectedValue</code> must not be empty</td></tr>
+                <tr><th>On Block</th><td><span class="badge badge-red">Rejected</span> &mdash; Error shown, field cleared, focus forced to Operator dropdown. No DB call made.</td></tr>
+                <tr><th>Why</th><td>Every committed update writes <code>lastmodifiedby = @Emp</code>. Without an operator the audit trail is broken.</td></tr>
+            </table>
+
+            <h3>Filter 2 &mdash; Site Required</h3>
+            <table>
+                <tr><th>Applies to</th><td>Location scan only</td></tr>
+                <tr><th>Source</th><td><code>BtnSetLocation_Click</code></td></tr>
+                <tr><th>Logic</th><td><code>DdlCompany.SelectedValue</code> must not be empty</td></tr>
+                <tr><th>On Block</th><td><span class="badge badge-red">Rejected</span> &mdash; Error shown, field cleared, focus forced to Site dropdown.</td></tr>
+                <tr><th>Why</th><td>The <code>companyid</code> is required for Filter 4's cross-site validation.</td></tr>
+            </table>
+
+            <h3>Filter 3 &mdash; Location Format Check</h3>
+            <table>
+                <tr><th>Applies to</th><td>Location scan</td></tr>
+                <tr><th>Source</th><td><code>if (!loc.StartsWith("SP") || loc.Contains("EE"))</code></td></tr>
+                <tr><th>Logic</th><td>
+                    <ul style="margin:4px 0 0 0;">
+                        <li>Must start with <code>SP</code> &mdash; VA room/space barcodes always begin with this prefix.</li>
+                        <li>Must <strong>not</strong> contain <code>EE</code> &mdash; this substring identifies equipment/asset barcodes. If an operator accidentally scans an asset tag into the Location field, this catches it.</li>
+                    </ul>
+                </td></tr>
+                <tr><th>On Block</th><td><span class="badge badge-red">Rejected</span> &mdash; "Invalid Location. You MUST barcode scan a valid Location (starts with SP) before scanning!" Field cleared.</td></tr>
+                <tr><th>Why</th><td>Prevents the room context from being set to an asset barcode, which would cause the DB query to return zero expected assets and break the entire sweep session.</td></tr>
+            </table>
+
+            <h3>Filter 4 &mdash; Location Cross-Site DB Validation</h3>
+            <table>
+                <tr><th>Applies to</th><td>Location scan &mdash; after format check passes</td></tr>
+                <tr><th>Source</th><td>SQL against <code>dbo.location</code></td></tr>
+                <tr><th>Logic</th><td>
+                    Two queries run in sequence:
+                    <pre>-- Query 1: Does this location exist for our site?
+SELECT COUNT(*) FROM dbo.location
+WHERE UPPER(LTRIM(RTRIM(name))) = @Loc
+  AND companyid = @CompanyId
+
+-- Query 2 (only if query 1 = 0): Does it exist on ANY site?
+SELECT COUNT(*) FROM dbo.location
+WHERE UPPER(LTRIM(RTRIM(name))) = @Loc</pre>
+                </td></tr>
+                <tr><th>On Block</th><td>
+                    Two distinct messages:
+                    <ul>
+                        <li>Found on another site &larr;&rsquo; <span class="badge badge-yellow">Wrong Site</span> &mdash; "Location X exists in the database but belongs to a different site &mdash; not Y."</li>
+                        <li>Not found anywhere &larr;&rsquo; <span class="badge badge-red">Not Found</span> &mdash; "Location X was not found in the database at all."</li>
+                    </ul>
+                </td></tr>
+                <tr><th>Why</th><td>Prevents an operator at one VA medical center from accidentally loading room lists from another facility's database records. Hard data isolation per site.</td></tr>
+            </table>
+
+            <h3>Filter 5 &mdash; Barcode Format Validation (3-Digit Station Prefix)</h3>
+            <table>
+                <tr><th>Applies to</th><td>Asset scan &mdash; before database lookup</td></tr>
+                <tr><th>Source</th><td><code>Regex.IsMatch(barcode, @"^\d{3} EE\w+$")</code></td></tr>
+                <tr><th>Logic</th><td>Enforces that every scanned physical barcode starts with a 3-digit station code, followed by a space, <code>EE</code>, and alphanumeric asset identifier (e.g. <code>512 EE123456</code>). Substation division codes (e.g. <code>512A4</code>, <code>512A5</code>) are never on physical tags and are resolved via system DB lookups.</td></tr>
+                <tr><th>On Block</th><td><span class="badge badge-red">Rejected</span> &mdash; "Invalid Barcode Format: XXX. Barcodes must match the 3-digit station pattern (e.g. '512 EE12345')." Field cleared.</td></tr>
+                <tr><th>Prefix Mismatch</th><td><span class="badge badge-yellow">Warning</span> &mdash; If the scanned 3-digit prefix does not match the active site selection (e.g. scanning <code>613 EE...</code> while site <code>512</code> is selected), an orange alert warns the operator of the facility mismatch.</td></tr>
+                <tr><th>Why</th><td>Prevents malformed barcode reads from polluting the database and alerts operators immediately if they sweep assets from an unexpected facility.</td></tr>
+            </table>
+
+            <h3>Filter 6 &mdash; Asset Existence Check</h3>
+            <table>
+                <tr><th>Applies to</th><td>Asset scan &mdash; for barcodes NOT already in the active location checklist</td></tr>
+                <tr><th>Source</th><td><code>LookupAssetInventoryDetails(barcode)</code></td></tr>
+                <tr><th>Logic</th><td><pre>SELECT TOP 1 id, companyid, description, text3, text8, text19, text6
+FROM asset WHERE name = @Name
+ORDER BY CASE WHEN companyid > 0 THEN 0 ELSE 1 END, id DESC</pre>If returns no row &larr;&rsquo; rejected.</td></tr>
+                <tr><th>On Block</th><td><span class="badge badge-red">Rejected</span> &mdash; "Asset XXX does not exist in the database! Ignoring scan."</td></tr>
+                <tr><th>Why</th><td>Prevents garbage data &mdash; mis-reads, dust, typos, incorrect symbology &mdash; from entering inventory records.</td></tr>
+            </table>
+
+            <h3>Filter 7 &mdash; Cross-Site Asset Guard</h3>
+            <table>
+                <tr><th>Applies to</th><td>Asset scan &mdash; fires just after existence check, for foreign assets</td></tr>
+                <tr><th>Source</th><td><code>if (info.CompanyId != currCompanyId)</code></td></tr>
+                <tr><th>Logic</th><td>The <code>companyid</code> from the asset lookup is compared to the selected Site dropdown <code>companyid</code>.</td></tr>
+                <tr><th>On Block</th><td><span class="badge badge-red">Rejected</span> &mdash; "Asset XXX belongs to a different site (Site Name)! You cannot scan cross-site assets."</td></tr>
+                <tr><th>Why</th><td>Ensures a scanner in Building A cannot move assets belonging to Building B's inventory, which would corrupt both sites' records.</td></tr>
+            </table>
+
+            <h3>Filter 8 &mdash; CMR / EIL Grid Display Filter (Soft)</h3>
+            <table>
+                <tr><th>Applies to</th><td>Grid display only &mdash; never blocks a scan</td></tr>
+                <tr><th>Source</th><td><code>DdlCmrFilter</code> &larr;&rsquo; <code>BindGrid()</code></td></tr>
+                <tr><th>Logic</th><td>
+                    After every location load or asset scan, <code>PopulateCmrFilter()</code> groups the in-memory scan list
+                    by <code>ScanItem.CMR</code> (= <code>asset.text8</code>). Unique CMRs populate a dropdown:
+                    <em>CMR-512 (14 assets)</em>, <em>CMR-301 (8 assets)</em>, etc.
+                    Assets with no CMR are grouped as <code>UNASSIGNED</code>.
+                    Selecting a CMR applies an in-memory LINQ WHERE against the session list.
+                </td></tr>
+                <tr><th>On Select</th><td><span class="badge badge-blue">Display Only</span> &mdash; Grid narrows to that CMR. All other scan items remain in session; no data is removed.</td></tr>
+                <tr><th>Why</th><td>Large VA rooms can hold assets from multiple CMRs. This lets the operator focus on one CMR at a time without disrupting the overall sweep.</td></tr>
+            </table>
+        </div>
+
+
+        <!-- &mdash;&mdash;&mdash;& MOVING ASSETS &mdash;&mdash;&mdash;& -->
+        <div class="card" id="move-assets">
+            <h2>Moving Assets to a New Location &mdash; Full Workflow</h2>
+
+            <div class="alert alert-info">
+                <strong>Core concept:</strong> The system loads what the <em>database thinks</em> is in a room.
+                When you physically find an asset that the database said was elsewhere, scanning it flags it
+                as "Moved Here". Committing saves the new location to the DB.
+            </div>
+
+            <h3>Step-by-Step: Full Asset Move Procedure</h3>
+
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <strong>Set Operator &amp; Site</strong>
+                    <p>Select your username from the <strong>Operator</strong> dropdown and the VA medical center from the <strong>Site Filter</strong> dropdown. These are required before anything else will work. If you just provisioned a new user account, click <strong>Refresh App Data</strong> to reload the dropdowns without losing your scan session.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <strong>Scan the Room Location Barcode</strong>
+                    <p>
+                        Point the scanner at the room label (a barcode that starts with <code>SP</code>). The scanner fires
+                        the string into the <strong>Scan Location</strong> field and auto-submits. The system:
+                    </p>
+                    <ul>
+                        <li>Validates the format (must start with <code>SP</code>, must not contain <code>EE</code>)</li>
+                        <li>Verifies the location exists in <code>dbo.location</code> for the selected site</li>
+                        <li>Loads all assets currently assigned to that room from the <code>asset</code> table<br/>
+                            (<code>WHERE text6 = @Loc</code>) and populates the grid with them all in <span class="badge badge-red">Not Found</span> status</li>
+                        <li>Populates the CMR filter dropdown from that result set</li>
+                        <li>Shows a count badge: "14 Assets Assigned"</li>
+                        <li>Automatically moves focus to the Asset Scan field</li>
+                    </ul>
+                    <p>The <strong>Current Location Mode</strong> label now shows the active room in large green text.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num step-num" style="background:var(--accent-docs);">3</div>
+                <div class="step-content">
+                    <strong>Sweep the Room &mdash; Scan Each Asset Tag</strong>
+                    <p>Walk the room and scan each RFID/barcode tag. For each scan one of two things happens:</p>
+
+                    <h4>Scenario A &mdash; Asset Belongs Here (Confirmation)</h4>
+                    <p>The scanned barcode matches an item already in the grid (the database already assigned it to this room).
+                    The system finds it in the in-memory session list and:</p>
+                    <ul>
+                        <li>Flips its status from <span class="badge badge-red">Not Found</span> to <span class="badge badge-blue">Found (Pending)</span></li>
+                        <li>Moves that row to the <strong>very top</strong> of the grid for immediate visual confirmation</li>
+                        <li>No DB write happens yet &mdash; it is still "pending"</li>
+                        <li>Focus returns immediately to the Asset Scan field &mdash; ready for the next scan</li>
+                    </ul>
+
+                    <h4>Scenario B &mdash; Asset Found Here but Belongs Elsewhere (Move)</h4>
+                    <p>The scanned barcode is NOT in the current room's checklist. The system does a live DB lookup:</p>
+                    <ul>
+                        <li>Verifies the barcode exists in <code>dbo.asset</code> (Filter 5)</li>
+                        <li>Verifies it belongs to the same site selected (Filter 6)</li>
+                        <li>If both pass &mdash; the asset is loaded into the grid as a <strong>new row</strong> inserted at the top with:
+                            <ul>
+                                <li><strong>Current Loc (DB):</strong> the room the DB says it currently lives in</li>
+                                <li><strong>Scanned Loc:</strong> the room you are currently sweeping</li>
+                                <li><strong>Status:</strong> <span class="badge badge-yellow">Moved Here (Pending)</span> &mdash; or <span class="badge badge-yellow">Pending Move</span> if Queue Mode is on</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div class="alert alert-warn" style="margin-top:10px;">
+                        <strong>No DB change happens yet.</strong> The asset's location in the database is still the old room.
+                        Nothing is written until you click <strong>Commit Scans</strong>.
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num step-num" style="background:var(--warn); color:#000;">4</div>
+                <div class="step-content">
+                    <strong>Commit Scans &mdash; This Is When DB Writes Happen</strong>
+                    <p>
+                        When you are done scanning the room (or a section), click the <strong>Commit Scans</strong> button
+                        (it only appears when there are pending items in the grid). The system iterates every item in the
+                        session scan list that has a <code>Pending</code> status and executes:
+                    </p>
+                    <pre>UPDATE asset
+SET text6            = @Loc,    -- current location field
+    text16           = @Loc,    -- tagged/verified location field
+    lastinventoried  = SYSDATETIMEOFFSET(),
+    lastmodifiedby   = @Emp
+WHERE id = @Id</pre>
+                    <p>Both <code>text6</code> AND <code>text16</code> are updated simultaneously. After commit:</p>
+                    <ul>
+                        <li>Items that were <span class="badge badge-blue">Found (Pending)</span> become <span class="badge badge-green">Found</span></li>
+                        <li>Items that were <span class="badge badge-yellow">Moved Here (Pending)</span> become <span class="badge badge-purple">Moved Here</span></li>
+                        <li>Items that were <span class="badge badge-yellow">Pending Move</span> become <span class="badge badge-purple">Moved Here</span></li>
+                        <li>Items still showing <span class="badge badge-red">Not Found</span> remain in the grid &mdash; they were not physically seen during the sweep</li>
+                    </ul>
+                    <p>A success message shows the count: "Successfully committed N scanned assets to the database."</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">5</div>
+                <div class="step-content">
+                    <strong>(Optional) Export / Email Results</strong>
+                    <p>After committing, use the bottom action bar:</p>
+                    <ul>
+                        <li><strong>Build ENNX:</strong> Generates a formatted ENNX text block in the preview box. Can be copied or emailed.</li>
+                        <li><strong>Export Excel:</strong> Downloads a CSV containing Asset Tag, Description, Serial Number, CMR, Current Loc (DB), Scanned Loc, and Status for all non-"Not Found" items.</li>
+                        <li><strong>Email Results:</strong> Sends both the CSV and the ENNX text as email attachments to all configured recipients.</li>
+                    </ul>
+                    <div class="alert alert-danger" style="margin-top:10px;">
+                        <strong>Export/Email are blocked if:</strong>
+                        <ul style="margin:6px 0 0 0;">
+                            <li>There are uncommitted (Pending) scans still in the grid &mdash; you must commit first.</li>
+                            <li>The scan list contains zero non-"Not Found" assets &mdash; nothing to send.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Moving Multiple Assets Across Multiple Rooms</h3>
+            <p>Scan a new location barcode at any time. This <strong>replaces</strong> the entire session scan list with the expected assets for the new room. Any previously committed scans from the old room are already saved in the DB &mdash; the session reset only affects the in-memory working list. Process each room as an independent sweep session.</p>
+        </div>
+
+
+        <!-- &mdash;&mdash;&mdash;& QUEUE MODE &mdash;&mdash;&mdash;& -->
+        <div class="card" id="queue-mode">
+            <h2>Queue Mode &mdash; Deferred Moves</h2>
+            <p>The <strong>Queue Misplaced Scans</strong> checkbox (<code>ChkQueueMode</code>) changes how "foreign" assets (Scenario B above) are handled:</p>
+
+            <table>
+                <tr><th></th><th>Normal Mode (default)</th><th>Queue Mode</th></tr>
+                <tr>
+                    <td><strong>Status assigned</strong></td>
+                    <td><span class="badge badge-yellow">Moved Here (Pending)</span></td>
+                    <td><span class="badge badge-yellow">Pending Move</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Message shown</strong></td>
+                    <td>Silent (no message, focus returns to scan field)</td>
+                    <td>Yellow warning: "Asset belonging to [old room] added to queue."</td>
+                </tr>
+                <tr>
+                    <td><strong>Commit behaviour</strong></td>
+                    <td>Updates <code>text6</code> + <code>text16</code> to the current room on commit</td>
+                    <td>Same &mdash; updates both fields to the current room on commit</td>
+                </tr>
+            </table>
+            <p>Queue Mode is useful when you want to capture a batch of misplaced assets for review before committing, or when you want the yellow message reminder to confirm the add without interrupting flow.</p>
+        </div>
+
+
+        <!-- &mdash;&mdash;&mdash;& STATUS LEGEND &mdash;&mdash;&mdash;& -->
+        <div class="card" id="status-legend">
+            <h2>Status Badge Legend</h2>
+            <table>
+                <tr><th>Badge</th><th>Color</th><th>Meaning</th><th>DB Written?</th></tr>
+                <tr><td><span class="badge badge-red">Not Found</span></td><td>Red</td><td>Asset was expected in this room (DB says it's here) but has not been physically scanned yet.</td><td>No</td></tr>
+                <tr><td><span class="badge badge-blue">Found (Pending)</span></td><td>Blue</td><td>Asset was scanned and confirmed in this room. Awaiting Commit.</td><td>No</td></tr>
+                <tr><td><span class="badge badge-yellow">Moved Here (Pending)</span></td><td>Yellow</td><td>Asset was physically found here but the DB says it lives in a different room. Awaiting Commit to move it.</td><td>No</td></tr>
+                <tr><td><span class="badge badge-yellow">Pending Move</span></td><td>Yellow</td><td>Same as Moved Here (Pending) but entered via Queue Mode.</td><td>No</td></tr>
+                <tr><td><span class="badge badge-green">Found</span></td><td>Green</td><td>Asset was scanned and the commit was successful. Inventory record updated.</td><td>&larr;&hellip; Yes</td></tr>
+                <tr><td><span class="badge badge-purple">Moved Here</span></td><td>Purple</td><td>Asset was moved from its old room to the current room and the DB update was committed successfully.</td><td>&larr;&hellip; Yes</td></tr>
+            </table>
+        </div>
+
+
+        <!-- &mdash;&mdash;&mdash;& SQL REFERENCE &mdash;&mdash;&mdash;& -->
+        <div class="card" id="sql-ref">
+            <h2>SQL Reference</h2>
+
+            <h3>Location Load Query</h3>
+            <p>Fires when a valid location is scanned. Retrieves all assets the database currently assigns to that room. Serial Number = <code>text3</code>, CMR = <code>text8</code>, Tag Type = <code>text19</code>, Location = <code>text6</code>:</p>
+            <pre>SELECT id, name, description, text3, text8, text19, text6
+FROM asset
+WHERE text6 = @Loc
+ORDER BY name</pre>
+
+            <h3>Asset Global Lookup (Filters 5 &amp; 6)</h3>
+            <p>Fires for any asset barcode NOT already in the current room checklist:</p>
+            <pre>SELECT TOP 1 id, companyid, description, text3, text8, text19, text6
+FROM asset
+WHERE name = @Name</pre>
+
+            <h3>Asset Commit Update</h3>
+            <p>Fires once per pending item when Commit Scans is clicked. Updates both location fields and inventory timestamp:</p>
+            <pre>UPDATE asset
+SET text6            = @Loc,
+    text16           = @Loc,
+    lastinventoried  = SYSDATETIMEOFFSET(),
+    lastmodifiedby   = @Emp
+WHERE id = @Id</pre>
+
+            <h3>Location Cross-Site Validation (Filter 4)</h3>
+            <pre>-- Check for this site:
+SELECT COUNT(*) FROM dbo.location
+WHERE UPPER(LTRIM(RTRIM(name))) = @Loc
+  AND companyid = @CompanyId
+
+-- Fallback check (if count = 0):
+SELECT COUNT(*) FROM dbo.location
+WHERE UPPER(LTRIM(RTRIM(name))) = @Loc</pre>
+        </div>
+
+
+        <!-- ————— OFFLINE ————— -->
+        <div class="card" id="offline">
+            <h2>Offline Mode &amp; Local Resilience</h2>
+            <p>
+                The page provides robust offline operation designed specifically for hospital basements, lead-lined radiology suites, and RF dead zones where Wi-Fi drops frequently during room sweeps:
+            </p>
+            <ul>
+                <li><strong>Dedicated Offline Queue:</strong> Scans are isolated in <code>localStorage</code> under key <code>Inventory_OfflineQueue</code> (preventing collision with Tag Team or ENNX scanners).</li>
+                <li><strong>Active Dual-Layer Connectivity Probing:</strong> Instead of relying on passive browser flags, an active 4-second XHR <code>HEAD</code> probe tests real IIS server and SQL Server database reachability.</li>
+                <li><strong>Enter-Key Hardware Scanner Interception:</strong> In ASP.NET Web Forms, pressing Enter or barcode scanner hardware line returns in an input field ordinarily causes the browser to submit an HTTP POST. If disconnected, this would show a browser network crash screen. Both <code>TxtAssetScan</code> and <code>TxtLocationScan</code> trap Enter events when offline, preventing form navigation and routing the barcode directly to local storage.</li>
+                <li><strong>Real-Time Visual Checklist Updates:</strong> When scanning offline, if the asset is in the current room's checklist, its status badge immediately flips to <span class="badge badge-blue">Found (Pending)</span> with row highlighting &mdash; giving the operator instant visual confirmation that the scan was registered.</li>
+                <li><strong>State Auto-Persistence:</strong> Selected Site, Operator, and active Room Location are persisted in local storage so page reloads never lose location context.</li>
+                <li><strong>Sync Endpoint (<code>?action=sync</code>):</strong> When connectivity returns, the <strong>Sync Now</strong> button becomes available. It POSTs the JSON queue to <code>va_inventory.aspx?action=sync</code>, validating 3-digit station format, updating <code>text6</code>, <code>text16</code>, <code>lastinventoried</code>, and <code>lastmodifiedby</code> in SQL Server, and updating the session checklist.</li>
+            </ul>
+            <div class="alert alert-ok">
+                <strong>Substation Barcode Rule:</strong> All VA barcode tags use a standard 3-digit station prefix (e.g. <code>512 EE12345</code>). Substation divisions (e.g. 512A4 Fort Howard, 512A5 Perry Point) are NEVER printed in physical barcode tags; substations are resolved through system database lookups.
+            </div>
+        </div>
+
+
+        <!-- &mdash;&mdash;&mdash;& EXPORT &mdash;&mdash;&mdash;& -->
+        <div class="card" id="export">
+            <h2>Export &amp; Reporting Safeguards</h2>
+            <p>All three export methods share the same hard-block guards:</p>
+            <table>
+                <tr><th>Condition</th><th>Result</th></tr>
+                <tr><td>Uncommitted (Pending) scans still in grid</td><td><span class="badge badge-red">Blocked</span> &mdash; "You must click 'Commit Scans' to commit your work to the database before exporting."</td></tr>
+                <tr><td>No non-"Not Found" assets in session</td><td><span class="badge badge-red">Blocked</span> &mdash; "You haven't scanned any valid assets yet. There is nothing to export/email."</td></tr>
+                <tr><td>Email &mdash; no configured recipients</td><td><span class="badge badge-red">Blocked</span> before attaching anything &mdash; "No email recipients configured."</td></tr>
+            </table>
+
+            <h3>Export Formats</h3>
+            <table>
+                <tr><th>Action</th><th>Output</th><th>Content</th></tr>
+                <tr>
+                    <td><strong>Export Excel</strong></td>
+                    <td><code>VA_Site_Inventory_YYYYMMDD_HHmmss.csv</code></td>
+                    <td>Asset Tag, Description, Serial Number (Excel-safe, prefixed with <code>="..."</code>), CMR, Current Loc (DB), Scanned Loc, Status. Only non-"Not Found" items included.</td>
+                </tr>
+                <tr>
+                    <td><strong>Build ENNX</strong></td>
+                    <td>Text block in preview box, copied into email as <code>.txt</code> attachment</td>
+                    <td>Standard ENNX format: header ENNX / ID / locations as section headers / asset barcodes under each location / <code>***END***^N</code> footer. Deduped by barcode; groups by <code>CurrentLocation</code>.</td>
+                </tr>
+                <tr>
+                    <td><strong>Email Results</strong></td>
+                    <td>SMTP to all configured recipients</td>
+                    <td>Both the CSV and ENNX <code>.txt</code> as attachments. Body contains location, timestamp, and summary.</td>
+                </tr>
+            </table>
+        </div>
+
+
+        <!-- &mdash;&mdash;&mdash;& REFRESH &mdash;&mdash;&mdash;& -->
+        <div class="card" id="refresh">
+            <h2>Refresh App Data Feature</h2>
+            <p>The <strong>Refresh App Data</strong> button in the top-right of the interface is a state-preserving resync utility.</p>
+            <ul>
+                <li><strong>What it does:</strong> Re-queries the SQL database for the latest Operator usernames (<code>v_sysuser</code>) and Site names (<code>dbo.company</code>), updating both dropdowns.</li>
+                <li><strong>Preserves Workflow:</strong> Unlike a browser refresh (which wipes session variables and the scan grid), this button refreshes the dropdowns in the background without clearing the active scan list.</li>
+                <li><strong>Use Case:</strong> If a new operator account is added in iDash while a sweep is in progress, click this to load the new account without losing any scanned data.</li>
+            </ul>
+        </div>
+
+        <!-- ——— WEBSERIAL ———— -->
+        <div class="card" id="webserial">
+            <h2>WebSerial USB Input</h2>
+            <p>
+                The WebSerial section allows connecting a USB-tethered RFID reader (or any serial device) directly
+                through the browser. When a complete line is received from the serial port, it is placed into
+                <code>TxtAssetScan</code> and the standard ASP.NET postback is triggered automatically.
+            </p>
+
+            <h3>Serial Port Configuration</h3>
+            <table>
+                <tr><th>Parameter</th><th>Value</th></tr>
+                <tr><td>Baud Rate</td><td><code>115200</code></td></tr>
+                <tr><td>Data Bits</td><td><code>8</code></td></tr>
+                <tr><td>Parity</td><td><code>None</code></td></tr>
+                <tr><td>Stop Bits</td><td><code>1</code></td></tr>
+                <tr><td>Flow Control</td><td><code>Hardware</code></td></tr>
+                <tr><td>Buffer Size</td><td><code>1024 bytes</code></td></tr>
+            </table>
+
+            <h3>Why WebSerial?</h3>
+            <p>
+                Traditional barcode/RFID scanning in a browser requires a middleware layer (DataWedge, COM-port relay app, or a
+                native mobile app) to translate serial data into keyboard events. <strong>WebSerial eliminates that middleware</strong>
+                by letting the browser talk directly to the USB serial port. This means:
+            </p>
+            <ul>
+                <li><strong>No extra software:</strong> No DataWedge profile, no COM-port relay, no native app installation.</li>
+                <li><strong>Any USB serial device:</strong> Works with any reader that outputs newline-terminated data over a serial/USB-serial connection.</li>
+                <li><strong>Zero configuration:</strong> The browser prompts the user to select their serial port &mdash; no driver setup, no port number guessing.</li>
+                <li><strong>Same processing pipeline:</strong> Data from the serial port is placed into <code>TxtAssetScan</code> and triggers the same <code>__doPostBack</code> that a keyboard scan does, so all server-side validation, filters, and DB writes apply identically.</li>
+            </ul>
+
+            <h3>How WebSerial Works on This Page (Technical Flow)</h3>
+            <ol>
+                <li>User clicks <strong>&quot;Select/Open Serial Port&quot;</strong> inside the collapsible WebSerial panel below the Asset Scan field.</li>
+                <li>The browser displays its native serial port picker dialog (a security requirement &mdash; no port is accessed without explicit user interaction).</li>
+                <li>Once a port is selected, JavaScript opens it with the parameters above (115200 baud, 8N1, hardware flow control) and starts an asynchronous read loop.</li>
+                <li>Incoming bytes are decoded as UTF-8 and appended to a line buffer. When a newline (<code>\n</code>) is detected, the complete line is trimmed.</li>
+                <li>The trimmed line is placed into <code>TxtAssetScan.value</code> and <code>__doPostBack('TxtAssetScan', '')</code> is called, triggering the standard ASP.NET postback.</li>
+                <li>The server-side <code>BtnAddAsset_Click</code> handler processes the scan through all 7 filters identically to a keyboard-entered barcode.</li>
+                <li><strong>Important:</strong> Because the postback causes a full page reload, the serial connection is closed after each scan. The operator must click &quot;Select/Open Serial Port&quot; again to reconnect.</li>
+            </ol>
+
+            <div class="alert alert-info">
+                <strong>&#8505; Prerequisite:</strong> WebSerial requires Chrome or Edge, served over <strong>HTTPS</strong>
+                (or <code>localhost</code>). If the site is served over plain HTTP, the section will display
+                &quot;Not Available&quot; but keyboard/DataWedge scanning continues normally.
+            </div>
+
+            <div class="alert alert-warn">
+                <strong>&#9888; Postback behavior:</strong> Because this page uses <code>AutoPostBack</code>,
+                each scan causes a full page reload. The serial port connection is lost after every scan.
+                To continue scanning via WebSerial, the operator must re-open the port after each postback.
+                For high-volume continuous scanning, the ENNX Live Scan tools (which are fully client-side)
+                provide a more seamless serial experience.
+            </div>
+
+            <p>
+                The WebSerial feature requires explicit user interaction to grant the browser permission to access a serial port.
+                No serial ports are accessed automatically. The permission does not persist across browser sessions.
+            </p>
+        </div>
+
+    </div>
+    <footer style="max-width:1000px;margin:20px auto;padding:20px 0;border-top:1px solid var(--line-docs);font-size:12px;color:var(--muted-docs);display:flex;justify-content:space-between;">
+        <span>&copy; 2026 ID Integration Inc. &mdash; iDash Documentation</span>
+        <span>VA Site Inventory &mdash; Last updated 07/03/2026</span>
+    </footer>
+</body>
+</html>
