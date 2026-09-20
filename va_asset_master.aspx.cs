@@ -1099,7 +1099,7 @@ public partial class va_asset_master : System.Web.UI.Page
                        a.maintenancestartdate, a.maintenancesingledate, a.nextmaintenance,
                        a.lastmaintenance, a.maintenancemethod, a.maintenanceintervalmonths,
                        a.lastinventoried, a.created, a.lastmodified, a.lastmodifiedby,
-                       COALESCE(a.nearestfixedname, r.name) AS nearestfixedname, a.assetchildcount, a.companyid,
+                       COALESCE(a.nearestfixed, r.name) AS nearestfixedname, a.assetchildcount, a.companyid,
                        a.date1, a.date2, a.date3, a.date4, a.date5,
                        a.additionalinformation, a.disposalstatus, a.disposalmethod,
                        a.disposaldate, a.disposaldestination,

@@ -63,7 +63,7 @@
 
                 /* ---------- Command Palette ---------- */
                 .cmd-bar {
-                    max-width: 580px; margin: 20px auto 0;
+                    max-width: 580px; margin: 20px 0 0;
                     position: relative;
                 }
                 .cmd-input {
@@ -218,7 +218,7 @@
                 .nav-tab:hover { background: var(--accent) !important; color: #fff !important; border-color: var(--accent) !important; }
 
                 /* ---------- Quick Actions ---------- */
-                .quick-actions { display: flex; gap: 10px; margin-top: 16px; justify-content: center; flex-wrap: wrap; }
+                .quick-actions { display: flex; gap: 10px; margin-top: 16px; justify-content: flex-start; flex-wrap: wrap; }
                 .quick-btn {
                     display: inline-flex; align-items: center; gap: 8px;
                     padding: 8px 18px; border-radius: 10px; font-size: 13px; font-weight: 600;
@@ -299,6 +299,7 @@
                             <asp:LinkButton ID="BtnUserLogout" runat="server" OnClick="BtnLogout_Click" style="color:#94a3b8; font-size:11px; text-decoration:underline;">Sign Out</asp:LinkButton>
                         </div>
                     </div>
+                    <div style="max-width:1300px; margin:0 auto;">
                     <!-- Command Palette -->
                     <div class="cmd-bar">
                         <span class="cmd-icon">&#128269;</span>
@@ -308,16 +309,17 @@
                     <!-- Quick Actions -->
                     <div class="quick-actions">
                         <a href="va_asset_master.aspx" class="quick-btn quick-btn-primary">&#128202; Asset Master</a>
-                        <a href="va_tagteam_scan.aspx" class="quick-btn quick-btn-secondary">&#127991;&#65039; Tag Team Scan</a>
+                        <a href="va_reader_config.aspx" class="quick-btn quick-btn-secondary">&#128225; Fixed Readers</a>
                         <a href="documentation/index.aspx" class="quick-btn quick-btn-secondary">&#128218; Documentation</a>
                         <a href="about.html" class="quick-btn quick-btn-secondary">&#9432; About iDash</a>
+                    </div>
                     </div>
                 </div>
 
                 <!-- ====== KPI STRIP ====== -->
                 <div class="kpi-strip">
                     <div class="kpi-card"><div class="kpi-value" id="kpiAssets">—</div><div class="kpi-label">Total Assets</div></div>
-                    <div class="kpi-card"><div class="kpi-value" id="kpiTagged">—</div><div class="kpi-label">RFID Tagged</div></div>
+                    <div class="kpi-card"><div class="kpi-value" id="kpiTagged">—</div><div class="kpi-label">Tag Rate</div></div>
                     <div class="kpi-card"><div class="kpi-value" id="kpiSites">—</div><div class="kpi-label">Active Sites</div></div>
                     <div class="kpi-card"><div class="kpi-value" id="kpiPrinted">—</div><div class="kpi-label">Printed Today</div></div>
                 </div>
@@ -798,7 +800,9 @@ function loadKPIs() {
     fetch('index.aspx?action=kpi').then(r => r.json()).then(d => {
         if (!d.error) {
             animateCount(document.getElementById('kpiAssets'), d.totalAssets || 0);
-            animateCount(document.getElementById('kpiTagged'), d.totalTagged || 0);
+            var tagPct = d.totalAssets > 0 ? Math.round((d.totalTagged / d.totalAssets) * 100) : 0;
+                        var tagEl = document.getElementById('kpiTagged');
+                        if (tagEl) { animateCount(tagEl, tagPct); tagEl.textContent = tagEl.textContent + '%'; }
             animateCount(document.getElementById('kpiSites'), d.activeSites || 0);
             animateCount(document.getElementById('kpiPrinted'), d.printedToday || 0);
         }
