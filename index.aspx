@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="index.aspx.cs" Inherits="index" ResponseEncoding="utf-8" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="index.aspx.cs" Inherits="index" ResponseEncoding="utf-8" %>
     <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
 
 
@@ -10,7 +10,7 @@
 
         <head runat="server">
             <meta charset="utf-8" />
-            <title>iDash � Intelligent Distributed Asset Scanning Hub</title>
+            <title>iDash — Intelligent Distributed Asset Scanning Hub</title>
             <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
             <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
@@ -20,7 +20,7 @@
 
             <style>
                 /* ============================================================
-   iDash REDESIGNED HUB � Premium CSS
+   iDash REDESIGNED HUB — Premium CSS
    ============================================================ */
 
                 /* ---------- Global ---------- */
@@ -311,7 +311,7 @@
                     </div>
                     <!-- Navigation Strip -->
                     <div class="quick-actions">
-                        <a href="va_asset_master.aspx" class="quick-btn quick-btn-primary">&#128202; Asset Master</a>
+                        <a href="va_asset_master.aspx" class="quick-btn quick-btn-secondary">&#128202; Asset Master</a>
                         <a href="va_fixed_reader.aspx" class="quick-btn quick-btn-secondary">&#128225; Fixed Readers</a>
                         <div class="quick-divider"></div>
                         <a href="#favoritesSection" class="quick-btn quick-btn-secondary">&#11088; Favorites</a>
@@ -328,10 +328,10 @@
 
                 <!-- ====== KPI STRIP ====== -->
                 <div class="kpi-strip">
-                    <div class="kpi-card"><div class="kpi-value" id="kpiAssets">�</div><div class="kpi-label">Total Assets</div></div>
-                    <div class="kpi-card"><div class="kpi-value" id="kpiTagged">�</div><div class="kpi-label">Parts Tagged</div></div>
-                    <div class="kpi-card"><div class="kpi-value" id="kpiSites">�</div><div class="kpi-label">Active Sites</div></div>
-                    <div class="kpi-card"><div class="kpi-value" id="kpiPrinted">�</div><div class="kpi-label">Printed Today</div></div>
+                    <div class="kpi-card"><div class="kpi-value" id="kpiAssets">—</div><div class="kpi-label">Total Assets</div></div>
+                    <div class="kpi-card"><div class="kpi-value" id="kpiTagged">—</div><div class="kpi-label">Parts Tagged</div></div>
+                    <div class="kpi-card"><div class="kpi-value" id="kpiSites">—</div><div class="kpi-label">Active Sites</div></div>
+                    <div class="kpi-card"><div class="kpi-value" id="kpiPrinted">—</div><div class="kpi-label">Printed Today</div></div>
                 </div>
                 <% } %>
                 <div class="page">
@@ -475,7 +475,7 @@
                             </div>
                         </div><% } %>
 
-                        <%-- REMOVED: rpt_overview � accessible via Asset Master Stats pill link (08/02) --%>
+                        <%-- REMOVED: rpt_overview — accessible via Asset Master Stats pill link (08/02) --%>
 
                         <% if (CanSeeTile("rpt_asset_master")) { %><div class="tile" onclick="location.href='va_asset_master.aspx'" style="border-left: 4px solid var(--accent-2); background: color-mix(in srgb, var(--accent-2), transparent 95%);">
                             <div class="tile-title" style="color:var(--accent-2);">&#128203; Asset Master &mdash; Unified Portal</div>
@@ -492,7 +492,7 @@
                         </div><% } %>
 
 
-                        <%-- REMOVED: rpt_activity � consolidated into Tagging Dashboards & Activity (08/17) --%>
+                        <%-- REMOVED: rpt_activity — consolidated into Tagging Dashboards & Activity (08/17) --%>
 
 
                         <% if (CanSeeTile("rpt_ennx") || CanSeeTile("rpt_sessions")) { %><div class="tile" onclick="location.href='va_ennx.aspx'">
@@ -525,24 +525,24 @@
                             </div>
                         </div><% } %>
 
-                        <%-- REMOVED: rpt_data_research � consolidated into Asset Master (07/31) --%>
+                        <%-- REMOVED: rpt_data_research — consolidated into Asset Master (07/31) --%>
 
-                        <%-- REMOVED: rpt_tag_audit � consolidated into Tagging Progress & Activity (08/17) --%>
+                        <%-- REMOVED: rpt_tag_audit — consolidated into Tagging Progress & Activity (08/17) --%>
 
                         <% if (CanSeeTile("rpt_data_quality")) { %><div class="tile" onclick="location.href='va_data_quality.aspx'" style="border-left: 4px solid #ef4444; background: color-mix(in srgb, #ef4444, transparent 95%);">
                             <div class="tile-title" style="color:#ef4444;">&#9989; Data Quality Command Center</div>
                             <div class="tile-desc">Live health score (0&ndash;100), missing EIL/CMR detection, unassigned locations, malformed EE numbers, interactive AJAX drill-down, and Excel export.</div>
                         </div><% } %>
 
-                        <%-- REMOVED: rpt_cmr � consolidated into Asset Master CMR filter + KPI (07/31) --%>
+                        <%-- REMOVED: rpt_cmr — consolidated into Asset Master CMR filter + KPI (07/31) --%>
 
-                        <%-- REMOVED: rpt_tag_stats � consolidated into Tagging Progress & Activity (08/17) --%>
+                        <%-- REMOVED: rpt_tag_stats — consolidated into Tagging Progress & Activity (08/17) --%>
 
-                        <%-- REMOVED: rpt_tagging_detail � consolidated into Tagging Dashboards & Activity (08/17) --%>
+                        <%-- REMOVED: rpt_tagging_detail — consolidated into Tagging Dashboards & Activity (08/17) --%>
 
-                        <%-- REMOVED: rpt_location_list � consolidated into Asset Master location column + detail panel (07/31) --%>
+                        <%-- REMOVED: rpt_location_list — consolidated into Asset Master location column + detail panel (07/31) --%>
 
-                        <%-- REMOVED: search_history, search_asset, search_location � all consolidated into Asset Master detail panel (07/31) --%>
+                        <%-- REMOVED: search_history, search_asset, search_location — all consolidated into Asset Master detail panel (07/31) --%>
 
                     </div></div></div>
 
@@ -735,7 +735,7 @@
                                 <div class="tile-desc">Manage fixed RFID reader registrations, antenna port mappings, power levels, network discovery, and live online/offline status.</div>
                             </div>
                             <% } %>
-                            <!-- Tag Types � tagging team analysis page -->
+                            <!-- Tag Types — tagging team analysis page -->
                             <% if (CanSeeTile("admin_tag_type")) { %>
                             <div class="tile" onclick="location.href='va_tag_type.aspx'" style="border-left: 4px solid #10b981; background: rgba(16,185,129,0.05);">
                                 <div class="tile-title" style="color:#10b981;">&#127991; Tag Type Analysis</div>
@@ -1207,7 +1207,7 @@ function toggleSection(id) {
                 </div>
 
                 <script>
-                    /* ── Support Request Modal (AJAX — no postback) ── */
+                    /* â”€â”€ Support Request Modal (AJAX â€” no postback) â”€â”€ */
                     function openSupportModal() {
                         var ov = document.getElementById('srOverlay');
                         ov.classList.add('active');
@@ -1300,8 +1300,8 @@ function toggleSection(id) {
                                         var badge = document.getElementById('tileWatchBadge');
                                         if (badge && d.summary.totalWatched > 0) {
                                             var txt = d.summary.totalWatched + ' Watched';
-                                            if (d.summary.high > 0) txt += ' � ' + d.summary.high + ' High';
-                                            if (d.summary.mismatch > 0) txt += ' � ?? ' + d.summary.mismatch;
+                                            if (d.summary.high > 0) txt += ' • ' + d.summary.high + ' High';
+                                            if (d.summary.mismatch > 0) txt += ' • ?? ' + d.summary.mismatch;
                                             badge.textContent = txt;
                                             badge.style.display = 'inline-block';
                                         }
