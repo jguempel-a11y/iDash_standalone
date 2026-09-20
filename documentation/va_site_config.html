@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -57,7 +57,7 @@
         <div>
             <h1 style="margin-bottom:4px;">iDash &mdash; Installation &amp; Component Manifest</h1>
             <p style="color:var(--muted-docs); margin:0; font-size:14px;">
-                VA Asset Intelligence Hub &bull; Technical Reference for OIT Security Review
+                Integrated Intelligence Hub &bull; Technical Reference for OIT Security Review
             </p>
         </div>
         <div style="display:flex; gap:6px; flex-wrap:wrap;">
@@ -90,7 +90,7 @@
     <div class="card" id="sec-overview">
         <h2 style="margin-top:0;">1. System Overview</h2>
         <table class="manifest-tbl" style="max-width:600px;">
-            <tr><td style="width:200px; font-weight:600;">Application Name</td><td>iDash (VA Asset Intelligence Hub)</td></tr>
+            <tr><td style="width:200px; font-weight:600;">Application Name</td><td>iDash (Integrated Intelligence Hub)</td></tr>
             <tr><td style="font-weight:600;">Publisher</td><td>ID Integration Inc.</td></tr>
             <tr><td style="font-weight:600;">Runtime</td><td>ASP.NET Web Forms &mdash; .NET Framework 4.8</td></tr>
             <tr><td style="font-weight:600;">Hosting Model</td><td>IIS 10+ Application Pool (Integrated Pipeline)</td></tr>
@@ -174,43 +174,43 @@
         <p>Complete directory layout of the iDash web application root:</p>
         <div class="dir-tree">
 <span class="folder">iDash/</span> <span class="desc">&larr; IIS Application Root</span>
-├── <span class="folder">api/</span> <span class="desc">HTTP handlers for AJAX/scanner API endpoints</span>
-│   ├── <span class="file">LiveScanHandler.ashx</span> <span class="desc">WebSocket-like live scan relay</span>
-│   └── <span class="file">v_asset.ashx</span> <span class="desc">Asset lookup API for barcode scanners</span>
-├── <span class="folder">App_Code/</span> <span class="desc">Shared C# classes (JIT compiled at runtime)</span>
-│   ├── <span class="file">AlertingService.cs</span> <span class="desc">Email notification &amp; alert engine</span>
-│   ├── <span class="file">EmailHelper.cs</span> <span class="desc">SMTP mail composition &amp; delivery</span>
-│   ├── <span class="file">LiveScanService.cs</span> <span class="desc">Multi-station live scan coordination</span>
-│   ├── <span class="file">RecompileTrigger.cs</span> <span class="desc">Forces ASP.NET recompile on deploy</span>
-│   ├── <span class="file">UserManager.cs</span> <span class="desc">Role-based access control &amp; session management</span>
-│   └── <span class="file">VAssetData.cs</span> <span class="desc">Asset data helper models</span>
-├── <span class="folder">App_Data/</span> <span class="desc">Application data (role configs, user stores)</span>
-├── <span class="folder">Assets/</span>
-│   └── <span class="folder">branding/</span> <span class="desc">Logo images (rfid.png, IDIntegration.jpg)</span>
-├── <span class="folder">bin/</span> <span class="desc">Third-party DLL dependencies (see Section 4)</span>
-├── <span class="folder">config/</span>
-│   └── <span class="file">report_automation.json</span> <span class="desc">Scheduled report definitions</span>
-├── <span class="folder">controls/</span>
-│   └── <span class="file">idashfooter.ascx</span> <span class="desc">Shared footer user control</span>
-├── <span class="folder">dashboard/</span> <span class="desc">Legacy dashboard UI (Alpine.js + Chart.js SPA)</span>
-│   ├── <span class="folder">css/</span> <span class="desc">Dashboard stylesheets</span>
-│   ├── <span class="folder">dat/</span> <span class="desc">Dashboard data files</span>
-│   └── <span class="folder">js/</span> <span class="desc">Client-side JS libraries &amp; app logic</span>
-├── <span class="folder">documentation/</span> <span class="desc">&larr; Technical documentation hub (70 files)</span>
-├── <span class="folder">downloads/</span>
-│   └── <span class="folder">Scripts/</span> <span class="desc">SQL scripts for data import &amp; maintenance</span>
-├── <span class="folder">logs/</span> <span class="desc">Runtime application logs</span>
-├── <span class="folder">printing/</span> <span class="desc">BarTender templates, spooler scripts, routing config</span>
-├── <span class="folder">site_maps/</span> <span class="desc">VA facility floor plan images (104 files)</span>
-├── <span class="folder">temp/</span> <span class="desc">Temporary upload staging</span>
-├── <span class="file">web.config</span> <span class="desc">IIS/ASP.NET configuration (connection strings, app settings)</span>
-├── <span class="file">theme.css</span> <span class="desc">Global CSS design system (dark/light theme)</span>
-├── <span class="file">theme-init.js</span> <span class="desc">Theme preference loader</span>
-├── <span class="file">sw.js</span> <span class="desc">Service worker for offline caching</span>
-├── <span class="file">manifest.json</span> <span class="desc">PWA manifest for mobile install</span>
-├── <span class="file">*.aspx / *.aspx.cs</span> <span class="desc">59 web form pages (see Section 5)</span>
-├── <span class="file">*.sql</span> <span class="desc">SQL scripts duplicated to root for runtime access</span>
-└── <span class="file">*.json</span> <span class="desc">Header mappings, print config, training modules</span>
++-- <span class="folder">api/</span> <span class="desc">HTTP handlers for AJAX/scanner API endpoints</span>
+�   +-- <span class="file">LiveScanHandler.ashx</span> <span class="desc">WebSocket-like live scan relay</span>
+�   +-- <span class="file">v_asset.ashx</span> <span class="desc">Asset lookup API for barcode scanners</span>
++-- <span class="folder">App_Code/</span> <span class="desc">Shared C# classes (JIT compiled at runtime)</span>
+�   +-- <span class="file">AlertingService.cs</span> <span class="desc">Email notification &amp; alert engine</span>
+�   +-- <span class="file">EmailHelper.cs</span> <span class="desc">SMTP mail composition &amp; delivery</span>
+�   +-- <span class="file">LiveScanService.cs</span> <span class="desc">Multi-station live scan coordination</span>
+�   +-- <span class="file">RecompileTrigger.cs</span> <span class="desc">Forces ASP.NET recompile on deploy</span>
+�   +-- <span class="file">UserManager.cs</span> <span class="desc">Role-based access control &amp; session management</span>
+�   +-- <span class="file">VAssetData.cs</span> <span class="desc">Asset data helper models</span>
++-- <span class="folder">App_Data/</span> <span class="desc">Application data (role configs, user stores)</span>
++-- <span class="folder">Assets/</span>
+�   +-- <span class="folder">branding/</span> <span class="desc">Logo images (rfid.png, IDIntegration.jpg)</span>
++-- <span class="folder">bin/</span> <span class="desc">Third-party DLL dependencies (see Section 4)</span>
++-- <span class="folder">config/</span>
+�   +-- <span class="file">report_automation.json</span> <span class="desc">Scheduled report definitions</span>
++-- <span class="folder">controls/</span>
+�   +-- <span class="file">idashfooter.ascx</span> <span class="desc">Shared footer user control</span>
++-- <span class="folder">dashboard/</span> <span class="desc">Legacy dashboard UI (Alpine.js + Chart.js SPA)</span>
+�   +-- <span class="folder">css/</span> <span class="desc">Dashboard stylesheets</span>
+�   +-- <span class="folder">dat/</span> <span class="desc">Dashboard data files</span>
+�   +-- <span class="folder">js/</span> <span class="desc">Client-side JS libraries &amp; app logic</span>
++-- <span class="folder">documentation/</span> <span class="desc">&larr; Technical documentation hub (70 files)</span>
++-- <span class="folder">downloads/</span>
+�   +-- <span class="folder">Scripts/</span> <span class="desc">SQL scripts for data import &amp; maintenance</span>
++-- <span class="folder">logs/</span> <span class="desc">Runtime application logs</span>
++-- <span class="folder">printing/</span> <span class="desc">BarTender templates, spooler scripts, routing config</span>
++-- <span class="folder">site_maps/</span> <span class="desc">VA facility floor plan images (104 files)</span>
++-- <span class="folder">temp/</span> <span class="desc">Temporary upload staging</span>
++-- <span class="file">web.config</span> <span class="desc">IIS/ASP.NET configuration (connection strings, app settings)</span>
++-- <span class="file">theme.css</span> <span class="desc">Global CSS design system (dark/light theme)</span>
++-- <span class="file">theme-init.js</span> <span class="desc">Theme preference loader</span>
++-- <span class="file">sw.js</span> <span class="desc">Service worker for offline caching</span>
++-- <span class="file">manifest.json</span> <span class="desc">PWA manifest for mobile install</span>
++-- <span class="file">*.aspx / *.aspx.cs</span> <span class="desc">59 web form pages (see Section 5)</span>
++-- <span class="file">*.sql</span> <span class="desc">SQL scripts duplicated to root for runtime access</span>
++-- <span class="file">*.json</span> <span class="desc">Header mappings, print config, training modules</span>
         </div>
     </div>
 

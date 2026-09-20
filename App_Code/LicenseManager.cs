@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
@@ -11,7 +11,7 @@ using System.Web.Script.Serialization;
 using Microsoft.Win32;
 
 /// <summary>
-/// Core cryptographic licensing engine for the iDash VA Asset Intelligence Hub.
+/// Core cryptographic licensing engine for the iDash Integrated Intelligence Hub.
 /// Supports both offline air-gapped activation and online activation via RSA-2048 / SHA-256 signatures.
 /// </summary>
 public static class LicenseManager

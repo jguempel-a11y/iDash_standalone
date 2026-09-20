@@ -590,7 +590,7 @@
         </div>
 
         <div style="text-align:center; color:var(--muted); font-size:12px; margin-top:14px; padding-bottom:40px;">
-            VA Asset Intelligence Hub &mdash; Site Data Export / Import &copy; 2026
+            Integrated Intelligence Hub &mdash; Site Data Export / Import &copy; 2026
         </div>
         <aw:Footer runat="server" />
     </main>

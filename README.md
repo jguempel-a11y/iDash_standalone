@@ -1,4 +1,4 @@
-# iDash — RFID Asset Intelligence Platform
+# iDash — RFID Integrated Intelligence Platform
 
 ![System](https://img.shields.io/badge/Platform-RFID%20Asset%20Intelligence-0066cc)
 ![Stack](https://img.shields.io/badge/Stack-ASP.NET%20%7C%20C%23%20%7C%20SQL%20Server-512BD4)
@@ -6,7 +6,7 @@
 ![Compliance](https://img.shields.io/badge/Section%20508-WCAG%202.0%20AA-10b981)
 ![License](https://img.shields.io/badge/License-Commercial-f59e0b)
 
-**iDash** is a backend-agnostic RFID asset intelligence platform that transforms raw asset data into actionable operational tools. It connects to any SQL Server data source — whether from RFID middleware, ERP systems, or custom databases — and provides a rich suite of reporting dashboards, field scanning tools, label printing workflows, and administrative utilities through a single unified web interface.
+**iDash** is a backend-agnostic RFID Integrated Intelligence Platform that transforms raw asset data into actionable operational tools. It connects to any SQL Server data source — whether from RFID middleware, ERP systems, or custom databases — and provides a rich suite of reporting dashboards, field scanning tools, label printing workflows, and administrative utilities through a single unified web interface.
 
 Built by **[ID Integration Inc.](https://www.idintegration.com)**, iDash is designed for organizations managing large-scale physical asset inventories across multiple facilities. Currently deployed across the U.S. Department of Veterans Affairs and expanding into private sector healthcare and enterprise environments.
 

@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="index.aspx.cs" Inherits="index" ResponseEncoding="utf-8" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="index.aspx.cs" Inherits="index" ResponseEncoding="utf-8" %>
     <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
 
 
@@ -10,7 +10,7 @@
 
         <head runat="server">
             <meta charset="utf-8" />
-            <title>VA Asset Intelligence Hub</title>
+            <title>Integrated Intelligence Hub</title>
             <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
             <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
@@ -424,7 +424,7 @@
 
             <form id="form1" runat="server">
                 <div class="status-bar">
-                    <span>VA Asset Intelligence Hub &mdash; SERVER: <%= System.Environment.MachineName %> (<%= Request.ServerVariables["LOCAL_ADDR"] %>)</span>
+                    <span>Integrated Intelligence Hub &mdash; SERVER: <%= System.Environment.MachineName %> (<%= Request.ServerVariables["LOCAL_ADDR"] %>)</span>
                     <span id="connection-indicator">&bull; CONNECTED</span>
                 </div>
                 <% if (IsLoggedIn) { %>
@@ -441,7 +441,7 @@
                     <% if (!IsLoggedIn) { %>
                     <!-- LOGIN-REQUIRED GATE -->
                     <div style="max-width:420px; margin:80px auto; text-align:center;">
-                        <div class="header-title" style="font-size:28px;">VA Asset Intelligence Hub</div>
+                        <div class="header-title" style="font-size:28px;">Integrated Intelligence Hub</div>
                         <div class="aw-header-brand" style="justify-content:center; margin-bottom:30px; display:flex; align-items:center; gap:8px;">
                             <img src="<%= ResolveUrl("~/Assets/branding/IDIntegration.jpg") %>" style="height:22px; width:auto; border-radius:3px;" alt="ID Integration" />
                             <span class="aw-header-text" style="font-weight:700; font-size:16px;">iDash<span class="bang" style="color:var(--accent);">.</span></span>
@@ -473,7 +473,7 @@
                     <!-- ======================================================
          HEADER
          ====================================================== -->
-                    <div class="header-title">VA Asset Intelligence Hub</div>
+                    <div class="header-title">Integrated Intelligence Hub</div>
                     <div class="header-sub">View reports, search for assets, download files, and manage RFID inventory &mdash; everything your team needs, in one place.</div>
                     <div class="aw-header-brand" style="display:flex; align-items:center; gap:8px;">
                         <img src="<%= ResolveUrl("~/Assets/branding/IDIntegration.jpg") %>" style="height:22px; width:auto; border-radius:3px;" alt="ID Integration" />
@@ -507,7 +507,7 @@
          WELCOME CARD (first-time users only)
          ====================================================== -->
                     <div id="welcomeCard" style="display:none; background:linear-gradient(135deg,var(--card),var(--chip)); border:1px solid #2ea8ff44; border-left:4px solid #2ea8ff; border-radius:12px; padding:20px 24px; margin-bottom:28px; position:relative;">
-                        <div style="font-size:18px; font-weight:700; color:var(--text); margin-bottom:8px;">&#128075; Welcome to the VA Asset Intelligence Hub</div>
+                        <div style="font-size:18px; font-weight:700; color:var(--text); margin-bottom:8px;">&#128075; Welcome to the Integrated Intelligence Hub</div>
                         <div style="font-size:13px; color:var(--muted); line-height:1.7; margin-bottom:14px;">
                             This site helps you track, search, and report on RFID-tagged VA equipment.<br>
                             &bull; <strong style="color:var(--text);">Search Assets</strong> &mdash; find any asset or see where it was last scanned<br>
@@ -602,7 +602,7 @@
                             </div>
                         </div><% } %>
 
-                        <%-- REMOVED: rpt_overview — accessible via Asset Master Stats pill link (08/02) --%>
+                        <%-- REMOVED: rpt_overview � accessible via Asset Master Stats pill link (08/02) --%>
 
                         <% if (CanSeeTile("rpt_asset_master")) { %><div class="tile" onclick="location.href='va_asset_master.aspx'" style="border-left: 4px solid var(--accent-2); background: color-mix(in srgb, var(--accent-2), transparent 95%);">
                             <div class="tile-title" style="color:var(--accent-2);">&#128203; Asset Master &mdash; Unified Portal</div>
@@ -619,7 +619,7 @@
                         </div><% } %>
 
 
-                        <%-- REMOVED: rpt_activity — consolidated into Tagging Dashboards & Activity (08/17) --%>
+                        <%-- REMOVED: rpt_activity � consolidated into Tagging Dashboards & Activity (08/17) --%>
 
 
                         <% if (CanSeeTile("rpt_ennx") || CanSeeTile("rpt_sessions")) { %><div class="tile" onclick="location.href='va_ennx.aspx'">
@@ -652,24 +652,24 @@
                             </div>
                         </div><% } %>
 
-                        <%-- REMOVED: rpt_data_research — consolidated into Asset Master (07/31) --%>
+                        <%-- REMOVED: rpt_data_research � consolidated into Asset Master (07/31) --%>
 
-                        <%-- REMOVED: rpt_tag_audit — consolidated into Tagging Progress & Activity (08/17) --%>
+                        <%-- REMOVED: rpt_tag_audit � consolidated into Tagging Progress & Activity (08/17) --%>
 
                         <% if (CanSeeTile("rpt_data_quality")) { %><div class="tile" onclick="location.href='va_data_quality.aspx'" style="border-left: 4px solid #ef4444; background: color-mix(in srgb, #ef4444, transparent 95%);">
                             <div class="tile-title" style="color:#ef4444;">&#9989; Data Quality Command Center</div>
                             <div class="tile-desc">Live health score (0&ndash;100), missing EIL/CMR detection, unassigned locations, malformed EE numbers, interactive AJAX drill-down, and Excel export.</div>
                         </div><% } %>
 
-                        <%-- REMOVED: rpt_cmr — consolidated into Asset Master CMR filter + KPI (07/31) --%>
+                        <%-- REMOVED: rpt_cmr � consolidated into Asset Master CMR filter + KPI (07/31) --%>
 
-                        <%-- REMOVED: rpt_tag_stats — consolidated into Tagging Progress & Activity (08/17) --%>
+                        <%-- REMOVED: rpt_tag_stats � consolidated into Tagging Progress & Activity (08/17) --%>
 
-                        <%-- REMOVED: rpt_tagging_detail — consolidated into Tagging Dashboards & Activity (08/17) --%>
+                        <%-- REMOVED: rpt_tagging_detail � consolidated into Tagging Dashboards & Activity (08/17) --%>
 
-                        <%-- REMOVED: rpt_location_list — consolidated into Asset Master location column + detail panel (07/31) --%>
+                        <%-- REMOVED: rpt_location_list � consolidated into Asset Master location column + detail panel (07/31) --%>
 
-                        <%-- REMOVED: search_history, search_asset, search_location — all consolidated into Asset Master detail panel (07/31) --%>
+                        <%-- REMOVED: search_history, search_asset, search_location � all consolidated into Asset Master detail panel (07/31) --%>
 
                     </div>
 
@@ -865,7 +865,7 @@
                                 <div class="tile-desc">Manage fixed RFID reader registrations, antenna port mappings, power levels, network discovery, and live online/offline status.</div>
                             </div>
                             <% } %>
-                            <!-- Tag Types — tagging team analysis page -->
+                            <!-- Tag Types � tagging team analysis page -->
                             <% if (CanSeeTile("admin_tag_type")) { %>
                             <div class="tile" onclick="location.href='va_tag_type.aspx'" style="border-left: 4px solid #10b981; background: rgba(16,185,129,0.05);">
                                 <div class="tile-title" style="color:#10b981;">&#127991; Tag Type Analysis</div>
@@ -1265,7 +1265,7 @@
                 </div>
 
                 <script>
-                    /* â”€â”€ Support Request Modal (AJAX â€” no postback) â”€â”€ */
+                    /* ── Support Request Modal (AJAX — no postback) ── */
                     function openSupportModal() {
                         var ov = document.getElementById('srOverlay');
                         ov.classList.add('active');
@@ -1358,8 +1358,8 @@
                                         var badge = document.getElementById('tileWatchBadge');
                                         if (badge && d.summary.totalWatched > 0) {
                                             var txt = d.summary.totalWatched + ' Watched';
-                                            if (d.summary.high > 0) txt += ' • ' + d.summary.high + ' High';
-                                            if (d.summary.mismatch > 0) txt += ' • ?? ' + d.summary.mismatch;
+                                            if (d.summary.high > 0) txt += ' � ' + d.summary.high + ' High';
+                                            if (d.summary.mismatch > 0) txt += ' � ?? ' + d.summary.mismatch;
                                             badge.textContent = txt;
                                             badge.style.display = 'inline-block';
                                         }

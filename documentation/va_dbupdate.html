@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -399,7 +399,7 @@ IF NOT EXISTS (SELECT 1 FROM dbo.company WHERE SUBSTRING(name,1,3) = '649')
         <p>Summary of all changes made to <code>va_dbupdate.aspx</code>, <code>va_dbupdate.aspx.cs</code>,
            the SQL import scripts, and the Service Worker during this session.</p>
 
-        <!-- ── Mobile-Friendly File Selection ── -->
+        <!-- -- Mobile-Friendly File Selection -- -->
         <h3>&#128241; Server-Side File Selection (Mobile Support)</h3>
         <div class="alert-green">
             <strong>Problem:</strong> The page used browser <code>&lt;input type="file"&gt;</code> controls.
@@ -427,7 +427,7 @@ IF NOT EXISTS (SELECT 1 FROM dbo.company WHERE SUBSTRING(name,1,3) = '649')
            mobile-accessible. Users now tap a dropdown instead of browsing a filesystem. All SQL scripts and
            data files live in the iDash root &mdash; no <code>downloads/Scripts/</code> subdirectory needed.</p>
 
-        <!-- ── Row Count &amp; Progress Timer ── -->
+        <!-- -- Row Count &amp; Progress Timer -- -->
         <h3>&#9201; Row Count, Estimated Time &amp; Live Progress Timer</h3>
         <div class="alert-blue">
             <strong>Problem:</strong> Running an import on 80K+ rows with no feedback created anxiety &mdash;
@@ -452,7 +452,7 @@ IF NOT EXISTS (SELECT 1 FROM dbo.company WHERE SUBSTRING(name,1,3) = '649')
         <p><strong>Files changed:</strong> <code>va_dbupdate.aspx</code> (progress panel HTML/CSS/JS),
            <code>va_dbupdate.aspx.cs</code> (<code>DdlDataFile_SelectedIndexChanged</code> handler, <code>HidRowCount</code> hidden field)</p>
 
-        <!-- ── Script Timeout Fix ── -->
+        <!-- -- Script Timeout Fix -- -->
         <h3>&#9888;&#65039; ASP.NET Script Timeout Fix</h3>
         <div class="alert-red" style="background:#fef2f2; border-left:4px solid #ef4444; padding:12px 16px; border-radius:4px; margin:12px 0;">
             <strong>Root cause of "blank screen after 30+ minutes":</strong> The default ASP.NET
@@ -465,7 +465,7 @@ IF NOT EXISTS (SELECT 1 FROM dbo.company WHERE SUBSTRING(name,1,3) = '649')
         <p><strong>Note:</strong> The SQL <code>CommandTimeout</code> was already set to <code>0</code> (unlimited)
            in the batch executor &mdash; only the ASP.NET layer was timing out.</p>
 
-        <!-- ── Scientific Notation Prevention ── -->
+        <!-- -- Scientific Notation Prevention -- -->
         <h3>&#128300; Scientific Notation Prevention (Excel Conversion)</h3>
         <div class="alert-green">
             <strong>Problem:</strong> When Excel stores serial numbers as numeric values, the
@@ -491,7 +491,7 @@ IF NOT EXISTS (SELECT 1 FROM dbo.company WHERE SUBSTRING(name,1,3) = '649')
         <p><strong>Files changed:</strong> <code>va_dbupdate.aspx.cs</code> (ConvertXlsxToTxt method).
            <code>va_dbupdate.sql</code> and <code>va_dbupdate_upsert_enrich.sql</code> (Step 12.7 removed).</p>
 
-        <!-- ── Service Worker Exclusion ── -->
+        <!-- -- Service Worker Exclusion -- -->
         <h3>&#128679; Service Worker: Admin Page Exclusion</h3>
         <div class="alert-blue">
             <strong>Problem:</strong> The Service Worker (designed for scanner offline support) intercepted
@@ -507,7 +507,7 @@ IF NOT EXISTS (SELECT 1 FROM dbo.company WHERE SUBSTRING(name,1,3) = '649')
     </div>
 
     <div style="text-align:center; color:var(--muted-docs); font-size:12px; margin-top:40px;">
-        VA Asset Intelligence Hub Documentation &copy; 2026<br/>
+        Integrated Intelligence Hub Documentation &copy; 2026<br/>
         Authored by the iDash project lead.
     </div>
 </div>

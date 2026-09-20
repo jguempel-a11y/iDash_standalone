@@ -1,8 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Fixed Reader Deployment Guide &mdash; VA Asset Intelligence Hub</title>
+    <title>Fixed Reader Deployment Guide &mdash; Integrated Intelligence Hub</title>
     <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
@@ -87,28 +87,28 @@
         <div class="step-desc">Each FX9600 reader scans RFID tags continuously and sends the data to iDash for processing. There are two supported data paths:</div>
 
         <div class="arch-diagram"><span class="hl-blue">FX9600 Reader</span> (Zebra IoT Connector)
-    │
-    ├── <span class="hl-green">HTTP-POST Path (Working)</span> ──► <span class="hl-green">va_rfid_ingest.ashx</span> ──┐
-    │   Direct HTTP POST to iDash                        │
-    │   No broker needed                                 │
-    │                                                    ▼
-    └── <span class="hl-red">MQTT Path (Broken)</span> ──► iDash.Web.exe ──► <span class="hl-red">NOT ROUTING</span>
-        PUBLISH to broker                     ╳
+    �
+    +-- <span class="hl-green">HTTP-POST Path (Working)</span> --? <span class="hl-green">va_rfid_ingest.ashx</span> --+
+    �   Direct HTTP POST to iDash                        �
+    �   No broker needed                                 �
+    �                                                    ?
+    +-- <span class="hl-red">MQTT Path (Broken)</span> --? iDash.Web.exe --? <span class="hl-red">NOT ROUTING</span>
+        PUBLISH to broker                     ?
         port 8883/TLS                  AntennaLocationService
                                        (subscribes but receives nothing)
-                                                    │
-                                                    ▼
+                                                    �
+                                                    ?
                                         <span class="hl-blue">AntennaLocationService</span>
-                                           ├── Parse JSON payload
-                                           ├── Extract EPC + antenna port
-                                           ├── Lookup reader in dbo.reader
-                                           ├── Map antenna → location (dbo.antenna)
-                                           ├── Update dbo.assetlocation
-                                           ├── Write dbo.locationhistory
-                                           ├── Detect cross-site observations
-                                           └── Push to live feed ring buffer
-                                                    │
-                                                    ▼
+                                           +-- Parse JSON payload
+                                           +-- Extract EPC + antenna port
+                                           +-- Lookup reader in dbo.reader
+                                           +-- Map antenna ? location (dbo.antenna)
+                                           +-- Update dbo.assetlocation
+                                           +-- Write dbo.locationhistory
+                                           +-- Detect cross-site observations
+                                           +-- Push to live feed ring buffer
+                                                    �
+                                                    ?
                                         <span class="hl-green">va_fixed_reader_live.aspx</span>
                                            Polls every 2s, shows real-time tags</div>
 
@@ -121,7 +121,7 @@
                 <tr><td><strong>va_rfid_ingest.ashx</strong></td><td>HTTP POST endpoint for FX9600 direct posting</td><td>iDash web root</td></tr>
                 <tr><td><strong>va_fixed_reader_live.aspx</strong></td><td>Real-time tag read dashboard</td><td>iDash web root</td></tr>
                 <tr><td><strong>dbo.reader</strong></td><td>Reader registration (physicalid, companyid)</td><td>iDash SQL database</td></tr>
-                <tr><td><strong>dbo.antenna</strong></td><td>Antenna-to-location mapping (readerid, port → locationid)</td><td>iDash SQL database</td></tr>
+                <tr><td><strong>dbo.antenna</strong></td><td>Antenna-to-location mapping (readerid, port ? locationid)</td><td>iDash SQL database</td></tr>
             </tbody>
         </table>
     </div>
@@ -137,7 +137,7 @@
 
     <div class="step-card">
         <div class="step-title"><span class="step-num">2</span> Configure the HTTP-POST Endpoint</div>
-        <div class="step-desc">Navigate to <code class="nav">Communication → Zebra IoT Connector → Configuration</code>. Click <strong>Add EndPoint</strong> (or edit existing).</div>
+        <div class="step-desc">Navigate to <code class="nav">Communication ? Zebra IoT Connector ? Configuration</code>. Click <strong>Add EndPoint</strong> (or edit existing).</div>
         <div class="settings-grid">
             <div class="settings-block">
                 <h4>Endpoint Settings</h4>
@@ -164,7 +164,7 @@
 
     <div class="step-card">
         <div class="step-title"><span class="step-num">3</span> Set Operating Mode to Inventory</div>
-        <div class="step-desc">Navigate to <code class="nav">Communication → Zebra IoT Connector → Operating Mode</code>.</div>
+        <div class="step-desc">Navigate to <code class="nav">Communication ? Zebra IoT Connector ? Operating Mode</code>.</div>
         <div class="settings-grid">
             <div class="settings-block">
                 <h4>Mode Settings</h4>
@@ -200,7 +200,7 @@
 
     <div class="step-card">
         <div class="step-title"><span class="step-num">5</span> Start Cloud Operations</div>
-        <div class="step-desc">Navigate to <code class="nav">Communication → Zebra IoT Connector → Connection</code>.</div>
+        <div class="step-desc">Navigate to <code class="nav">Communication ? Zebra IoT Connector ? Connection</code>.</div>
         <ul style="padding-left:20px; font-size:13px; color:var(--muted-docs); line-height:1.9;">
             <li>Verify all mapped interfaces show <span class="status-ok">connected</span></li>
             <li>Click the <strong>Start</strong> button under <strong>Cloud Operations</strong></li>
@@ -264,18 +264,18 @@
         <div class="step-title">How HTTP-POST Works</div>
         <div class="step-desc">Each FX9600 reader POSTs a JSON array of tag reads directly to iDash every <em>Reporting Interval</em> seconds. No MQTT broker is involved.</div>
 
-        <div class="arch-diagram"><span class="hl-green">FX9600</span> ──HTTP POST──► <span class="hl-green">http://server/iDash/va_rfid_ingest.ashx</span>
-    │                              │
-    │  JSON payload:               │  RfidIngestHandler:
-    │  [{                          │    1. Read request body
-    │    "data": {                 │    2. Call ProcessHttpPayload()
-    │      "idHex": "E280...",     │    3. Parse tag array
-    │      "antennaPort": 1,       │    4. Lookup reader by hostname
-    │      "hostName": "FX9600_"   │    5. Map antenna → location
-    │    }                         │    6. Update database
-    │  }, ...]                     │    7. Push to live feed
-    │                              │
-    Response: {"ok": true}         └── <span class="hl-green">Done. No broker needed.</span></div>
+        <div class="arch-diagram"><span class="hl-green">FX9600</span> --HTTP POST--? <span class="hl-green">http://server/iDash/va_rfid_ingest.ashx</span>
+    �                              �
+    �  JSON payload:               �  RfidIngestHandler:
+    �  [{                          �    1. Read request body
+    �    "data": {                 �    2. Call ProcessHttpPayload()
+    �      "idHex": "E280...",     �    3. Parse tag array
+    �      "antennaPort": 1,       �    4. Lookup reader by hostname
+    �      "hostName": "FX9600_"   �    5. Map antenna ? location
+    �    }                         �    6. Update database
+    �  }, ...]                     �    7. Push to live feed
+    �                              �
+    Response: {"ok": true}         +-- <span class="hl-green">Done. No broker needed.</span></div>
 
         <div class="tip-box"><strong>Advantages:</strong> Simple, reliable, no broker dependency, easy to debug (just check HTTP response codes). Works perfectly for the current single-reader test setup.</div>
         <div class="warn-box"><strong>Limitation:</strong> At 40+ readers, each reader creates separate HTTP connections every few seconds. MQTT is more efficient at scale (single persistent connection per reader, one subscriber for all data).</div>
@@ -284,15 +284,15 @@
     <div class="step-card">
         <div class="step-title">Verified Working &mdash; August 31, 2026</div>
         <div class="step-desc">The HTTP-POST path was tested and confirmed operational on 2026-08-31:</div>
-        <div class="log-block"><span class="log-ok">10:36:58 [INFO] HTTP array: tag 613EE10048FF ant 2 → SP1-219</span>
-<span class="log-ok">10:37:00 [INFO] HTTP array: tag E28011700000021586011325 ant 1 → SP1-117</span>
-<span class="log-ok">10:37:00 [INFO] HTTP array: tag 649EE10305FF ant 1 → SP1-117</span>
-<span class="log-ok">10:37:01 [INFO] HTTP array: tag 512EE1736FFF ant 1 → SP1-117</span>
+        <div class="log-block"><span class="log-ok">10:36:58 [INFO] HTTP array: tag 613EE10048FF ant 2 ? SP1-219</span>
+<span class="log-ok">10:37:00 [INFO] HTTP array: tag E28011700000021586011325 ant 1 ? SP1-117</span>
+<span class="log-ok">10:37:00 [INFO] HTTP array: tag 649EE10305FF ant 1 ? SP1-117</span>
+<span class="log-ok">10:37:01 [INFO] HTTP array: tag 512EE1736FFF ant 1 ? SP1-117</span>
 <span class="log-info">10:37:00 [INFO] Cross-site observation: 512 Baltimore owns '512 EE10542' detected at SP1-219 (antenna 2)</span></div>
         <ul style="padding-left:20px; font-size:13px; color:var(--muted-docs); line-height:1.9;">
             <li>Reader: <code class="val">FX9600_F78C85</code> (physicalid in dbo.reader)</li>
-            <li>Antenna 1 → SP1-117 (locationid 40912)</li>
-            <li>Antenna 2 → SP1-219 (locationid 32841)</li>
+            <li>Antenna 1 ? SP1-117 (locationid 40912)</li>
+            <li>Antenna 2 ? SP1-219 (locationid 32841)</li>
             <li>Cross-site tag detection working (512 Baltimore tags)</li>
             <li>Database updates confirmed (dbo.assetlocation, dbo.locationhistory)</li>
             <li>Live view page streaming in real-time</li>
@@ -308,14 +308,14 @@
         <div class="step-desc">For production with 40+ readers, MQTT is the correct architecture:</div>
 
         <div class="arch-diagram"><span class="hl-blue">40 x FX9600 Readers</span>
-    │ Each connects once to broker (persistent TCP/TLS)
-    │ Each PUBLISHES to: <span class="hl-amber">reader/tagobservation</span>
-    │
-    ▼
+    � Each connects once to broker (persistent TCP/TLS)
+    � Each PUBLISHES to: <span class="hl-amber">reader/tagobservation</span>
+    �
+    ?
 <span class="hl-blue">iDash.Web.exe</span> (MQTTnet Broker, port 8883/TLS)
-    │ Routes all PUBLISH messages to matching subscribers
-    │
-    ▼
+    � Routes all PUBLISH messages to matching subscribers
+    �
+    ?
 <span class="hl-green">AntennaLocationService</span> (single subscriber)
     SUBSCRIBES to: <span class="hl-amber">reader/#</span>
     Receives ALL tag data from ALL 40 readers
@@ -362,7 +362,7 @@
 
         <div class="step-desc"><strong>1. FX9600 is connected and publishing (confirmed via TCP):</strong></div>
         <div class="log-block">LocalAddress:Port    RemoteAddress:Port    State
-192.168.4.48:8883    192.168.4.47:50842    <span class="log-ok">Established</span>  ← FX9600 connected</div>
+192.168.4.48:8883    192.168.4.47:50842    <span class="log-ok">Established</span>  ? FX9600 connected</div>
 
         <div class="step-desc"><strong>2. iDash subscriber is connected and subscribed (confirmed via AntennaService log):</strong></div>
         <div class="log-block"><span class="log-ok">09:59:01 [INFO] MQTT connected to 127.0.0.1:8883</span>
@@ -385,7 +385,7 @@
 
         <div class="step-desc"><strong>5. HTTP-POST works immediately with same data:</strong></div>
         <div class="log-block"><span class="log-ok">Switching Tag Data Interface1 from MQTT_Broker to iDash_HTTP
-→ Tags immediately flowing, dozens per second</span></div>
+? Tags immediately flowing, dozens per second</span></div>
 
         <div class="step-desc"><strong>6. Error 255 = MQTT SUBACK &ldquo;Not Authorized&rdquo;</strong></div>
         <div class="step-desc">The broker rejects SUBSCRIBE requests for <code class="cfg">gateway/cmd/#</code> topics (Management and Control interfaces). This suggests the broker has an ACL that is too restrictive. The same ACL may be silently dropping PUBLISH routing even though it doesn&rsquo;t return an error to the publisher.</div>
@@ -490,13 +490,13 @@
         <table class="arch-table">
             <thead><tr><th style="width:28%">Symptom</th><th>Cause</th><th>Resolution</th></tr></thead>
             <tbody>
-                <tr><td>Zero messages, FX9600 connected</td><td>Cloud Operations not started</td><td>FX9600 → Connection page → click <strong>Start</strong></td></tr>
+                <tr><td>Zero messages, FX9600 connected</td><td>Cloud Operations not started</td><td>FX9600 ? Connection page ? click <strong>Start</strong></td></tr>
                 <tr><td>Zero messages, radio not scanning</td><td>Operating Mode set to &ldquo;Single&rdquo;</td><td>Change to <strong>Inventory</strong> on Operating Mode page, reboot reader</td></tr>
-                <tr><td>&ldquo;LLRP client already connected&rdquo;</td><td>IoT Connector holds LLRP connection</td><td>Normal when IoT Connector is active. Use Services → restart IoT Connector if stuck.</td></tr>
+                <tr><td>&ldquo;LLRP client already connected&rdquo;</td><td>IoT Connector holds LLRP connection</td><td>Normal when IoT Connector is active. Use Services ? restart IoT Connector if stuck.</td></tr>
                 <tr><td>Error 255 on Management/Control</td><td>Broker ACL rejects subscribe to <code class="cfg">gateway/cmd/#</code></td><td>Does not affect tag reads. Only matters for remote reader control.</td></tr>
                 <tr><td>Tags read but no location update</td><td>Antenna port not mapped in dbo.antenna</td><td>Add antenna row with correct readerid and port number</td></tr>
                 <tr><td>Tags read but wrong location</td><td>locationid mapped to wrong dbo.location row</td><td>Update dbo.antenna.locationid for that reader+port</td></tr>
-                <tr><td>&ldquo;Could not determine reader name&rdquo;</td><td>HOSTNAME not checked in Tag Metadata</td><td>FX9600 → Operating Mode → check HOSTNAME checkbox</td></tr>
+                <tr><td>&ldquo;Could not determine reader name&rdquo;</td><td>HOSTNAME not checked in Tag Metadata</td><td>FX9600 ? Operating Mode ? check HOSTNAME checkbox</td></tr>
                 <tr><td>Cross-site tag not updating location</td><td>By design &mdash; cross-site tags are logged but not moved</td><td>Normal behavior. Check log for &ldquo;Cross-site observation&rdquo; entries.</td></tr>
                 <tr><td>HTTP 500 from va_rfid_ingest.ashx</td><td>JSON parse error or database error</td><td>Check <code class="cfg">C:\Logs\iDash_AntennaService.log</code> for details</td></tr>
                 <tr><td>Reader not in dbo.reader</td><td>physicalid doesn&rsquo;t match FX9600 hostname</td><td>Add reader row with physicalid = reader hostname (case insensitive)</td></tr>
@@ -513,10 +513,10 @@
         <table class="arch-table">
             <thead><tr><th>Interface</th><th>Direction</th><th>MQTT Topic</th><th>Purpose</th><th>Required?</th></tr></thead>
             <tbody>
-                <tr><td><strong>Tag Data Events</strong></td><td>Reader → Server (PUBLISH)</td><td><code class="cfg">reader/tagobservation</code></td><td>Tag EPC, antenna port, RSSI, timestamp</td><td class="status-ok">Yes &mdash; essential</td></tr>
-                <tr><td><strong>Management Events</strong></td><td>Reader → Server (PUBLISH)</td><td><code class="cfg">reader/managementobservation</code></td><td>Reader health, mode changes, errors</td><td class="status-warn">Optional</td></tr>
-                <tr><td><strong>Management Interface</strong></td><td>Server → Reader (SUBSCRIBE)</td><td><code class="cfg">gateway/cmd/{hostname}</code></td><td>Remote start/stop radio commands</td><td class="status-warn">Optional</td></tr>
-                <tr><td><strong>Control Interface</strong></td><td>Server → Reader (SUBSCRIBE)</td><td><code class="cfg">gateway/cmd/{hostname}</code></td><td>RFID parameter control</td><td class="status-warn">Optional</td></tr>
+                <tr><td><strong>Tag Data Events</strong></td><td>Reader ? Server (PUBLISH)</td><td><code class="cfg">reader/tagobservation</code></td><td>Tag EPC, antenna port, RSSI, timestamp</td><td class="status-ok">Yes &mdash; essential</td></tr>
+                <tr><td><strong>Management Events</strong></td><td>Reader ? Server (PUBLISH)</td><td><code class="cfg">reader/managementobservation</code></td><td>Reader health, mode changes, errors</td><td class="status-warn">Optional</td></tr>
+                <tr><td><strong>Management Interface</strong></td><td>Server ? Reader (SUBSCRIBE)</td><td><code class="cfg">gateway/cmd/{hostname}</code></td><td>Remote start/stop radio commands</td><td class="status-warn">Optional</td></tr>
+                <tr><td><strong>Control Interface</strong></td><td>Server ? Reader (SUBSCRIBE)</td><td><code class="cfg">gateway/cmd/{hostname}</code></td><td>RFID parameter control</td><td class="status-warn">Optional</td></tr>
             </tbody>
         </table>
         <div class="info-box">For basic tag reads and location tracking, only <strong>Tag Data Events Interface1</strong> is required. The other three interfaces are for advanced reader management and can be set to None.</div>
@@ -613,15 +613,15 @@
         <div class="step-title"><span class="step-num">5</span> Self-Publish Test Evidence</div>
         <div class="step-desc">A test endpoint (<code class="nav">?api=testpublish</code>) was created that publishes to the broker on the <code class="cfg">reader/test</code> topic and checks if the subscriber received it. This eliminates the FX9600 as a variable:</div>
         <div class="log-block"><span class="log-info">Request:</span>  va_fixed_reader_live.aspx?api=testpublish
-<span class="log-info">Action:</span>   Connect to broker → PUBLISH to reader/test → wait 1s → check spy buffer
+<span class="log-info">Action:</span>   Connect to broker ? PUBLISH to reader/test ? wait 1s ? check spy buffer
 <span class="log-err">Result:</span>   <strong>NOT ROUTED.</strong> spy still at 0
 
 <span class="log-info">Interpretation:</span>
-  • iDash published to <code>reader/test</code> from a fresh TLS connection
-  • iDash subscriber was subscribed to <code>reader/#</code> (wildcard matches)
-  • Broker accepted the PUBLISH (no error)
-  • Broker did NOT deliver the message to the subscriber
-  • Conclusion: broker does not implement message routing</div>
+  � iDash published to <code>reader/test</code> from a fresh TLS connection
+  � iDash subscriber was subscribed to <code>reader/#</code> (wildcard matches)
+  � Broker accepted the PUBLISH (no error)
+  � Broker did NOT deliver the message to the subscriber
+  � Conclusion: broker does not implement message routing</div>
     </div>
 
     <div class="step-card">
@@ -630,8 +630,8 @@
             <div class="settings-block" style="border-color: rgba(16,185,129,.4);">
                 <h4 style="color: #10b981;">&check; Working</h4>
                 <ul>
-                    <li><strong>Print system:</strong> MqttPrintNotifier publishes to <code class="cfg">awrx/print/{user}</code> → print clients receive messages</li>
-                    <li><strong>HTTP-POST ingest:</strong> FX9600 → <code class="cfg">va_rfid_ingest.ashx</code> → AntennaLocationService → database</li>
+                    <li><strong>Print system:</strong> MqttPrintNotifier publishes to <code class="cfg">awrx/print/{user}</code> ? print clients receive messages</li>
+                    <li><strong>HTTP-POST ingest:</strong> FX9600 ? <code class="cfg">va_rfid_ingest.ashx</code> ? AntennaLocationService ? database</li>
                     <li><strong>MQTT connections:</strong> Both reader and iDash connect and authenticate successfully</li>
                     <li><strong>MQTT subscriptions:</strong> <code class="cfg">reader/#</code> subscription accepted (SUBACK)</li>
                 </ul>
@@ -640,7 +640,7 @@
                 <h4 style="color: #ef4444;">&cross; Not Working</h4>
                 <ul>
                     <li><strong>MQTT routing:</strong> PUBLISH to <code class="cfg">reader/tagobservation</code> never delivered to <code class="cfg">reader/#</code> subscriber</li>
-                    <li><strong>Self-publish:</strong> Even iDash → broker → iDash routing fails</li>
+                    <li><strong>Self-publish:</strong> Even iDash ? broker ? iDash routing fails</li>
                     <li><strong>Gateway commands:</strong> <code class="cfg">gateway/cmd/*</code> subscriptions rejected (error 255)</li>
                 </ul>
             </div>
@@ -730,15 +730,15 @@
 
     <div class="step-card">
         <div class="step-title">RabbitMQ Architecture (Option B)</div>
-        <div class="arch-diagram"><span class="hl-green">FX9600 Reader</span> ──MQTT/TLS──→ <span class="hl-blue">RabbitMQ (port 8884)</span> ──routes──→ <span class="hl-green">iDash AntennaLocationService</span>
-     publishes to:                  │                         subscribes to:
-     <span class="hl-amber">reader/tagobservation</span>           │ <span class="hl-green">✓ Messages routed</span>        <span class="hl-amber">reader/#</span>
-                                    │
-                                    │   Runs alongside, does NOT replace:
-                                    │
-<span class="hl-green">MqttPrintNotifier</span> ──MQTT/TLS──→ <span class="hl-blue">iDash Broker (port 8883)</span> ──→ <span class="hl-green">Print Clients</span>
-     publishes to:                  │ <span class="hl-green">✓ Already working</span>
-     <span class="hl-amber">awrx/print/{user}</span>               │ <span class="hl-green">✓ Unchanged</span></div>
+        <div class="arch-diagram"><span class="hl-green">FX9600 Reader</span> --MQTT/TLS--? <span class="hl-blue">RabbitMQ (port 8884)</span> --routes--? <span class="hl-green">iDash AntennaLocationService</span>
+     publishes to:                  �                         subscribes to:
+     <span class="hl-amber">reader/tagobservation</span>           � <span class="hl-green">? Messages routed</span>        <span class="hl-amber">reader/#</span>
+                                    �
+                                    �   Runs alongside, does NOT replace:
+                                    �
+<span class="hl-green">MqttPrintNotifier</span> --MQTT/TLS--? <span class="hl-blue">iDash Broker (port 8883)</span> --? <span class="hl-green">Print Clients</span>
+     publishes to:                  � <span class="hl-green">? Already working</span>
+     <span class="hl-amber">awrx/print/{user}</span>               � <span class="hl-green">? Unchanged</span></div>
         <div class="tip-box"><strong>Zero disruption:</strong> RabbitMQ runs on a separate port. The iDash broker, print system, and all existing infrastructure remain completely untouched. Only the FX9600 endpoint and iDash Web.config point to the new port.</div>
     </div>
 
@@ -751,8 +751,8 @@
                 <tr><td>2</td><td>Enable MQTT plugin: <code class="cfg">rabbitmq-plugins enable rabbitmq_mqtt</code></td><td>2 min</td></tr>
                 <tr><td>3</td><td>Configure TLS certificates (reuse existing <code class="cfg">mycert.pfx</code>)</td><td>15 min</td></tr>
                 <tr><td>4</td><td>Create users: <code class="cfg">fx9600_f78c85</code>, <code class="cfg">idash_antenna</code> with topic permissions</td><td>10 min</td></tr>
-                <tr><td>5</td><td>Update FX9600 MQTT_Broker endpoint: port → 8884</td><td>2 min</td></tr>
-                <tr><td>6</td><td>Update iDash Web.config: <code class="cfg">AntennaService_MqttPort</code> → 8884</td><td>1 min</td></tr>
+                <tr><td>5</td><td>Update FX9600 MQTT_Broker endpoint: port ? 8884</td><td>2 min</td></tr>
+                <tr><td>6</td><td>Update iDash Web.config: <code class="cfg">AntennaService_MqttPort</code> ? 8884</td><td>1 min</td></tr>
                 <tr><td>7</td><td>Test: verify tags flow via MQTT through RabbitMQ</td><td>10 min</td></tr>
                 <tr><td>8</td><td>Scale: repeat step 5 for each additional FX9600 reader</td><td>2 min/reader</td></tr>
             </tbody>
