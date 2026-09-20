@@ -709,7 +709,7 @@ public partial class va_print_admin : System.Web.UI.Page
     // Config Status & Fix
     // ===================================================================
     private static readonly string WebClientAppSettingsPath = @"c:\inetpub\wwwroot\iDash\appsettings.json";
-    private static readonly string PrintServerAppSettingsPath = @"C:\Program Files (x86)\InfinID Technologies\iDash Print Service\appsettings.json";
+    private static readonly string PrintServerAppSettingsPath = @"C:\Program Files\ID Integration\iDash Print Service\appsettings.json";
 
     private Dictionary<string, object> ReadAppSettingsConfig(string path)
     {
@@ -1072,7 +1072,7 @@ public partial class va_print_admin : System.Web.UI.Page
         catch { defaults["pfxPath"] = ""; }
 
         // Existing print client from DB
-        defaults["printClientName"] = "Master Print Server";
+        defaults["printClientName"] = "iDash Print Client";
         defaults["printClientId"] = 0;
         try
         {
@@ -1153,7 +1153,7 @@ public partial class va_print_admin : System.Web.UI.Page
         int mqttPort = Convert.ToInt32(data.ContainsKey("mqttPort") ? data["mqttPort"] : 8883);
         string username = (data.ContainsKey("username") ? data["username"] : "").ToString();
         string password = (data.ContainsKey("password") ? data["password"] : "").ToString();
-        string clientName = (data.ContainsKey("clientName") ? data["clientName"] : "Master Print Server").ToString();
+        string clientName = (data.ContainsKey("clientName") ? data["clientName"] : "iDash Print Client").ToString();
         string btwPath = (data.ContainsKey("btwPath") ? data["btwPath"] : @"c:\idash_prints\iDash_Std_Small.btw").ToString();
 
         // Parse selected site IDs
@@ -1289,70 +1289,10 @@ public partial class va_print_admin : System.Web.UI.Page
             steps.Add(MakeStep(stepNum, "Sync credentials to WebClient config", "fail", ex.Message));
         }
 
-        // --- Step 4: Sync credentials to Print Server config ---
-        stepNum++;
-        try
-        {
-            if (File.Exists(PrintServerAppSettingsPath))
-            {
-                string json = File.ReadAllText(PrintServerAppSettingsPath);
-                var root = js.Deserialize<Dictionary<string, object>>(json);
-                var cfg = root.ContainsKey("ConfigSettings") ? root["ConfigSettings"] as Dictionary<string, object> : root;
-                if (cfg == null) cfg = root;
+        // --- (Print Server config sync removed — not used by iDash) ---
 
-                string oldUser = cfg.ContainsKey("PrintClientUsername") ? cfg["PrintClientUsername"].ToString() : "";
-                bool changed = false;
-                var detail = new List<string>();
+        // --- Step 4: Upsert printclient record in database ---
 
-                if (oldUser != username)
-                {
-                    cfg["PrintClientUsername"] = username;
-                    changed = true;
-                    detail.Add("Username updated");
-                }
-                string oldPass = cfg.ContainsKey("PrintClientPassword") ? cfg["PrintClientPassword"].ToString() : "";
-                if (oldPass != password)
-                {
-                    cfg["PrintClientPassword"] = password;
-                    changed = true;
-                    detail.Add("Password updated");
-                }
-
-                cfg["MqttServer"] = mqttServer;
-                cfg["MqttServerPort"] = mqttPort;
-
-                if (changed)
-                {
-                    File.WriteAllText(PrintServerAppSettingsPath, FormatJson(js.Serialize(root)));
-                    detail.Add("File saved");
-                }
-                else
-                {
-                    detail.Add("Already in sync  -  no changes");
-                }
-
-                steps.Add(MakeStep(stepNum, "Sync credentials to Print Server config", "pass",
-                    string.Join("; ", detail), PrintServerAppSettingsPath));
-            }
-            else
-            {
-                steps.Add(MakeStep(stepNum, "Sync credentials to Print Server config", "warn",
-                    "Print Server not installed on this machine. Config file not found at: " + PrintServerAppSettingsPath +
-                    ". If the Print Server runs on a different machine, update its appsettings.json manually.",
-                    PrintServerAppSettingsPath));
-            }
-        }
-        catch (UnauthorizedAccessException)
-        {
-            steps.Add(MakeStep(stepNum, "Sync credentials to Print Server config", "warn",
-                "Access denied writing to Print Server config. Update manually at: " + PrintServerAppSettingsPath));
-        }
-        catch (Exception ex)
-        {
-            steps.Add(MakeStep(stepNum, "Sync credentials to Print Server config", "fail", ex.Message));
-        }
-
-        // --- Step 5: Upsert printclient record in database ---
         stepNum++;
         int printClientId = 0;
         try

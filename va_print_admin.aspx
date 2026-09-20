@@ -1,4 +1,4 @@
-<%@ Page Language="C#" ResponseEncoding="utf-8" AutoEventWireup="true" CodeFile="va_print_admin.aspx.cs" Inherits="va_print_admin" %>
+﻿<%@ Page Language="C#" ResponseEncoding="utf-8" AutoEventWireup="true" CodeFile="va_print_admin.aspx.cs" Inherits="va_print_admin" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -217,7 +217,7 @@
                     <div style="font-size:12px; font-weight:700; text-transform:uppercase; color:var(--muted); letter-spacing:.05em; margin:18px 0 10px; display:flex; align-items:center; gap:6px;">&#128274; Print Client Credentials</div>
                     <div class="form-group">
                         <label>Display Name</label>
-                        <input type="text" id="wizClientName" value="Master Print Server" />
+                        <input type="text" id="wizClientName" value="iDash Print Client" />
                     </div>
                     <div class="form-row">
                         <div class="form-group" style="flex:1;">
@@ -353,7 +353,7 @@
         <div class="form-row">
             <div class="form-group" style="flex:1;">
                 <label>Friendly Name</label>
-                <input type="text" id="prtName" placeholder="e.g. Master Print Server" />
+                <input type="text" id="prtName" placeholder="e.g. iDash Print Client" />
             </div>
         </div>
         <div class="form-row">
@@ -566,7 +566,7 @@ async function loadTemplates() {
 async function testPreviewTemplate(encodedPath, encodedName) {
     var path = decodeURIComponent(encodedPath);
     var name = decodeURIComponent(encodedName);
-    document.getElementById('pvModalTitle').textContent = '👁 BarTender Preview: ' + (name || path);
+    document.getElementById('pvModalTitle').textContent = 'ðŸ‘ BarTender Preview: ' + (name || path);
     document.getElementById('pvLoading').style.display = 'block';
     document.getElementById('pvBody').style.display = 'none';
     document.getElementById('previewModal').classList.add('show');
@@ -887,7 +887,7 @@ async function fixConfig() {
             html += '<div style="font-size:12px;margin:3px 0;color:' + (isWarn ? '#f59e0b' : 'var(--text)') + ';">&bull; ' + ch + '</div>';
         });
         html += '<div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--line); font-size:12px; color:var(--muted);">' +
-            '&#9889; <strong>Restart required:</strong> Run <code>iisreset</code> and restart the Print Server service for changes to take effect.</div>';
+            '&#9889; <strong>Restart required:</strong> Run <code>iisreset</code> for changes to take effect.</div>';
         html += '</div>';
         box.innerHTML = html;
     }
@@ -905,7 +905,7 @@ async function loadWizardDefaults() {
         document.getElementById('wizPfxPath').value = d.pfxPath || '';
         document.getElementById('wizUsername').value = d.printClientUsername || 'MasterPrint';
         document.getElementById('wizPassword').value = d.printClientPassword || '';
-        document.getElementById('wizClientName').value = d.printClientName || 'Master Print Server';
+        document.getElementById('wizClientName').value = d.printClientName || 'iDash Print Client';
         document.getElementById('wizBtwPath').value = d.defaultBtwPath || '';
 
         // Sites checkboxes
@@ -926,7 +926,8 @@ async function loadWizardDefaults() {
         // Config status
         var cfgHtml = '';
         cfgHtml += '<div>' + (d.webClientConfigExists ? '&#9989;' : '&#10060;') + ' WebClient: <code style="font-size:10px;">' + (d.webClientConfigPath || '') + '</code></div>';
-        cfgHtml += '<div>' + (d.printServerConfigExists ? '&#9989;' : '&#9888;') + ' Print Server: <code style="font-size:10px;">' + (d.printServerConfigPath || '') + '</code></div>';
+        // Print Server config removed (not used by iDash)
+                // cfgHtml += '<div>' + (d.printServerConfigExists ? '&#9989;' : '&#9888;') + ' Print Server: <code style="font-size:10px;">' + (d.printServerConfigPath || '') + '</code></div>';
         cfgHtml += '<div>' + (d.useForPrinting ? '&#9989;' : '&#10060;') + ' UseForPrinting: <strong>' + (d.useForPrinting ? 'true' : 'false') + '</strong></div>';
         document.getElementById('wizConfigStatus').innerHTML = cfgHtml;
     } catch (e) {
@@ -960,7 +961,6 @@ async function runWizard() {
         'Read WebClient appsettings.json',
         'Set UseForPrinting = true',
         'Sync credentials to WebClient config',
-        'Sync credentials to Print Server config',
         'Upsert printclient record in database',
         'Remove conflicting mqttclient entries',
         'Create templates for selected sites',
@@ -1068,7 +1068,7 @@ function showWizardSummary(result) {
     // Restart section
     html += '<div style="margin-top:24px; padding:20px; border-radius:12px; background:color-mix(in srgb, #f59e0b 8%, transparent); border:2px solid color-mix(in srgb, #f59e0b 40%, transparent); text-align:center;">' +
         '<div style="font-size:16px; font-weight:800; color:#f59e0b; margin-bottom:8px;">&#9888; RESTART REQUIRED</div>' +
-        '<div style="font-size:13px; color:var(--text); margin-bottom:16px;">Configuration changes will <strong>not take effect</strong> until IIS and the Print Server service are restarted.</div>' +
+        '<div style="font-size:13px; color:var(--text); margin-bottom:16px;">Configuration changes will <strong>not take effect</strong> until IIS is restarted.</div>' +
         '<div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">' +
         '<button type="button" class="btn btn-fill" onclick="doRestartIIS()" style="padding:8px 28px; font-size:13px;">' +
         '&#128260; Restart IIS Now</button>' +
