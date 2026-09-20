@@ -32,7 +32,7 @@
                 /* ---------- Hero Section ---------- */
                 .hero {
                     background: linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #0f172a 100%);
-                    padding: 32px 40px 28px;
+                    padding: 24px 40px 24px;
                     position: relative;
                     overflow: hidden;
                     border-bottom: 1px solid rgba(255,255,255,0.06);
@@ -63,7 +63,7 @@
 
                 /* ---------- Command Palette ---------- */
                 .cmd-bar {
-                    max-width: 580px; margin: 20px 0 0;
+                    max-width: 100%; margin: 20px 0 0;
                     position: relative;
                 }
                 .cmd-input {
@@ -101,7 +101,7 @@
                 /* ---------- KPI Strip ---------- */
                 .kpi-strip {
                     display: grid; grid-template-columns: repeat(4, 1fr);
-                    gap: 16px; max-width: 1300px; margin: -20px auto 0;
+                    gap: 14px; max-width: 1300px; margin: -16px auto 0;
                     padding: 0 40px; position: relative; z-index: 2;
                 }
                 .kpi-card {
@@ -120,13 +120,13 @@
                 .kpi-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
 
                 /* ---------- Page Layout ---------- */
-                .page { max-width:1300px; margin:32px auto; padding:0 40px; }
+                .page { max-width:1300px; margin:24px auto; padding:0 40px; }
 
                 /* ---------- Section Cards ---------- */
                 .section-card {
                     background: var(--glass); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
                     border: 1px solid var(--glass-border); border-radius: 16px;
-                    margin-bottom: 20px; overflow: hidden;
+                    margin-bottom: 14px; overflow: hidden;
                     transition: border-color 0.2s;
                 }
                 .section-card:hover { border-color: rgba(59,130,246,0.2); }
@@ -218,10 +218,10 @@
                 .nav-tab:hover { background: var(--accent) !important; color: #fff !important; border-color: var(--accent) !important; }
 
                 /* ---------- Quick Actions ---------- */
-                .quick-actions { display: flex; gap: 10px; margin-top: 16px; justify-content: flex-start; flex-wrap: wrap; }
+                .quick-actions { display: flex; gap: 12px; margin-top: 16px; justify-content: flex-start; flex-wrap: wrap; }
                 .quick-btn {
                     display: inline-flex; align-items: center; gap: 8px;
-                    padding: 8px 18px; border-radius: 10px; font-size: 13px; font-weight: 600;
+                    padding: 10px 24px; border-radius: 10px; font-size: 13px; font-weight: 600;
                     text-decoration: none; transition: all 0.2s; border: 1px solid;
                 }
                 .quick-btn-primary {
