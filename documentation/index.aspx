@@ -176,7 +176,7 @@
             <div class="grid">
                 <a class="tile" href="va_guide_accessing_idash.html" style="border-color: #3b82f6;">
                     <div class="tile-title" style="color:#3b82f6;">&#128274; Accessing iDash</div>
-                    <p style="color:var(--muted-docs); margin:0;">How to sign in to the Integrated Intelligence Hub, navigate the tile sections, and understand what each area provides. Includes login credentials reference and sign-out guidance.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #3b82f6 15%, transparent); border:1px solid #3b82f6; color:#3b82f6;">User Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">Getting Started</span></p>
+                    <p style="color:var(--muted-docs); margin:0;">How to sign in to the Intelligent Distributed Asset Scanning Hub, navigate the tile sections, and understand what each area provides. Includes login credentials reference and sign-out guidance.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #3b82f6 15%, transparent); border:1px solid #3b82f6; color:#3b82f6;">User Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">Getting Started</span></p>
                 </a>
                 <a class="tile" href="va_guide_mobile_shortcuts.html" style="border-color: #10b981; background: color-mix(in srgb, #10b981, transparent 96%);">
                     <div class="tile-title" style="color:#10b981;">&#128241; Mobile Reader Shortcuts, Web Scanning, and Datawedge Setup</div>

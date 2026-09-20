@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>iDash Software Activation &mdash; Integrated Intelligence Hub</title>
+    <title>iDash Software Activation &mdash; Intelligent Distributed Asset Scanning Hub</title>
     <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
@@ -93,7 +93,7 @@
     <div class="header">
         <div class="title-group">
             <h1>&#128273; iDash Software Activation</h1>
-            <p>Cryptographic License Management for Integrated Intelligence Hub</p>
+            <p>Cryptographic License Management for Intelligent Distributed Asset Scanning Hub</p>
         </div>
         <div class="header-actions">
             <button type="button" class="nav-pill" onclick="location.reload()">&#8635; Refresh</button>

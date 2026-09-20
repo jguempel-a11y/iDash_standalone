@@ -1163,7 +1163,7 @@
     </div>
 
     <div style="text-align:center;color:var(--muted);font-size:12px;margin-top:10px;padding-bottom:40px;">
-        Integrated Intelligence Hub &mdash; Site Configuration &copy; 2026
+        Intelligent Distributed Asset Scanning Hub &mdash; Site Configuration &copy; 2026
     </div>
     <aw:Footer runat="server" />
 </main>

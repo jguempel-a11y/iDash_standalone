@@ -10,7 +10,7 @@
 
         <head runat="server">
             <meta charset="utf-8" />
-            <title>Integrated Intelligence Hub</title>
+            <title>iDash — Intelligent Distributed Asset Scanning Hub</title>
             <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
             <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
@@ -228,7 +228,7 @@
                     text-decoration: none; transition: all 0.2s; border: 1px solid;
                 }
                 .quick-btn-primary {
-                    background: linear-gradient(135deg, #3b82f6, #2563eb); color: #ffffff;
+                    background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.2);
                     border-color: transparent; box-shadow: 0 4px 12px rgba(59,130,246,0.3);
                 }
                 .quick-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,0.4); }
@@ -292,7 +292,7 @@
                             <img src="<%= ResolveUrl("~/Assets/branding/IDIntegration.jpg") %>" alt="ID Integration" />
                             <div>
                                 <span class="hero-brand-name">iDash<span class="accent">.</span></span>
-                                <span class="hero-brand-sub">Integrated Intelligence Hub</span>
+                                <span class="hero-brand-sub">Intelligent Distributed Asset Scanning Hub</span>
                             </div>
                         </div>
                         <div class="hero-actions">
@@ -338,7 +338,7 @@
                     <% if (!IsLoggedIn) { %>
                     <!-- LOGIN-REQUIRED GATE -->
                     <div style="max-width:420px; margin:80px auto; text-align:center;">
-                        <div class="header-title" style="font-size:28px;">Integrated Intelligence Hub</div>
+                        <div class="header-title" style="font-size:28px;">Intelligent Distributed Asset Scanning Hub</div>
                         <div class="aw-header-brand" style="justify-content:center; margin-bottom:30px; display:flex; align-items:center; gap:8px;">
                             <img src="<%= ResolveUrl("~/Assets/branding/IDIntegration.jpg") %>" style="height:22px; width:auto; border-radius:3px;" alt="ID Integration" />
                             <span class="aw-header-text" style="font-weight:700; font-size:16px;">iDash<span class="bang" style="color:var(--accent);">.</span></span>
@@ -388,7 +388,7 @@
          WELCOME CARD (first-time users only)
          ====================================================== -->
                     <div id="welcomeCard" style="display:none; background:linear-gradient(135deg,var(--card),var(--chip)); border:1px solid #2ea8ff44; border-left:4px solid #2ea8ff; border-radius:12px; padding:20px 24px; margin-bottom:28px; position:relative;">
-                        <div style="font-size:18px; font-weight:700; color:var(--text); margin-bottom:8px;">&#128075; Welcome to the Integrated Intelligence Hub</div>
+                        <div style="font-size:18px; font-weight:700; color:var(--text); margin-bottom:8px;">&#128075; Welcome to the Intelligent Distributed Asset Scanning Hub</div>
                         <div style="font-size:13px; color:var(--muted); line-height:1.7; margin-bottom:14px;">
                             This site helps you track, search, and report on RFID-tagged VA equipment.<br>
                             &bull; <strong style="color:var(--text);">Search Assets</strong> &mdash; find any asset or see where it was last scanned<br>
