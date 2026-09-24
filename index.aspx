@@ -277,6 +277,132 @@
                     .quick-actions { flex-direction: column; align-items: center; }
                     .cmd-bar { margin-top: 16px; }
                 }
+
+                /* ---------- Redesigned Landing / Login Gate ---------- */
+                .login-gate-wrapper {
+                    max-width: 440px;
+                    margin: 64px auto 48px;
+                    text-align: center;
+                    padding: 0 16px;
+                }
+                .login-gate-brand {
+                    margin-bottom: 28px;
+                }
+                .login-brand-lockup {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 12px;
+                    margin-bottom: 10px;
+                }
+                .login-brand-logo {
+                    height: 38px;
+                    width: auto;
+                    border-radius: 6px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+                    display: block;
+                }
+                .login-brand-title {
+                    font-size: 36px;
+                    font-weight: 800;
+                    letter-spacing: -0.6px;
+                    color: var(--text);
+                    line-height: 1;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+                }
+                .login-brand-dot {
+                    color: var(--accent, #38bdf8);
+                }
+                .login-gate-title {
+                    font-size: 15px;
+                    font-weight: 600;
+                    color: var(--muted);
+                    letter-spacing: 0.3px;
+                    line-height: 1.4;
+                    margin: 0 auto 6px;
+                    max-width: 360px;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+                }
+                .login-gate-sub {
+                    font-size: 12px;
+                    font-weight: 500;
+                    color: var(--muted);
+                    opacity: 0.85;
+                    letter-spacing: 0.2px;
+                }
+                .login-gate-card {
+                    background: var(--card);
+                    border: 1px solid var(--line);
+                    border-top: 3px solid var(--accent, #38bdf8);
+                    border-radius: 14px;
+                    padding: 30px 28px;
+                    box-shadow: 0 12px 32px -4px rgba(0,0,0,0.22), 0 4px 12px -2px rgba(0,0,0,0.12);
+                    text-align: center;
+                }
+                .login-gate-input {
+                    width: 100%;
+                    box-sizing: border-box;
+                    background: var(--chip);
+                    color: var(--text);
+                    border: 1px solid var(--line);
+                    padding: 11px 14px;
+                    border-radius: 8px;
+                    margin-bottom: 12px;
+                    font-size: 14px;
+                    font-family: inherit;
+                    outline: none;
+                    transition: border-color 0.2s, box-shadow 0.2s;
+                }
+                .login-gate-input:focus {
+                    border-color: var(--accent);
+                    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+                }
+                .login-gate-agreement {
+                    margin-bottom: 16px;
+                    text-align: left;
+                    font-size: 12px;
+                    color: var(--muted);
+                    line-height: 1.45;
+                    background: var(--bg);
+                    border: 1px solid var(--line);
+                    border-radius: 8px;
+                    padding: 10px 12px;
+                }
+                .login-gate-btn {
+                    width: 100%;
+                    background: linear-gradient(135deg, var(--accent, #38bdf8), #0284c7);
+                    color: #ffffff;
+                    border: none;
+                    padding: 12px;
+                    border-radius: 8px;
+                    font-weight: 700;
+                    font-size: 14px;
+                    cursor: pointer;
+                    letter-spacing: 0.3px;
+                    box-shadow: 0 4px 12px color-mix(in srgb, var(--accent) 35%, transparent);
+                    transition: transform 0.15s, box-shadow 0.15s;
+                }
+                .login-gate-btn:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 45%, transparent);
+                }
+                .login-gate-about-btn {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-size: 12px;
+                    color: var(--muted);
+                    text-decoration: none;
+                    padding: 6px 14px;
+                    border: 1px solid var(--line);
+                    border-radius: 6px;
+                    background: var(--card);
+                    transition: all 0.2s;
+                }
+                .login-gate-about-btn:hover {
+                    border-color: var(--accent);
+                    color: var(--accent);
+                }
             </style>
 
         </head>
@@ -337,30 +463,33 @@
                 <div class="page">
                     <% if (!IsLoggedIn) { %>
                     <!-- LOGIN-REQUIRED GATE -->
-                    <div style="max-width:420px; margin:80px auto; text-align:center;">
-                        <div class="header-title" style="font-size:28px;">Intelligent Distributed Asset Scanning Hub</div>
-                        <div class="aw-header-brand" style="justify-content:center; margin-bottom:30px; display:flex; align-items:center; gap:8px;">
-                            <img src="<%= ResolveUrl("~/Assets/branding/IDIntegration.jpg") %>" style="height:22px; width:auto; border-radius:3px;" alt="ID Integration" />
-                            <span class="aw-header-text" style="font-weight:700; font-size:16px;">iDash<span class="bang" style="color:var(--accent);">.</span></span>
-                            <span style="font-size:11px; color:var(--muted); font-style:italic;">by ID Integration Inc.</span>
+                    <div class="login-gate-wrapper">
+                        <div class="login-gate-brand">
+                            <div class="login-brand-lockup">
+                                <img src="<%= ResolveUrl("~/Assets/branding/IDIntegration.jpg") %>" class="login-brand-logo" alt="ID Integration" />
+                                <div class="login-brand-title">iDash<span class="login-brand-dot">.</span></div>
+                            </div>
+                            <div class="login-gate-title">Intelligent Distributed Asset Scanning Hub</div>
+                            <div class="login-gate-sub">by ID Integration Inc. &bull; Enterprise RFID Platform</div>
                         </div>
-                        <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:28px;">
+
+                        <div class="login-gate-card">
                             <div style="font-size:16px; font-weight:700; color:var(--text); margin-bottom:6px;">&#128274; Sign In Required</div>
                             <div style="font-size:13px; color:var(--muted); margin-bottom:20px;">Enter your iDash credentials to access the portal.</div>
-                            <asp:TextBox ID="TxtUserGate" runat="server" Placeholder="Username" style="width:100%; box-sizing:border-box; background:var(--chip); color:var(--text); border:1px solid var(--line); padding:10px 12px; border-radius:6px; margin-bottom:10px; font-size:14px;" />
-                            <asp:TextBox ID="TxtPassGate" runat="server" TextMode="Password" Placeholder="Password" style="width:100%; box-sizing:border-box; background:var(--chip); color:var(--text); border:1px solid var(--line); padding:10px 12px; border-radius:6px; margin-bottom:14px; font-size:14px;" />
-                            <div style="margin-bottom:14px; text-align:left; font-size:12px; color:var(--muted); line-height:1.45; background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px 12px;">
+                            <asp:TextBox ID="TxtUserGate" runat="server" Placeholder="Username" CssClass="login-gate-input" />
+                            <asp:TextBox ID="TxtPassGate" runat="server" TextMode="Password" Placeholder="Password" CssClass="login-gate-input" style="margin-bottom:14px;" />
+                            <div class="login-gate-agreement">
                                 <label style="display:flex; align-items:flex-start; gap:8px; cursor:pointer; color:var(--text);">
                                     <asp:CheckBox ID="ChkAgreementGate" runat="server" style="margin-top:2px;" />
                                     <span>I agree to the <a href="documentation/va_software_agreement.html" target="_blank" style="color:var(--accent); font-weight:600; text-decoration:underline;">Software Usage &amp; Non-Duplication Agreement</a> (<a href="javascript:void(0)" onclick="openAgreementModal(); return false;" style="color:var(--accent); text-decoration:underline;">preview</a>).</span>
                                 </label>
                             </div>
-                            <asp:Button ID="BtnLoginGate" runat="server" Text="Sign In" OnClick="BtnLoginGate_Click" style="width:100%; background:var(--accent); color:var(--bg); border:none; padding:11px; border-radius:6px; font-weight:700; font-size:14px; cursor:pointer; letter-spacing:0.3px;" />
+                            <asp:Button ID="BtnLoginGate" runat="server" Text="Sign In" OnClick="BtnLoginGate_Click" CssClass="login-gate-btn" />
                             <asp:Label ID="LblLoginGateError" runat="server" ForeColor="#ef4444" style="display:block; margin-top:10px; font-size:13px;"></asp:Label>
                         </div>
-                        <div style="font-size:11px; color:var(--muted); margin-top:16px;">Contact your administrator if you need an account.</div>
+                        <div style="font-size:12px; color:var(--muted); margin-top:18px;">Contact your administrator if you need an account.</div>
                         <div style="margin-top:14px; display:flex; align-items:center; justify-content:center; gap:10px;">
-                            <a href="about.html" style="display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); text-decoration:none; padding:6px 12px; border:1px solid var(--line); border-radius:6px; transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--line)';this.style.color='var(--muted)'">
+                            <a href="about.html" class="login-gate-about-btn">
                                 &#128218; About iDash
                             </a>
                         </div>
