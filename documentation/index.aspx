@@ -1,4 +1,4 @@
-<%@ Page Language="C#" ResponseEncoding="utf-8" %>
+﻿<%@ Page Language="C#" ResponseEncoding="utf-8" %>
 <%
     bool isLoggedIn = Session["IsAdminAuthenticated"] != null && (bool)Session["IsAdminAuthenticated"];
     if (!isLoggedIn) { Response.Redirect("../index.aspx"); return; }
@@ -241,7 +241,7 @@
                 </a>
                 <a class="tile" href="va_guide_rfid_support.html" style="border-color: #8B5CF6;">
                     <div class="tile-title" style="color:#8B5CF6;">&#128222; Enterprise RFID Technical Support</div>
-                    <p style="color:var(--muted-docs); margin:0;">Quick reference for getting help: 4-step support process, escalation path (L1&rarr;L2&rarr;L3), full contact directory for Team VIT, and RFID Roundtable schedule (3rd Friday, 2:00 PM EST).<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #8B5CF6 15%, transparent); border:1px solid #8B5CF6; color:#8B5CF6;">Admin Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #3b82f6 15%, transparent); border:1px solid #3b82f6; color:#3b82f6;">Support</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #ec4899 15%, transparent); border:1px solid #ec4899; color:#ec4899;">Contacts</span></p>
+                    <p style="color:var(--muted-docs); margin:0;">Quick reference for getting help: 4-step support process, escalation path (L1&rarr;L2&rarr;L3), full contact directory for ID Integration, and RFID Roundtable schedule (3rd Friday, 2:00 PM EST).<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #8B5CF6 15%, transparent); border:1px solid #8B5CF6; color:#8B5CF6;">Admin Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #3b82f6 15%, transparent); border:1px solid #3b82f6; color:#3b82f6;">Support</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #ec4899 15%, transparent); border:1px solid #ec4899; color:#ec4899;">Contacts</span></p>
                 </a>
                 <% } %>
             </div>
