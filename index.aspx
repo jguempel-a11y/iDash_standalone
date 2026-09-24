@@ -5,7 +5,7 @@
         <!DOCTYPE html>
         <html xmlns="http://www.w3.org/1999/xhtml">
         <script>/* Apply saved theme BEFORE paint to prevent flash */
-        (function(){var t=localStorage.getItem('idash_theme');if(t)document.documentElement.setAttribute('data-theme',t);})();
+        (function(){var t=localStorage.getItem('idash_theme');if(t!=='dark')document.documentElement.setAttribute('data-theme','light');})();
         </script>
 
         <head runat="server">
@@ -882,10 +882,10 @@
                     // -- Theme toggle --
                     function toggleIdashTheme() {
                         var html = document.documentElement;
-                        var current = html.getAttribute('data-theme');
-                        if (current === 'light') {
+                        var isLight = html.getAttribute('data-theme') === 'light';
+                        if (isLight) {
                             html.removeAttribute('data-theme');
-                            localStorage.removeItem('idash_theme');
+                            localStorage.setItem('idash_theme', 'dark');
                         } else {
                             html.setAttribute('data-theme', 'light');
                             localStorage.setItem('idash_theme', 'light');

@@ -1,14 +1,26 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>About iDash — Intelligent Distributed Asset Scanning Hub</title>
+    <title>About iDash &mdash; Intelligent Distributed Asset Scanning Hub</title>
+    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <script>
+        /* Apply saved theme or default to light BEFORE paint to prevent flash */
+        (function() {
+            var saved = localStorage.getItem('idash_theme');
+            if (saved === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="theme.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+        body { font-family:'Inter',system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
 
         .about-header {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
@@ -17,6 +29,7 @@
             text-align: center;
             position: relative;
             overflow: hidden;
+            border-bottom: 1px solid var(--line);
         }
         .about-header::before {
             content: '';
@@ -26,8 +39,8 @@
         }
         .about-header > * { position: relative; z-index: 1; }
         .about-header h1 { font-size: 36px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; }
-        .about-header h1 .accent { color: #3b82f6; }
-        .about-header .tagline { font-size: 17px; color: #94a3b8; font-weight: 400; max-width: 640px; margin: 0 auto 20px; }
+        .about-header h1 .accent { color: var(--accent, #3b82f6); }
+        .about-header .tagline { font-size: 16px; color: #94a3b8; font-weight: 400; max-width: 680px; margin: 0 auto 20px; line-height: 1.5; }
         .about-header .badge-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
         .about-header .badge {
             display: inline-block; font-size: 11px; font-weight: 600; padding: 4px 10px;
@@ -37,8 +50,63 @@
         .about-header .back-link {
             position: absolute; top: 20px; left: 24px; color: #94a3b8; font-size: 13px;
             text-decoration: none; display: flex; align-items: center; gap: 6px; transition: color 0.2s;
+            font-weight: 500;
         }
         .about-header .back-link:hover { color: #f8fafc; }
+
+        /* Light mode header overrides */
+        [data-theme="light"] .about-header {
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            color: #0f172a;
+        }
+        [data-theme="light"] .about-header h1 {
+            color: #0f172a;
+        }
+        [data-theme="light"] .about-header .tagline {
+            color: #475569;
+        }
+        [data-theme="light"] .about-header .badge {
+            border-color: rgba(15, 23, 42, 0.12);
+            background: rgba(15, 23, 42, 0.04);
+            color: #334155;
+        }
+        [data-theme="light"] .about-header .back-link {
+            color: #64748b;
+        }
+        [data-theme="light"] .about-header .back-link:hover {
+            color: #0f172a;
+        }
+
+        .about-theme-btn {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 8px;
+            padding: 5px 12px;
+            color: inherit;
+            cursor: pointer;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .about-theme-btn:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.3);
+        }
+        [data-theme="light"] .about-theme-btn {
+            background: rgba(15, 23, 42, 0.05);
+            border-color: rgba(15, 23, 42, 0.15);
+            color: #334155;
+        }
+        [data-theme="light"] .about-theme-btn:hover {
+            background: rgba(15, 23, 42, 0.1);
+            border-color: rgba(15, 23, 42, 0.25);
+        }
 
         .about-wrap { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
 
@@ -54,7 +122,7 @@
             font-size: 14px; padding: 8px 0; border-bottom: 1px solid var(--line);
             display: flex; align-items: flex-start; gap: 10px;
         }
-        .about-section ul li::before { content: '→'; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+        .about-section ul li::before { content: '\2022'; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: 1px; font-size: 16px; line-height: 1; }
 
         .feature-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -90,23 +158,19 @@
             text-align: center; padding: 32px 24px; font-size: 12px; color: var(--muted);
             border-top: 1px solid var(--line);
         }
-        .about-footer a { color: var(--accent); text-decoration: none; }
-
-        .gh-link {
-            display: inline-flex; align-items: center; gap: 8px; font-size: 13px;
-            color: var(--muted); text-decoration: none; padding: 8px 16px; margin-top: 16px;
-            border: 1px solid var(--line); border-radius: 8px; transition: all 0.2s;
-        }
-        .gh-link:hover { border-color: var(--accent); color: var(--accent); }
+        .about-footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
     </style>
 </head>
 <body>
 
 <div class="about-header">
     <a href="index.aspx" class="back-link">&#9664; Back to iDash</a>
+    <button type="button" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Light/Dark Mode" class="about-theme-btn">
+        <span id="themeIcon">&#9728;</span> <span id="themeLabel">Light</span>
+    </button>
     <h1>iDash<span class="accent">.</span></h1>
     <div class="tagline">
-        A backend-agnostic Intelligent Distributed Asset Scanning Hub that transforms raw asset data into actionable operational tools — built by ID Integration Inc.
+        A backend-agnostic Intelligent Distributed Asset Scanning Hub that transforms raw asset data into actionable operational tools &mdash; built by ID Integration Inc.
     </div>
     <div class="badge-row">
         <span class="badge">ASP.NET &bull; C#</span>
@@ -119,28 +183,35 @@
 
 <div class="about-wrap">
 
-    <!-- WHAT IT DOES -->
+    <!-- WHAT IS IDASH -->
     <div class="about-section">
-        <h2>&#127919; What iDash Does</h2>
+        <h2>&#128640; What is iDash?</h2>
+        <p><strong>iDash</strong> (Intelligent Distributed Asset Scanning Hub) is a web-based presentation and operations platform designed to bridge enterprise asset databases with field operations &mdash; RFID scanning, label printing, automated reporting, and multi-site inventory reconciliation.</p>
+        <p>Originally built for large-scale enterprise deployments, iDash acts as a unified hub connecting fixed and mobile RFID readers, label printers, and back-office databases without requiring changes to existing database schemas or adding heavy middleware.</p>
+
         <div class="highlight-box">
-            <strong>iDash sits between your data and your people.</strong><br/>
-            It doesn't replace your backend — it makes it usable.
+            Connected to your data. Optimized for your team. Zero runtime lock-in.
         </div>
+    </div>
+
+    <!-- CORE CAPABILITIES -->
+    <div class="about-section">
+        <h2>&#9889; Core Capabilities</h2>
         <div class="feature-grid">
             <div class="feature-card">
                 <div class="fc-icon">&#128202;</div>
-                <div class="fc-title">See Your Data</div>
-                <div class="fc-desc">Executive dashboards, KPI cards, compliance reports, and drill-down analytics across every facility.</div>
+                <div class="fc-title">Live Dashboards</div>
+                <div class="fc-desc">Real-time inventory statistics, tagging team leaderboards, CMR/EIL compliance reports, and tag type analytics.</div>
             </div>
             <div class="feature-card">
-                <div class="fc-icon">&#128241;</div>
+                <div class="fc-icon">&#128246;</div>
                 <div class="fc-title">Work in the Field</div>
                 <div class="fc-desc">Mobile-ready scanning tools for inventory, tagging, and asset location with offline Service Worker support.</div>
             </div>
             <div class="feature-card">
                 <div class="fc-icon">&#127991;&#65039;</div>
                 <div class="fc-title">Print Labels</div>
-                <div class="fc-desc">Direct BarTender SDK integration for RFID label printing — no middleware, no print servers, no MQTT brokers.</div>
+                <div class="fc-desc">Direct BarTender SDK integration for RFID label printing &mdash; no middleware, no print servers, no MQTT brokers.</div>
             </div>
             <div class="feature-card">
                 <div class="fc-icon">&#128260;</div>
@@ -166,54 +237,54 @@
 
         <h3>Reporting &amp; Analytics</h3>
         <ul>
-            <li>Asset Master — searchable full asset list with drag-and-drop column pills and bulk export</li>
-            <li>Asset Statistics — KPI dashboard with tagged/untagged/in-use counts and dollar values</li>
-            <li>Tagging Dashboard — executive overview, employee activity, tag type analysis, site detail</li>
-            <li>CMR/EIL Statistics — equipment inventory list compliance reporting</li>
-            <li>Data Quality — completeness analysis and missing-field detection</li>
-            <li>Fixed Reader Report — observation-based reporting from fixed RFID infrastructure</li>
+            <li>Asset Master &mdash; searchable full asset list with drag-and-drop column pills and bulk export</li>
+            <li>Asset Statistics &mdash; KPI dashboard with tagged/untagged/in-use counts and dollar values</li>
+            <li>Tagging Dashboard &mdash; executive overview, employee activity, tag type analysis, site detail</li>
+            <li>CMR/EIL Statistics &mdash; equipment inventory list compliance reporting</li>
+            <li>Data Quality &mdash; completeness analysis and missing-field detection</li>
+            <li>Fixed Reader Report &mdash; observation-based reporting from fixed RFID infrastructure</li>
         </ul>
 
         <h3>Field Operations &amp; Scanning</h3>
         <ul>
-            <li>Tag Team Scan — rapid physical inventory with scan, print, and update workflows</li>
-            <li>Site Inventory — location-based scanning with offline Service Worker support</li>
-            <li>ENNX Scanner — EA/Nil/No-eXcuse inventory sessions with VistA integration</li>
-            <li>RFID Asset Locator — proximity meter, audio feedback, DataWedge + WebSerial USB</li>
-            <li>Fixed Reader Config — reader registrations, antenna/power maps, live status</li>
-            <li>Site Location Maps — SVG facility maps with tagging progress overlay</li>
+            <li>Tag Team Scan &mdash; rapid physical inventory with scan, print, and update workflows</li>
+            <li>Site Inventory &mdash; location-based scanning with offline Service Worker support</li>
+            <li>ENNX Scanner &mdash; EA/Nil/No-eXcuse inventory sessions with VistA integration</li>
+            <li>RFID Asset Locator &mdash; proximity meter, audio feedback, DataWedge + WebSerial USB</li>
+            <li>Fixed Reader Config &mdash; reader registrations, antenna/power maps, live status</li>
+            <li>Site Location Maps &mdash; SVG facility maps with tagging progress overlay</li>
         </ul>
 
         <h3>Direct Label Printing</h3>
         <ul>
-            <li>Print Administration — template management, printer routing, test print, setup wizard</li>
-            <li>Excel Import &amp; Print — bulk import from Excel with automatic label printing</li>
-            <li>Printer Routing — site-to-printer assignment and queue management</li>
-            <li>Print Mapping — label template field mapping configuration</li>
+            <li>Print Administration &mdash; template management, printer routing, test print, setup wizard</li>
+            <li>Excel Import &amp; Print &mdash; bulk import from Excel with automatic label printing</li>
+            <li>Printer Routing &mdash; site-to-printer assignment and queue management</li>
+            <li>Print Mapping &mdash; label template field mapping configuration</li>
         </ul>
 
         <h3>Data Pipeline &amp; Integration</h3>
         <ul>
-            <li>Field Server Sync — automated nightly .bak restore and cross-database merge</li>
-            <li>Data Import — bulk CSV/Excel import with validation</li>
-            <li>Remote DB Update — network-safe import via PowerShell (SqlBulkCopy)</li>
-            <li>FHIR Bridge — HL7 FHIR integration for healthcare interoperability</li>
+            <li>Field Server Sync &mdash; automated nightly .bak restore and cross-database merge</li>
+            <li>Data Import &mdash; bulk CSV/Excel import with validation</li>
+            <li>Remote DB Update &mdash; network-safe import via PowerShell (SqlBulkCopy)</li>
+            <li>FHIR Bridge &mdash; HL7 FHIR integration for healthcare interoperability</li>
         </ul>
 
         <h3>Administration</h3>
         <ul>
-            <li>User Management — roles, tile permissions, site assignments, and user templates</li>
-            <li>System Diagnostics — IIS, SQL Server, BarTender, and print pipeline health checks</li>
-            <li>Database Workbench — interactive SQL query interface with saved profiles</li>
-            <li>Automated Reports — scheduled report generation and email delivery</li>
-            <li>License Manager — per-site license activation and management</li>
+            <li>User Management &mdash; roles, tile permissions, site assignments, and user templates</li>
+            <li>System Diagnostics &mdash; IIS, SQL Server, BarTender, and print pipeline health checks</li>
+            <li>Database Workbench &mdash; interactive SQL query interface with saved profiles</li>
+            <li>Automated Reports &mdash; scheduled report generation and email delivery</li>
+            <li>License Manager &mdash; per-site license activation and management</li>
         </ul>
     </div>
 
     <!-- ARCHITECTURE -->
     <div class="about-section">
         <h2>&#127959;&#65039; Architecture</h2>
-        <p>iDash is a <strong>presentation and operations layer</strong> — not a database platform. It connects to your existing data infrastructure and provides the tools your teams need to do their work.</p>
+        <p>iDash is a <strong>presentation and operations layer</strong> &mdash; not a database platform. It connects to your existing data infrastructure and provides the tools your teams need to do their work.</p>
 
         <div class="arch-diagram">&#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;
 &#9474;                  iDash Platform                  &#9474;
@@ -228,10 +299,10 @@
 
         <table class="tech-table">
             <tr><th>Layer</th><th>Technology</th></tr>
-            <tr><td>Backend</td><td>C# ASP.NET Web Forms — <code>.aspx</code> pages with <code>.aspx.cs</code> code-behind</td></tr>
-            <tr><td>Frontend</td><td>HTML5, CSS3, vanilla JavaScript — zero framework dependencies</td></tr>
-            <tr><td>Database</td><td>SQL Server (Express or Standard) — direct <code>SqlConnection</code> queries</td></tr>
-            <tr><td>Printing</td><td>BarTender SDK — direct in-process printing, no middleware</td></tr>
+            <tr><td>Backend</td><td>C# ASP.NET Web Forms &mdash; <code>.aspx</code> pages with <code>.aspx.cs</code> code-behind</td></tr>
+            <tr><td>Frontend</td><td>HTML5, CSS3, vanilla JavaScript &mdash; zero framework dependencies</td></tr>
+            <tr><td>Database</td><td>SQL Server (Express or Standard) &mdash; direct <code>SqlConnection</code> queries</td></tr>
+            <tr><td>Printing</td><td>BarTender SDK &mdash; direct in-process printing, no middleware</td></tr>
             <tr><td>Web Server</td><td>IIS on Windows Server</td></tr>
             <tr><td>Offline</td><td>Service Worker with network-first caching strategy</td></tr>
             <tr><td>Accessibility</td><td>Section 508 / WCAG 2.0 AA compliant</td></tr>
@@ -239,11 +310,11 @@
 
         <h3>Key Design Decisions</h3>
         <ul>
-            <li><strong>No JavaScript frameworks</strong> — vanilla JS keeps the stack simple and fast without build tooling</li>
-            <li><strong>No ORM</strong> — direct SQL via SqlConnection for full query control and performance</li>
-            <li><strong>No external print service</strong> — BarTender SDK runs in-process; labels print directly</li>
-            <li><strong>Backend-agnostic</strong> — connects to any SQL Server database schema</li>
-            <li><strong>Self-contained</strong> — docs, templates, tools, and config all ship inside the app directory</li>
+            <li><strong>No JavaScript frameworks</strong> &mdash; vanilla JS keeps the stack simple and fast without build tooling</li>
+            <li><strong>No ORM</strong> &mdash; direct SQL via SqlConnection for full query control and performance</li>
+            <li><strong>No external print service</strong> &mdash; BarTender SDK runs in-process; labels print directly</li>
+            <li><strong>Backend-agnostic</strong> &mdash; connects to any SQL Server database schema</li>
+            <li><strong>Self-contained</strong> &mdash; docs, templates, tools, and config all ship inside the app directory</li>
         </ul>
     </div>
 
@@ -251,26 +322,18 @@
     <div class="about-section">
         <h2>&#128274; Security</h2>
         <ul>
-            <li><strong>Tile-based permissions</strong> — every page is gated by a tile key; users only see what they're authorized to access</li>
-            <li><strong>Site-level data isolation</strong> — dynamic SQL WHERE clauses restrict data to assigned facilities</li>
-            <li><strong>Role hierarchy</strong> — Admin, User, and custom roles with granular tile and site assignments</li>
-            <li><strong>Session-based auth</strong> — supports local auth or integration with external identity providers</li>
-            <li><strong>Section 508 / WCAG 2.0 AA</strong> — keyboard navigation, screen readers, focus indicators, color contrast</li>
+            <li><strong>Tile-based permissions</strong> &mdash; every page is gated by a tile key; users only see what they're authorized to access</li>
+            <li><strong>Site-level data isolation</strong> &mdash; dynamic SQL WHERE clauses restrict data to assigned facilities</li>
+            <li><strong>Role hierarchy</strong> &mdash; Admin, User, and custom roles with granular tile and site assignments</li>
+            <li><strong>Session-based auth</strong> &mdash; supports local auth or integration with external identity providers</li>
+            <li><strong>Section 508 / WCAG 2.0 AA</strong> &mdash; keyboard navigation, screen readers, focus indicators, color contrast</li>
         </ul>
     </div>
 
     <!-- DOCUMENTATION -->
     <div class="about-section">
         <h2>&#128218; Documentation</h2>
-        <p>iDash ships with a self-hosted documentation hub containing <strong>70+ technical reference pages</strong> covering every module — accessible from within the application. Documentation is role-aware; users only see guides for features they have access to.</p>
-    </div>
-
-    <!-- SOURCE -->
-    <div class="about-section" style="text-align:center;">
-        <a href="https://github.com/jguempel-a11y/iDash_standalone" target="_blank" class="gh-link">
-            <svg height="18" width="18" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-            Source on GitHub
-        </a>
+        <p>iDash ships with a self-hosted documentation hub containing <strong>70+ technical reference pages</strong> covering every module &mdash; accessible from within the application. Documentation is role-aware; users only see guides for features they have access to.</p>
     </div>
 
 </div>
@@ -281,5 +344,17 @@
 </div>
 
 <script src="theme-init.js"></script>
+<script>
+    function updateThemeIcon() {
+        var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        var iconEl = document.getElementById('themeIcon');
+        var labelEl = document.getElementById('themeLabel');
+        var btn = document.getElementById('themeToggleBtn');
+        if (iconEl) iconEl.innerHTML = isLight ? '&#9728;' : '&#127769;';
+        if (labelEl) labelEl.textContent = isLight ? 'Light' : 'Dark';
+        if (btn) btn.title = isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode';
+    }
+    document.addEventListener('DOMContentLoaded', updateThemeIcon);
+</script>
 </body>
 </html>
