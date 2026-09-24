@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_ennx.aspx.cs" Inherits="iDash.va_ennx" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_ennx.aspx.cs" Inherits="iDash.va_ennx" EnableEventValidation="false" %>
     <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
 
         <!DOCTYPE html>
@@ -518,15 +518,26 @@
 
                             <!-- Time Period selector -->
                             <label style="margin-left:12px; margin-right:6px;">Time Period</label>
-                            <asp:DropDownList ID="DDL_EnnxHours" runat="server" CssClass="txt" Width="130px">
+                            <asp:DropDownList ID="DDL_EnnxHours" runat="server" CssClass="txt" Width="180px"
+                                AutoPostBack="true" OnSelectedIndexChanged="DDL_EnnxHours_SelectedIndexChanged">
                                 <asp:ListItem Text="All day" Value="0" Selected="True"></asp:ListItem>
+                                <asp:ListItem Text="Morning (12 AM - 12 PM)" Value="morning"></asp:ListItem>
+                                <asp:ListItem Text="Afternoon (12 PM - 5 PM)" Value="afternoon"></asp:ListItem>
+                                <asp:ListItem Text="Evening (5 PM - 12 AM)" Value="evening"></asp:ListItem>
                                 <asp:ListItem Text="Last 1 hour" Value="1"></asp:ListItem>
                                 <asp:ListItem Text="Last 2 hours" Value="2"></asp:ListItem>
                                 <asp:ListItem Text="Last 3 hours" Value="3"></asp:ListItem>
                                 <asp:ListItem Text="Last 6 hours" Value="6"></asp:ListItem>
                                 <asp:ListItem Text="Last 12 hours" Value="12"></asp:ListItem>
                                 <asp:ListItem Text="Last 24 hours" Value="24"></asp:ListItem>
+                                <asp:ListItem Text="Custom Time Window" Value="custom"></asp:ListItem>
                             </asp:DropDownList>
+
+                            <asp:Panel ID="PnlCustomTime" runat="server" Style="display:inline-flex; align-items:center; gap:6px; margin-left:6px;">
+                                <asp:TextBox ID="TxtEnnxTimeFrom" runat="server" CssClass="txt" TextMode="Time" Width="105px" placeholder="From" />
+                                <span style="color:var(--muted); font-size:12px;">to</span>
+                                <asp:TextBox ID="TxtEnnxTimeTo" runat="server" CssClass="txt" TextMode="Time" Width="105px" placeholder="To" />
+                            </asp:Panel>
 
                             <!-- Site selector -->
                             <label style="margin-left:15px; margin-right:6px;">Site</label>
@@ -574,6 +585,11 @@
                             <span class="pill"><span>Total Locations</span> <span class="count">
                                     <asp:Literal ID="LitEnnxLocations" runat="server" />
                                 </span></span>
+                            <asp:PlaceHolder ID="PhTimePeriodBadge" runat="server" Visible="false">
+                                <span class="pill" style="border-color:var(--accent); color:var(--accent); background:color-mix(in srgb, var(--accent) 12%, transparent);">
+                                    <span>&#9201; Period:</span> <span class="count" style="color:var(--accent);"><asp:Literal ID="LitTimePeriodBadge" runat="server" /></span>
+                                </span>
+                            </asp:PlaceHolder>
                         </div>
 
                         <!-- OIT & No-Data Preview Buttons -->
@@ -638,4 +654,3 @@
         </body>
 
         </html>
-

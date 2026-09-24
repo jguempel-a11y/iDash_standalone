@@ -50,6 +50,42 @@ namespace iDash
             LoadUsersDropdown();
         }
 
+        protected void DDL_EnnxHours_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            SyncTimeInputsFromDropdown();
+            LoadSitesDropdown();
+            LoadUsersDropdown();
+        }
+
+        private void SyncTimeInputsFromDropdown()
+        {
+            string val = DDL_EnnxHours.SelectedValue;
+            if (val == "morning")
+            {
+                TxtEnnxTimeFrom.Text = "00:00";
+                TxtEnnxTimeTo.Text = "12:00";
+            }
+            else if (val == "afternoon")
+            {
+                TxtEnnxTimeFrom.Text = "12:00";
+                TxtEnnxTimeTo.Text = "17:00";
+            }
+            else if (val == "evening")
+            {
+                TxtEnnxTimeFrom.Text = "17:00";
+                TxtEnnxTimeTo.Text = "23:59";
+            }
+            else
+            {
+                int dummyHrs;
+                if (val == "0" || int.TryParse(val, out dummyHrs))
+                {
+                    TxtEnnxTimeFrom.Text = "";
+                    TxtEnnxTimeTo.Text = "";
+                }
+            }
+        }
+
         // Returns the date range for filtering dropdowns (based on what the user has typed)
         private void GetDateRange(out DateTime dFrom, out DateTime dTo)
         {
@@ -72,21 +108,24 @@ namespace iDash
 
             string prevSite = DDL_EnnxSite.SelectedValue;
 
-            string sqlSites = @"
-                SELECT DISTINCT LTRIM(RTRIM(text7)) AS Site
-                FROM dbo.asset
-                WHERE text7 IS NOT NULL AND LTRIM(RTRIM(text7)) <> ''
-                  AND lastinventoried IS NOT NULL
-                  AND CONVERT(date, lastinventoried) >= @dFrom
-                  AND CONVERT(date, lastinventoried) <= @dTo
-                ORDER BY Site";
-
-            var pars = new[] {
+            var parsList = new List<SqlParameter> {
                 new SqlParameter("@dFrom", SqlDbType.Date) { Value = dFrom },
                 new SqlParameter("@dTo",   SqlDbType.Date) { Value = dTo   }
             };
 
-            DataTable dtS = Run(sqlSites, pars);
+            string tDesc, tDisp;
+            string timeWhere = GetTimePeriodClause(dFrom, dTo, parsList, out tDesc, out tDisp);
+
+            string sqlSites = @"
+                SELECT DISTINCT LTRIM(RTRIM(text7)) AS Site
+                FROM dbo.asset a
+                WHERE text7 IS NOT NULL AND LTRIM(RTRIM(text7)) <> ''
+                  AND lastinventoried IS NOT NULL
+                  AND CONVERT(date, lastinventoried) >= @dFrom
+                  AND CONVERT(date, lastinventoried) <= @dTo" + timeWhere + @"
+                ORDER BY Site";
+
+            DataTable dtS = Run(sqlSites, parsList.ToArray());
             DDL_EnnxSite.Items.Clear();
             DDL_EnnxSite.Items.Add(new ListItem("-- ALL SITES --", "ALL"));
             foreach (DataRow r in dtS.Rows)
@@ -114,14 +153,17 @@ namespace iDash
                 pars.Add(new SqlParameter("@site", SqlDbType.VarChar) { Value = site });
             }
 
+            string tDesc, tDisp;
+            string timeWhere = GetTimePeriodClause(dFrom, dTo, pars, out tDesc, out tDisp);
+
             string sqlUsers = @"
                 SELECT DISTINCT LOWER(LTRIM(RTRIM(lastmodifiedby))) AS UserName
-                FROM dbo.asset
+                FROM dbo.asset a
                 WHERE lastmodifiedby IS NOT NULL
                   AND lastinventoried IS NOT NULL
                   AND CONVERT(date, lastinventoried) >= @dFrom
                   AND CONVERT(date, lastinventoried) <= @dTo"
-                + siteWhere + @"
+                + siteWhere + timeWhere + @"
                 ORDER BY UserName";
 
             string prevUser = DDL_EnnxUser.SelectedValue;
@@ -162,22 +204,25 @@ namespace iDash
                 DateTime dFrom, dTo;
                 GetDateRange(out dFrom, out dTo);
 
-                string sqlEil = @"
-                    SELECT DISTINCT LTRIM(RTRIM(text8)) AS EIL
-                    FROM dbo.asset
-                    WHERE text8 IS NOT NULL AND LTRIM(RTRIM(text8)) <> ''
-                      AND lastinventoried IS NOT NULL
-                      AND CONVERT(date, lastinventoried) >= @dFrom
-                      AND CONVERT(date, lastinventoried) <= @dTo
-                    ORDER BY EIL";
-
-                var eilPars = new[] {
+                var eilParsList = new List<SqlParameter> {
                     new SqlParameter("@dFrom", SqlDbType.Date) { Value = dFrom },
                     new SqlParameter("@dTo",   SqlDbType.Date) { Value = dTo   }
                 };
 
+                string tDesc, tDisp;
+                string timeWhere = GetTimePeriodClause(dFrom, dTo, eilParsList, out tDesc, out tDisp);
+
+                string sqlEil = @"
+                    SELECT DISTINCT LTRIM(RTRIM(text8)) AS EIL
+                    FROM dbo.asset a
+                    WHERE text8 IS NOT NULL AND LTRIM(RTRIM(text8)) <> ''
+                      AND lastinventoried IS NOT NULL
+                      AND CONVERT(date, lastinventoried) >= @dFrom
+                      AND CONVERT(date, lastinventoried) <= @dTo" + timeWhere + @"
+                    ORDER BY EIL";
+
                 string prevEil = DDL_EnnxEil.SelectedValue;
-                DataTable dtE = Run(sqlEil, eilPars);
+                DataTable dtE = Run(sqlEil, eilParsList.ToArray());
                 DDL_EnnxEil.Items.Clear();
                 DDL_EnnxEil.Items.Add(new ListItem("-- All CMR/EILs --", ""));
                 foreach (DataRow r in dtE.Rows)
@@ -198,6 +243,83 @@ namespace iDash
             LitErr.Text = "<div class='ok'>Application data successfully refreshed (Users & EILs updated).</div>";
         }
 
+        private string GetTimePeriodClause(DateTime dFrom, DateTime? dTo, List<SqlParameter> pars, out string timeDesc, out string timeDisplay)
+        {
+            timeDesc = "";
+            timeDisplay = "";
+            string val = DDL_EnnxHours != null ? DDL_EnnxHours.SelectedValue : "0";
+
+            if (val == "morning")
+            {
+                timeDesc = "_Morning";
+                timeDisplay = "Morning (12am-12pm)";
+                return " AND DATEPART(hour, a.lastinventoried) < 12";
+            }
+            if (val == "afternoon")
+            {
+                timeDesc = "_Afternoon";
+                timeDisplay = "Afternoon (12pm-5pm)";
+                return " AND DATEPART(hour, a.lastinventoried) >= 12 AND DATEPART(hour, a.lastinventoried) < 17";
+            }
+            if (val == "evening")
+            {
+                timeDesc = "_Evening";
+                timeDisplay = "Evening (5pm-12am)";
+                return " AND DATEPART(hour, a.lastinventoried) >= 17";
+            }
+
+            int hours;
+            if (int.TryParse(val, out hours) && hours > 0)
+            {
+                timeDesc = string.Format("_Last{0}h", hours);
+                timeDisplay = string.Format("Last {0} hr{1}", hours, hours == 1 ? "" : "s");
+                pars.Add(new SqlParameter("@hours", SqlDbType.Int) { Value = hours });
+
+                if (dFrom.Date == DateTime.Today && (!dTo.HasValue || dTo.Value.Date == DateTime.Today))
+                {
+                    return " AND a.lastinventoried >= DATEADD(hour, -@hours, SYSDATETIMEOFFSET())";
+                }
+                else
+                {
+                    return " AND DATEPART(hour, a.lastinventoried) >= (24 - @hours)";
+                }
+            }
+
+            // Custom Time Window or manual time inputs
+            string timeFromStr = TxtEnnxTimeFrom != null ? TxtEnnxTimeFrom.Text.Trim() : "";
+            string timeToStr = TxtEnnxTimeTo != null ? TxtEnnxTimeTo.Text.Trim() : "";
+
+            TimeSpan tFrom = TimeSpan.Zero;
+            TimeSpan tTo = TimeSpan.Zero;
+            bool hasFrom = !string.IsNullOrEmpty(timeFromStr) && TimeSpan.TryParse(timeFromStr, out tFrom);
+            bool hasTo = !string.IsNullOrEmpty(timeToStr) && TimeSpan.TryParse(timeToStr, out tTo);
+
+            if (hasFrom && hasTo)
+            {
+                timeDesc = string.Format("_{0:hhmm}to{1:hhmm}", tFrom, tTo);
+                timeDisplay = string.Format("{0:hh\\:mm} - {1:hh\\:mm}", tFrom, tTo);
+                pars.Add(new SqlParameter("@tFrom", SqlDbType.Time) { Value = tFrom });
+                pars.Add(new SqlParameter("@tTo", SqlDbType.Time) { Value = tTo });
+                return " AND CONVERT(time, a.lastinventoried) >= @tFrom AND CONVERT(time, a.lastinventoried) <= @tTo";
+            }
+            else if (hasFrom)
+            {
+                timeDesc = string.Format("_from{0:hhmm}", tFrom);
+                timeDisplay = string.Format("From {0:hh\\:mm}", tFrom);
+                pars.Add(new SqlParameter("@tFrom", SqlDbType.Time) { Value = tFrom });
+                return " AND CONVERT(time, a.lastinventoried) >= @tFrom";
+            }
+            else if (hasTo)
+            {
+                timeDesc = string.Format("_to{0:hhmm}", tTo);
+                timeDisplay = string.Format("Until {0:hh\\:mm}", tTo);
+                pars.Add(new SqlParameter("@tTo", SqlDbType.Time) { Value = tTo });
+                return " AND CONVERT(time, a.lastinventoried) <= @tTo";
+            }
+
+            return "";
+        }
+
         private DataTable GetEnnxData(DateTime d, DateTime? dTo, string user, string site, string eilFilter)
         {
             string sqlWhere = @"
@@ -216,6 +338,13 @@ namespace iDash
                 sqlWhere += " AND CONVERT(date, a.lastinventoried) = @d";
                 pars.Add(new SqlParameter("@d", SqlDbType.Date){ Value = d });
             }
+
+            string timeDesc, timeDisplay;
+            string timeWhere = GetTimePeriodClause(d, dTo, pars, out timeDesc, out timeDisplay);
+            sqlWhere += timeWhere;
+
+            Session["EnnxTimeDesc"] = timeDesc;
+            Session["EnnxTimeDisplay"] = timeDisplay;
 
             if (!string.IsNullOrEmpty(site) && site != "ALL")
             {
@@ -243,7 +372,7 @@ namespace iDash
             string sql = @"
                 SELECT 
                     a.name            AS [Name],
-                    l.name            AS [Locationname],
+                    COALESCE(NULLIF(l.name, ''), NULLIF(lh.HistoryLocationName, ''), NULLIF(a.text16, ''), NULLIF(a.text6, ''), 'UNKNOWN') AS [Locationname],
                     a.text8           AS [EIL],
                     a.description     AS [Description],
                     a.text7           As [Station_Number],
@@ -253,13 +382,21 @@ namespace iDash
                     a.text10          AS [Previous_Inventory_Date],
                     a.text17          AS [Tag_Date],
                     a.text6           AS [Previous_Location],
-                    a.text16          AS [LocationTagged],
+                    ISNULL(NULLIF(a.text16, ''), ISNULL(lh.HistoryLocationName, '')) AS [LocationTagged],
                     a.listvalue1      AS [DisposalStatus],
                     a.text20          AS [Notes],
                     a.lastmodifiedby  AS [Last_Modified_By],
                     a.lastinventoried AS [LastInventoried]
                 FROM dbo.asset a
-                LEFT JOIN dbo.location l ON a.locationid = l.id " + sqlWhere;
+                LEFT JOIN dbo.location l ON a.locationid = l.id
+                OUTER APPLY (
+                    SELECT TOP 1 hloc.name AS HistoryLocationName
+                    FROM dbo.locationhistory lh WITH (NOLOCK)
+                    INNER JOIN dbo.location hloc WITH (NOLOCK) ON lh.locationid = hloc.id
+                    WHERE lh.assetid = a.id
+                      AND ABS(DATEDIFF(second, lh.timeseen, a.lastinventoried)) <= 60
+                    ORDER BY ABS(DATEDIFF(second, lh.timeseen, a.lastinventoried)) ASC
+                ) lh " + sqlWhere;
 
             return Run(sql, pars.ToArray());
         }
@@ -300,14 +437,17 @@ namespace iDash
             if (allUnfiltered == null || allUnfiltered.Rows.Count == 0)
             {
                 string dateRange = dTo.HasValue ? d.ToString("yyyy-MM-dd") + " to " + dTo.Value.ToString("yyyy-MM-dd") : d.ToString("yyyy-MM-dd");
-                LitErr.Text = "<div class='err'>No data found for: Date = " + dateRange 
+                string timeDisplay = Convert.ToString(Session["EnnxTimeDisplay"]);
+                string periodInfo = !string.IsNullOrEmpty(timeDisplay) ? " (Period: " + timeDisplay + ")" : "";
+                LitErr.Text = "<div class='err'>No data found for: Date = " + dateRange + periodInfo
                     + ", Site = " + Server.HtmlEncode(site) 
                     + ", User = " + Server.HtmlEncode(user)
-                    + ". Verify the date matches when assets were last inventoried (scanned), not modified.</div>";
+                    + ". Verify assets were last inventoried within this date and time period.</div>";
                 TxtEnnxOutput.Text = "";
                 LitEnnxTotal.Text = "0";
                 LitEnnxAssets.Text = "0";
                 LitEnnxLocations.Text = "0";
+                PhTimePeriodBadge.Visible = false;
                 GridEnnx.DataSource = null;
                 GridEnnx.DataBind();
                 return;
@@ -368,12 +508,22 @@ namespace iDash
             // Count unique locations (headers)
             var uniqueLocs = dt.AsEnumerable()
                 .Select(r => 
-                    !string.IsNullOrEmpty(r["LocationTagged"] as string) ? r["LocationTagged"].ToString() :
-                    !string.IsNullOrEmpty(r["Locationname"] as string) ? r["Locationname"].ToString() :
-                    !string.IsNullOrEmpty(r["Previous_Location"] as string) ? r["Previous_Location"].ToString() : "UNKNOWN"
+                    !string.IsNullOrEmpty(r["Locationname"] as string) && !string.Equals(r["Locationname"].ToString(), "UNKNOWN", StringComparison.OrdinalIgnoreCase) ? r["Locationname"].ToString() :
+                    !string.IsNullOrEmpty(r["LocationTagged"] as string) && !string.Equals(r["LocationTagged"].ToString(), "UNKNOWN", StringComparison.OrdinalIgnoreCase) ? r["LocationTagged"].ToString() :
+                    !string.IsNullOrEmpty(r["Previous_Location"] as string) && !string.Equals(r["Previous_Location"].ToString(), "UNKNOWN", StringComparison.OrdinalIgnoreCase) ? r["Previous_Location"].ToString() : "UNKNOWN"
                 ).Distinct().Count();
             LitEnnxLocations.Text = uniqueLocs.ToString();
 
+            string disp = Convert.ToString(Session["EnnxTimeDisplay"]);
+            if (!string.IsNullOrEmpty(disp))
+            {
+                PhTimePeriodBadge.Visible = true;
+                LitTimePeriodBadge.Text = Server.HtmlEncode(disp);
+            }
+            else
+            {
+                PhTimePeriodBadge.Visible = false;
+            }
 
             // Bind grid
             try 
@@ -423,11 +573,22 @@ namespace iDash
             
             var uniqueLocs = dt.AsEnumerable()
                 .Select(r => 
-                    !string.IsNullOrEmpty(r["LocationTagged"] as string) ? r["LocationTagged"].ToString() :
-                    !string.IsNullOrEmpty(r["Locationname"] as string) ? r["Locationname"].ToString() :
-                    !string.IsNullOrEmpty(r["Previous_Location"] as string) ? r["Previous_Location"].ToString() : "UNKNOWN"
+                    !string.IsNullOrEmpty(r["Locationname"] as string) && !string.Equals(r["Locationname"].ToString(), "UNKNOWN", StringComparison.OrdinalIgnoreCase) ? r["Locationname"].ToString() :
+                    !string.IsNullOrEmpty(r["LocationTagged"] as string) && !string.Equals(r["LocationTagged"].ToString(), "UNKNOWN", StringComparison.OrdinalIgnoreCase) ? r["LocationTagged"].ToString() :
+                    !string.IsNullOrEmpty(r["Previous_Location"] as string) && !string.Equals(r["Previous_Location"].ToString(), "UNKNOWN", StringComparison.OrdinalIgnoreCase) ? r["Previous_Location"].ToString() : "UNKNOWN"
                 ).Distinct().Count();
             LitEnnxLocations.Text = uniqueLocs.ToString();
+
+            string disp = Convert.ToString(Session["EnnxTimeDisplay"]);
+            if (!string.IsNullOrEmpty(disp))
+            {
+                PhTimePeriodBadge.Visible = true;
+                LitTimePeriodBadge.Text = Server.HtmlEncode(disp);
+            }
+            else
+            {
+                PhTimePeriodBadge.Visible = false;
+            }
 
             try { Bind(GridEnnx, dt, "Name ASC"); } catch { }
 
@@ -465,9 +626,12 @@ namespace iDash
             string idPrefix = string.IsNullOrWhiteSpace(TxtEnnxPrefix.Text) ? "ID" : TxtEnnxPrefix.Text.Trim();
             string text = BuildEnnxText(dt, idPrefix, out nLines);
 
+            string timeDesc = Convert.ToString(Session["EnnxTimeDesc"]);
             string fname = "ENNX-" + d.ToString("MM-dd-yyyy");
             if (dTo.HasValue) 
                 fname += "-to-" + dTo.Value.ToString("MM-dd-yyyy");
+            if (!string.IsNullOrEmpty(timeDesc))
+                fname += timeDesc;
             fname += ".txt";
 
             Response.Clear();
@@ -494,7 +658,8 @@ namespace iDash
                 content += GetOitNoDataExcelHtml();
             }
 
-            string fileName = "ENNX-Grid-" + DateTime.Now.ToString("MM-dd-yyyy") + ".xls";
+            string timeDesc = Convert.ToString(Session["EnnxTimeDesc"]);
+            string fileName = "ENNX-Grid-" + DateTime.Now.ToString("MM-dd-yyyy") + (string.IsNullOrEmpty(timeDesc) ? "" : timeDesc) + ".xls";
             DownloadContent(fileName, content, "application/vnd.ms-excel");
         }
 
@@ -623,6 +788,8 @@ namespace iDash
                 string idPrefix = string.IsNullOrWhiteSpace(TxtEnnxPrefix.Text) ? "ID" : TxtEnnxPrefix.Text.Trim();
                 string ennxText = BuildEnnxText(dt, idPrefix, out n);
 
+                string timeDesc = Convert.ToString(Session["EnnxTimeDesc"]);
+                string timeDisplay = Convert.ToString(Session["EnnxTimeDisplay"]);
                 string dateStr = DateTime.Now.ToString("MM-dd-yyyy");
                 DateTime parsedDate;
                 if (DateTime.TryParse(TxtEnnxDate.Text, out parsedDate))
@@ -634,6 +801,8 @@ namespace iDash
                         dateStr += "-to-" + parsedDateTo.ToString("MM-dd-yyyy");
                     }
                 }
+                if (!string.IsNullOrEmpty(timeDesc))
+                    dateStr += timeDesc;
 
                 atts.Add(new Attachment(new System.IO.MemoryStream(Encoding.UTF8.GetBytes(ennxText)), "ENNX-" + dateStr + ".txt"));
 
@@ -649,10 +818,12 @@ namespace iDash
                 string subject = "ENNX Report - " + dateStr;
                 string body = string.Format("Please find attached the ENNX report and Excel export for {0}.<br/><br/>" +
                               "User: {1}<br/>" +
-                              "Assets: {2}<br/>" +
-                              "Locations: {3}", 
+                              "Period: {2}<br/>" +
+                              "Assets: {3}<br/>" +
+                              "Locations: {4}", 
                               dateStr, 
                               DDL_EnnxUser.SelectedValue, 
+                              string.IsNullOrEmpty(timeDisplay) ? "All day" : timeDisplay,
                               LitEnnxAssets.Text, 
                               LitEnnxLocations.Text);
 
@@ -741,17 +912,17 @@ namespace iDash
 
             var groups = dt.AsEnumerable()
                 .GroupBy(r => {
-                    string tagged = dt.Columns.Contains("LocationTagged") ? CleanEnnxCell(r["LocationTagged"]) : "";
                     string locName = dt.Columns.Contains("Locationname") ? CleanEnnxCell(r["Locationname"]) : "";
+                    string tagged = dt.Columns.Contains("LocationTagged") ? CleanEnnxCell(r["LocationTagged"]) : "";
                     string prev = dt.Columns.Contains("Previous_Location") ? CleanEnnxCell(r["Previous_Location"]) : "";
 
-                    if (string.Equals(tagged, "MISSING", StringComparison.OrdinalIgnoreCase)) tagged = "";
                     if (string.Equals(locName, "MISSING", StringComparison.OrdinalIgnoreCase)) locName = "";
+                    if (string.Equals(tagged, "MISSING", StringComparison.OrdinalIgnoreCase)) tagged = "";
                     if (string.Equals(prev, "MISSING", StringComparison.OrdinalIgnoreCase)) prev = "";
 
-                    string effective = (!string.IsNullOrEmpty(tagged)) ? tagged :
-                                       (!string.IsNullOrEmpty(locName)) ? locName :
-                                       (!string.IsNullOrEmpty(prev)) ? prev : "UNKNOWN";
+                    string effective = (!string.IsNullOrEmpty(locName) && !string.Equals(locName, "UNKNOWN", StringComparison.OrdinalIgnoreCase)) ? locName :
+                                       (!string.IsNullOrEmpty(tagged) && !string.Equals(tagged, "UNKNOWN", StringComparison.OrdinalIgnoreCase)) ? tagged :
+                                       (!string.IsNullOrEmpty(prev) && !string.Equals(prev, "UNKNOWN", StringComparison.OrdinalIgnoreCase)) ? prev : "UNKNOWN";
                     return effective;
                 }, StringComparer.OrdinalIgnoreCase)
                 .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase);
@@ -927,6 +1098,9 @@ namespace iDash
             pars.Add(new SqlParameter("@dFrom", SqlDbType.Date) { Value = dFrom });
             pars.Add(new SqlParameter("@dTo",   SqlDbType.Date) { Value = dTo   });
 
+            string timeDesc, timeDisplay;
+            string timeWhere = GetTimePeriodClause(dFrom, dTo, pars, out timeDesc, out timeDisplay);
+
             string siteWhere = "";
             if (!string.IsNullOrEmpty(site) && site != "ALL")
             {
@@ -951,7 +1125,7 @@ namespace iDash
                 WHERE a.text8 IS NOT NULL AND a.text8 LIKE '78%'
                   AND a.lastinventoried IS NOT NULL
                   AND CONVERT(date, a.lastinventoried) >= @dFrom
-                  AND CONVERT(date, a.lastinventoried) <= @dTo" + siteWhere + @"
+                  AND CONVERT(date, a.lastinventoried) <= @dTo" + timeWhere + siteWhere + @"
                 ORDER BY a.text8, a.name";
 
             return Run(sql, pars.ToArray());
@@ -966,6 +1140,9 @@ namespace iDash
             var pars = new List<SqlParameter>();
             pars.Add(new SqlParameter("@dFrom", SqlDbType.Date) { Value = dFrom });
             pars.Add(new SqlParameter("@dTo",   SqlDbType.Date) { Value = dTo   });
+
+            string timeDesc, timeDisplay;
+            string timeWhere = GetTimePeriodClause(dFrom, dTo, pars, out timeDesc, out timeDisplay);
 
             string siteWhere = "";
             if (!string.IsNullOrEmpty(site) && site != "ALL")
@@ -992,7 +1169,7 @@ namespace iDash
                     OR a.description LIKE '%(Not Found)%')
                   AND a.lastinventoried IS NOT NULL
                   AND CONVERT(date, a.lastinventoried) >= @dFrom
-                  AND CONVERT(date, a.lastinventoried) <= @dTo" + siteWhere + @"
+                  AND CONVERT(date, a.lastinventoried) <= @dTo" + timeWhere + siteWhere + @"
                 ORDER BY a.name";
 
             return Run(sql, pars.ToArray());

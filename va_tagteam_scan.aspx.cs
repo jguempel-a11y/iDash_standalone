@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -72,16 +72,22 @@ public partial class va_tagteam_scan : System.Web.UI.Page
     {
         if (string.IsNullOrWhiteSpace(tagType)) return "";
         string t = tagType.Trim();
-        if (string.Equals(t, "IQ350", StringComparison.OrdinalIgnoreCase)) return "IQ350";
+        if (string.Equals(t, "IQ350", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(t, "AW_Metal_IQ350", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(t, "Metal_IQ350", StringComparison.OrdinalIgnoreCase))
+            return "IQ350";
         if (string.Equals(t, "Large_Metal", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(t, "Metal_Large", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(t, "iDash_Metal_Large", StringComparison.OrdinalIgnoreCase))
+            string.Equals(t, "AW_Large_Metal", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(t, "AW_Metal_Large", StringComparison.OrdinalIgnoreCase))
             return "Large_Metal";
         if (string.Equals(t, "Small_Standard", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(t, "Std_Small", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(t, "iDash_Std_Small", StringComparison.OrdinalIgnoreCase))
+            string.Equals(t, "AW_Std_Small", StringComparison.OrdinalIgnoreCase))
             return "Small_Standard";
-        if (string.Equals(t, "Small_Metal", StringComparison.OrdinalIgnoreCase)) return "Small_Metal";
+        if (string.Equals(t, "Small_Metal", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(t, "Metal_Small", StringComparison.OrdinalIgnoreCase))
+            return "Small_Metal";
         return t;
     }
 
@@ -94,7 +100,15 @@ public partial class va_tagteam_scan : System.Web.UI.Page
 
     private void BindTagTypes()
     {
-        string currentVal = DdlDefaultTagType.SelectedValue;
+        // 1. Read directly from Request.Form because browser sends selected value on every postback
+        string postVal = Request.Form[DdlDefaultTagType.UniqueID] 
+                      ?? Request.Form["DdlDefaultTagType"]
+                      ?? Request.Form[DdlDefaultTagType.ClientID];
+
+        string currentVal = !string.IsNullOrEmpty(postVal) 
+                            ? postVal 
+                            : (string.IsNullOrEmpty(DdlDefaultTagType.SelectedValue) ? (Session["TagTeam_DefaultTagType"] as string) : DdlDefaultTagType.SelectedValue);
+
         string norm = NormalizeTagType(currentVal);
 
         DdlDefaultTagType.Items.Clear();
@@ -104,9 +118,18 @@ public partial class va_tagteam_scan : System.Web.UI.Page
         }
 
         if (!string.IsNullOrEmpty(norm) && DdlDefaultTagType.Items.FindByValue(norm) != null)
+        {
             DdlDefaultTagType.SelectedValue = norm;
+            Session["TagTeam_DefaultTagType"] = norm;
+        }
         else if (DdlDefaultTagType.Items.Count > 0)
-            DdlDefaultTagType.SelectedIndex = 0;
+        {
+            string sessVal = Session["TagTeam_DefaultTagType"] as string;
+            if (!string.IsNullOrEmpty(sessVal) && DdlDefaultTagType.Items.FindByValue(sessVal) != null)
+                DdlDefaultTagType.SelectedValue = sessVal;
+            else
+                DdlDefaultTagType.SelectedIndex = 0;
+        }
     }
 
     protected void DdlTagTypeEdit_Init(object sender, EventArgs e)
@@ -192,6 +215,7 @@ public partial class va_tagteam_scan : System.Web.UI.Page
                     using (var cmd = new System.Data.SqlClient.SqlCommand(@"
                         SELECT t.id, 
                                t.name,
+                               t.filename,
                                t.companyid,
                                ISNULL(NULLIF(t.usewithservice, ''), p.username) as finalRouting
                         FROM template t
@@ -201,6 +225,7 @@ public partial class va_tagteam_scan : System.Web.UI.Page
                         while (r.Read()) {
                             string idStr = Convert.ToInt64(r["id"]).ToString();
                             string name = r["name"].ToString();
+                            string filename = r["filename"] == DBNull.Value ? "" : r["filename"].ToString();
                             long companyId = r["companyid"] == DBNull.Value ? 0 : Convert.ToInt64(r["companyid"]);
                             string routing = r["finalRouting"] == DBNull.Value ? "" : r["finalRouting"].ToString();
                             
@@ -210,6 +235,7 @@ public partial class va_tagteam_scan : System.Web.UI.Page
                             printTemplates.Add(new {
                                 id = Convert.ToInt64(r["id"]),
                                 name = name,
+                                filename = filename,
                                 companyId = companyId
                             });
                         }
@@ -331,6 +357,90 @@ public partial class va_tagteam_scan : System.Web.UI.Page
         return true;
     }
 
+    // Smart Tag Type to Print Template matcher (by name, alias, and site)
+    window.findTemplateForTag = function(tagType, searchPool, allTemplates) {
+        const all = allTemplates || (window.awPrintConfig && window.awPrintConfig.printTemplates) || [];
+        const pool = (searchPool && searchPool.length > 0) ? searchPool : all;
+        if (!pool || pool.length === 0) return null;
+        if (!tagType) return pool[0];
+
+        const raw = (tagType || '').trim();
+        const norm = raw.toLowerCase().replace(/[\s\-_]+/g, '');
+
+        // 1. Check print_mapping_config.json
+        if (window.awPrintConfig && window.awPrintConfig.templateMappings) {
+            const tm = window.awPrintConfig.templateMappings;
+            const mapObj = tm[raw] || tm[raw.toLowerCase()] || tm[norm];
+            if (mapObj) {
+                const mappedId = typeof mapObj === 'object' ? mapObj.TemplateID : parseInt(mapObj, 10);
+                const mappedName = all.find(t => t.id === mappedId);
+                if (mappedName) {
+                    const siteMatch = pool.find(t => t.name === mappedName.name);
+                    if (siteMatch) return siteMatch;
+                }
+                const found = pool.find(t => t.id === mappedId) || all.find(t => t.id === mappedId);
+                if (found) return found;
+            }
+        }
+
+        // 2. Exact match on template name in current site pool (case-insensitive)
+        let match = pool.find(t => (t.name || '').toLowerCase() === raw.toLowerCase());
+        if (match) return match;
+
+        // 3. Normalized stripped name match (e.g. large_metal vs largemetal)
+        match = pool.find(t => (t.name || '').toLowerCase().replace(/[\s\-_]+/g, '') === norm);
+        if (match) return match;
+
+        // 4. Tag Team standard name resolution:
+        //    a) IQ350 -> AW_Metal_IQ350, Metal_IQ350, IQ350
+        //    b) Large_Metal / Metal_Large -> AW_Large_Metal, AW_Metal_Large, Large_Metal, Metal_Large
+        //    c) Small_Metal / Small_Standard -> AW_Std_Small, Std_Small, Small_Standard, Small_Metal
+        const isIQ350 = norm.includes('iq350');
+        const isLargeMetal = (norm.includes('large') && norm.includes('metal')) || norm === 'largemetal' || norm === 'metallarge';
+        const isSmall = (norm.includes('small') || norm.includes('std')) && !isLargeMetal && !isIQ350;
+
+        if (isIQ350) {
+            match = pool.find(t => {
+                const tn = (t.name || '').toLowerCase();
+                const fn = (t.filename || '').toLowerCase();
+                return tn.includes('iq350') || fn.includes('iq350');
+            });
+            if (match) return match;
+        } else if (isLargeMetal) {
+            match = pool.find(t => {
+                const tn = (t.name || '').toLowerCase();
+                const fn = (t.filename || '').toLowerCase();
+                return (tn.includes('large') && tn.includes('metal')) || (fn.includes('large') && fn.includes('metal')) || tn.includes('large');
+            });
+            if (match) return match;
+        } else if (isSmall) {
+            match = pool.find(t => {
+                const tn = (t.name || '').toLowerCase();
+                const fn = (t.filename || '').toLowerCase();
+                return (tn.includes('small') || tn.includes('std')) && !tn.includes('large') && !tn.includes('iq350');
+            });
+            if (match) return match;
+        }
+
+        // 5. Broad substring match in pool
+        match = pool.find(t => {
+            const tn = (t.name || '').toLowerCase().replace(/[\s\-_]+/g, '');
+            return tn.includes(norm) || norm.includes(tn);
+        });
+        if (match) return match;
+
+        // 6. Cross-site search across all templates if pool didn't have it
+        if (all.length > 0 && all !== pool) {
+            if (isIQ350) match = all.find(t => (t.name || '').toLowerCase().includes('iq350') || (t.filename || '').toLowerCase().includes('iq350'));
+            else if (isLargeMetal) match = all.find(t => ((t.name || '').toLowerCase().includes('large') && (t.name || '').toLowerCase().includes('metal')) || (t.name || '').toLowerCase().includes('large'));
+            else if (isSmall) match = all.find(t => (t.name || '').toLowerCase().includes('small') || (t.name || '').toLowerCase().includes('std'));
+            if (match) return match;
+        }
+
+        // 7. Fallback to first available template in pool
+        return pool[0] || all[0] || null;
+    };
+
     async function printCheckedTags() {
         const checked = document.querySelectorAll('.chk-print:checked');
         if (checked.length === 0) return;
@@ -360,40 +470,23 @@ public partial class va_tagteam_scan : System.Web.UI.Page
             let targetValue = '';
 
             if (forceTplId) {
-                // Manual override â€” use the exact template selected
+                // Manual override â€” use the exact template selected in dropdown
                 match = allTemplates.find(item => item.id === forceTplId);
             } else {
-                // 1. Check print_mapping_config.json (tag type â†’ template ID)
-                if (window.awPrintConfig.templateMappings && window.awPrintConfig.templateMappings[tagType]) {
-                    const mapObj = window.awPrintConfig.templateMappings[tagType];
-                    
-                    const mappedId = typeof mapObj === 'object' ? mapObj.TemplateID : parseInt(mapObj, 10);
-                    if (typeof mapObj === 'object') {
+                // Auto-match template by tag type name & site
+                match = window.findTemplateForTag(tagType, searchPool, allTemplates);
+                
+                if (window.awPrintConfig && window.awPrintConfig.templateMappings) {
+                    const norm = (tagType || '').trim().toLowerCase().replace(/[\s\-_]+/g, '');
+                    const mapObj = window.awPrintConfig.templateMappings[tagType] ||
+                                   window.awPrintConfig.templateMappings[(tagType || '').trim()] ||
+                                   window.awPrintConfig.templateMappings[norm];
+                    if (mapObj && typeof mapObj === 'object') {
                         targetType = mapObj.TargetType || 'Default';
                         targetValue = mapObj.TargetValue || '';
                     }
-
-                    // Prefer the site-specific version of this template name
-                    const mappedName = allTemplates.find(t => t.id === mappedId);
-                    if (mappedName) {
-                        match = searchPool.find(t => t.name === mappedName.name);
-                        if (!match) match = allTemplates.find(t => t.id === mappedId);
-                    }
-                }
-                // 2. Match by tag type name within the site's templates
-                if (!match) {
-                    match = searchPool.find(item => item.name === tagType);
-                }
-                // 3. Fall back to any template matching the name across all sites
-                if (!match) {
-                    match = allTemplates.find(item => item.name === tagType);
-                }
-                // 4. Last resort â€” first template for this site
-                if (!match && searchPool.length > 0) {
-                    match = searchPool[0];
                 }
             }
-
 
             if (match && !isNaN(assetId) && assetId > 0) {
                 let routingService = window.awPrintConfig.templateRoutes ? window.awPrintConfig.templateRoutes[match.id] : null;
@@ -405,7 +498,6 @@ public partial class va_tagteam_scan : System.Web.UI.Page
                 if (forceTgt) {
                     routingService = forceTgt;
                 }
-
 
                 payload.push({
                     recordID: assetId,
@@ -460,13 +552,14 @@ public partial class va_tagteam_scan : System.Web.UI.Page
     }
 
     async function printSingleTag(assetId, tagType) {
-        if (!window.awPrintConfig || !window.awPrintConfig.token) {
-            console.error('AutoPrint: Missing token or config');
+        if (!window.awPrintConfig) {
+            console.error('AutoPrint: Missing print config');
             return;
         }
-        if (!window.awPrintConfig.printTemplates || window.awPrintConfig.printTemplates.length === 0) {
-            console.log('AutoPrint: Fetching templates...');
-            await fetchPrintTemplates();
+        const allTemplates = window.awPrintConfig.printTemplates || [];
+        if (allTemplates.length === 0) {
+            console.warn('AutoPrint: No templates available in awPrintConfig');
+            return;
         }
 
         const ddlTpl = document.getElementById('DdlPrintTemplate');
@@ -474,36 +567,33 @@ public partial class va_tagteam_scan : System.Web.UI.Page
         const forceTplId = ddlTpl && ddlTpl.value ? parseInt(ddlTpl.value, 10) : null;
         const forceTgt = ddlTgt && ddlTgt.value ? ddlTgt.value : null;
 
-        const payload = [];
+        const ddlCompany = document.getElementById('DdlCompany');
+        const selectedCompanyId = ddlCompany && ddlCompany.value ? parseInt(ddlCompany.value, 10) : 0;
+        const siteTemplates = selectedCompanyId > 0
+            ? allTemplates.filter(t => t.companyId === selectedCompanyId || t.companyId === 0)
+            : allTemplates;
+        const searchPool = siteTemplates.length > 0 ? siteTemplates : allTemplates;
+
         let match = null;
         let targetType = 'Default';
         let targetValue = '';
 
-        console.log('AutoPrint init for asset:', assetId, 'tagType:', tagType);
-
         if (forceTplId) {
-            match = window.awPrintConfig.printTemplates.find(item => item.id === forceTplId);
+            match = allTemplates.find(item => item.id === forceTplId);
             console.log('AutoPrint: Using forced template ID:', forceTplId, match);
         } else {
-            console.log('AutoPrint: Using automap config:', window.awPrintConfig.templateMappings);
-            if (window.awPrintConfig.templateMappings && window.awPrintConfig.templateMappings[tagType]) {
-                const mapObj = window.awPrintConfig.templateMappings[tagType];
-                const mappedId = typeof mapObj === 'object' ? mapObj.TemplateID : parseInt(mapObj, 10);
-                if (typeof mapObj === 'object') {
+            match = window.findTemplateForTag ? window.findTemplateForTag(tagType, searchPool, allTemplates) : searchPool[0];
+            if (window.awPrintConfig && window.awPrintConfig.templateMappings) {
+                const norm = (tagType || '').trim().toLowerCase().replace(/[\s\-_]+/g, '');
+                const mapObj = window.awPrintConfig.templateMappings[tagType] ||
+                               window.awPrintConfig.templateMappings[(tagType || '').trim()] ||
+                               window.awPrintConfig.templateMappings[norm];
+                if (mapObj && typeof mapObj === 'object') {
                     targetType = mapObj.TargetType || 'Default';
                     targetValue = mapObj.TargetValue || '';
                 }
-                match = window.awPrintConfig.printTemplates.find(item => item.id === mappedId);
-                console.log('AutoPrint: Found automap mapping -> mappedId:', mappedId, 'targetType:', targetType, 'targetValue:', targetValue, 'match:', match);
             }
-            if (!match) {
-                match = window.awPrintConfig.printTemplates.find(item => item.name === tagType);
-                console.log('AutoPrint: Failed to map id, falling back to name match:', match);
-            }
-            if (!match && window.awPrintConfig.printTemplates.length > 0) {
-                match = window.awPrintConfig.printTemplates[0];
-                console.log('AutoPrint: Fully falling back to default template:', match);
-            }
+            console.log('AutoPrint: Resolved template for tagType ' + tagType + ' ->', match);
         }
 
         if (match && !isNaN(assetId) && assetId > 0) {
@@ -513,34 +603,31 @@ public partial class va_tagteam_scan : System.Web.UI.Page
             if (targetType === 'Service' && targetValue.length > 0) routingService = targetValue;
             if (forceTgt) routingService = forceTgt;
 
-            payload.push({
+            const payload = [{
                 recordID: assetId,
                 templateID: match.id,
                 tableName: 'Asset',
                 useWithService: routingService,
                 completed: false
-            });
-            console.log('AutoPrint: Payload built:', payload[0]);
-        }
+            }];
 
-        if (payload.length === 0) {
-            console.warn('Auto-print failed: could not build valid payload. Check mapping/templates for', tagType);
-            return;
-        }
-
-        try {
-            console.log('AutoPrint: Posting to API...');
-            const resp = await fetch('va_tagteam_scan.aspx?action=print', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json; charset=utf-8'
-                },
-                body: JSON.stringify(payload)
-            });
-            if (resp.ok) console.log('Auto-printed asset ' + assetId + ' successfully!');
-            else console.error('Print API error: ' + resp.status, await resp.text());
-        } catch (e) {
-            console.error('Error in auto-print:', e.message);
+            try {
+                console.log('AutoPrint: Posting payload for asset ' + assetId + ' to template ' + match.name + ' (ID ' + match.id + ')...');
+                const resp = await fetch('va_tagteam_scan.aspx?action=print', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+                if (resp.ok) {
+                    console.log('Auto-printed asset ' + assetId + ' successfully using template ' + match.name);
+                } else {
+                    console.error('Print API error: ' + resp.status, await resp.text());
+                }
+            } catch (e) {
+                console.error('Error in auto-print:', e.message);
+            }
+        } else {
+            console.warn('Auto-print skipped: invalid asset or template. AssetID=' + assetId + ', TagType=' + tagType + ', Match=', match);
         }
     }
 
@@ -910,6 +997,20 @@ public partial class va_tagteam_scan : System.Web.UI.Page
             catch { isFlagged = false; }
         }
 
+        string rawTagType = Request.Form[DdlDefaultTagType.UniqueID] 
+                         ?? Request.Form["DdlDefaultTagType"] 
+                         ?? DdlDefaultTagType.SelectedValue;
+        string resolvedTagType = NormalizeTagType(rawTagType);
+        if (string.IsNullOrEmpty(resolvedTagType)) resolvedTagType = DdlDefaultTagType.SelectedValue;
+        if (string.IsNullOrEmpty(resolvedTagType)) resolvedTagType = Session["TagTeam_DefaultTagType"] as string;
+        if (string.IsNullOrEmpty(resolvedTagType)) resolvedTagType = "IQ350";
+
+        if (DdlDefaultTagType.Items.FindByValue(resolvedTagType) != null)
+        {
+            DdlDefaultTagType.SelectedValue = resolvedTagType;
+            Session["TagTeam_DefaultTagType"] = resolvedTagType;
+        }
+
         var item = new ScanItem
         {
             Guid = Guid.NewGuid().ToString(),
@@ -920,7 +1021,7 @@ public partial class va_tagteam_scan : System.Web.UI.Page
             DbLocation = (info != null && info.DbLocation != null) ? info.DbLocation : "(New)",
             Cmr = (info != null && info.Cmr != null) ? info.Cmr : "",
             SerialNumber = (info != null && info.SerialNumber != null) ? info.SerialNumber : "",
-            TagType = DdlDefaultTagType.SelectedValue, 
+            TagType = resolvedTagType, 
             Notes = notes,
             EmplId = DdlEmpl.SelectedValue,
             Tagged = (info != null && info.IsTagged),
@@ -1515,7 +1616,10 @@ WHERE (text13 = @Emp OR lastmodifiedby = @Emp) ";
 
             if (items == null || items.Count == 0) return;
 
-            // Direct BarTender printing — no iDash Print Service / MQTT
+            // Direct BarTender printing â€” no iDash Print Service / MQTT
+            // The API handles the full lifecycle: DB insert â†’ build print payload â†’ MQTT publish.
+            // Direct DB inserts don't work because the Print Server only processes
+            // print commands received via MQTT with full JSON payloads from the core API.
             var errors = new System.Collections.Generic.List<string>();
             int count = PrintApiHelper.PrintJobsDirect(items, out errors);
 

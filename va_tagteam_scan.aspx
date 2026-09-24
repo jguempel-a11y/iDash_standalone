@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_tagteam_scan.aspx.cs" Inherits="va_tagteam_scan" MaintainScrollPositionOnPostback="true" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_tagteam_scan.aspx.cs" Inherits="va_tagteam_scan" MaintainScrollPositionOnPostback="true" %>
     <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
 
         <!DOCTYPE html>
@@ -742,6 +742,7 @@
                     restoreSite();
                     restoreOperator();
                     restoreLocation();
+                    restoreTagType();
 
                     // ── Enforce 4 clean standard tag types on client dropdown ──
                     (function sanitizeTagTypes() {
