@@ -317,23 +317,27 @@
         </div>
 
         <h3>Method B: Zebra Enterprise Browser / StageNow (Locked Down Kiosk)</h3>
-        <p>If your facility utilizes <strong>Zebra Enterprise Browser</strong> or <strong>StageNow</strong> in dedicated kiosk mode, configure the shortcuts via <code>Config.xml</code>:</p>
+        <p>If your facility utilizes <strong>Zebra Enterprise Browser</strong> in dedicated kiosk mode, use the production <code>Config.xml</code> file available in Downloads (<a href="../downloads/Software/Config.xml" download="Config.xml" style="color:var(--accent); font-weight:600;">download Config.xml</a>):</p>
         <div class="code-box">
-<span class="comment">&lt;!-- Zebra Enterprise Browser Config.xml --&gt;</span>
+<span class="comment">&lt;!-- Zebra Enterprise Browser Config.xml (Production snippet) --&gt;</span>
 &lt;Configuration&gt;
+  &lt;HideSystemBar value="<span class="param">1</span>"/&gt;
+  &lt;CustomKioskMode&gt;
+    &lt;setHomeKeyDisable value="<span class="param">1</span>"/&gt;
+    &lt;setStatusBarDisable value="<span class="param">1</span>"/&gt;
+    &lt;setRecentAppDisable value="<span class="param">1</span>"/&gt;
+  &lt;/CustomKioskMode&gt;
   &lt;Applications&gt;
     &lt;Application&gt;
+      &lt;usedwforscanning value="<span class="param">1</span>"/&gt;
       &lt;General&gt;
-        &lt;StartPage value="<span class="str">https://laptop-e74ckmo5.tail2fc4c5.ts.net/idash/va_inventory.aspx</span>"/&gt;
+        &lt;StartPage value="<span class="str">https://lingcod.tail585c9b.ts.net:8443/index.aspx</span>" name="iDash"/&gt;
       &lt;/General&gt;
-      &lt;Navigation&gt;
-        &lt;NavDelay value="<span class="param">0</span>"/&gt;
-        &lt;HideNavBar value="<span class="param">1</span>"/&gt;
-      &lt;/Navigation&gt;
     &lt;/Application&gt;
   &lt;/Applications&gt;
 &lt;/Configuration&gt;
         </div>
+        <p style="margin-top:10px; font-size:13.5px;">For full instructions on configuring kiosk lockdown, deploying Config.xml via ADB, StageNow, or USB, see the dedicated <a href="va_guide_enterprise_browser.html" style="color:var(--accent); font-weight:700;">Zebra Enterprise Browser &amp; Config.xml Setup Guide &rarr;</a></p>
     </div>
 
     <!-- SECTION 3: AUTHENTICATION GATE & DEEP-LINKING -->

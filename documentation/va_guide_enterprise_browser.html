@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>How to Configure Scanners to Use Enterprise Browser &amp; Config.xml &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <script>
+        /* Apply saved theme or default to light before paint */
+        (function() {
+            var saved = localStorage.getItem('idash_theme');
+            if (saved === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .hero-banner {
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.12), rgba(16, 185, 129, 0.12));
+            border: 2px solid var(--accent, #0284c7);
+            border-radius: 16px;
+            padding: 26px 30px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+        .hero-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 16px;
+            background: var(--accent, #0284c7);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            flex-shrink: 0;
+            box-shadow: 0 0 24px rgba(2, 132, 199, 0.35);
+        }
+        .hero-text h1 {
+            margin: 0 0 6px 0;
+            border-bottom: none;
+            padding-bottom: 0;
+            color: var(--text-docs, var(--text));
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .hero-text p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .btn-download-hero {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #ffffff !important;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 13.5px;
+            text-decoration: none !important;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+            transition: transform 0.15s, box-shadow 0.15s;
+            margin-top: 12px;
+        }
+        .btn-download-hero:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45);
+        }
+        .code-box {
+            background: var(--chip, #1e293b);
+            border: 1px solid var(--line, #334155);
+            border-radius: 10px;
+            padding: 16px 20px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 12.5px;
+            line-height: 1.6;
+            overflow-x: auto;
+            color: var(--text);
+            margin: 16px 0;
+        }
+        .xml-tag { color: #38bdf8; font-weight: 700; }
+        .xml-attr { color: #a78bfa; }
+        .xml-val { color: #34d399; }
+        .xml-comment { color: var(--muted); font-style: italic; }
+
+        .step {
+            display: flex;
+            gap: 16px;
+            margin: 22px 0 16px;
+            align-items: flex-start;
+        }
+        .step-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            font-weight: 800;
+            font-size: 15px;
+            flex-shrink: 0;
+            color: #ffffff;
+        }
+        .sn-blue { background: #0284c7; }
+        .sn-green { background: #10b981; }
+        .sn-purple { background: #8b5cf6; }
+        .sn-amber { background: #f59e0b; }
+
+        .alert-blue {
+            background: color-mix(in srgb, var(--accent, #0284c7), transparent 90%);
+            border-left: 4px solid var(--accent, #0284c7);
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin: 18px 0;
+            font-size: 13.5px;
+            line-height: 1.6;
+        }
+        .alert-green {
+            background: color-mix(in srgb, #10b981, transparent 90%);
+            border-left: 4px solid #10b981;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin: 18px 0;
+            font-size: 13.5px;
+            line-height: 1.6;
+        }
+        .alert-amber {
+            background: color-mix(in srgb, #f59e0b, transparent 90%);
+            border-left: 4px solid #f59e0b;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin: 18px 0;
+            font-size: 13.5px;
+            line-height: 1.6;
+        }
+        .badge-ref {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .badge-green { background: #10b981; color: #fff; }
+        .badge-blue { background: #0284c7; color: #fff; }
+        .badge-amber { background: #f59e0b; color: #fff; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 13px;
+        }
+        th, td {
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--line);
+        }
+        th {
+            background: var(--chip);
+            color: var(--accent);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <a href="index.aspx">&#8592; Back to Documentation Hub</a>
+        <a href="../downloads/Software/Config.xml" class="btn-download-hero" download="Config.xml">&#128229; Download Config.xml</a>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero-banner">
+        <div class="hero-icon">&#128241;</div>
+        <div class="hero-text">
+            <h1>Zebra Enterprise Browser &amp; Config.xml Setup Guide</h1>
+            <p>Field engineering standard operating procedure (SOP) for configuring Zebra TC53, TC58, and MC3300 mobile handhelds to run iDash in a locked-down, high-performance kiosk environment using Zebra Enterprise Browser v5.6+ and <code>Config.xml</code>.</p>
+            <div style="margin-top:10px;">
+                <span class="badge-ref badge-green">Production Ready</span>
+                <span class="badge-ref badge-blue">Enterprise Browser v5.6+</span>
+                <span class="badge-ref badge-amber">TC53 / TC58 / RFD40 / RFD90</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="card">
+        <h2>1. Why Use Zebra Enterprise Browser?</h2>
+        <p style="font-size:15px; line-height:1.7;">
+            While standard consumer mobile browsers (such as Google Chrome) can access iDash web pages, 
+            <strong>Zebra Enterprise Browser</strong> (EB) is the purpose-built industrial web runtime designed for 
+            rugged enterprise deployments. Running iDash inside Enterprise Browser provides significant operational 
+            advantages:
+        </p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:220px;">Feature / Requirement</th>
+                    <th>Standard Chrome Browser</th>
+                    <th>Zebra Enterprise Browser (with Config.xml)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Dedicated Kiosk Lockdown</strong></td>
+                    <td>No &mdash; users can access browser address bars, open new tabs, and exit the application.</td>
+                    <td><strong>Full Kiosk Mode</strong> &mdash; disables Android Status Bar, Home key, and Recent Apps button. Technicians cannot exit to the OS.</td>
+                </tr>
+                <tr>
+                    <td><strong>Full-Screen Immersive UI</strong></td>
+                    <td>Address bar and navigation buttons occupy ~15% of vertical screen space.</td>
+                    <td><strong>100% Edge-to-Edge Display</strong> with zero browser chrome or address bars, maximizing table visibility.</td>
+                </tr>
+                <tr>
+                    <td><strong>Hardware Trigger RFID / Barcode</strong></td>
+                    <td>Requires manual tap into inputs; virtual keyboard may pop up and obscure the screen.</td>
+                    <td><strong>Direct DataWedge Hook</strong> (<code>usedwforscanning = 1</code>) with automatic SIP suppression on trigger pull.</td>
+                </tr>
+                <tr>
+                    <td><strong>Startup &amp; Auto-Routing</strong></td>
+                    <td>Manual typing of server URL or browser bookmark navigation.</td>
+                    <td><strong>Auto-Launches Direct to iDash</strong> via <code>&lt;StartPage&gt;</code> immediately upon opening the app.</td>
+                </tr>
+                <tr>
+                    <td><strong>Hardware Acceleration &amp; Caching</strong></td>
+                    <td>May throttle background WebSockets, timers, or WebSerial threads.</td>
+                    <td><strong>Optimized Android WebKit</strong> with persistent memory and high-rate scanning loops (30&ndash;50 tags/sec).</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Step 1: Installation -->
+    <div class="card">
+        <h2>2. Step 1: Installing Zebra Enterprise Browser on the Handheld</h2>
+        <p>
+            Before deploying the configuration file, Zebra Enterprise Browser must be installed on the mobile computer.
+        </p>
+
+        <div class="step">
+            <div class="step-num sn-blue">1</div>
+            <div>
+                <strong>Install from Google Play Store (Easiest Method):</strong><br/>
+                Open the Google Play Store on the Zebra TC53/TC58, search for <strong>Zebra Enterprise Browser</strong> 
+                (Package: <code>com.zebra.mdna.enterprisebrowser</code>), and tap <strong>Install</strong>.
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-num sn-blue">2</div>
+            <div>
+                <strong>Alternative: Enterprise MDM / StageNow APK Push:</strong><br/>
+                If the handhelds are on a restricted hospital or enterprise intranet without Google Play access, 
+                push the Enterprise Browser APK (e.g., <code>EnterpriseBrowser_v5.6.0.10.apk</code>) to the device via 
+                <strong>StageNow AppMgr</strong>, SOTI MobiControl, or Microsoft Intune.
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-num sn-blue">3</div>
+            <div>
+                <strong>First-Time App Launch:</strong><br/>
+                Launch Enterprise Browser once on the device and accept all requested Android permissions 
+                (Storage, Camera, and Phone). This creates the necessary app directories on the device's internal storage.
+            </div>
+        </div>
+
+        <div class="alert-amber">
+            <strong>&#9888; Critical Prerequisite for DataWedge Integration:</strong><br/>
+            Always install Zebra Enterprise Browser <em>before</em> importing the iDash DataWedge profile. 
+            When DataWedge loads its profile database, it verifies that <code>com.zebra.mdna.enterprisebrowser</code> 
+            exists on the operating system to successfully bind the hardware RFID trigger to the browser.
+        </div>
+    </div>
+
+    <!-- Step 2: Config.xml Architecture -->
+    <div class="card">
+        <h2>3. Step 2: The Production Config.xml Architecture</h2>
+        <p>
+            Enterprise Browser's behavior is entirely controlled by a single XML configuration file named <code>Config.xml</code>. 
+            The production-ready file for iDash Standalone is published in the downloads directory:
+        </p>
+        <p>
+            <a href="../downloads/Software/Config.xml" class="btn-download-hero" download="Config.xml">&#128229; Download iDash Production Config.xml</a>
+        </p>
+
+        <h3>Key Configuration Settings for iDash</h3>
+        <p>Below is an annotated breakdown of the critical parameters in the iDash <code>Config.xml</code>:</p>
+
+        <div class="code-box">
+<span class="xml-comment">&lt;?xml version = "1.0"?&gt;</span>
+<span class="xml-comment">&lt;!-- EnterpriseBrowser_v5.6.0.10 Configuration for iDash Standalone --&gt;</span>
+<span class="xml-tag">&lt;Configuration&gt;</span>
+  <span class="xml-tag">&lt;EB_VERSION</span> <span class="xml-attr">value</span>=<span class="xml-val">"5.6.0.10"</span><span class="xml-tag">/&gt;</span>
+  <span class="xml-tag">&lt;HideSystemBar</span> <span class="xml-attr">value</span>=<span class="xml-val">"1"</span><span class="xml-tag">/&gt;</span> <span class="xml-comment">&lt;!-- 1 = Hides top Android status bar --&gt;</span>
+
+  <span class="xml-comment">&lt;!-- Custom Kiosk Lockdown: Prevents technicians from closing or switching apps --&gt;</span>
+  <span class="xml-tag">&lt;CustomKioskMode&gt;</span>
+    <span class="xml-tag">&lt;setHomeKeyDisable</span> <span class="xml-attr">value</span>=<span class="xml-val">"1"</span><span class="xml-tag">/&gt;</span>       <span class="xml-comment">&lt;!-- Disables Android Home button --&gt;</span>
+    <span class="xml-tag">&lt;setStatusBarDisable</span> <span class="xml-attr">value</span>=<span class="xml-val">"1"</span><span class="xml-tag">/&gt;</span>     <span class="xml-comment">&lt;!-- Prevents pulling down notifications --&gt;</span>
+    <span class="xml-tag">&lt;setBackKeyDisable</span> <span class="xml-attr">value</span>=<span class="xml-val">"0"</span><span class="xml-tag">/&gt;</span>       <span class="xml-comment">&lt;!-- 0 = Allows internal web back navigation --&gt;</span>
+    <span class="xml-tag">&lt;setRecentAppDisable</span> <span class="xml-attr">value</span>=<span class="xml-val">"1"</span><span class="xml-tag">/&gt;</span>     <span class="xml-comment">&lt;!-- Disables App Switcher / Recent Apps --&gt;</span>
+  <span class="xml-tag">&lt;/CustomKioskMode&gt;</span>
+
+  <span class="xml-comment">&lt;!-- Screen and Orientation Settings --&gt;</span>
+  <span class="xml-tag">&lt;Screen&gt;</span>
+    <span class="xml-tag">&lt;FullScreen</span> <span class="xml-attr">value</span>=<span class="xml-val">"1"</span><span class="xml-tag">/&gt;</span>              <span class="xml-comment">&lt;!-- True full-screen borderless display --&gt;</span>
+    <span class="xml-tag">&lt;PageZoom</span> <span class="xml-attr">value</span>=<span class="xml-val">"1.0"</span><span class="xml-tag">/&gt;</span>              <span class="xml-comment">&lt;!-- 1:1 default scaling --&gt;</span>
+    <span class="xml-tag">&lt;EnableZoom</span> <span class="xml-attr">value</span>=<span class="xml-val">"1"</span><span class="xml-tag">/&gt;</span>            <span class="xml-comment">&lt;!-- Allows pinch-zoom on facility SVG maps --&gt;</span>
+    <span class="xml-tag">&lt;AutoRotate</span> <span class="xml-attr">value</span>=<span class="xml-val">"0"</span><span class="xml-tag">/&gt;</span>              <span class="xml-comment">&lt;!-- 0 = Locks portrait orientation for scanner --&gt;</span>
+  <span class="xml-tag">&lt;/Screen&gt;</span>
+
+  <span class="xml-tag">&lt;Applications&gt;</span>
+    <span class="xml-tag">&lt;Application&gt;</span>
+      <span class="xml-comment">&lt;!-- Scanner Integration Mode:
+           1 = Use DataWedge profile keystrokes (Recommended for iDash web forms)
+           0 = Direct EB.Barcode / EB.RFID JavaScript API calls --&gt;</span>
+      <span class="xml-tag">&lt;usedwforscanning</span> <span class="xml-attr">value</span>=<span class="xml-val">"1"</span><span class="xml-tag">/&gt;</span>
+
+      <span class="xml-comment">&lt;!-- Startup URL: Set this to your iDash Standalone server address --&gt;</span>
+      <span class="xml-tag">&lt;General&gt;</span>
+        <span class="xml-tag">&lt;Name</span> <span class="xml-attr">value</span>=<span class="xml-val">"iDash"</span><span class="xml-tag">/&gt;</span>
+        <span class="xml-tag">&lt;StartPage</span> <span class="xml-attr">value</span>=<span class="xml-val">"https://lingcod.tail585c9b.ts.net:8443/index.aspx"</span> <span class="xml-attr">name</span>=<span class="xml-val">"iDash"</span><span class="xml-tag">/&gt;</span>
+      <span class="xml-tag">&lt;/General&gt;</span>
+
+      <span class="xml-comment">&lt;!-- Soft Input Panel (Keyboard) Behavior --&gt;</span>
+      <span class="xml-tag">&lt;SIP&gt;</span>
+        <span class="xml-tag">&lt;ResizeOnSIP</span> <span class="xml-attr">value</span>=<span class="xml-val">"1"</span><span class="xml-tag">/&gt;</span>          <span class="xml-comment">&lt;!-- Shrinks web view when keyboard opens --&gt;</span>
+      <span class="xml-tag">&lt;/SIP&gt;</span>
+      <span class="xml-tag">&lt;KeyboardConfiguration&gt;</span>
+        <span class="xml-tag">&lt;KeyboardVisibility</span> <span class="xml-attr">value</span>=<span class="xml-val">"onDemand"</span><span class="xml-tag">/&gt;</span> <span class="xml-comment">&lt;!-- Keyboard only shows when user taps input --&gt;</span>
+      <span class="xml-tag">&lt;/KeyboardConfiguration&gt;</span>
+
+      <span class="xml-comment">&lt;!-- Persistent Sessions &amp; Security --&gt;</span>
+      <span class="xml-tag">&lt;Navigation&gt;</span>
+        <span class="xml-tag">&lt;NavTimeout</span> <span class="xml-attr">value</span>=<span class="xml-val">"45000"</span><span class="xml-tag">/&gt;</span>
+        <span class="xml-tag">&lt;Cookies</span> <span class="xml-attr">value</span>=<span class="xml-val">"1"</span><span class="xml-tag">/&gt;</span>
+        <span class="xml-tag">&lt;DeleteCookiesOnLaunch</span> <span class="xml-attr">value</span>=<span class="xml-val">"0"</span><span class="xml-tag">/&gt;</span> <span class="xml-comment">&lt;!-- Preserves login session across shifts --&gt;</span>
+        <span class="xml-tag">&lt;DeleteCookiesOnExit</span> <span class="xml-attr">value</span>=<span class="xml-val">"0"</span><span class="xml-tag">/&gt;</span>
+      <span class="xml-tag">&lt;/Navigation&gt;</span>
+    <span class="xml-tag">&lt;/Application&gt;</span>
+  <span class="xml-tag">&lt;/Applications&gt;</span>
+<span class="xml-tag">&lt;/Configuration&gt;</span>
+        </div>
+
+        <div class="alert-blue">
+            <strong>&#128161; Customizing the StartPage:</strong><br/>
+            If a handheld is permanently assigned to a specific task (such as the RFID Asset Locator or Room Inventory), 
+            you can change the <code>&lt;StartPage&gt;</code> value in <code>Config.xml</code> directly to that tool:
+            <ul style="margin:6px 0 0 16px; padding:0;">
+                <li><strong>Main Hub (Default):</strong> <code>https://&lt;server&gt;:8443/index.aspx</code></li>
+                <li><strong>Dedicated Asset Locator:</strong> <code>https://&lt;server&gt;:8443/va_rfid_locator.aspx</code></li>
+                <li><strong>Dedicated Site Inventory:</strong> <code>https://&lt;server&gt;:8443/va_inventory.aspx</code></li>
+                <li><strong>Dedicated Tag Team Scan:</strong> <code>https://&lt;server&gt;:8443/va_tagteam_scan.aspx</code></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Step 3: Target File Paths & Deployment -->
+    <div class="card">
+        <h2>4. Step 3: Deploying Config.xml to the Zebra Handheld</h2>
+        <p>
+            For Enterprise Browser to read your configuration, <code>Config.xml</code> must be copied to the application's 
+            configuration directory on the handheld.
+        </p>
+
+        <h3>Target Directory Path on the Device</h3>
+        <p>Depending on the Android operating system version on your Zebra device, use the appropriate path:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>OS Version / Device Type</th>
+                    <th>Exact Directory Path for Config.xml</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Android 11, 13, 14 (Scoped Storage)</strong><br/><em>TC53, TC53e, TC58, TC78</em></td>
+                    <td><code>/sdcard/Android/data/com.zebra.mdna.enterprisebrowser/Config.xml</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Legacy Android / Enterprise Partition</strong><br/><em>Android 8, 9, 10 or StageNow FileMgr</em></td>
+                    <td><code>/enterprise/device/enterprisebrowser/Config.xml</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:24px 0;" />
+
+        <h3>Deployment Method A: Direct Download via iDash Portal (Fastest in the Field)</h3>
+        <div class="step">
+            <div class="step-num sn-green">1</div>
+            <div>
+                On the Zebra handheld, open Chrome and navigate to the iDash Downloads page: 
+                <a href="../va_downloads.aspx"><code>https://&lt;server&gt;:8443/va_downloads.aspx</code></a>.
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num sn-green">2</div>
+            <div>
+                Sign in and navigate to the <strong>Software</strong> folder. Tap <strong>Config.xml</strong> to download it to the device's <code>/Download</code> folder.
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num sn-green">3</div>
+            <div>
+                Open the device's <strong>Files</strong> app (or Total Commander / Solid Explorer).
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num sn-green">4</div>
+            <div>
+                Copy <code>Config.xml</code> from <code>/sdcard/Download/</code> and paste it into:
+                <br/>
+                <code>/sdcard/Android/data/com.zebra.mdna.enterprisebrowser/</code> (overwriting the default file).
+            </div>
+        </div>
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:24px 0;" />
+
+        <h3>Deployment Method B: USB ADB Command Line (Fastest for IT Admin / Staging Bench)</h3>
+        <p>If you have the Zebra handheld docked in a USB communication cradle connected to a workstation:</p>
+        <div class="step">
+            <div class="step-num sn-purple">1</div>
+            <div>
+                Enable <strong>USB Debugging</strong> on the handheld under <em>Settings &rarr; Developer Options</em>.
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num sn-purple">2</div>
+            <div>
+                Open PowerShell on the staging PC and push the downloaded file in one command:
+                <div class="code-box">
+adb push Config.xml /sdcard/Android/data/com.zebra.mdna.enterprisebrowser/Config.xml
+                </div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num sn-purple">3</div>
+            <div>
+                Restart Enterprise Browser on the handheld:
+                <div class="code-box">
+adb shell am force-stop com.zebra.mdna.enterprisebrowser
+adb shell am start -n com.zebra.mdna.enterprisebrowser/com.rhomobile.rhodes.RhodesActivity
+                </div>
+            </div>
+        </div>
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:24px 0;" />
+
+        <h3>Deployment Method C: Zebra StageNow Barcode Deployment (Mass Rollout)</h3>
+        <p>For deploying across a large fleet of scanners (10 to 500+ devices):</p>
+        <ul>
+            <li>In the <strong>StageNow Workstation Tool</strong>, create an <em>Xpert Mode</em> profile targeting MX 10.x+.</li>
+            <li>Add a <strong>FileMgr</strong> step:
+                <ul>
+                    <li><strong>File Action:</strong> Transfer/Copy</li>
+                    <li><strong>Source Protocol:</strong> HTTPS</li>
+                    <li><strong>Source URL:</strong> <code>https://&lt;your-idash-server&gt;:8443/downloads/Software/Config.xml</code></li>
+                    <li><strong>Target Path:</strong> <code>/sdcard/Android/data/com.zebra.mdna.enterprisebrowser/Config.xml</code></li>
+                </ul>
+            </li>
+            <li>Generate the 2D PDF417 staging barcode. Technicians simply open the StageNow app on each handheld and scan the barcode to complete configuration in 5 seconds.</li>
+        </ul>
+    </div>
+
+    <!-- Step 4: Verification -->
+    <div class="card">
+        <h2>5. Step 4: Testing &amp; Verification</h2>
+        <p>Once <code>Config.xml</code> is in place, verify the deployment on the device:</p>
+
+        <div class="step">
+            <div class="step-num sn-green">1</div>
+            <div>
+                <strong>Launch Enterprise Browser:</strong> Tap the Enterprise Browser app icon on the handheld.
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num sn-green">2</div>
+            <div>
+                <strong>Verify Kiosk Display:</strong> Confirm that:
+                &bull; The app immediately launches directly to the iDash Hub (or specified tool).<br/>
+                &bull; No browser address bar, back/forward buttons, or tabs are visible.<br/>
+                &bull; The top Android notification bar is hidden or inaccessible.<br/>
+                &bull; Tapping the Home key does not exit the app (if Kiosk lock is enabled).
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num sn-green">3</div>
+            <div>
+                <strong>Verify Scanner Trigger:</strong> Navigate to <a href="../va_rfid_locator.aspx"><code>va_rfid_locator.aspx</code></a> 
+                or <a href="../va_inventory.aspx"><code>va_inventory.aspx</code></a>. Squeeze the RFID trigger on the sled. 
+                Verify that tags stream immediately into the scanner input field without requiring the virtual keyboard.
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num sn-green">4</div>
+            <div>
+                <strong>Run Hardware Test Harness:</strong> Navigate to <code>va_zebra_browser_test.aspx</code> to execute automated 
+                diagnostics on Enterprise Browser JavaScript APIs (EB.Barcode, EB.RFID, battery status, and memory limits).
+            </div>
+        </div>
+    </div>
+
+    <!-- Troubleshooting -->
+    <div class="card">
+        <h2>6. Troubleshooting &amp; Field FAQs</h2>
+        
+        <h3>Q: Handheld shows "Page Not Found" or a white screen on startup?</h3>
+        <p>
+            Verify network connectivity. If using Tailscale, ensure the Tailscale client is running and connected on the handheld. 
+            Check that the URL specified in <code>&lt;StartPage&gt;</code> includes the correct port (e.g. <code>:8443</code> for SSL) 
+            and matches the current server address.
+        </p>
+
+        <h3>Q: The virtual keyboard pops up and covers the asset table when I scan?</h3>
+        <p>
+            In <code>Config.xml</code>, ensure the <code>&lt;KeyboardConfiguration&gt;</code> section has 
+            <code>&lt;KeyboardVisibility value="onDemand"/&gt;</code> and <code>&lt;ResizeOnSIP value="1"/&gt;</code>. 
+            This ensures the keyboard only opens when a technician explicitly taps an editable text field, 
+            not during background RFID trigger streams.
+        </p>
+
+        <h3>Q: How does IT exit Kiosk mode for device maintenance?</h3>
+        <p>
+            If <code>CustomKioskMode</code> has disabled the Home and Back keys:
+            <br/>
+            1. Plug the device into a PC with ADB enabled and run: <code>adb shell am force-stop com.zebra.mdna.enterprisebrowser</code>.
+            <br/>
+            2. Alternatively, configure an administrative password in the <code>&lt;Kiosk&gt;</code> section of <code>Config.xml</code> 
+            to allow PIN-based kiosk exit.
+        </p>
+    </div>
+
+    <!-- Related Links -->
+    <div class="card">
+        <h2>&#128218; Related Documentation &amp; Downloads</h2>
+        <ul>
+            <li><a href="../downloads/Software/Config.xml" download="Config.xml"><strong>Download Production Config.xml</strong></a> &mdash; pre-configured for iDash Standalone and Zebra TC53/TC58.</li>
+            <li><a href="va_guide_mobile_shortcuts.html"><strong>Mobile Reader Shortcuts &amp; DataWedge Setup Guide</strong></a> &mdash; DataWedge profile configuration and 1-tap web shortcuts.</li>
+            <li><a href="va_guide_locate.html"><strong>RFID Asset Locator Guide</strong></a> &mdash; real-time Geiger counter search workflows.</li>
+            <li><a href="va_guide_power_settings.html"><strong>Antenna Power Settings</strong></a> &mdash; optimizing RF power levels for handheld inventory and locate modes.</li>
+            <li><a href="va_downloads.html"><strong>Downloads &amp; Uploads Center</strong></a> &mdash; approved software packages, profiles, and documentation archives.</li>
+        </ul>
+    </div>
+
+    <div style="margin-top:30px; display:flex; justify-content:space-between; align-items:center;">
+        <a href="index.aspx">&#8592; Back to Documentation Hub</a>
+        <a href="../downloads/Software/Config.xml" class="btn-download-hero" download="Config.xml">&#128229; Download Config.xml</a>
+    </div>
+
+</div>
+</body>
+</html>

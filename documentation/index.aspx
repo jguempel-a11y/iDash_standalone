@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" ResponseEncoding="utf-8" %>
+<%@ Page Language="C#" ResponseEncoding="utf-8" %>
 <%
     bool isLoggedIn = Session["IsAdminAuthenticated"] != null && (bool)Session["IsAdminAuthenticated"];
     if (!isLoggedIn) { Response.Redirect("../index.aspx"); return; }
@@ -178,6 +178,10 @@
                     <div class="tile-title" style="color:#3b82f6;">&#128274; Accessing iDash</div>
                     <p style="color:var(--muted-docs); margin:0;">How to sign in to the Intelligent Distributed Asset Scanning Hub, navigate the tile sections, and understand what each area provides. Includes login credentials reference and sign-out guidance.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #3b82f6 15%, transparent); border:1px solid #3b82f6; color:#3b82f6;">User Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">Getting Started</span></p>
                 </a>
+                <a class="tile" href="va_guide_enterprise_browser.html" style="border-color: #0284c7; background: color-mix(in srgb, #0284c7, transparent 96%);">
+                    <div class="tile-title" style="color:#0284c7;">&#128241; Zebra Enterprise Browser &amp; Config.xml Setup Guide</div>
+                    <p style="color:var(--muted-docs); margin:0;">Standard operating procedure for configuring Zebra TC53/TC58 handhelds into dedicated full-screen kiosk mode with production Config.xml deployment, auto-start routing, and hardware trigger scanning.<br><span class="chip" style="margin-top:6px; background:rgba(2,132,199,0.15); border:1px solid #0284c7; color:#0284c7;">User Guide</span> <span class="chip" style="margin-top:6px; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#10b981;">Kiosk Mode</span> <span class="chip" style="margin-top:6px; background:rgba(139,92,246,0.15); border:1px solid #8b5cf6; color:#8b5cf6;">Config.xml</span></p>
+                </a>
                 <a class="tile" href="va_guide_mobile_shortcuts.html" style="border-color: #10b981; background: color-mix(in srgb, #10b981, transparent 96%);">
                     <div class="tile-title" style="color:#10b981;">&#128241; Mobile Reader Shortcuts, Web Scanning, and Datawedge Setup</div>
                     <p style="color:var(--muted-docs); margin:0;">Configure 1-tap home screen shortcuts for VA Site Inventory, ENNX Live Scan, EIL Reconciliation, and Universal ENNX on Zebra TC53/TC58 handhelds, with full DataWedge profile import and Enterprise Browser setup.<br><span class="chip" style="margin-top:6px; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#10b981;">User Guide</span> <span class="chip" style="margin-top:6px; background:rgba(59,130,246,0.15); border:1px solid #3b82f6; color:#3b82f6;">Zebra TC53</span> <span class="chip" style="margin-top:6px; background:rgba(139,92,246,0.15); border:1px solid #8b5cf6; color:#8b5cf6;">Fast Scanning</span> <span class="chip" style="margin-top:6px; background:rgba(245,158,11,0.15); border:1px solid #f59e0b; color:#f59e0b;">DataWedge</span></p>
@@ -204,8 +208,8 @@
                     <p style="color:var(--muted-docs); margin:0;">Scan without WiFi: enable Batch Mode, scan multiple rooms offline, then sync all stored sessions when you return to a connected area.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #3b82f6 15%, transparent); border:1px solid #3b82f6; color:#3b82f6;">User Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">Scanner</span></p>
                 </a>
                 <a class="tile" href="va_guide_locate.html" style="border-color: #8B5CF6;">
-                    <div class="tile-title" style="color:#8B5CF6;">&#128205; How to Use the Locate Feature</div>
-                    <p style="color:var(--muted-docs); margin:0;">Use the RFID Geiger-counter &ldquo;Locate&rdquo; mode to find specific assets by tag signal strength. Works from the ASSETS tab or during a room inventory scan.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #8B5CF6 15%, transparent); border:1px solid #8B5CF6; color:#8B5CF6;">User Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">Scanner</span></p>
+                    <div class="tile-title" style="color:#8B5CF6;">&#128205; How to Use the RFID Asset Locator</div>
+                    <p style="color:var(--muted-docs); margin:0;">Use the web-based RFID Geiger-counter proximity radar to pinpoint specific target assets by tag signal strength and dynamic audio pitch feedback in real time.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #8B5CF6 15%, transparent); border:1px solid #8B5CF6; color:#8B5CF6;">User Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">Asset Locator</span></p>
                 </a>
                 <a class="tile" href="va_guide_power_settings.html" style="border-color: #06b6d4;">
                     <div class="tile-title" style="color:#06b6d4;">&#128268; Adjusting Antenna Power</div>
