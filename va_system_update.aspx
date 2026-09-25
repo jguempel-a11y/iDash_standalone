@@ -1,6 +1,6 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_system_update.aspx.cs" Inherits="va_system_update" ResponseEncoding="utf-8" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_system_update.aspx.cs" Inherits="va_system_update" ResponseEncoding="utf-8" %>
 <%-- System Update v2.2 --%>
-<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
+<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -380,7 +380,7 @@
     </div>
 </div>
 
-<aw:Footer runat="server" />
+<idash:Footer runat="server" />
 </form>
 
 <script>
@@ -616,3 +616,4 @@
 </script>
 </body>
 </html>
+

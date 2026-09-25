@@ -1,6 +1,6 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_excel.aspx.cs" Inherits="va_excel" ResponseEncoding="utf-8"
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_excel.aspx.cs" Inherits="va_excel" ResponseEncoding="utf-8"
     %>
-    <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
+    <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 
         <!DOCTYPE html>
         <html xmlns="http://www.w3.org/1999/xhtml">
@@ -376,9 +376,10 @@
                         </div>
                     </div>
 
-                    <aw:Footer runat="server" />
+                    <idash:Footer runat="server" />
                 </div>
             </form>
         </body>
 
         </html>
+

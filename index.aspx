@@ -1,5 +1,5 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="index.aspx.cs" Inherits="index" ResponseEncoding="utf-8" %>
-    <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
+    <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 
 
         <!DOCTYPE html>
@@ -876,7 +876,7 @@
                     </div><!-- /adminSection -->
 
                 </div>
-                <aw:Footer runat="server" />
+                <idash:Footer runat="server" />
 
                 <script>
                     // -- Theme toggle --

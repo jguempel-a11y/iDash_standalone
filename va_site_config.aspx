@@ -1,5 +1,5 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_site_config.aspx.cs" Inherits="va_site_config" ResponseEncoding="utf-8" EnableEventValidation="false" MaintainScrollPositionOnPostback="true" %>
-<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_site_config.aspx.cs" Inherits="va_site_config" ResponseEncoding="utf-8" EnableEventValidation="false" MaintainScrollPositionOnPostback="true" %>
+<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -1165,7 +1165,7 @@
     <div style="text-align:center;color:var(--muted);font-size:12px;margin-top:10px;padding-bottom:40px;">
         Intelligent Distributed Asset Scanning Hub &mdash; Site Configuration &copy; 2026
     </div>
-    <aw:Footer runat="server" />
+    <idash:Footer runat="server" />
 </main>
 </div>
 
@@ -1704,3 +1704,4 @@ window.addEventListener('hashchange', function() {
 </script>
 </body>
 </html>
+

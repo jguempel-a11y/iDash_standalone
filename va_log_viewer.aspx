@@ -1,5 +1,5 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_log_viewer.aspx.cs" Inherits="iDash.va_log_viewer" %>
-<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_log_viewer.aspx.cs" Inherits="iDash.va_log_viewer" %>
+<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -365,8 +365,9 @@
     <asp:HiddenField ID="HidPage" runat="server" Value="0" />
     <asp:HiddenField ID="HidTab" runat="server" Value="iis" />
     <asp:HiddenField ID="HidAppPage" runat="server" Value="0" />
-    <aw:Footer runat="server" />
+    <idash:Footer runat="server" />
 </form>
 </body>
 </html>
+
 

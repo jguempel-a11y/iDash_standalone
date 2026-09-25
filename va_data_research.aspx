@@ -1,5 +1,5 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_data_research.aspx.cs" Inherits="va_data_research" %>
-    <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_data_research.aspx.cs" Inherits="va_data_research" %>
+    <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 
         <!DOCTYPE html>
         <html xmlns="http://www.w3.org/1999/xhtml">
@@ -807,7 +807,7 @@
 
                     </div>
 
-                    <aw:Footer runat="server" />
+                    <idash:Footer runat="server" />
                 </div>
             </form>
 
@@ -913,3 +913,4 @@
             </script>
         </body>
         </html>tml>
+

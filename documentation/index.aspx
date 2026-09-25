@@ -28,7 +28,7 @@
 <head>
     <meta charset="utf-8" />
     <title>iDash Documentation Hub</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -108,7 +108,7 @@
                 </div>
             </div>
             <p style="color:var(--muted-docs); font-size:17px; line-height:1.6; max-width:800px;">
-                Centralized documentation hub for iDash &mdash; RFID Asset Intelligence by ID Integration Inc. Guides are filtered by your role and tile access.
+                Centralized documentation hub for AssetWorx iDash. Guides are filtered by your role and tile access.
             </p>
             <!-- Compliance badges - compact inline -->
             <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;">
@@ -176,11 +176,7 @@
             <div class="grid">
                 <a class="tile" href="va_guide_accessing_idash.html" style="border-color: #3b82f6;">
                     <div class="tile-title" style="color:#3b82f6;">&#128274; Accessing iDash</div>
-                    <p style="color:var(--muted-docs); margin:0;">How to sign in to the Intelligent Distributed Asset Scanning Hub, navigate the tile sections, and understand what each area provides. Includes login credentials reference and sign-out guidance.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #3b82f6 15%, transparent); border:1px solid #3b82f6; color:#3b82f6;">User Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">Getting Started</span></p>
-                </a>
-                <a class="tile" href="va_guide_enterprise_browser.html" style="border-color: #0284c7; background: color-mix(in srgb, #0284c7, transparent 96%);">
-                    <div class="tile-title" style="color:#0284c7;">&#128241; Zebra Enterprise Browser &amp; Config.xml Setup Guide</div>
-                    <p style="color:var(--muted-docs); margin:0;">Standard operating procedure for configuring Zebra TC53/TC58 handhelds into dedicated full-screen kiosk mode with production Config.xml deployment, auto-start routing, and hardware trigger scanning.<br><span class="chip" style="margin-top:6px; background:rgba(2,132,199,0.15); border:1px solid #0284c7; color:#0284c7;">User Guide</span> <span class="chip" style="margin-top:6px; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#10b981;">Kiosk Mode</span> <span class="chip" style="margin-top:6px; background:rgba(139,92,246,0.15); border:1px solid #8b5cf6; color:#8b5cf6;">Config.xml</span></p>
+                    <p style="color:var(--muted-docs); margin:0;">How to sign in to the VA Asset Intelligence Hub, navigate the tile sections, and understand what each area provides. Includes login credentials reference and sign-out guidance.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #3b82f6 15%, transparent); border:1px solid #3b82f6; color:#3b82f6;">User Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">Getting Started</span></p>
                 </a>
                 <a class="tile" href="va_guide_mobile_shortcuts.html" style="border-color: #10b981; background: color-mix(in srgb, #10b981, transparent 96%);">
                     <div class="tile-title" style="color:#10b981;">&#128241; Mobile Reader Shortcuts, Web Scanning, and Datawedge Setup</div>
@@ -201,15 +197,15 @@
                 <% if (CanSee("guides")) { %>
                 <a class="tile" href="va_guide_adhoc_file_generation.html" style="border-color: #10b981;">
                     <div class="tile-title" style="color:#10b981;">&#128225; VA ADHOC File Generation</div>
-                    <p style="color:var(--muted-docs); margin:0;">Perform ad‑hoc asset file generation for exporting new assets or latest inventory. Select a location, generate files, and sync to iDash.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">User Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">Scanner</span></p>
+                    <p style="color:var(--muted-docs); margin:0;">Perform ad‑hoc asset file generation for exporting new assets or latest inventory. Select a location, generate files, and sync to AssetWorx.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">User Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">Scanner</span></p>
                 </a>
                 <a class="tile" href="va_batch_scan.html" style="border-color: #3b82f6;">
                     <div class="tile-title" style="color:#3b82f6;">&#128225; Batch Mode Scanning (Offline)</div>
                     <p style="color:var(--muted-docs); margin:0;">Scan without WiFi: enable Batch Mode, scan multiple rooms offline, then sync all stored sessions when you return to a connected area.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #3b82f6 15%, transparent); border:1px solid #3b82f6; color:#3b82f6;">User Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">Scanner</span></p>
                 </a>
                 <a class="tile" href="va_guide_locate.html" style="border-color: #8B5CF6;">
-                    <div class="tile-title" style="color:#8B5CF6;">&#128205; How to Use the RFID Asset Locator</div>
-                    <p style="color:var(--muted-docs); margin:0;">Use the web-based RFID Geiger-counter proximity radar to pinpoint specific target assets by tag signal strength and dynamic audio pitch feedback in real time.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #8B5CF6 15%, transparent); border:1px solid #8B5CF6; color:#8B5CF6;">User Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">Asset Locator</span></p>
+                    <div class="tile-title" style="color:#8B5CF6;">&#128205; How to Use the Locate Feature</div>
+                    <p style="color:var(--muted-docs); margin:0;">Use the RFID Geiger-counter &ldquo;Locate&rdquo; mode to find specific assets by tag signal strength. Works from the ASSETS tab or during a room inventory scan.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #8B5CF6 15%, transparent); border:1px solid #8B5CF6; color:#8B5CF6;">User Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">Scanner</span></p>
                 </a>
                 <a class="tile" href="va_guide_power_settings.html" style="border-color: #06b6d4;">
                     <div class="tile-title" style="color:#06b6d4;">&#128268; Adjusting Antenna Power</div>
@@ -221,7 +217,7 @@
                 </a>
                 <a class="tile" href="va_guide_scanner_setup.html" style="border-color: #06b6d4;">
                     <div class="tile-title" style="color:#06b6d4;">&#128241; Zebra TC53 Scanner Setup</div>
-                    <p style="color:var(--muted-docs); margin:0;">Connect to MiFi WiFi, pair the RF40 RFID sled via Bluetooth, install the RFID mobile scanner, configure the server address, and log in for the first time.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #06b6d4 15%, transparent); border:1px solid #06b6d4; color:#06b6d4;">User Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">Scanner</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">Setup</span></p>
+                    <p style="color:var(--muted-docs); margin:0;">Connect to MiFi WiFi, pair the RF40 RFID sled via Bluetooth, install AssetWorx! from the Play Store, configure the server address, and log in for the first time.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #06b6d4 15%, transparent); border:1px solid #06b6d4; color:#06b6d4;">User Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">Scanner</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">Setup</span></p>
                 </a>
                 <a class="tile" href="va_guide_scanner_daily_scan.html" style="border-color: #10b981;">
                     <div class="tile-title" style="color:#10b981;">&#128225; Daily Scanner Workflow</div>
@@ -245,7 +241,7 @@
                 </a>
                 <a class="tile" href="va_guide_rfid_support.html" style="border-color: #8B5CF6;">
                     <div class="tile-title" style="color:#8B5CF6;">&#128222; Enterprise RFID Technical Support</div>
-                    <p style="color:var(--muted-docs); margin:0;">Quick reference for getting help: 4-step support process, escalation path (L1&rarr;L2&rarr;L3), full contact directory for ID Integration, and RFID Roundtable schedule (3rd Friday, 2:00 PM EST).<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #8B5CF6 15%, transparent); border:1px solid #8B5CF6; color:#8B5CF6;">Admin Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #3b82f6 15%, transparent); border:1px solid #3b82f6; color:#3b82f6;">Support</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #ec4899 15%, transparent); border:1px solid #ec4899; color:#ec4899;">Contacts</span></p>
+                    <p style="color:var(--muted-docs); margin:0;">Quick reference for getting help: 4-step support process, escalation path (L1&rarr;L2&rarr;L3), full contact directory for Team VIT, and RFID Roundtable schedule (3rd Friday, 2:00 PM EST).<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #8B5CF6 15%, transparent); border:1px solid #8B5CF6; color:#8B5CF6;">Admin Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #3b82f6 15%, transparent); border:1px solid #3b82f6; color:#3b82f6;">Support</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #ec4899 15%, transparent); border:1px solid #ec4899; color:#ec4899;">Contacts</span></p>
                 </a>
                 <% } %>
             </div>
@@ -283,7 +279,7 @@
 
                 <a class="tile" href="va_rfid_locator.html" style="border-color: #8B5CF6;">
                     <div class="tile-title" style="color:#8B5CF6;">&#128225; RFID Asset Locator</div>
-                    <p style="color:var(--muted-docs); margin:0;">Locate missing assets using Mobile RFID proximity scanning. High-speed Geiger counter meter, audio feedback, and mobile-optimized target tracking.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">Active v2.0</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #8B5CF6 15%, transparent); border:1px solid #8B5CF6; color:#8B5CF6;">Mobile RFID Optimized</span></p>
+                    <p style="color:var(--muted-docs); margin:0;">Locate missing assets using Mobile RFID proximity scanning. High-speed Geiger counter meter, audio feedback, front-of-grid zero-scroll mobile status indicators, and collapsible target tracking.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">Active v2.1</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #8B5CF6 15%, transparent); border:1px solid #8B5CF6; color:#8B5CF6;">Mobile RFID Optimized</span></p>
                 </a>
                 <% } %>
             </div>
@@ -373,20 +369,20 @@
                 <% if (CanSeeAny(new[]{"excel_print", "admin_print", "admin_users"})) { %>
                 <a class="tile" href="va_excel_print.html" style="border-color: #f59e0b;">
                     <div class="tile-title" style="color:#f59e0b;">&#128218; Excel Equipment Import &amp; Print</div>
-                    <p style="color:var(--muted-docs); margin:0;">Bulk-load equipment from <code>equipment.xlsx</code> into iDash. Site override, name prefix (e.g. EE), live Preview Names tab, upsert on name+company, optional MQTT label print.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">Import &amp; Print</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #8B5CF6 15%, transparent); border:1px solid #8B5CF6; color:#8B5CF6;">MQTT</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">New 08/26</span></p>
+                    <p style="color:var(--muted-docs); margin:0;">Bulk-load equipment from <code>equipment.xlsx</code> into AssetWorx. Site override, name prefix (e.g. EE), live Preview Names tab, upsert on name+company, optional MQTT label print.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">Import &amp; Print</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #8B5CF6 15%, transparent); border:1px solid #8B5CF6; color:#8B5CF6;">MQTT</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">New 08/26</span></p>
                 </a>
                 <% } %>
 
                 <% if (CanSeeAny(new[]{"admin_diagnostics", "admin_users"})) { %>
                 <a class="tile" href="va_system_diagnostics.html" style="border-color: #f59e0b;">
                     <div class="tile-title" style="color:#f59e0b;">&#128202; System Diagnostics &amp; Health Monitor</div>
-                    <p style="color:var(--muted-docs); margin:0;">One-click health check for the iDash platform: API auth, license validation, server registrations, and batch update simulation (mimics mobile app). Email HTML report. Solves post-restore batch-mode license failures.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">Diagnostic</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #3b82f6 15%, transparent); border:1px solid #3b82f6; color:#3b82f6;">API</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">New 08/26</span></p>
+                    <p style="color:var(--muted-docs); margin:0;">One-click health check for the AssetWorx platform: API auth, license validation, server registrations, and batch update simulation (mimics mobile app). Email HTML report. Solves post-restore batch-mode license failures.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">Diagnostic</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #3b82f6 15%, transparent); border:1px solid #3b82f6; color:#3b82f6;">API</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">New 08/26</span></p>
                 </a>
                 <% } %>
                 <% if (CanSeeAny(new[]{"admin_diagnostics", "admin_users", "admin_site_config"})) { %>
                 <a class="tile" href="va_cart_licenses.html" style="border-color: #38bdf8;">
                     <div class="tile-title" style="color:#38bdf8;">&#128722; Mobile Cart License Directory</div>
-                    <p style="color:var(--muted-docs); margin:0;">Central tracking directory for standalone mobile inventory carts across enterprise facilities (Beckley, Clarksburg, Huntington, Martinsburg, DC). Verified MAC addresses, signed keys, 1-click PowerShell apply scripts, and localhost HTTP 500 troubleshooting.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #38bdf8 15%, transparent); border:1px solid #38bdf8; color:#38bdf8;">Cart Licenses</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #8B5CF6 15%, transparent); border:1px solid #8B5CF6; color:#8B5CF6;">PowerShell</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">New 09/26</span></p>
+                    <p style="color:var(--muted-docs); margin:0;">Central tracking directory for standalone AssetWorx mobile inventory carts across enterprise facilities (Beckley, Clarksburg, Huntington, Martinsburg, DC). Verified MAC addresses, signed keys, 1-click PowerShell apply scripts, and localhost HTTP 500 troubleshooting.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #38bdf8 15%, transparent); border:1px solid #38bdf8; color:#38bdf8;">Cart Licenses</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #8B5CF6 15%, transparent); border:1px solid #8B5CF6; color:#8B5CF6;">PowerShell</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">New 09/26</span></p>
                 </a>
                 <a class="tile" href="va_license_fix.html" style="border-color: #ef4444;">
                     <div class="tile-title" style="color:#ef4444;">&#128272; License Fix: Network Adapter Change</div>
@@ -394,7 +390,7 @@
                 </a>
                 <a class="tile" href="va_license_manager.html" style="border-color: #ef4444;">
                     <div class="tile-title" style="color:#ef4444;">&#128273; License Manager</div>
-                    <p style="color:var(--muted-docs); margin:0;">View reader license usage (readers + handhelds vs. limit), delete stale scanners to free slots, manage server registrations, MQTT clients, and scanner user accounts. Consolidated administration portal.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #ef4444 15%, transparent); border:1px solid #ef4444; color:#ef4444;">Admin Tool</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #8B5CF6 15%, transparent); border:1px solid #8B5CF6; color:#8B5CF6;">Database</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">New 09/26</span></p>
+                    <p style="color:var(--muted-docs); margin:0;">View reader license usage (readers + handhelds vs. limit), delete stale scanners to free slots, manage server registrations, MQTT clients, and scanner user accounts. Consolidated alternative to AssetWorx Admin &rarr; Scanners.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #ef4444 15%, transparent); border:1px solid #ef4444; color:#ef4444;">Admin Tool</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #8B5CF6 15%, transparent); border:1px solid #8B5CF6; color:#8B5CF6;">Database</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">New 09/26</span></p>
                 </a>
                 <a class="tile" href="va_idashdiag_recovery.html" style="border-color: #f59e0b;">
                     <div class="tile-title" style="color:#f59e0b;">&#128657; Asset Data Recovery Tool</div>
@@ -402,7 +398,7 @@
                 </a>
                 <a class="tile" href="va_tailscale_funnel.html" style="border-color: #3b82f6;">
                     <div class="tile-title" style="color:#3b82f6;">&#128279; Tailscale Funnel: Remote Access Setup</div>
-                    <p style="color:var(--muted-docs); margin:0;">Step-by-step guide to expose iDash to VA users via Tailscale Funnel. Covers admin console config, CLI commands, persistence across reboots, security, and troubleshooting.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #3b82f6 15%, transparent); border:1px solid #3b82f6; color:#3b82f6;">Networking</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">VISN5-8</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">New 08/12</span></p>
+                    <p style="color:var(--muted-docs); margin:0;">Step-by-step guide to expose iDash and AssetWorx to VA users via Tailscale Funnel. Covers admin console config, CLI commands, persistence across reboots, security, and troubleshooting.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #3b82f6 15%, transparent); border:1px solid #3b82f6; color:#3b82f6;">Networking</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">VISN5-8</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">New 08/12</span></p>
                 </a>
                 <a class="tile" href="va_scanner_management.html" style="border-color: #06B6D4;">
                     <div class="tile-title" style="color:#06B6D4;">&#128225; Scanner &amp; Device Registration</div>
@@ -458,14 +454,14 @@
                 <% if (CanSeeAny(new[]{"admin_reader_config", "admin_mqtt", "rpt_fixed_reader"})) { %>
                 <a class="tile" href="va_fixed_reader_setup.html" style="border-color: #10b981;">
                     <div class="tile-title" style="color:#10b981;">&#128225; Fixed Reader Setup &amp; Configuration Guide</div>
-                    <p style="color:var(--muted-docs); margin:0;">End-to-end deployment guide: Zebra FX9600 hardware setup, MQTT broker config, antenna registration, database alignment (company/vtagid), troubleshooting, and Asset Master Fixed Reader Report.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">Setup Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">Lessons Learned</span></p>
+                    <p style="color:var(--muted-docs); margin:0;">End-to-end deployment guide: Zebra FX9600 hardware setup, MQTT broker config, antenna registration, database alignment (company/rfidtag), troubleshooting, and Asset Master Fixed Reader Report.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">Setup Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">Lessons Learned</span></p>
                 </a>
                 <% } %>
 
                 <% if (CanSeeAny(new[]{"admin_reader_config", "admin_mqtt", "docs_arch"})) { %>
                 <a class="tile" href="va_guide_fixed_reader_deployment.html" style="border-color: #ef4444;">
                     <div class="tile-title" style="color:#ef4444;">&#128225; Fixed Reader Deployment Guide</div>
-                    <p style="color:var(--muted-docs); margin:0;">Complete deployment guide for Zebra FX9600 fixed RFID readers: IoT Connector configuration, Inventory mode setup, HTTP-POST &amp; MQTT data paths, antenna-to-location mapping, scaling to 40+ readers with 300+ antennas, and MQTT broker routing bug report with evidence.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #ef4444 15%, transparent); border:1px solid #ef4444; color:#ef4444;">Admin Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">Fixed Reader</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #ef4444 15%, transparent); border:1px solid #ef4444; color:#ef4444;">Bug Report</span></p>
+                    <p style="color:var(--muted-docs); margin:0;">Complete deployment guide for Zebra FX9600 fixed RFID readers: IoT Connector configuration, Inventory mode setup, HTTP-POST &amp; MQTT data paths, antenna-to-location mapping, scaling to 40+ readers with 300+ antennas, and the AssetWorx MQTT broker routing bug report with evidence.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #ef4444 15%, transparent); border:1px solid #ef4444; color:#ef4444;">Admin Guide</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">Fixed Reader</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #ef4444 15%, transparent); border:1px solid #ef4444; color:#ef4444;">Bug Report</span></p>
                 </a>
                 <% } %>
 
@@ -477,7 +473,7 @@
                 <% } %>
 
                 <% if (CanSeeAny(new[]{"rpt_fixed_reader", "admin_reader_config"})) { %>
-                <a class="tile" href="../va_fixed_reader_live.aspx" style="border-color: #10b981;" target="_blank">
+                <a class="tile" href="/iDash/va_fixed_reader_live.aspx" style="border-color: #10b981;" target="_blank">
                     <div class="tile-title" style="color:#10b981;">&#128225; Fixed Reader Live Feed <span style="font-size:10px;font-weight:800;background:color-mix(in srgb,#10b981 15%,transparent);border:1px solid #10b981;border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:middle;">LIVE</span></div>
                     <p style="color:var(--muted-docs); margin:0;">Real-time antenna-level tag read stream. Watch assets passing in front of specific fixed reader antennas as it happens &mdash; reads/min counter, unique asset tracker, sound alerts, and pause/resume. Filter by reader and antenna port.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">Live Stream</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #8B5CF6 15%, transparent); border:1px solid #8B5CF6; color:#8B5CF6;">Troubleshooting</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">New</span></p>
                 </a>
@@ -592,8 +588,8 @@
                 </a>
 
                 <a class="tile" href="va_database_setup.html" style="border-left:3px solid #f59e0b;">
-                    <div class="tile-title" style="color:#f59e0b;">&#128736; iDash Database Setup</div>
-                    <p style="color:var(--muted-docs); margin:0;">Create the iDash database from scratch with SQL scripts. Tables, views, indexes, VA field mappings, and staging DB.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">SQL Scripts</span></p>
+                    <div class="tile-title" style="color:#f59e0b;">&#128736; AssetWorx Database Setup</div>
+                    <p style="color:var(--muted-docs); margin:0;">Create the AssetWorx database from scratch with SQL scripts. Tables, views, indexes, VA field mappings, and staging DB.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">SQL Scripts</span></p>
                 </a>
 
                 <a class="tile" href="va_dbupdate_workbench.html" style="border-left:3px solid #a855f7;">
@@ -617,11 +613,11 @@
                 <% if (CanSee("admin_bcp")) { %>
                 <a class="tile" href="va_bcp_query.html">
                     <div class="tile-title">VA On Network Queries (Pull)</div>
-                    <p style="color:var(--muted-docs); margin:0;">BCP extraction strings and SQLCMD batch inserts &mdash; pulls data from CDW/VistA into iDash.</p>
+                    <p style="color:var(--muted-docs); margin:0;">BCP extraction strings and SQLCMD batch inserts &mdash; pulls data from CDW/VistA into AssetWorx.</p>
                 </a>
                 <a class="tile" href="va_bcp_awpush_query.html" style="border-color: #10b981;">
-                    <div class="tile-title" style="color:#10b981;">&#128228; iDash Push to VA SQL (Push)</div>
-                    <p style="color:var(--muted-docs); margin:0;">BCP OUT and SQLCMD MERGE to export iDash data to a remote VA SQL server.</p>
+                    <div class="tile-title" style="color:#10b981;">&#128228; AW Push to VA SQL (Push)</div>
+                    <p style="color:var(--muted-docs); margin:0;">BCP OUT and SQLCMD MERGE to export AssetWorx data to a remote VA SQL server.</p>
                 </a>
                 <% } %>
 
@@ -649,8 +645,8 @@
                 </a>
 
                 <a class="tile" href="va_aw_user_management.html" style="border-color:#f59e0b;">
-                    <div class="tile-title" style="color:#f59e0b;">&#128100; Scanner &amp; System User Management (sysuser)</div>
-                    <p style="color:var(--muted-docs); margin:0;">Create scanner &amp; API users directly from iDash via SQL. <code>dbo.sysuser</code> table, ASP.NET Core Identity V3 password hasher, CRUD operations.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">Direct SQL</span></p>
+                    <div class="tile-title" style="color:#f59e0b;">&#128100; AssetWorx User Management (sysuser)</div>
+                    <p style="color:var(--muted-docs); margin:0;">Create AssetWorx API users directly from iDash via SQL. <code>dbo.sysuser</code> table, ASP.NET Core Identity V3 password hasher, CRUD operations.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #f59e0b 15%, transparent); border:1px solid #f59e0b; color:#f59e0b;">Direct SQL</span></p>
                 </a>
                 <% } %>
 
@@ -767,7 +763,7 @@
                 </a>
 
                 <a class="tile" href="va_support_request.html" style="border-color: #2ea8ff;">
-                    <div class="tile-title" style="color:#2ea8ff;"><img src="../Assets/branding/rfid.png" style="height:15px;vertical-align:middle;margin-right:6px;" alt="" />Support Request</div>
+                    <div class="tile-title" style="color:#2ea8ff;"><img src="/iDash/Assets/branding/rfid.png" style="height:15px;vertical-align:middle;margin-right:6px;" alt="" />Support Request</div>
                     <p style="color:var(--muted-docs); margin:0;">In-app support ticket form. AJAX + EmailHelper SMTP. User guide, developer reference, and troubleshooting.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #2ea8ff 15%, transparent); border:1px solid #2ea8ff; color:#2ea8ff;">Hub Feature</span></p>
                 </a>
             </div>
@@ -791,7 +787,7 @@
                 <% if (CanSee("docs_cookbook")) { %>
                 <a class="tile" href="idi_mobile_connectivity_cookbook.html" style="border-color:#10b981;">
                     <div class="tile-title" style="color:#10b981;">&#128241; IDI Mobile Connectivity Cookbook</div>
-                    <p style="color:var(--muted-docs); margin:0;">WiFi onboarding, scanner setup, firewall rules, printer configuration, and troubleshooting for the RFID mobile scanner.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981, transparent 85%); border:1px solid #10b981; color:#10b981;">Field Guide</span></p>
+                    <p style="color:var(--muted-docs); margin:0;">WiFi onboarding, scanner setup, firewall rules, printer configuration, and troubleshooting for AssetWorx! mobile.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981, transparent 85%); border:1px solid #10b981; color:#10b981;">Field Guide</span></p>
                 </a>
                 <% } %>
 
@@ -809,7 +805,7 @@
                 </a>
 
                 <a class="tile" href="../va_system_update.aspx" style="border-color: #10b981; background: color-mix(in srgb, #10b981, transparent 96%);">
-                    <div class="tile-title" style="color:#10b981;"><img src="../Assets/branding/rfid.png" style="height:16px;vertical-align:middle;margin-right:6px;" alt="" />System Update &amp; Deployment Tool</div>
+                    <div class="tile-title" style="color:#10b981;"><img src="/iDash/Assets/branding/rfid.png" style="height:16px;vertical-align:middle;margin-right:6px;" alt="" />System Update &amp; Deployment Tool</div>
                     <p style="color:var(--muted-docs); margin:0;">Live web tool to synchronize this server or remote laptops from Master Node (Tailscale) or GitHub. Full-screen progress overlay, safe boundary protection, and IIS AppPool refresh.<br><span class="chip" style="margin-top:6px; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#10b981;">Live Tool</span> <span class="chip" style="margin-top:6px; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8;">1-Click OTA</span></p>
                 </a>
                 <% } %>
@@ -830,7 +826,7 @@
         <% } %>
 
         <div style="text-align:center; color:var(--muted-docs); font-size:12px; margin-top:40px;">
-            iDash Documentation v2.9.0 &middot; Build 2026-09-08 &middot; &copy; 2026 ID Integration Inc.
+            iDash Documentation v2.9.0 &middot; Build 2026-09-08 &middot; AssetWorx &copy; 2026
         </div>
     </div>
 

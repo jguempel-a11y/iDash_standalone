@@ -1,5 +1,5 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_user_management.aspx.cs" Inherits="va_user_management" EnableEventValidation="false" MaintainScrollPositionOnPostback="true" %>
-<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_user_management.aspx.cs" Inherits="va_user_management" EnableEventValidation="false" MaintainScrollPositionOnPostback="true" %>
+<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -444,9 +444,7 @@
                                 <span class="muted"><%# Eval("CompanyId") != null ? "(ID: " + Eval("CompanyId") + ")" : "" %></span>
                             </ItemTemplate>
                         </asp:TemplateField>
-                        <asp:BoundField DataField="CardId"      HeaderText="Card ID" />
-                        <asp:BoundField DataField="RfidTag"     HeaderText="RFID Tag" />
-                        <asp:TemplateField HeaderText="Actions">
+                                                                        <asp:TemplateField HeaderText="Actions">
                             <ItemTemplate>
                                 <button type="button" class="btn btn-ghost btn-sm btn-edit-aw-user"
                                     data-id='<%# Eval("Id") %>'
@@ -1283,16 +1281,14 @@ function submitAwAdd() {
 
     document.getElementById('<%= BtnAddAwUser.ClientID %>').click();
 }
-function openAwEditModal(id,username,firstname,lastname,email,phone,cardid,rfidtag,usertype,companyid) {
+function openAwEditModal(id,username,firstname,lastname,email,phone,usertype,companyid) {
     document.getElementById('aw_edit_id').value         = id;
     document.getElementById('aw_edit_username').value   = username;
     document.getElementById('aw_edit_firstname').value  = firstname;
     document.getElementById('aw_edit_lastname').value   = lastname;
     document.getElementById('aw_edit_email').value      = email;
     document.getElementById('aw_edit_phone').value      = phone;
-    document.getElementById('aw_edit_cardid').value     = cardid;
-    document.getElementById('aw_edit_rfidtag').value    = rfidtag;
-    var ut = document.getElementById('aw_edit_usertype'); if(ut) ut.value = usertype||'5';
+            var ut = document.getElementById('aw_edit_usertype'); if(ut) ut.value = usertype||'5';
     var co = document.getElementById('aw_edit_companyid'); if(co) co.value = companyid||'';
     document.getElementById('aw_edit_password').value = '';
     document.getElementById('aw_edit_err').style.display = 'none';
@@ -1533,7 +1529,7 @@ function cloneIdashUser(role, displayName, siteAccessJson, tileAccessJson) {
     buildTileGrid('add', existTiles);
 }
 
-function cloneAwUser(usertype, companyid, email, phone, cardid) {
+function cloneAwUser(usertype, companyid, email, phone) {
     // Open the AW Add modal pre-filled
     showAwAddModal();
     setTimeout(function() {
@@ -1775,6 +1771,8 @@ function cloneAwUser(usertype, companyid, email, phone, cardid) {
 })();
 </script>
 
-<aw:Footer runat="server" />
+<idash:Footer runat="server" />
 </body>
 </html>
+
+

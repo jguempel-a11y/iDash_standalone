@@ -225,10 +225,10 @@ public partial class va_user_management : System.Web.UI.Page
         var u = dataItem as AwUser;
         if (u == null) return "return false;";
         return string.Format(
-            "cloneAwUser('{0}','{1}','{2}','{3}','{4}');",
+            "cloneAwUser('{0}','{1}','{2}','{3}');",
             EscJs(u.UserType),
             u.CompanyId.HasValue ? u.CompanyId.Value.ToString() : "",
-            EscJs(u.Email), EscJs(u.Phone), EscJs(u.CardId));
+            EscJs(u.Email), EscJs(u.Phone));
     }
 
     // Parse site access JSON from hidden field
@@ -292,7 +292,7 @@ public partial class va_user_management : System.Web.UI.Page
             {
                 string awErr = CreateAwUserInternal(username, password,
                     HfAddAwUserType.Value.Trim(), HfAddAwCompanyId.Value.Trim(),
-                    displayName, "", "", "", "", "");
+                    displayName, "", "", "");
                 if (awErr == null)
                     msg += " <strong>Scanner account</strong> also created.";
                 else
@@ -429,36 +429,9 @@ public partial class va_user_management : System.Web.UI.Page
         public string LastName    { get; set; }
         public string Email       { get; set; }
         public string Phone       { get; set; }
-        public string CardId      { get; set; }
-        public string RfidTag     { get; set; }
         public string UserType    { get; set; }
         public int?   CompanyId   { get; set; }
         public string CompanyName { get; set; }
-        public bool   HideAdminPopups      { get; set; }
-        public bool   InventoryLimitedUser { get; set; }
-        public bool   RestrictEditMobile   { get; set; }
-    }
-
-    private static bool _awUserColsChecked = false;
-    private static void EnsureAwUserColumns(SqlConnection conn)
-    {
-        if (_awUserColsChecked) return;
-        try
-        {
-            using (var cmd = new SqlCommand(@"
-                IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.sysuser') AND name = 'hideadminpopups')
-                    ALTER TABLE dbo.sysuser ADD hideadminpopups BIT NOT NULL DEFAULT 0;
-                IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.sysuser') AND name = 'inventorylimiteduser')
-                    ALTER TABLE dbo.sysuser ADD inventorylimiteduser BIT NOT NULL DEFAULT 0;
-                IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.sysuser') AND name = 'restricteditmobile')
-                    ALTER TABLE dbo.sysuser ADD restricteditmobile BIT NOT NULL DEFAULT 0;
-            ", conn))
-            {
-                cmd.ExecuteNonQuery();
-            }
-            _awUserColsChecked = true;
-        }
-        catch { /* ignore if permissions don't allow ALTER */ }
     }
 
     private void BindAwGrid()
@@ -466,68 +439,42 @@ public partial class va_user_management : System.Web.UI.Page
         string cs = AwConnStr;
         if (string.IsNullOrEmpty(cs)) { LitAwMsg.Text = "<div class='alert alert-err'>&#9888; Database connection string not configured.</div>"; return; }
         
-        for (int attempt = 0; attempt < 2; attempt++)
+        try
         {
-            try
+            var users = new List<AwUser>();
+            using (var conn = new SqlConnection(cs))
             {
-                var users = new List<AwUser>();
-                using (var conn = new SqlConnection(cs))
+                conn.Open();
+                using (var cmd = new SqlCommand(@"
+                    SELECT u.id, u.username, u.firstname, u.lastname, u.email, u.phone,
+                           u.usertype, u.companyid,
+                           c.name AS companyname
+                    FROM dbo.sysuser u
+                    LEFT JOIN dbo.company c ON c.id = u.companyid
+                    ORDER BY u.username", conn))
+                using (var rdr = cmd.ExecuteReader())
                 {
-                    conn.Open();
-                    EnsureAwUserColumns(conn);
-                    using (var cmd = new SqlCommand(@"
-                        SELECT u.id, u.username, u.firstname, u.lastname, u.email, u.phone,
-                               u.cardid, u.rfidtag, u.usertype, u.companyid,
-                               u.hideadminpopups, u.inventorylimiteduser, u.restricteditmobile,
-                               c.name AS companyname
-                        FROM dbo.sysuser u
-                        LEFT JOIN dbo.company c ON c.id = u.companyid
-                        ORDER BY u.username", conn))
-                    using (var rdr = cmd.ExecuteReader())
-                    {
-                        while (rdr.Read())
-                            users.Add(new AwUser
-                            {
-                                Id          = Convert.ToInt32(rdr["id"]),
-                                Username    = rdr["username"].ToString(),
-                                FirstName   = rdr["firstname"] == DBNull.Value ? "" : rdr["firstname"].ToString(),
-                                LastName    = rdr["lastname"]  == DBNull.Value ? "" : rdr["lastname"].ToString(),
-                                Email       = rdr["email"]     == DBNull.Value ? "" : rdr["email"].ToString(),
-                                Phone       = rdr["phone"]     == DBNull.Value ? "" : rdr["phone"].ToString(),
-                                CardId      = rdr["cardid"]    == DBNull.Value ? "" : rdr["cardid"].ToString(),
-                                RfidTag     = rdr["rfidtag"]   == DBNull.Value ? "" : rdr["rfidtag"].ToString(),
-                                UserType    = rdr["usertype"]  == DBNull.Value ? "" : rdr["usertype"].ToString(),
-                                CompanyId   = rdr["companyid"] == DBNull.Value ? (int?)null : Convert.ToInt32(rdr["companyid"]),
-                                CompanyName = rdr["companyname"] == DBNull.Value ? "" : rdr["companyname"].ToString(),
-                                HideAdminPopups      = rdr["hideadminpopups"]      != DBNull.Value && Convert.ToBoolean(rdr["hideadminpopups"]),
-                                InventoryLimitedUser = rdr["inventorylimiteduser"] != DBNull.Value && Convert.ToBoolean(rdr["inventorylimiteduser"]),
-                                RestrictEditMobile   = rdr["restricteditmobile"]   != DBNull.Value && Convert.ToBoolean(rdr["restricteditmobile"])
-                            });
-                    }
-                }
-                GridAwUsers.DataSource = users;
-                GridAwUsers.DataBind();
-                break; // success
-            }
-            catch (Exception ex)
-            {
-                if (attempt == 0 && (ex.Message.Contains("Invalid column name") || ex.Message.Contains("restricteditmobile")))
-                {
-                    _awUserColsChecked = false;
-                    try
-                    {
-                        using (var conn = new SqlConnection(cs))
+                    while (rdr.Read())
+                        users.Add(new AwUser
                         {
-                            conn.Open();
-                            EnsureAwUserColumns(conn);
-                        }
-                    }
-                    catch { }
-                    continue; // retry
+                            Id          = Convert.ToInt32(rdr["id"]),
+                            Username    = rdr["username"].ToString(),
+                            FirstName   = rdr["firstname"] == DBNull.Value ? "" : rdr["firstname"].ToString(),
+                            LastName    = rdr["lastname"]  == DBNull.Value ? "" : rdr["lastname"].ToString(),
+                            Email       = rdr["email"]     == DBNull.Value ? "" : rdr["email"].ToString(),
+                            Phone       = rdr["phone"]     == DBNull.Value ? "" : rdr["phone"].ToString(),
+                            UserType    = rdr["usertype"]  == DBNull.Value ? "" : rdr["usertype"].ToString(),
+                            CompanyId   = rdr["companyid"] == DBNull.Value ? (int?)null : Convert.ToInt32(rdr["companyid"]),
+                            CompanyName = rdr["companyname"] == DBNull.Value ? "" : rdr["companyname"].ToString()
+                        });
                 }
-                LitAwMsg.Text = "<div class='alert alert-err'>&#9888; Error loading scanner users: " + Server.HtmlEncode(ex.Message) + "</div>";
-                break;
             }
+            GridAwUsers.DataSource = users;
+            GridAwUsers.DataBind();
+        }
+        catch (Exception ex)
+        {
+            LitAwMsg.Text = "<div class='alert alert-err'>&#9888; Error loading scanner users: " + Server.HtmlEncode(ex.Message) + "</div>";
         }
     }
 
@@ -536,9 +483,9 @@ public partial class va_user_management : System.Web.UI.Page
         var u = dataItem as AwUser;
         if (u == null) return "return false;";
         return string.Format(
-            "openAwEditModal({0},'{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}');",
+            "openAwEditModal({0},'{1}','{2}','{3}','{4}','{5}','{6}','{7}');",
             u.Id, EscJs(u.Username), EscJs(u.FirstName), EscJs(u.LastName),
-            EscJs(u.Email), EscJs(u.Phone), EscJs(u.CardId), EscJs(u.RfidTag),
+            EscJs(u.Email), EscJs(u.Phone),
             EscJs(u.UserType),
             u.CompanyId.HasValue ? u.CompanyId.Value.ToString() : "");
     }
@@ -588,8 +535,7 @@ public partial class va_user_management : System.Web.UI.Page
     /// </summary>
     private string CreateAwUserInternal(string username, string password,
         string usertype, string companyid,
-        string firstname, string lastname, string email, string phone,
-        string cardid, string rfidtag)
+        string firstname, string lastname, string email, string phone)
     {
         string cs = AwConnStr;
         if (string.IsNullOrEmpty(cs)) return "Database not configured.";
@@ -599,7 +545,6 @@ public partial class va_user_management : System.Web.UI.Page
             using (var conn = new SqlConnection(cs))
             {
                 conn.Open();
-                EnsureAwUserColumns(conn);
                 using (var chk = new SqlCommand("SELECT COUNT(*) FROM dbo.sysuser WHERE username = @u", conn))
                 {
                     chk.Parameters.AddWithValue("@u", username);
@@ -615,8 +560,8 @@ public partial class va_user_management : System.Web.UI.Page
 
                 string hashedPw = string.IsNullOrEmpty(password) ? null : HashPasswordV3(password);
                 using (var cmd = new SqlCommand(@"INSERT INTO dbo.sysuser
-                    (username,password,firstname,lastname,email,phone,cardid,rfidtag,usertype,companyid,hideadminpopups,inventorylimiteduser,restricteditmobile)
-                    VALUES(@username,@password,@firstname,@lastname,@email,@phone,@cardid,@rfidtag,@usertype,@companyid,0,0,0)", conn))
+                    (username,password,firstname,lastname,email,phone,usertype,companyid)
+                    VALUES(@username,@password,@firstname,@lastname,@email,@phone,@usertype,@companyid)", conn))
                 {
                     cmd.Parameters.AddWithValue("@username",  username);
                     cmd.Parameters.AddWithValue("@password",  (object)hashedPw ?? DBNull.Value);
@@ -624,8 +569,6 @@ public partial class va_user_management : System.Web.UI.Page
                     cmd.Parameters.AddWithValue("@lastname",  string.IsNullOrEmpty(lastname)  ? (object)DBNull.Value : lastname);
                     cmd.Parameters.AddWithValue("@email",     string.IsNullOrEmpty(email)     ? (object)DBNull.Value : email);
                     cmd.Parameters.AddWithValue("@phone",     string.IsNullOrEmpty(phone)     ? (object)DBNull.Value : phone);
-                    cmd.Parameters.AddWithValue("@cardid",    string.IsNullOrEmpty(cardid)    ? (object)DBNull.Value : cardid);
-                    cmd.Parameters.AddWithValue("@rfidtag",   string.IsNullOrEmpty(rfidtag)   ? (object)DBNull.Value : rfidtag);
                     cmd.Parameters.AddWithValue("@usertype",  string.IsNullOrEmpty(usertype)  ? (object)DBNull.Value : usertype);
                     cmd.Parameters.AddWithValue("@companyid", string.IsNullOrEmpty(companyid) ? (object)DBNull.Value : (object)int.Parse(companyid));
                     cmd.ExecuteNonQuery();
@@ -644,15 +587,13 @@ public partial class va_user_management : System.Web.UI.Page
         string lastname  = HfAwAddLastName.Value.Trim();
         string email     = HfAwAddEmail.Value.Trim();
         string phone     = HfAwAddPhone.Value.Trim();
-        string cardid    = HfAwAddCardId.Value.Trim();
-        string rfidtag   = HfAwAddRfidTag.Value.Trim();
         string usertype  = HfAwAddUserType.Value.Trim();
         string companyid = HfAwAddCompanyId.Value.Trim();
 
         if (string.IsNullOrWhiteSpace(username)) { LitAwMsg.Text = "<div class='alert alert-err'>&#9888; Username is required.</div>"; BindAwGrid(); return; }
 
         string awErr = CreateAwUserInternal(username, password, usertype, companyid,
-            firstname, lastname, email, phone, cardid, rfidtag);
+            firstname, lastname, email, phone);
 
         if (awErr != null)
         {
@@ -689,7 +630,7 @@ public partial class va_user_management : System.Web.UI.Page
 
         HfAwAddUsername.Value = ""; HfAwAddPassword.Value = ""; HfAwAddFirstName.Value = "";
         HfAwAddLastName.Value = ""; HfAwAddEmail.Value = ""; HfAwAddPhone.Value = "";
-        HfAwAddCardId.Value = ""; HfAwAddRfidTag.Value = ""; HfAwAddUserType.Value = "";
+        HfAwAddUserType.Value = "";
         HfAwAddCompanyId.Value = "";
         HfAwAddAlsoCreateIdash.Value = ""; HfAwAddIdashRole.Value = "";
         HfAwAddIdashSiteAccess.Value = ""; HfAwAddIdashTileAccess.Value = "";
@@ -710,8 +651,6 @@ public partial class va_user_management : System.Web.UI.Page
         string lastname  = HfAwEditLastName.Value.Trim();
         string email     = HfAwEditEmail.Value.Trim();
         string phone     = HfAwEditPhone.Value.Trim();
-        string cardid    = HfAwEditCardId.Value.Trim();
-        string rfidtag   = HfAwEditRfidTag.Value.Trim();
         string usertype  = HfAwEditUserType.Value.Trim();
         string companyid = HfAwEditCompanyId.Value.Trim();
 
@@ -728,8 +667,8 @@ public partial class va_user_management : System.Web.UI.Page
 
                 bool chgPw = !string.IsNullOrEmpty(password);
                 string sql = chgPw
-                    ? "UPDATE dbo.sysuser SET password=@pw,firstname=@fn,lastname=@ln,email=@em,phone=@ph,cardid=@ci,rfidtag=@rt,usertype=@ut,companyid=@co WHERE id=@id"
-                    : "UPDATE dbo.sysuser SET firstname=@fn,lastname=@ln,email=@em,phone=@ph,cardid=@ci,rfidtag=@rt,usertype=@ut,companyid=@co WHERE id=@id";
+                    ? "UPDATE dbo.sysuser SET password=@pw,firstname=@fn,lastname=@ln,email=@em,phone=@ph,usertype=@ut,companyid=@co WHERE id=@id"
+                    : "UPDATE dbo.sysuser SET firstname=@fn,lastname=@ln,email=@em,phone=@ph,usertype=@ut,companyid=@co WHERE id=@id";
 
                 using (var cmd = new SqlCommand(sql, conn))
                 {
@@ -739,8 +678,6 @@ public partial class va_user_management : System.Web.UI.Page
                     cmd.Parameters.AddWithValue("@ln", string.IsNullOrEmpty(lastname)  ? (object)DBNull.Value : lastname);
                     cmd.Parameters.AddWithValue("@em", string.IsNullOrEmpty(email)     ? (object)DBNull.Value : email);
                     cmd.Parameters.AddWithValue("@ph", string.IsNullOrEmpty(phone)     ? (object)DBNull.Value : phone);
-                    cmd.Parameters.AddWithValue("@ci", string.IsNullOrEmpty(cardid)    ? (object)DBNull.Value : cardid);
-                    cmd.Parameters.AddWithValue("@rt", string.IsNullOrEmpty(rfidtag)   ? (object)DBNull.Value : rfidtag);
                     cmd.Parameters.AddWithValue("@ut", string.IsNullOrEmpty(usertype)  ? (object)DBNull.Value : usertype);
                     cmd.Parameters.AddWithValue("@co", string.IsNullOrEmpty(companyid) ? (object)DBNull.Value : (object)int.Parse(companyid));
                     cmd.ExecuteNonQuery();
@@ -748,9 +685,15 @@ public partial class va_user_management : System.Web.UI.Page
             }
             LitAwMsg.Text = "<div class='alert alert-ok'>&#10003; User updated successfully.</div>";
         }
-        catch (Exception ex) { LitAwMsg.Text = "<div class='alert alert-err'>&#9888; " + Server.HtmlEncode(ex.Message) + "</div>"; }
+        catch (Exception ex)
+        {
+            LitAwMsg.Text = "<div class='alert alert-err'>&#9888; Update failed: " + Server.HtmlEncode(ex.Message) + "</div>";
+        }
 
-        HfAwEditId.Value = ""; HfAwEditPassword.Value = "";
+        HfAwEditId.Value = ""; HfAwEditPassword.Value = ""; HfAwEditFirstName.Value = "";
+        HfAwEditLastName.Value = ""; HfAwEditEmail.Value = ""; HfAwEditPhone.Value = "";
+        HfAwEditUserType.Value = "";
+        HfAwEditCompanyId.Value = "";
         BindAwGrid();
         SwitchToAwTab();
     }

@@ -1,5 +1,5 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_ennx.aspx.cs" Inherits="iDash.va_ennx" EnableEventValidation="false" %>
-    <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
+    <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 
         <!DOCTYPE html>
         <html xmlns="http://www.w3.org/1999/xhtml">
@@ -646,7 +646,7 @@
                     </asp:Panel>
                 </div>
 
-                <aw:Footer runat="server" />
+                <idash:Footer runat="server" />
 
                 <!-- Hidden field for user preference if needed -->
                 <asp:HiddenField ID="HidUser" runat="server" />
@@ -654,3 +654,4 @@
         </body>
 
         </html>
+

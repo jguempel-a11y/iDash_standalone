@@ -1,5 +1,5 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_tag_stats.aspx.cs" Inherits="iDash.va_tag_stats" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
-<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_tag_stats.aspx.cs" Inherits="iDash.va_tag_stats" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
+<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html lang="en">
 <head runat="server">
@@ -304,7 +304,7 @@
     </div>
 
 </div><!-- /dash -->
-<aw:Footer runat="server" />
+<idash:Footer runat="server" />
 </form>
 
 <script>
@@ -960,4 +960,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
+
 

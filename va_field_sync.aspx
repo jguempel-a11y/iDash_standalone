@@ -1,5 +1,5 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_field_sync.aspx.cs" Inherits="va_field_sync" ResponseEncoding="utf-8" %>
-<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_field_sync.aspx.cs" Inherits="va_field_sync" ResponseEncoding="utf-8" %>
+<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -271,7 +271,7 @@ input[type=text]:focus{border-color:var(--accent);}
         <div class="logbox"><asp:Literal ID="LitLog" runat="server" /></div>
     </div>
 
-    <aw:Footer runat="server" />
+    <idash:Footer runat="server" />
 </main>
 </div>
 </form>
@@ -283,3 +283,4 @@ document.getElementById('<%= BtnPreviewMain.ClientID %>').onclick     = function
 </script>
 </body>
 </html>
+

@@ -1556,14 +1556,14 @@ public partial class va_fhir_bridge : System.Web.UI.Page
                 results.Append("<div class='step-ok'>&#x2705; Step 4: Connected to VA SQL Server</div>");
 
                 // Drop/create staging
-                ExecVaSql(vaCn, "IF OBJECT_ID('dbo.AWPushStaging', 'U') IS NOT NULL DROP TABLE dbo.AWPushStaging;");
-                ExecVaSql(vaCn, "CREATE TABLE dbo.AWPushStaging (" + colDefs + ");");
+                ExecVaSql(vaCn, "IF OBJECT_ID('dbo.AssetPushStaging', 'U') IS NOT NULL DROP TABLE dbo.AssetPushStaging;");
+                ExecVaSql(vaCn, "CREATE TABLE dbo.AssetPushStaging (" + colDefs + ");");
 
                 // Insert matched assets into staging
                 int inserted = 0;
                 foreach (var asset in assetUpdates)
                 {
-                    StringBuilder insertSql = new StringBuilder("INSERT INTO dbo.AWPushStaging (");
+                    StringBuilder insertSql = new StringBuilder("INSERT INTO dbo.AssetPushStaging (");
                     insertSql.Append(colList);
                     insertSql.Append(") VALUES (");
 
@@ -1593,11 +1593,11 @@ public partial class va_fhir_bridge : System.Web.UI.Page
                 results.AppendFormat("<div class='step-ok'>&#x2705; Step 5: Inserted {0} rows into VA staging</div>", inserted);
 
                 // Create target if not exists
-                ExecVaSql(vaCn, "IF OBJECT_ID('dbo.AWAssetSync', 'U') IS NULL CREATE TABLE dbo.AWAssetSync (" + colDefs + ");");
+                ExecVaSql(vaCn, "IF OBJECT_ID('dbo.AssetSync', 'U') IS NULL CREATE TABLE dbo.AssetSync (" + colDefs + ");");
 
                 // MERGE
                 string mergeSql = string.Format(
-                    "MERGE dbo.AWAssetSync AS tgt USING dbo.AWPushStaging AS src ON tgt.[rfidtag] = src.[rfidtag] " +
+                    "MERGE dbo.AssetSync AS tgt USING dbo.AssetPushStaging AS src ON tgt.[rfidtag] = src.[rfidtag] " +
                     "WHEN MATCHED THEN UPDATE SET {0} " +
                     "WHEN NOT MATCHED BY TARGET THEN INSERT ({1}) VALUES ({2});",
                     mergeUpdate, mergeInsertCols, mergeInsertVals);
@@ -1606,14 +1606,14 @@ public partial class va_fhir_bridge : System.Web.UI.Page
                 results.Append("<div class='step-ok'>&#x2705; Step 6: MERGE completed (upsert on rfidtag)</div>");
 
                 // Final count
-                using (SqlCommand countCmd = new SqlCommand("SELECT COUNT(*) FROM dbo.AWAssetSync", vaCn))
+                using (SqlCommand countCmd = new SqlCommand("SELECT COUNT(*) FROM dbo.AssetSync", vaCn))
                 {
                     int totalRows = (int)countCmd.ExecuteScalar();
-                    results.AppendFormat("<div class='step-ok'><strong>&#x2705; AWAssetSync total rows: {0}</strong></div>", totalRows);
+                    results.AppendFormat("<div class='step-ok'><strong>&#x2705; AssetSync total rows: {0}</strong></div>", totalRows);
                 }
 
                 // Cleanup
-                ExecVaSql(vaCn, "IF OBJECT_ID('dbo.AWPushStaging', 'U') IS NOT NULL DROP TABLE dbo.AWPushStaging;");
+                ExecVaSql(vaCn, "IF OBJECT_ID('dbo.AssetPushStaging', 'U') IS NOT NULL DROP TABLE dbo.AssetPushStaging;");
                 results.Append("<div class='step-ok'>&#x2705; Step 7: Staging table dropped</div>");
             }
 
@@ -2076,3 +2076,4 @@ public partial class va_fhir_bridge : System.Web.UI.Page
         return data;
     }
 }
+

@@ -1680,7 +1680,7 @@ namespace iDash
                         var insCols = new List<string> { "[name]", "[companyid]" };
                         foreach (string dbCol in updateCols) insCols.Add("[" + dbCol + "]");
                         if (hasLoc) insCols.Add("[locationid]");
-                        if (updateCols.Contains("rfidtag")) insCols.Add("[vtagid]");
+                        
                         string insColsSql = string.Join(", ", insCols);
 
                         var sbInsert = new StringBuilder();
@@ -2246,3 +2246,4 @@ namespace iDash
         }
     }
 }
+

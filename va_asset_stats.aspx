@@ -1,5 +1,5 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_asset_stats.aspx.cs" Inherits="iDash.va_asset_stats" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
-<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
+ï»¿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_asset_stats.aspx.cs" Inherits="iDash.va_asset_stats" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
+<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -66,7 +66,7 @@
         }
         .ctrl-select option { background: var(--card); color: var(--text-main); }
 
-        /* header action pills — see theme.css .hdr-pill */
+        /* header action pills ï¿½ see theme.css .hdr-pill */
 
         /* -- GLASS PANEL ------------------------------- */
         .glass {
@@ -180,13 +180,13 @@
             user-select: none;
         }
         .loc-table th:hover { color: var(--text-main); }
-        /* Sort indicators — match va_location_list and va_asset_master */
+        /* Sort indicators ï¿½ match va_location_list and va_asset_master */
         .loc-table th .sh-si { display:inline-block; margin-left:5px; font-size:9px; opacity:.3; transition:opacity .15s; }
         .loc-table th.sort-asc  .sh-si,
         .loc-table th.sort-desc .sh-si { opacity:1; color:var(--accent); }
         .loc-table th.sort-asc,
         .loc-table th.sort-desc { color:var(--accent); }
-        /* Filter row th — no cursor/uppercase styling, just holds col-search input */
+        /* Filter row th ï¿½ no cursor/uppercase styling, just holds col-search input */
         .loc-table #locStatsFilterRow th,
         .loc-table #la-search-row th { cursor:default; text-transform:none; letter-spacing:0; padding:2px 4px !important; background:rgba(255,255,255,0.02); }
         .loc-table td {
@@ -414,7 +414,7 @@
         #locAssetTbl tbody tr { cursor:pointer; }
         #locAssetTbl tbody tr:hover td { background:var(--table-row-hover) !important; }
         #locAssetTbl tbody tr.la-selected td { background:color-mix(in srgb,var(--accent),transparent 88%) !important; }
-        /* col-search inputs — matches Asset Master style exactly */
+        /* col-search inputs ï¿½ matches Asset Master style exactly */
         .col-search { width:100%; background:var(--chip); color:var(--text); border:1px solid var(--line); padding:4px 8px; border-radius:4px; font-size:11px; outline:none; box-sizing:border-box; font-family:inherit; }
         .col-search::placeholder { color:var(--muted); opacity:.4; }
         #la-search-row th { padding:2px 4px !important; }
@@ -846,7 +846,7 @@
 
 </div><!-- /dash -->
 
-<aw:Footer runat="server" />
+<idash:Footer runat="server" />
 </form>
 
 <script>
@@ -1269,7 +1269,7 @@ function sortLocTable(colIdx) {
     _applyLocFiltersAndSort();
 }
 
-// Single function that applies current filters AND current sort — always in sync
+// Single function that applies current filters AND current sort ï¿½ always in sync
 function _applyLocFiltersAndSort() {
     var keys = ['loc','total','overdue','m1','m3','m6','m12'];
 
@@ -1571,7 +1571,7 @@ function renderGeneralTab(a) {
     h+='<div class="dp-field-group"><div class="dp-field-group-title">Inventory &amp; Dates</div><div class="dp-fields">';
     h+=dpField('Last Inventoried',fmtDateShort(a.lastinventoried))+dpField('Created',fmtDate(a.created))+dpField('Last Modified',fmtDate(a.lastmodified))+dpField('Modified By',a.lastmodifiedby);
     h+='</div></div>';
-    if(a.vtagid){h+='<div class="dp-field-group"><div class="dp-field-group-title">V-Tag Sensor</div><div class="dp-fields">'+dpField('V-Tag ID',a.vtagid)+dpField('V-Tag Type',a.vtagtype)+dpField('Battery Level',a.batterylevel?a.batterylevel+'%':null)+'</div></div>';}
+    
     h+='<div class="dp-field-group"><div class="dp-field-group-title">Additional Information</div><div class="dp-fields single">'+dpField('Notes',a.additionalinformation,'additionalinformation')+'</div></div>';
     el.innerHTML=h; updateDirtyCount();
 }
@@ -1664,4 +1664,6 @@ function renderChildren(el,recs){ if(!recs||!recs.length){el.innerHTML='<div cla
 
 </body>
 </html>
+
+
 

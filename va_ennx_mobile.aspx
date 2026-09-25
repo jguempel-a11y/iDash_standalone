@@ -1,5 +1,5 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_ennx_mobile.aspx.cs" Inherits="iDash.va_ennx_mobile" %>
-    <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_ennx_mobile.aspx.cs" Inherits="iDash.va_ennx_mobile" %>
+    <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 
         <!DOCTYPE html>
         <html xmlns="http://www.w3.org/1999/xhtml">
@@ -415,9 +415,10 @@
                     </asp:Panel>
                 </div>
 
-                <aw:Footer runat="server" />
+                <idash:Footer runat="server" />
                 <asp:HiddenField ID="HidUser" runat="server" />
             </form>
         </body>
         </html>
+
 

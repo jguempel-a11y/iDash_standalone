@@ -1,5 +1,5 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_asset_master.aspx.cs" Inherits="va_asset_master" %>
-<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_asset_master.aspx.cs" Inherits="va_asset_master" %>
+<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -653,7 +653,7 @@
     </div>
 </div>
 
-<aw:Footer runat="server" />
+<idash:Footer runat="server" />
 <asp:Literal ID="LitPrintConfig" runat="server" />
 
 <!-- â”€â”€ ASSET DETAIL PANEL â”€â”€ -->
@@ -2161,4 +2161,5 @@
 </script>
 </body>
 </html>
+
 

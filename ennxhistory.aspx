@@ -1,5 +1,5 @@
-<%@ Page Language="C#" AutoEventWireup="true" Inherits="System.Web.UI.Page" MaintainScrollPositionOnPostback="true" %>
-    <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
+ï»¿<%@ Page Language="C#" AutoEventWireup="true" Inherits="System.Web.UI.Page" MaintainScrollPositionOnPostback="true" %>
+    <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
         <%@ Import Namespace="System" %>
             <%@ Import Namespace="System.Data" %>
                 <%@ Import Namespace="System.Data.SqlClient" %>
@@ -501,7 +501,7 @@
                                                                     <!-- Manage Recipients panel removed and centralized to index.aspx -->
                                                                 </div>
 
-                                                                <aw:Footer runat="server" />
+                                                                <idash:Footer runat="server" />
                                                             </div>
                                                         </form>
 
@@ -670,7 +670,7 @@
                                                                     sql += " AND a.companyid = @SiteId";
                                                                 else
                                                                 {
-                                                                    // No explicit site filter selected — still enforce allowed sites
+                                                                    // No explicit site filter selected ï¿½ still enforce allowed sites
                                                                     var enforcedIds = UserManager.GetAllowedCompanyIds(Session, connStr);
                                                                     if (enforcedIds != null && enforcedIds.Count > 0)
                                                                     {
@@ -1051,7 +1051,7 @@ protected void BtnExportCsv_Click(object sender, EventArgs e)
 
                                                                 var sb = new StringBuilder();
 
-                                                                // CSV HEADER â€&rdquo; must match the 14-column order
+                                                                // CSV HEADER ï¿½&rdquo; must match the 14-column order
                                                                 sb.AppendLine("Name,EIL,Description,Station_Number,Sub_Station,Tag_Type,Empl_ID,Previous_Inventory_Date,Tag_Date,Previous_Location,LocationTagged,DisposalStatus,Notes,Last_Modified_By");
 
 
@@ -1528,4 +1528,5 @@ protected void BtnExportCsv_Click(object sender, EventArgs e)
                                                     </body>
 
                                                     </html>
+
 

@@ -1,5 +1,5 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_prime_excel_tracking_sheet.aspx.cs" Inherits="va_prime_excel_tracking_sheet" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
-<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_prime_excel_tracking_sheet.aspx.cs" Inherits="va_prime_excel_tracking_sheet" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
+<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -153,7 +153,7 @@
     </asp:Panel>
 </div>
 
-<aw:Footer runat="server" />
+<idash:Footer runat="server" />
 </form>
 
 <script>
@@ -260,5 +260,6 @@
 <asp:Literal ID="LitResultJson" runat="server" />
 </body>
 </html>
+
 
 

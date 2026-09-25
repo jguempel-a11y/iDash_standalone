@@ -1,5 +1,5 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_location_list.aspx.cs" Inherits="va_location_list" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
-<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
+ï»¿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_location_list.aspx.cs" Inherits="va_location_list" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
+<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -758,7 +758,7 @@
     </div>
 </div>
 
-<aw:Footer runat="server" />
+<idash:Footer runat="server" />
 </form>
 
 <script type="text/javascript">
@@ -926,7 +926,7 @@
             });
         }
 
-        // Filter on keyup — resets to page 1
+        // Filter on keyup ï¿½ resets to page 1
         filterRow.addEventListener('keyup', function () {
             var filters = [];
             filterRow.querySelectorAll('input').forEach(function (inp2) {
@@ -1840,4 +1840,5 @@
 </script>
 </body>
 </html>
+
 

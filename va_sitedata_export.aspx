@@ -1,6 +1,6 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_sitedata_export.aspx.cs" Inherits="iDash.va_sitedata_export" ResponseEncoding="utf-8" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_sitedata_export.aspx.cs" Inherits="iDash.va_sitedata_export" ResponseEncoding="utf-8" %>
 <%-- Smart Merge v2.1 --%>
-<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
+<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -592,7 +592,7 @@
         <div style="text-align:center; color:var(--muted); font-size:12px; margin-top:14px; padding-bottom:40px;">
             Intelligent Distributed Asset Scanning Hub &mdash; Site Data Export / Import &copy; 2026
         </div>
-        <aw:Footer runat="server" />
+        <idash:Footer runat="server" />
     </main>
 </div>
 </form>
@@ -651,3 +651,4 @@ document.querySelectorAll('.side .nav-link[href^="#"]').forEach(function(a) {
 </script>
 </body>
 </html>
+

@@ -1,5 +1,5 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_tag_type.aspx.cs" Inherits="va_tag_type" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
-<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_tag_type.aspx.cs" Inherits="va_tag_type" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
+<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -279,7 +279,7 @@
     </div>
 
 </div><!-- /dash -->
-<aw:Footer runat="server" />
+<idash:Footer runat="server" />
 </form>
 
 <script type="text/javascript">
@@ -428,4 +428,5 @@
 </script>
 </body>
 </html>
+
 

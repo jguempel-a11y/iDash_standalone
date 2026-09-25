@@ -1,5 +1,5 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_sql_upload.aspx.cs" Inherits="iDash.va_sql_upload" %>
-    <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_sql_upload.aspx.cs" Inherits="iDash.va_sql_upload" %>
+    <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 
         <!DOCTYPE html>
         <html xmlns="http://www.w3.org/1999/xhtml">
@@ -334,9 +334,10 @@
                         </div>
                     </div>
 
-                    <aw:Footer runat="server" />
+                    <idash:Footer runat="server" />
                 </div>
             </form>
         </body>
 
         </html>
+

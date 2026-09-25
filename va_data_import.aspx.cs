@@ -341,22 +341,8 @@ BEGIN
         [text19] varchar(500) NULL, [text20] varchar(500) NULL,
         [maintenancemethod] varchar(50) NULL, [maintenanceintervalmonths] int NULL,
         [nearestfixed] varchar(50) NULL, [lastmodified] datetimeoffset(7) NULL,
-        [locationid] int NULL, [sensorreadinghistoryid] int NULL, [alertingactionid] int NULL,
-        [sensorstatshistoryid] int NULL, [readerid] int NULL, [assetparentid] int NULL,
-        [assetchildcount] int NULL, [vtagboxx] decimal(18,0) NULL, [vtagboxy] decimal(18,0) NULL,
-        [vtagboxwidth] decimal(18,0) NULL, [vtagboxheight] decimal(18,0) NULL,
-        [vtagx] decimal(18,5) NULL, [vtagy] decimal(18,5) NULL, [vtagaccelsensor] bit NULL,
-        [vtagpositiontype] varchar(50) NULL, [vtagalgorithmtype] varchar(50) NULL,
-        [batterylevel] decimal(18,2) NULL, [vtagid] varchar(50) NULL, [vtagz] int NULL,
-        [vtaglastseen] datetimeoffset(7) NULL, [vtaglastmoved] datetimeoffset(7) NULL,
-        [filedataid] int NULL, [created] datetimeoffset(7) NULL, [lastmodifiedby] varchar(50) NULL,
-        [latitude] decimal(18,7) NULL, [longitude] decimal(18,7) NULL, [altitude] decimal(18,7) NULL,
-        [numberofsatellites] int NULL, [gpsaccuracy] int NULL, [lastgpsfix] datetimeoffset(7) NULL,
-        [vtagtype] varchar(50) NULL, [parentvtag] varchar(50) NULL, [missedsatellitefixes] int NULL,
-        [lastinventoried] datetimeoffset(7) NULL, [vtaggpsdeviceid] varchar(100) NULL,
-        [vtaggpsappkey] varchar(100) NULL, [deviceregistered] bit NULL,
-        [lastmaintenance] datetimeoffset(7) NULL, [companyid] int NOT NULL DEFAULT(0),
-        [unseennotified] bit NULL
+        [locationid] int NULL, [created] datetimeoffset(7) NULL, [lastmodifiedby] varchar(50) NULL,
+        [lastinventoried] datetimeoffset(7) NULL, [companyid] int NOT NULL DEFAULT(0)
     );
 END;
 
@@ -492,13 +478,7 @@ INSERT INTO dbo.asset (
     listvalue1, listvalue2, listvalue3, text1, text2, text3, text4, text5,
     text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, text16, text17, text18, text19, text20,
     maintenancemethod, maintenanceintervalmonths, nearestfixed, lastmodified, locationid,
-    sensorreadinghistoryid, alertingactionid, sensorstatshistoryid, readerid,
-    assetparentid, assetchildcount, vtagboxx, vtagboxy, vtagboxwidth, vtagboxheight,
-    vtagx, vtagy, vtagaccelsensor, vtagpositiontype, vtagalgorithmtype, batterylevel,
-    vtagid, vtagz, vtaglastseen, vtaglastmoved, filedataid, created, lastmodifiedby,
-    latitude, longitude, altitude, numberofsatellites, gpsaccuracy, lastgpsfix,
-    vtagtype, parentvtag, missedsatellitefixes, lastinventoried, vtaggpsdeviceid, vtaggpsappkey,
-    deviceregistered, lastmaintenance, companyid, unseennotified
+    created, lastmodifiedby, lastinventoried, companyid
 )
 OUTPUT inserted.rfidtag INTO #new_assets(rfidtag)
 SELECT
@@ -511,14 +491,7 @@ SELECT
     sa.text1, sa.text2, sa.text3, sa.text4, sa.text5, sa.text6, sa.text7, sa.text8, sa.text9, sa.text10,
     sa.text11, sa.text12, sa.text13, sa.text14, sa.text15, sa.text16, sa.text17, sa.text18, sa.text19, sa.text20,
     sa.maintenancemethod, sa.maintenanceintervalmonths, sa.nearestfixed, sa.lastmodified, sa.locationid,
-    sa.sensorreadinghistoryid, sa.alertingactionid, sa.sensorstatshistoryid, sa.readerid,
-    sa.assetparentid, sa.assetchildcount, sa.vtagboxx, sa.vtagboxy, sa.vtagboxwidth, sa.vtagboxheight,
-    sa.vtagx, sa.vtagy, sa.vtagaccelsensor, sa.vtagpositiontype, sa.vtagalgorithmtype,
-    sa.batterylevel, sa.vtagid, sa.vtagz, sa.vtaglastseen, sa.vtaglastmoved,
-    sa.filedataid, sa.created, sa.lastmodifiedby, sa.latitude, sa.longitude, sa.altitude,
-    sa.numberofsatellites, sa.gpsaccuracy, sa.lastgpsfix, sa.vtagtype, sa.parentvtag,
-    sa.missedsatellitefixes, sa.lastinventoried, sa.vtaggpsdeviceid, sa.vtaggpsappkey,
-    sa.deviceregistered, sa.lastmaintenance, sa.companyid, sa.unseennotified
+    sa.created, sa.lastmodifiedby, sa.lastinventoried, sa.companyid
 FROM #staged_assets AS sa
 WHERE sa.rn = 1
   AND NOT EXISTS (SELECT 1 FROM dbo.asset AS a WITH (UPDLOCK, HOLDLOCK) WHERE a.name = sa.name AND a.companyid = sa.companyid)

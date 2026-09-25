@@ -1,5 +1,5 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_inventory_legacy.aspx.cs" Inherits="va_inventory_legacy" MaintainScrollPositionOnPostback="true" %>
-    <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
+ï»¿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_inventory_legacy.aspx.cs" Inherits="va_inventory_legacy" MaintainScrollPositionOnPostback="true" %>
+    <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 
         <!DOCTYPE html>
         <html xmlns="http://www.w3.org/1999/xhtml">
@@ -236,7 +236,7 @@
                     filter: var(--cal-filter);
                     cursor: pointer;
                 }
-                /* WebSerial section — hidden globally, not in use */
+                /* WebSerial section ï¿½ hidden globally, not in use */
                 #serialSection { display: none; }
 
                 /* === MOBILE / SCANNER OPTIMIZATION (TC53, Android handhelds) === */
@@ -1360,11 +1360,12 @@
 
                     </asp:Panel>
 
-                    <aw:Footer runat="server" />
+                    <idash:Footer runat="server" />
                 </div>
             </form>
         </body>
 
         </html>
+
 
 

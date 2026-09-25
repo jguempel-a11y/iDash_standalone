@@ -1,5 +1,5 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_reader_config.aspx.cs" Inherits="iDash.va_reader_config" %>
-<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="aw" TagName="Footer" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_reader_config.aspx.cs" Inherits="iDash.va_reader_config" %>
+<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html lang="en">
 <head runat="server">
@@ -517,7 +517,7 @@
     </div>
 </div>
 
-<aw:Footer runat="server" />
+<idash:Footer runat="server" />
 </form>
 
 <script type="text/javascript">
@@ -1930,4 +1930,5 @@
 </script>
 </body>
 </html>
+
 
