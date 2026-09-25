@@ -1,11 +1,11 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_location_list.aspx.cs" Inherits="va_location_list" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_location_list.aspx.cs" Inherits="va_location_list" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <meta charset="utf-8" />
-    <title>Assets by Location &mdash; iDash</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <title>Assets by Location &mdash; AssetWorx iDash</title>
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -22,7 +22,7 @@
             min-height: 100vh;
         }
 
-        /* -- HEADER BAR -- */
+        /* ── HEADER BAR ── */
         .page-header {
             background: var(--card);
             border-bottom: 1px solid var(--line);
@@ -37,7 +37,7 @@
 
         .dash { max-width: 1440px; margin: 0 auto; padding: 20px 24px; }
 
-        /* -- KPI -- */
+        /* ── KPI ── */
         .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 18px; }
         @media(max-width:1100px) { .kpi-row { grid-template-columns: repeat(3, 1fr); } }
         @media(max-width:640px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } }
@@ -52,7 +52,7 @@
         .kpi-pct   { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
         .kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
 
-        /* -- GLASS CARD -- */
+        /* ── GLASS CARD ── */
         .glass {
             background: var(--card); border: 1px solid var(--line);
             border-radius: 12px; padding: 20px 24px; margin-bottom: 18px;
@@ -65,7 +65,7 @@
             display: flex; justify-content: space-between; align-items: center;
         }
 
-        /* -- AGE BAR -- */
+        /* ── AGE BAR ── */
         .age-bar { display: flex; height: 12px; border-radius: 6px; overflow: hidden; margin: 8px 0 12px; background: var(--chip); }
         .age-seg { height: 100%; transition: width .6s ease; }
         .bar-legend { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -76,7 +76,7 @@
         }
         .chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-        /* -- CONTROLS -- */
+        /* ── CONTROLS ── */
         .ctrl-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
         .ctrl-label { font-size: 13px; color: var(--muted); font-weight: 600; }
         .ctrl-select, .ctrl-input {
@@ -90,7 +90,7 @@
 
         .sep { width: 1px; height: 24px; background: var(--line); }
 
-        /* -- BUTTONS -- */
+        /* ── BUTTONS ── */
         .btn-action {
             background: var(--accent); color: #fff; border: none;
             padding: 7px 16px; border-radius: 6px; cursor: pointer;
@@ -111,7 +111,7 @@
         }
         .age-btn:hover { opacity: .85; }
 
-        /* -- TABLES -- */
+        /* ── TABLES ── */
         .tbl-wrap { overflow-x: auto; }
         .loc-tbl, .detail-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
         .loc-tbl th, .detail-tbl th {
@@ -392,7 +392,7 @@
 
 <asp:HiddenField ID="HdnSelectedLoc" runat="server" />
 
-<!-- -- STICKY HEADER -- -->
+<!-- ── STICKY HEADER ── -->
 <div class="page-header">
     <h1>&#128205; Assets by Location</h1>
     <div class="header-right">
@@ -408,7 +408,7 @@
 <div class="dash">
     <asp:Literal ID="LitMsg" runat="server" />
 
-    <!-- -- CONTROLS ROW -- -->
+    <!-- ── CONTROLS ROW ── -->
     <div class="ctrl-bar">
         <span class="ctrl-label">Site</span>
         <asp:DropDownList ID="DdlCompany" runat="server" CssClass="ctrl-select" AutoPostBack="true"
@@ -441,7 +441,7 @@
         <asp:Button ID="BtnClearSearch" runat="server" CssClass="btn-secondary" Text="Clear" OnClick="BtnClearSearch_Click" />
     </div>
 
-    <!-- -- KPI CARDS -- -->
+    <!-- ── KPI CARDS ── -->
     <div class="kpi-row">
         <div class="kpi-card">
             <div class="kpi-value" id="kv-total" style="color:var(--accent);">0</div>
@@ -468,7 +468,7 @@
         </div>
     </div>
 
-    <!-- -- AGE DISTRIBUTION BAR -- -->
+    <!-- ── AGE DISTRIBUTION BAR ── -->
     <div class="glass">
         <div class="panel-title">
             <span>Inventory Age Distribution</span>
@@ -478,7 +478,7 @@
         <div class="bar-legend" id="ageLegend"></div>
     </div>
 
-    <!-- -- LOCATION SUMMARY GRID -- -->
+    <!-- ── LOCATION SUMMARY GRID ── -->
     <div class="glass">
         <div class="panel-title">
             <span>Location Summary</span>
@@ -546,7 +546,7 @@
         </div>
     </div>
 
-    <!-- -- FILTER DETAIL PANEL (age-bucket drill-down) -- -->
+    <!-- ── FILTER DETAIL PANEL (age-bucket drill-down) ── -->
     <asp:Panel ID="PanelAssetFilterDetail" runat="server" Visible="false" CssClass="glass detail-panel">
         <div class="detail-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
             <div class="detail-title">
@@ -610,7 +610,7 @@
         </div>
     </asp:Panel>
 
-    <!-- -- LOCATION DETAIL PANEL (click a location row) -- -->
+    <!-- ── LOCATION DETAIL PANEL (click a location row) ── -->
     <asp:Panel ID="PanelAssetsDetail" runat="server" Visible="false" CssClass="glass detail-panel">
         <div class="detail-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
             <div class="detail-title">
@@ -676,7 +676,7 @@
 
 </div><!-- /dash -->
 
-<!-- ------------------ ASSET DETAIL SLIDE-OUT PANEL ------------------ -->
+<!-- ══════════════════ ASSET DETAIL SLIDE-OUT PANEL ══════════════════ -->
 <div class="asset-detail-panel" id="assetDetailPanel">
     <div class="adp-header">
         <h2><span class="adp-icon">&#128203;</span> <span id="adpTitle">Asset Detail</span></h2>
@@ -687,7 +687,7 @@
         <button type="button" class="adp-action-btn" id="adpPrintBtn" onclick="printFromAssetDetail()" style="background:color-mix(in srgb, var(--accent), transparent 88%); color:var(--accent); border-color:color-mix(in srgb, var(--accent), transparent 50%); font-weight:700;">
             &#128424; Print Label
         </button>
-        <a id="adpEditLink" href="#" target="_blank" class="adp-action-btn">&#8599; Open in iDash</a>
+        <a id="adpEditLink" href="#" target="_blank" class="adp-action-btn">&#8599; Open in AssetWorx</a>
         <a id="adpMasterLink" href="#" class="adp-action-btn">&#128203; View in Asset Master</a>
     </div>
 
@@ -708,7 +708,7 @@
     </div>
 </div>
 
-<!-- ------------------ PRINT MODAL DIALOG ------------------ -->
+<!-- ══════════════════ PRINT MODAL DIALOG ══════════════════ -->
 <div class="print-modal-overlay" id="locPrintOverlay" onclick="if(event.target===this) closeLocPrintModal()">
     <div class="print-modal-box">
         <div class="pm-head">
@@ -892,7 +892,7 @@
                     _locSortAsc = !_locSortAsc;
                 } else {
                     _locSortCol = ci;
-                    // Default: numeric/date cols start descending (big?small first), text cols ascending
+                    // Default: numeric/date cols start descending (big→small first), text cols ascending
                     _locSortAsc = (_locNumericCols.indexOf(ci) === -1 && _locDateCols.indexOf(ci) === -1);
                 }
                 // Update header visual
@@ -926,7 +926,7 @@
             });
         }
 
-        // Filter on keyup � resets to page 1
+        // Filter on keyup — resets to page 1
         filterRow.addEventListener('keyup', function () {
             var filters = [];
             filterRow.querySelectorAll('input').forEach(function (inp2) {
@@ -1093,7 +1093,7 @@
         }
     });
 
-    // -- Lightweight column filter for detail grids (no DataTables dependency) --
+    // ── Lightweight column filter for detail grids (no DataTables dependency) ──
     function initDetailFilter(id) {
         var tbl = document.getElementById(id);
         if (!tbl) return;
@@ -1158,9 +1158,9 @@
         });
     }
 
-    // --------------------------------------------------------------------------
+    // ══════════════════════════════════════════════════════════════════════════
     // DETAIL GRID CUSTOMIZABLE COLUMNS LOGIC
-    // --------------------------------------------------------------------------
+    // ══════════════════════════════════════════════════════════════════════════
     var LOC_DETAIL_COLS = [
         { key: 'col-assetid', label: 'Asset ID',       locked: true,  defaultVis: true  },
         { key: 'col-desc',    label: 'Description',    locked: false, defaultVis: true  },
@@ -1307,7 +1307,7 @@
 </script>
 
 <script type="text/javascript">
-// -- SITE PERSISTENCE (shared across Asset Master / Stats / Locations) --
+// ── SITE PERSISTENCE (shared across Asset Master / Stats / Locations) ──
 (function () {
     var SITE_KEY = 'iDash_selectedSite';
     var ddl = document.getElementById('<%= DdlCompany.ClientID %>');
@@ -1330,14 +1330,14 @@
 </script>
 
 <script type="text/javascript">
-// ------------------------------------------------------------------------------
+// ══════════════════════════════════════════════════════════════════════════════
 // ASSET DETAIL SLIDE-OUT PANEL (reuses va_asset_master.aspx API endpoints)
-// ------------------------------------------------------------------------------
+// ══════════════════════════════════════════════════════════════════════════════
 (function () {
     var _adpCurrentId = null;
     var _adpCache = {};
 
-    // -- Date formatters --
+    // ── Date formatters ──
     function fmtDate(val) {
         if (!val) return '';
         var match = String(val).match(/\/Date\((-?\d+)\)\//);
@@ -1366,7 +1366,7 @@
         return '<div class="adp-field"><label>' + label + '</label><div class="' + cls + '">' + display + '</div></div>';
     }
 
-    // -- Open panel --
+    // ── Open panel ──
     window.openAssetDetail = function (assetId, assetName) {
         _adpCurrentId = assetId;
         _adpCache = {};
@@ -1396,7 +1396,7 @@
         adpLoadCounts(assetId);
     };
 
-    // -- Close panel --
+    // ── Close panel ──
     window.closeAssetDetail = function () {
         document.getElementById('assetDetailPanel').classList.remove('open');
         document.body.classList.remove('asset-detail-open');
@@ -1404,12 +1404,12 @@
         _adpCurrentId = null;
     };
 
-    // -- Escape key closes panel --
+    // ── Escape key closes panel ──
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && _adpCurrentId) closeAssetDetail();
     });
 
-    // -- Tab switching --
+    // ── Tab switching ──
     window.adpSwitchTab = function (btn) {
         var tab = btn.getAttribute('data-tab');
         document.querySelectorAll('.adp-tab').forEach(function(t) { t.classList.remove('active'); });
@@ -1427,7 +1427,7 @@
         }
     };
 
-    // -- General Tab --
+    // ── General Tab ──
     function adpLoadGeneral(assetId) {
         var el = document.getElementById('adp-tab-general');
         el.innerHTML = '<div class="adp-loading">Loading...</div>';
@@ -1503,7 +1503,7 @@
         el.innerHTML = h;
     }
 
-    // -- Prefetch tab counts --
+    // ── Prefetch tab counts ──
     function adpLoadCounts(assetId) {
         $.getJSON('va_asset_master.aspx?api=locationhistory&id=' + assetId, function(d) {
             document.getElementById('adpBadgeLoc').textContent = d.total || 0;
@@ -1523,7 +1523,7 @@
         });
     }
 
-    // -- Location History Tab --
+    // ── Location History Tab ──
     function adpLoadLocHistory(assetId) {
         var el = document.getElementById('adp-tab-lochistory');
         var records = _adpCache.lochistory_data;
@@ -1538,7 +1538,7 @@
         el.innerHTML = html + '</tbody></table>';
     }
 
-    // -- Checkout History Tab --
+    // ── Checkout History Tab ──
     function adpLoadCheckout(assetId) {
         var el = document.getElementById('adp-tab-checkout');
         var records = _adpCache.checkout_data;
@@ -1553,7 +1553,7 @@
         el.innerHTML = html + '</tbody></table>';
     }
 
-    // -- Maintenance History Tab --
+    // ── Maintenance History Tab ──
     function adpLoadMaintenance(assetId) {
         var el = document.getElementById('adp-tab-maintenance');
         var records = _adpCache.maintenance_data;
@@ -1568,7 +1568,7 @@
         el.innerHTML = html + '</tbody></table>';
     }
 
-    // -- Children Tab --
+    // ── Children Tab ──
     function adpLoadChildren(assetId) {
         var el = document.getElementById('adp-tab-children');
         var records = _adpCache.children_data;
@@ -1583,9 +1583,9 @@
         el.innerHTML = html + '</tbody></table>';
     }
 
-    // --------------------------------------------------------------------------
+    // ══════════════════════════════════════════════════════════════════════════
     // LOCATION ASSET PRINTING LOGIC
-    // --------------------------------------------------------------------------
+    // ══════════════════════════════════════════════════════════════════════════
     var _selectedPrintAssets = [];
     var _activeGridForPrint = 'GridAssetsDetail';
 
@@ -1804,7 +1804,7 @@
         });
     };
 
-    // -- Wire up click handlers on asset grid rows --
+    // ── Wire up click handlers on asset grid rows ──
     function wireAssetRows(gridId) {
         var tbl = document.getElementById(gridId);
         if (!tbl) return;
@@ -1840,5 +1840,4 @@
 </script>
 </body>
 </html>
-
 

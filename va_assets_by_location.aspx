@@ -1,11 +1,11 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_assets_by_location.aspx.cs" Inherits="va_assets_by_location" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_assets_by_location.aspx.cs" Inherits="va_assets_by_location" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <meta charset="utf-8" />
-    <title>Assets by Location &mdash; iDash</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <title>Assets by Location &mdash; AssetWorx iDash</title>
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -483,5 +483,4 @@
 </script>
 </body>
 </html>
-
 

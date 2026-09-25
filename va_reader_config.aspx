@@ -1,11 +1,11 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_reader_config.aspx.cs" Inherits="iDash.va_reader_config" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_reader_config.aspx.cs" Inherits="iDash.va_reader_config" %>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html lang="en">
 <head runat="server">
     <meta charset="utf-8" />
     <title>Fixed Reader Configuration &mdash; iDash</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -1927,6 +1927,509 @@
             showErr('⚠ Restored ' + ok + ' reader(s), ' + fail + ' failed. Check reader connectivity.');
         }
     }
+
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SERVER MIGRATION CONFIGURATION PANEL
+════════════════════════════════════════════════════════════ -->
+<style>
+.smc-wrap{margin:28px 0 0;}
+.smc-hdr{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.smc-hdr h2{font-size:16px;font-weight:700;color:var(--text);margin:0;}
+.smc-badge{background:rgba(139,92,246,.18);color:#a78bfa;border:1px solid rgba(139,92,246,.3);border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:3px 10px;}
+.smc-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:20px;}
+.smc-tab{padding:8px 16px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;text-transform:uppercase;letter-spacing:.5px;}
+.smc-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.smc-tab:hover:not(.active){color:var(--text);}
+.smc-panel{display:none;animation:fadeIn .25s ease;}
+.smc-panel.active{display:block;}
+.smc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.smc-field{display:flex;flex-direction:column;gap:5px;}
+.smc-field label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.smc-field input{background:var(--chip);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-size:13px;font-family:monospace;width:100%;box-sizing:border-box;transition:border-color .15s;}
+.smc-field input:focus{outline:none;border-color:var(--accent);}
+.smc-field.wide{grid-column:1/-1;}
+.smc-field .hint{font-size:10px;color:var(--muted);margin-top:2px;}
+.smc-row-btns{display:flex;align-items:center;gap:10px;margin-top:16px;flex-wrap:wrap;}
+.btn-test{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:#10b981;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
+.btn-test:hover{background:rgba(16,185,129,.22);}
+.btn-save-smc{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s;}
+.btn-save-smc:hover{opacity:.85;}
+.smc-status{font-size:12px;padding:5px 12px;border-radius:6px;display:none;font-weight:500;}
+.smc-status.ok{background:rgba(16,185,129,.12);color:#10b981;border:1px solid rgba(16,185,129,.3);}
+.smc-status.err{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.3);}
+.pw-wrap{position:relative;}
+.pw-wrap input{padding-right:36px;}
+.pw-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--muted);font-size:14px;user-select:none;}
+.pw-eye:hover{color:var(--text);}
+.smc-divider{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:18px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+</style>
+
+<div class="smc-wrap" id="srvConfigWrap">
+  <div class="smc-hdr">
+    <h2>⚙ Server Migration Configuration</h2>
+    <span class="smc-badge">Admin Only</span>
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin:0 0 16px;">Edit all configuration files from one place. Changes write directly to <code>web.config</code> (iDash) and <code>appsettings.json</code> (AssetWorx backend). <strong>Saving restarts the app pool.</strong></p>
+
+  <div class="smc-tabs">
+    <div class="smc-tab active" onclick="smcTab(this,'tab-api')">AssetWorx API</div>
+    <div class="smc-tab" onclick="smcTab(this,'tab-mqtt')">MQTT / Antenna</div>
+    <div class="smc-tab" onclick="smcTab(this,'tab-smtp')">SMTP / Alerts</div>
+    <div class="smc-tab" onclick="smcTab(this,'tab-backend')">Backend DB</div>
+  </div>
+
+
+  <!-- TAB: API / OAuth -->
+  <div class="smc-panel active" id="tab-api">
+
+    <!-- ═══ SECTION 1: iDash → AssetWorx REST API ═══════════════ -->
+    <div class="oauth-section">
+      <div class="oauth-section-hdr">
+        <span class="oauth-icon">🔗</span>
+        <div>
+          <div class="oauth-section-title">iDash Web App → AssetWorx REST API</div>
+          <div class="oauth-section-desc">
+            <strong>Used by:</strong> iDash pages (Asset Master, Fixed Reader, Location reports, etc.)<br>
+            iDash uses these client credentials to get a JWT token and call the AssetWorx REST API. If <code>AuthServerUsesJwt</code> is <strong>false</strong> in appsettings.json the API accepts calls without token validation — in that case leave Client ID/Secret as-is and just verify the API Base URL is correct.
+          </div>
+        </div>
+      </div>
+      <div class="smc-grid" style="margin-top:12px;">
+        <div class="smc-field wide">
+          <label>AssetWorx API Base URL</label>
+          <input id="sc_ApiBase" placeholder="http://localhost" />
+          <span class="hint">Root URL where the AssetWorx REST API is hosted. Use <strong>http://localhost</strong> when co-hosted on the same server.</span>
+        </div>
+        <div class="smc-field wide">
+          <label>OAuth2 Token URL</label>
+          <input id="sc_TokenUrl" placeholder="http://localhost/connect/token" />
+          <span class="hint">Endpoint that issues JWT bearer tokens. Usually <code>{API Base URL}/connect/token</code>.</span>
+        </div>
+        <div class="smc-field">
+          <label>Client ID</label>
+          <input id="sc_ClientId" placeholder="e.g. fx9600_f78c85" />
+          <span class="hint">The OAuth2 client registered for this iDash instance.</span>
+        </div>
+        <div class="smc-field">
+          <label>Client Secret</label>
+          <div class="pw-wrap">
+            <input id="sc_ClientSecret" type="password" placeholder="••••••••" />
+            <span class="pw-eye" onclick="togglePw('sc_ClientSecret',this)">👁</span>
+          </div>
+          <span class="hint">Secret for the Client ID above. Stored in web.config.</span>
+        </div>
+      </div>
+      <div class="smc-row-btns" style="margin-top:10px;">
+        <button class="btn-test" onclick="testOAuth()">▶ Test OAuth + API Access</button>
+        <span class="smc-status" id="sc_oauthStatus"></span>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 2: OIDC Authority ═══════════════════════════ -->
+    <div class="oauth-section">
+      <div class="oauth-section-hdr">
+        <span class="oauth-icon">🔐</span>
+        <div>
+          <div class="oauth-section-title">AssetWorx OAuth2 / OIDC Authority</div>
+          <div class="oauth-section-desc">
+            <strong>Used by:</strong> AssetWorx backend (.NET Core API) — not by iDash directly.<br>
+            The AssetWorx API validates every incoming JWT token against this URL's OpenID Connect discovery document. If the Auth Server URL is wrong or unreachable, the AssetWorx API will return 401 Unauthorized on all calls. Set to <strong>http://localhost</strong> when HTTPS is not configured.
+          </div>
+        </div>
+      </div>
+      <div class="smc-grid" style="margin-top:12px;">
+        <div class="smc-field wide">
+          <label>Auth Server URL (OIDC Issuer)</label>
+          <input id="sc_AuthServerUrl" placeholder="http://localhost" />
+          <span class="hint">Must serve a valid discovery document at <code>{URL}/.well-known/openid-configuration</code>. Stored in <code>appsettings.json</code>.</span>
+        </div>
+      </div>
+      <div class="smc-row-btns" style="margin-top:10px;">
+        <button class="btn-test" onclick="testOidc()">▶ Test OIDC Discovery</button>
+        <span class="smc-status" id="sc_oidcStatus"></span>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 3: Label Printing Service ═══════════════════ -->
+    <div class="oauth-section">
+      <div class="oauth-section-hdr">
+        <span class="oauth-icon">🖨️</span>
+        <div>
+          <div class="oauth-section-title">RFID Label Printing — MQTT Credentials</div>
+          <div class="oauth-section-desc">
+            <strong>Used by:</strong> The RFIDPrinting service to connect to the MQTT broker and receive print jobs.<br>
+            Printing works the same way as fixed readers — over MQTT. When a print job is triggered, a message is published to the MQTT broker. The RFIDPrinting service subscribes using these credentials to pick up the job. If these are wrong, the print service cannot receive jobs. Stored in <code>appsettings.json</code>.
+          </div>
+        </div>
+      </div>
+      <div class="smc-grid" style="margin-top:12px;">
+        <div class="smc-field">
+          <label>MQTT Username (Print Client)</label>
+          <input id="sc_PrintUser" placeholder="MasterPrint" />
+        </div>
+        <div class="smc-field">
+          <label>MQTT Password (Print Client)</label>
+          <div class="pw-wrap">
+            <input id="sc_PrintPass" type="password" placeholder="••••••••" />
+            <span class="pw-eye" onclick="togglePw('sc_PrintPass',this)">👁</span>
+          </div>
+        </div>
+      </div>
+      <div class="smc-row-btns" style="margin-top:10px;">
+        <button class="btn-test" onclick="testConn('mqtt','sc_printStatus')">▶ Test MQTT Broker (print credentials)</button>
+        <span class="smc-status" id="sc_printStatus"></span>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION 4: iDash SQL Database ═══════════════════════ -->
+    <div class="oauth-section" style="border-bottom:none;margin-bottom:0;padding-bottom:0;">
+      <div class="oauth-section-hdr">
+        <span class="oauth-icon">🗄️</span>
+        <div>
+          <div class="oauth-section-title">iDash Direct SQL Database</div>
+          <div class="oauth-section-desc">
+            <strong>Used by:</strong> iDash pages that query the AssetWorx SQL database directly (reports, exports, DBUpdate Workbench).<br>
+            This is a direct ADO.NET connection string — separate from the REST API. If incorrect, SQL-backed pages will fail. The database <em>server</em> and credentials are also configured in <code>appsettings.json</code> for the AssetWorx API.
+          </div>
+        </div>
+      </div>
+      <div class="smc-grid" style="margin-top:12px;">
+        <div class="smc-field wide">
+          <label>iDash SQL Connection String</label>
+          <input id="sc_ConnStr" placeholder="Data Source=SERVER\SQLEXPRESS;Database=AssetWorx;User Id=...;Password=..." />
+          <span class="hint">Stored in <code>web.config</code> ConnectionStrings. Change server name here when migrating to a new SQL host.</span>
+        </div>
+      </div>
+      <div class="smc-row-btns" style="margin-top:10px;">
+        <button class="btn-test" onclick="testConn('db','sc_dbConnStatus')">▶ Test SQL Connection</button>
+        <span class="smc-status" id="sc_dbConnStatus"></span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB: MQTT / Antenna -->
+  <div class="smc-panel" id="tab-mqtt">
+    <div class="smc-divider">iDash MQTT Subscriber (web.config)</div>
+    <div class="smc-grid">
+      <div class="smc-field">
+        <label>MQTT Broker Host</label>
+        <input id="sc_MqttServer_iDash" placeholder="127.0.0.1" />
+      </div>
+      <div class="smc-field">
+        <label>MQTT Port</label>
+        <input id="sc_MqttPort_iDash" placeholder="8883" />
+      </div>
+      <div class="smc-field">
+        <label>MQTT Username</label>
+        <input id="sc_MqttUser_iDash" placeholder="idash_antenna" />
+      </div>
+      <div class="smc-field">
+        <label>MQTT Password</label>
+        <div class="pw-wrap">
+          <input id="sc_MqttPass_iDash" type="password" placeholder="••••••••" />
+          <span class="pw-eye" onclick="togglePw('sc_MqttPass_iDash',this)">👁</span>
+        </div>
+      </div>
+      <div class="smc-field wide">
+        <label>Tag Observation Topic</label>
+        <input id="sc_MqttTopic" placeholder="awrx/7/tagobservation" />
+        <span class="hint">Topic filter for incoming RFID tag reads. The site company ID is embedded (e.g. <code>awrx/7/tagobservation</code> for site 7).</span>
+      </div>
+      <div class="smc-field">
+        <label>Tag Debounce (seconds)</label>
+        <input id="sc_Debounce" placeholder="5" />
+        <span class="hint">Minimum seconds between repeat tag reads counted as a new event.</span>
+      </div>
+      <div class="smc-field">
+        <label>Reader Cache (minutes)</label>
+        <input id="sc_CacheMin" placeholder="5" />
+      </div>
+    </div>
+    <div class="smc-row-btns">
+      <button class="btn-test" onclick="testConn('mqtt','sc_mqttStatus')">▶ Test MQTT Broker</button>
+      <span class="smc-status" id="sc_mqttStatus"></span>
+    </div>
+    <div class="smc-divider">AssetWorx Backend MQTT (appsettings.json)</div>
+    <div class="smc-grid">
+      <div class="smc-field">
+        <label>MQTT Server</label>
+        <input id="sc_MqttServer_aw" placeholder="localhost" />
+      </div>
+      <div class="smc-field">
+        <label>MQTT Port</label>
+        <input id="sc_MqttPort_aw" placeholder="8883" />
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: SMTP / Alerts -->
+  <div class="smc-panel" id="tab-smtp">
+    <div class="smc-divider">Email / SMTP (web.config)</div>
+    <div class="smc-grid">
+      <div class="smc-field">
+        <label>SMTP Host</label>
+        <input id="sc_SmtpHost" placeholder="smtp.office365.com" />
+      </div>
+      <div class="smc-field">
+        <label>SMTP Port</label>
+        <input id="sc_SmtpPort" placeholder="587" />
+      </div>
+      <div class="smc-field">
+        <label>SMTP Username</label>
+        <input id="sc_SmtpUser" placeholder="you@domain.com" />
+      </div>
+      <div class="smc-field">
+        <label>SMTP Password</label>
+        <div class="pw-wrap">
+          <input id="sc_SmtpPass" type="password" placeholder="••••••••" />
+          <span class="pw-eye" onclick="togglePw('sc_SmtpPass',this)">👁</span>
+        </div>
+      </div>
+      <div class="smc-field">
+        <label>From Email</label>
+        <input id="sc_SmtpFrom" placeholder="noreply@domain.com" />
+      </div>
+      <div class="smc-field">
+        <label>Email Recipients</label>
+        <input id="sc_EmailRecip" placeholder="user@domain.com" />
+        <span class="hint">Comma-separated list for report/alert emails.</span>
+      </div>
+    </div>
+    <div class="smc-row-btns">
+      <button class="btn-test" onclick="testConn('smtp','sc_smtpStatus')">▶ Test SMTP (sends test email)</button>
+      <span class="smc-status" id="sc_smtpStatus"></span>
+    </div>
+  </div>
+
+  <!-- TAB: Backend DB -->
+  <div class="smc-panel" id="tab-backend">
+    <div class="smc-divider">AssetWorx SQL Database (appsettings.json)</div>
+    <div class="smc-grid">
+      <div class="smc-field">
+        <label>SQL Server Hostname</label>
+        <input id="sc_DbHostname" placeholder="SERVERNAME\\SQLEXPRESS" />
+        <span class="hint">Server\Instance format e.g. <code>LingCod\SQLEXPRESS</code></span>
+      </div>
+      <div class="smc-field">
+        <label>Database Name</label>
+        <input id="sc_DbName" placeholder="assetworx" />
+      </div>
+      <div class="smc-field">
+        <label>DB Username</label>
+        <input id="sc_DbUsername" placeholder="assetworxadmin" />
+      </div>
+      <div class="smc-field">
+        <label>DB Password</label>
+        <div class="pw-wrap">
+          <input id="sc_DbPassword" type="password" placeholder="••••••••" />
+          <span class="pw-eye" onclick="togglePw('sc_DbPassword',this)">👁</span>
+        </div>
+      </div>
+    </div>
+    <div class="smc-divider">AssetWorx Print Client (appsettings.json)</div>
+    <div class="smc-grid">
+      <div class="smc-field">
+        <label>Print Client Username</label>
+        <input id="sc_PrintUser" placeholder="MasterPrint" />
+      </div>
+      <div class="smc-field">
+        <label>Print Client Password</label>
+        <div class="pw-wrap">
+          <input id="sc_PrintPass" type="password" placeholder="••••••••" />
+          <span class="pw-eye" onclick="togglePw('sc_PrintPass',this)">👁</span>
+        </div>
+      </div>
+    </div>
+    <div class="smc-row-btns">
+      <button class="btn-test" onclick="testConn('db','sc_dbStatus')">▶ Test iDash DB Connection</button>
+      <span class="smc-status" id="sc_dbStatus"></span>
+    </div>
+  </div>
+
+  <!-- Save Footer -->
+  <div style="display:flex;align-items:center;gap:14px;margin-top:22px;padding-top:18px;border-top:1px solid var(--border);">
+    <button class="btn-save-smc" onclick="saveServerConfig()">💾 Save All Configuration</button>
+    <span class="smc-status" id="sc_saveStatus" style="display:none;"></span>
+    <span style="font-size:11px;color:var(--muted);">Saving will recycle the IIS app pool and reconnect MQTT.</span>
+  </div>
+</div>
+
+<script>
+// ── Server Migration Config ──
+(function(){
+    function pageUrl(api){ return location.pathname + '?api=' + api; }
+
+    // Load all settings on page load
+    fetch(pageUrl('get_server_config'))
+        .then(r => r.json())
+        .then(d => {
+            var w = d.webconfig || {}, a = d.appsettings || {};
+            setValue('sc_ApiBase',          w.ApiBase);
+            setValue('sc_TokenUrl',         w.TokenUrl);
+            setValue('sc_ClientId',         w.ClientId);
+            setValue('sc_ClientSecret',     w.ClientSecret);
+            setValue('sc_ConnStr',          w.ConnStr);
+            setValue('sc_MqttServer_iDash', w.MqttServer);
+            setValue('sc_MqttPort_iDash',   w.MqttPort);
+            setValue('sc_MqttUser_iDash',   w.MqttUser);
+            setValue('sc_MqttPass_iDash',   w.MqttPass);
+            setValue('sc_MqttTopic',        w.MqttTopic);
+            setValue('sc_Debounce',         w.Debounce);
+            setValue('sc_CacheMin',         w.CacheMin);
+            setValue('sc_SmtpHost',         w.SmtpHost);
+            setValue('sc_SmtpPort',         w.SmtpPort);
+            setValue('sc_SmtpUser',         w.SmtpUser);
+            setValue('sc_SmtpPass',         w.SmtpPass);
+            setValue('sc_SmtpFrom',         w.SmtpFrom);
+            setValue('sc_EmailRecip',       w.EmailRecip);
+            setValue('sc_AuthServerUrl',    a.AuthServerUrl);
+            setValue('sc_MqttServer_aw',    a.MqttServer);
+            setValue('sc_MqttPort_aw',      a.MqttPort);
+            setValue('sc_DbHostname',       a.DbHostname);
+            setValue('sc_DbName',           a.DbName);
+            setValue('sc_DbUsername',       a.DbUsername);
+            setValue('sc_DbPassword',       a.DbPassword);
+            setValue('sc_PrintUser',        a.PrintUser);
+            setValue('sc_PrintPass',        a.PrintPass);
+        })
+        .catch(function(e){ console.warn('Server config load error', e); });
+
+    function setValue(id, val){
+        var el = document.getElementById(id);
+        if (el && val !== undefined && val !== null) el.value = val;
+    }
+
+    window.smcTab = function(tab, panelId) {
+        document.querySelectorAll('.smc-tab').forEach(function(t){ t.classList.remove('active'); });
+        document.querySelectorAll('.smc-panel').forEach(function(p){ p.classList.remove('active'); });
+        tab.classList.add('active');
+        document.getElementById(panelId).classList.add('active');
+    };
+
+    window.togglePw = function(id, eye) {
+        var inp = document.getElementById(id);
+        if (inp.type === 'password') { inp.type = 'text'; eye.textContent = '🙈'; }
+        else { inp.type = 'password'; eye.textContent = '👁'; }
+    };
+
+    window.testConn = function(type, statusId) {
+        var el = document.getElementById(statusId);
+        el.className = 'smc-status'; el.textContent = 'Testing…'; el.style.display = 'inline-block';
+        fetch(pageUrl('test_connection') + '&type=' + type)
+            .then(r => r.json())
+            .then(d => {
+                el.className = 'smc-status ' + (d.ok ? 'ok' : 'err');
+                el.textContent = d.msg || (d.ok ? 'OK' : 'Failed');
+                el.style.display = 'inline-block';
+            })
+            .catch(function(e){ el.className='smc-status err'; el.textContent='Request failed: '+e; el.style.display='inline-block'; });
+    };
+
+    // Test OAuth with live form values (doesn't use saved config — tests what you just typed)
+    window.testOAuth = function() {
+        var el = document.getElementById('sc_oauthStatus');
+        el.className = 'smc-status'; el.textContent = 'Testing OAuth…'; el.style.display = 'inline-block';
+        var params = '&tokenUrl=' + encodeURIComponent(gv('sc_TokenUrl')) +
+                     '&clientId=' + encodeURIComponent(gv('sc_ClientId')) +
+                     '&clientSecret=' + encodeURIComponent(gv('sc_ClientSecret')) +
+                     '&apiBase=' + encodeURIComponent(gv('sc_ApiBase'));
+        fetch(pageUrl('test_oauth') + params)
+            .then(r => r.json())
+            .then(d => {
+                el.className = 'smc-status ' + (d.ok ? 'ok' : 'err');
+                el.textContent = d.msg || (d.ok ? 'OK' : 'Failed');
+                el.style.display = 'inline-block';
+            })
+            .catch(function(e){ el.className='smc-status err'; el.textContent='Request failed: '+e; el.style.display='inline-block'; });
+    };
+
+    // Test OIDC discovery endpoint
+    window.testOidc = function() {
+        var el = document.getElementById('sc_oidcStatus');
+        el.className = 'smc-status'; el.textContent = 'Testing OIDC…'; el.style.display = 'inline-block';
+        var params = '&authUrl=' + encodeURIComponent(gv('sc_AuthServerUrl'));
+        fetch(pageUrl('test_oidc') + params)
+            .then(r => r.json())
+            .then(d => {
+                el.className = 'smc-status ' + (d.ok ? 'ok' : 'err');
+                el.textContent = d.msg || (d.ok ? 'OK' : 'Failed');
+                el.style.display = 'inline-block';
+            })
+            .catch(function(e){ el.className='smc-status err'; el.textContent='Request failed: '+e; el.style.display='inline-block'; });
+    };
+
+    // Test print service with live credentials
+    window.testPrint = function() {
+        var el = document.getElementById('sc_printStatus');
+        el.className = 'smc-status'; el.textContent = 'Testing print service…'; el.style.display = 'inline-block';
+        var params = '&printUser=' + encodeURIComponent(gv('sc_PrintUser')) +
+                     '&printPass=' + encodeURIComponent(gv('sc_PrintPass'));
+        fetch(pageUrl('test_print') + params)
+            .then(r => r.json())
+            .then(d => {
+                el.className = 'smc-status ' + (d.ok ? 'ok' : 'err');
+                el.textContent = d.msg || (d.ok ? 'OK' : 'Failed');
+                el.style.display = 'inline-block';
+            })
+            .catch(function(e){ el.className='smc-status err'; el.textContent='Request failed: '+e; el.style.display='inline-block'; });
+    };
+
+    window.saveServerConfig = function() {
+        var el = document.getElementById('sc_saveStatus');
+        el.className = 'smc-status'; el.textContent = 'Saving…'; el.style.display = 'inline-block';
+
+        var payload = {
+            ApiBase:          gv('sc_ApiBase'),
+            TokenUrl:         gv('sc_TokenUrl'),
+            ClientId:         gv('sc_ClientId'),
+            ClientSecret:     gv('sc_ClientSecret'),
+            ConnStr:          gv('sc_ConnStr'),
+            MqttServer_iDash: gv('sc_MqttServer_iDash'),
+            MqttPort_iDash:   gv('sc_MqttPort_iDash'),
+            MqttUser_iDash:   gv('sc_MqttUser_iDash'),
+            MqttPass_iDash:   gv('sc_MqttPass_iDash'),
+            MqttTopic:        gv('sc_MqttTopic'),
+            Debounce:         gv('sc_Debounce'),
+            CacheMin:         gv('sc_CacheMin'),
+            SmtpHost:         gv('sc_SmtpHost'),
+            SmtpPort:         gv('sc_SmtpPort'),
+            SmtpUser:         gv('sc_SmtpUser'),
+            SmtpPass:         gv('sc_SmtpPass'),
+            SmtpFrom:         gv('sc_SmtpFrom'),
+            EmailRecip:       gv('sc_EmailRecip'),
+            AuthServerUrl:    gv('sc_AuthServerUrl'),
+            MqttServer_aw:    gv('sc_MqttServer_aw'),
+            MqttPort_aw:      gv('sc_MqttPort_aw'),
+            DbHostname:       gv('sc_DbHostname'),
+            DbName:           gv('sc_DbName'),
+            DbUsername:       gv('sc_DbUsername'),
+            DbPassword:       gv('sc_DbPassword'),
+            PrintUser:        gv('sc_PrintUser'),
+            PrintPass:        gv('sc_PrintPass')
+        };
+
+        fetch(pageUrl('save_server_config'), {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(d => {
+            el.className = 'smc-status ' + (d.ok ? 'ok' : 'err');
+            el.textContent = d.ok ? (d.msg || 'Saved!') : (d.error || 'Error');
+            el.style.display = 'inline-block';
+            if (d.ok) showOk(d.msg || 'Configuration saved.');
+            else showErr(d.error || 'Save failed.');
+        })
+        .catch(function(e){ el.className='smc-status err'; el.textContent='Request failed'; el.style.display='inline-block'; showErr('Save request failed: '+e); });
+    };
+
+    function gv(id){ var el=document.getElementById(id); return el ? el.value : ''; }
+})();
 </script>
 </body>
 </html>

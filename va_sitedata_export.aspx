@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_sitedata_export.aspx.cs" Inherits="iDash.va_sitedata_export" ResponseEncoding="utf-8" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_sitedata_export.aspx.cs" Inherits="iDash.va_sitedata_export" ResponseEncoding="utf-8" %>
 <%-- Smart Merge v2.1 --%>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
@@ -6,13 +6,13 @@
 <head runat="server">
     <meta charset="utf-8" />
     <title>Cart Data &amp; Synchronization Hub &mdash; iDash</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <meta name="description" content="Unified cross-cart data synchronization, cloning, and export hub for iDash carts." />
+    <meta name="description" content="Unified cross-cart data synchronization, cloning, and export hub for iDash and AssetWorx carts." />
     <style>
         * { box-sizing: border-box; }
         body {
@@ -340,9 +340,8 @@
          SIDEBAR
          ==================================================== -->
     <aside class="side">
-        <div class="side-logo" style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-            <img src="<%= ResolveUrl("~/Assets/branding/IDIntegration.jpg") %>" alt="ID Integration Inc." style="height:24px; width:auto; border-radius:3px;" />
-            <span style="font-weight:700; font-size:16px; color:var(--text);">iDash</span>
+        <div class="side-logo">
+            <img src="<%= ResolveUrl("~/Assets/branding/assetworx.jpg") %>" alt="AssetWorx" />
         </div>
         <h1>&#128257; Cart Data &amp; Sync</h1>
         <div class="sub">Unified cross-cart data synchronization &amp; export hub</div>
@@ -590,7 +589,7 @@
         </div>
 
         <div style="text-align:center; color:var(--muted); font-size:12px; margin-top:14px; padding-bottom:40px;">
-            Intelligent Distributed Asset Scanning Hub &mdash; Site Data Export / Import &copy; 2026
+            VA Asset Intelligence Hub &mdash; Site Data Export / Import &copy; 2026
         </div>
         <idash:Footer runat="server" />
     </main>

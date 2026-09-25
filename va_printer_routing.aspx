@@ -2,8 +2,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head runat="server">
-    <title>Master Printer Routing Manager &mdash; iDash</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <title>Master Printer Routing Manager</title>
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />

@@ -1,12 +1,12 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_data_research.aspx.cs" Inherits="va_data_research" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_data_research.aspx.cs" Inherits="va_data_research" %>
     <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 
         <!DOCTYPE html>
         <html xmlns="http://www.w3.org/1999/xhtml">
 
         <head runat="server">
-            <title>VA Tagging Team Data Research &mdash; iDash</title>
-            <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+            <title>VA Tagging Team Data Research</title>
+            <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
             <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
 
@@ -387,17 +387,17 @@
                         <a href="documentation/va_data_research.html" class="btn btn-ghost btn-sm" style="text-decoration:none; font-size:12px;">&#128214; View Docs</a> <a href="index.aspx" class="nav-pill nav-pill-ghost">&#8962; Hub</a>
                     </div>
 
-                    <div class="aw-header-brand" style="display:flex; align-items:center; gap:8px;">
-                        <img src="<%= ResolveUrl("~/Assets/branding/IDIntegration.jpg") %>" style="height:20px; width:auto; border-radius:3px;" alt="ID Integration Inc." />
-                        <span class="aw-header-text" style="font-weight:700; font-size:14px;">iDash<span class="bang" style="color:var(--accent);">.</span></span>
-                        <span class="aw-header-copy" style="font-size:11px; color:var(--muted); font-style:italic;">by ID Integration Inc.</span>
+                    <div class="aw-header-brand">
+                        <img src="<%= ResolveUrl("~/Assets/branding/assetworx.jpg") %>" class="aw-header-logo" />
+                        <span class="aw-header-text">AssetWorx<span class="bang">!</span> <span
+                                class="aw-header-copy">by InfinID Technologies</span></span>
                     </div>
 
                     <!-- ==========================================================
                  SECTION 1 -- EXCEL UPLOAD + DATATABLES
             ========================================================== -->
                     <div class="card">
-                        <h2>VA Excel + iDash Data Research Tool</h2>
+                        <h2>VA Excel + AssetWorx! Data Research Tool</h2>
 
                         <div style="color:var(--muted); margin-bottom:8px;">Select Excel File to Load:</div>
                         <asp:FileUpload ID="FileUploadExcel" runat="server" CssClass="file-upload" />

@@ -1,10 +1,10 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_license_activation.aspx.cs" Inherits="va_license_activation" ResponseEncoding="utf-8" EnableEventValidation="false" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_license_activation.aspx.cs" Inherits="va_license_activation" ResponseEncoding="utf-8" EnableEventValidation="false" %>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>iDash Software Activation &mdash; Intelligent Distributed Asset Scanning Hub</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <title>iDash Software Activation &mdash; VA Asset Intelligence Hub</title>
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -93,7 +93,7 @@
     <div class="header">
         <div class="title-group">
             <h1>&#128273; iDash Software Activation</h1>
-            <p>Cryptographic License Management for Intelligent Distributed Asset Scanning Hub</p>
+            <p>Cryptographic License Management for VA Asset Intelligence Hub</p>
         </div>
         <div class="header-actions">
             <button type="button" class="nav-pill" onclick="location.reload()">&#8635; Refresh</button>
@@ -189,7 +189,7 @@
                 <asp:TextBox ID="TxtProductKey" runat="server" placeholder="IDASH-XXXX-XXXX-XXXX-XXXX" style="margin-bottom:12px;" />
 
                 <label style="font-size:12px; font-weight:700; display:block; margin-bottom:6px;">Licensing Server URL (Optional Override):</label>
-                <asp:TextBox ID="TxtServerUrl" runat="server" Text="https://licensing.idash-rfid.com" style="margin-bottom:16px;" />
+                <asp:TextBox ID="TxtServerUrl" runat="server" Text="https://licensing.assetworx-idash.com" style="margin-bottom:16px;" />
 
                 <asp:Button ID="BtnApplyOnline" runat="server" Text="&#127760; Connect &amp; Activate Online" CssClass="btn primary" OnClick="BtnApplyOnline_Click" />
             </div>

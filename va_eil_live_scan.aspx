@@ -5,8 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="description" content="EIL Live Scan & Reconciliation &mdash; mobile RFID and barcode CMR asset reconciliation scanner with automated database commitment for Zebra handhelds and web clients." />
-    <title>EIL Live Scan &amp; Reconciliation &mdash; iDash</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <title>EIL Live Scan &amp; Reconciliation &mdash; AssetWorx</title>
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -759,7 +759,7 @@
             <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:16px;">
                 <div>
                     <label class="lbl" style="display:block; margin-bottom:4px; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase;">Username</label>
-                    <input type="text" id="txtLoginUser" class="txt" style="width:100%;" placeholder="e.g. gary or idashadmin" autocomplete="username" />
+                    <input type="text" id="txtLoginUser" class="txt" style="width:100%;" placeholder="e.g. gary or assetworxadmin" autocomplete="username" />
                 </div>
                 <div>
                     <label class="lbl" style="display:block; margin-bottom:4px; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase;">Password</label>
@@ -1773,7 +1773,7 @@
         }
 
         if (kind === 'commit') {
-            if (!confirm(`Commit ${totalAssets} scanned asset(s) across ${totalLocations} location(s) to the iDash database?`)) {
+            if (!confirm(`Commit ${totalAssets} scanned asset(s) across ${totalLocations} location(s) to the AssetWorx database?`)) {
                 return false;
             }
         }
@@ -1905,4 +1905,3 @@
 
 </body>
 </html>
-

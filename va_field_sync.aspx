@@ -1,11 +1,11 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_field_sync.aspx.cs" Inherits="va_field_sync" ResponseEncoding="utf-8" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_field_sync.aspx.cs" Inherits="va_field_sync" ResponseEncoding="utf-8" %>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
 <meta charset="utf-8" />
 <title>Field Sync &mdash; iDash</title>
-<link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+<link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
 <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -156,7 +156,7 @@ input[type=text]:focus{border-color:var(--accent);}
         <asp:Literal ID="LitBakFiles" runat="server" />
         <div style="margin-top:14px;">
             <div style="font-size:13px; color:var(--muted); margin-bottom:6px;">Or enter a full path manually:</div>
-            <asp:TextBox ID="TxtBakPath" runat="server" placeholder="e.g. C:\VA_RFID\va_sync\incoming\idash_20260423.bak" />
+            <asp:TextBox ID="TxtBakPath" runat="server" placeholder="e.g. C:\VA_RFID\va_sync\incoming\assetworx_20260423.bak" />
             <asp:Button ID="BtnCopyToWatch" runat="server" Text="Copy to Watch Folder" OnClick="BtnCopyToWatch_Click"
                 style="margin-top:6px; padding:6px 14px; background:rgba(59,130,246,0.12); border:1px solid rgba(59,130,246,0.3); border-radius:6px; color:#3b82f6; font-size:12px; font-weight:600; cursor:pointer;" />
             <div style="font-size:11px; color:var(--muted); margin-top:6px; line-height:1.6;">
@@ -170,26 +170,26 @@ input[type=text]:focus{border-color:var(--accent);}
     <div class="panel">
         <div class="ptitle">&#9881; Staging Database Settings</div>
         <div class="psub">
-            The <code>.bak</code> is restored to <code>idash_staging</code> on this server.
+            The <code>.bak</code> is restored to <code>assetworx_staging</code> on this server.
             SQL Server must have write access to the staging file path below.
         </div>
         <table style="width:100%; font-size:13px;">
             <tr>
                 <td style="width:220px; color:var(--muted); padding:6px 0; font-weight:600;">Staging DB Name</td>
-                <td><code>idash_staging</code> (fixed)</td>
+                <td><code>assetworx_staging</code> (fixed)</td>
             </tr>
             <tr>
                 <td style="color:var(--muted); padding:6px 0; font-weight:600;">Staging MDF Path</td>
                 <td>
                     <asp:TextBox ID="TxtStagingMdf" runat="server"
-                        placeholder="C:\VA_RFID\va_sync\staging_db\idash_staging.mdf" />
+                        placeholder="C:\VA_RFID\va_sync\staging_db\assetworx_staging.mdf" />
                 </td>
             </tr>
             <tr>
                 <td style="color:var(--muted); padding:6px 0; font-weight:600;">Staging LDF Path</td>
                 <td>
                     <asp:TextBox ID="TxtStagingLdf" runat="server"
-                        placeholder="C:\VA_RFID\va_sync\staging_db\idash_staging_log.ldf" />
+                        placeholder="C:\VA_RFID\va_sync\staging_db\assetworx_staging_log.ldf" />
                 </td>
             </tr>
         </table>
@@ -229,7 +229,7 @@ input[type=text]:focus{border-color:var(--accent);}
                 <div style="text-align:center;">
                     <asp:Button ID="BtnRestoreOnlyMain" runat="server" CssClass="btn"        Text="Restore BAK Only"           OnClick="BtnRestoreOnly_Click" style="width:100%;" />
                     <div style="font-size:11px; color:var(--muted); margin-top:6px; line-height:1.5;">
-                        <strong>Restore only &mdash; no data changes.</strong> Loads the .bak into <code>idash_staging</code> so you can inspect the data or run Preview before merging.
+                        <strong>Restore only &mdash; no data changes.</strong> Loads the .bak into <code>assetworx_staging</code> so you can inspect the data or run Preview before merging.
                     </div>
                 </div>
                 <div style="text-align:center;">

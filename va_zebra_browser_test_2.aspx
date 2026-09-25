@@ -1,10 +1,10 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_zebra_browser_test_2.aspx.cs" Inherits="va_zebra_browser_test_2" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_zebra_browser_test_2.aspx.cs" Inherits="va_zebra_browser_test_2" %>
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
     <title>RFID Scan Capture -- VA iDash</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />

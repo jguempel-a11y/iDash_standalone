@@ -3,8 +3,8 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>Tag Type Print Mapping &mdash; iDash</title>
-            <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <title>Tag Type Print Mapping</title>
+            <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
             <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -49,7 +49,18 @@
             <div class="bucket-row" style="margin-top:20px;">
                 <div class="filter">
                     <label>Tag Type String</label>
-                    <asp:TextBox ID="TxtTagType" runat="server" placeholder="e.g. Small_Standard" />
+                    <asp:TextBox ID="TxtTagType" runat="server" placeholder="e.g. Small_Metal" list="tagTypesList" />
+                    <datalist id="tagTypesList">
+                        <option value="IQ350" />
+                        <option value="Large_Metal" />
+                        <option value="Small_Metal" />
+                        <option value="Small_Standard" />
+                    </datalist>
+                    <div style="display:flex; gap:4px; margin-top:4px;">
+                        <button type="button" class="btn btn-sm" onclick="document.getElementById('<%= TxtTagType.ClientID %>').value='IQ350'">IQ350</button>
+                        <button type="button" class="btn btn-sm" onclick="document.getElementById('<%= TxtTagType.ClientID %>').value='Large_Metal'">Large_Metal</button>
+                        <button type="button" class="btn btn-sm" onclick="document.getElementById('<%= TxtTagType.ClientID %>').value='Small_Metal'">Small_Metal</button>
+                    </div>
                 </div>
                 <div class="filter">
                     <label>Print Template</label>

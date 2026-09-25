@@ -1,10 +1,10 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_excel_print.aspx.cs" Inherits="va_excel_print" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_excel_print.aspx.cs" Inherits="va_excel_print" %>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>iDash &mdash; Excel Equipment Import &amp; Print</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -69,7 +69,7 @@
         <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:6px;">
             <div>
                 <div class="page-title">&#128218; Excel Equipment Import &amp; Print</div>
-                <div class="page-sub">Auto-detects <code>C:\va_rfid\excel_data\equipment.xlsx</code> or browse to any <code>.xlsx</code> file &mdash; select rows, pick a label template, then import into iDash and/or print.</div>
+                <div class="page-sub">Auto-detects <code>C:\va_rfid\excel_data\equipment.xlsx</code> or browse to any <code>.xlsx</code> file &mdash; select rows, pick a label template, then import into AssetWorx and/or print.</div>
             </div>
             <a href="index.aspx" class="btn btn-ghost" style="font-size:12px;">&#8962; Hub</a>
         </div>
@@ -305,7 +305,7 @@ function previewSelectedExcelRow() {
     var cmr = cells[13] ? cells[13].textContent.trim() : '';
 
     var ddlTpl = document.getElementById('<%= DdlTemplate.ClientID %>');
-    var tplPath = ddlTpl && ddlTpl.value ? ddlTpl.value : 'c:\\idash_prints\\iDash_Std_Small.btw';
+    var tplPath = ddlTpl && ddlTpl.value ? ddlTpl.value : 'c:\\assetworx_prints\\AW_Std_Small.btw';
 
     openExcelPreviewModal(assetName, eqName || (mfr + ' ' + model), serial, cmr, tplPath);
 }
@@ -340,15 +340,15 @@ async function openExcelPreviewModal(name, desc, sn, cmr, tpl) {
         loader.style.display = 'none';
         body.style.display = 'block';
 
-        if ((data.Success || data.success) && (data.ImageBase64 || data.imageBase64)) {
-            img.src = 'data:image/png;base64,' + (data.ImageBase64 || data.imageBase64);
+        if (data.Success && data.ImageBase64) {
+            img.src = 'data:image/png;base64,' + data.ImageBase64;
             meta.innerHTML = 
                 '<div><strong>Template:</strong> ' + tpl + '</div>' +
                 '<div><strong>Asset:</strong> ' + (name || 'N/A') + ' &bull; <strong>S/N:</strong> ' + (sn || 'N/A') + ' &bull; <strong>CMR:</strong> ' + (cmr || 'N/A') + '</div>' +
-                '<div><strong>Discovered Fields:</strong> ' + ((data.DiscoveredFields || data.discoveredFields || []).join(', ') || 'None') + '</div>';
+                '<div><strong>Discovered Fields:</strong> ' + (data.DiscoveredFields ? data.DiscoveredFields.join(', ') : 'None') + '</div>';
         } else {
             img.src = '';
-            meta.innerHTML = '<span style="color:var(--danger);font-weight:600;">&#9888; BarTender Engine Error: ' + (data.error || data.ErrorMessage || 'Could not render preview') + '</span>';
+            meta.innerHTML = '<span style="color:var(--danger);font-weight:600;">&#9888; BarTender Engine Error: ' + (data.ErrorMessage || 'Could not render preview') + '</span>';
         }
     } catch (err) {
         loader.style.display = 'none';

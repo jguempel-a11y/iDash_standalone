@@ -3,8 +3,8 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <meta charset="utf-8" />
-    <title>MQTT Configuration &mdash; iDash</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <title>MQTT Configuration &mdash; AssetWorx iDash</title>
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -202,7 +202,10 @@
 
         <div class="two-col">
             <div>
-                <div class="panel-title" style="font-size:11px; margin-bottom:12px;">Database Settings (applicationsetting)</div>
+                <div class="panel-title" style="font-size:12px; margin-bottom:4px; font-weight:700;">📡 RFID &amp; Sensor Gateway (Database)</div>
+                <div style="font-size:11px; color:var(--muted); margin-bottom:12px; line-height:1.4;">
+                    Stored in <code>applicationsetting</code> table. Used by the background Gateway service for RFID antennas, readers, and telemetry.
+                </div>
                 <div class="form-group">
                     <label>Broker Location</label>
                     <asp:TextBox ID="TxtBrokerLocation" runat="server" CssClass="ctrl-input" placeholder="e.g., Web Server or localhost" />
@@ -219,7 +222,10 @@
                 </div>
             </div>
             <div>
-                <div class="panel-title" style="font-size:11px; margin-bottom:12px;">App Settings (appsettings.json)</div>
+                <div class="panel-title" style="font-size:12px; margin-bottom:4px; font-weight:700;">🖨️ Print Server &amp; MQTT Broker (Web Application)</div>
+                <div style="font-size:11px; color:var(--muted); margin-bottom:12px; line-height:1.4;">
+                    Stored in <code>appsettings.json</code>. Used by iDash and the AssetWorx Print Server to dispatch label print jobs.
+                </div>
                 <div class="form-grid">
                     <div class="form-group">
                         <label>MQTT Server</label>
@@ -256,7 +262,11 @@
 
         <div class="btn-bar">
             <asp:Button ID="BtnSaveSettings" runat="server" CssClass="btn-primary"
-                Text="&#128190; Save Settings" OnClick="BtnSaveSettings_Click" />
+                Text="💾 Save Settings" OnClick="BtnSaveSettings_Click" />
+            <asp:Button ID="BtnTestMqtt" runat="server" CssClass="btn-secondary"
+                Text="🔌 Test Broker Connection" OnClick="BtnTestMqtt_Click" />
+            <asp:Button ID="BtnLoadDefaults" runat="server" CssClass="btn-secondary" style="border-color:#10b981; color:#10b981;"
+                Text="⚡ Load VA Production Defaults" OnClick="BtnLoadDefaults_Click" />
         </div>
     </div>
 
@@ -355,4 +365,3 @@
 </script>
 </body>
 </html>
-

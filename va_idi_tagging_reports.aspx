@@ -4,8 +4,8 @@
 <html lang="en">
 <head runat="server">
     <meta charset="utf-8" />
-    <title>IDI Tagging Data Reports &mdash; iDash</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <title>IDI Tagging Data Reports</title>
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -281,7 +281,7 @@
                 <div>
                     <a href="index.aspx" class="nav-pill nav-pill-ghost">&#8962; Hub</a>
                     <h1>
-                        <img src="<%= ResolveUrl("~/Assets/branding/IDIntegration.jpg") %>" style="height:32px; border-radius:4px;" alt="Logo" onerror="this.style.display='none'"/>
+                        <img src="<%= ResolveUrl("~/Assets/branding/assetworx.jpg") %>" style="height:32px; border-radius:4px;" alt="Logo" onerror="this.style.display='none'"/>
                         IDI Tagging Data Reports
                     </h1>
                 </div>

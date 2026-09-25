@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_excel.aspx.cs" Inherits="va_excel" ResponseEncoding="utf-8"
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_excel.aspx.cs" Inherits="va_excel" ResponseEncoding="utf-8"
     %>
     <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 
@@ -8,8 +8,8 @@
         <head runat="server">
             <meta charset="utf-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <title>VA Tagging Team Excel File Merge Tool &mdash; iDash</title>
-            <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+            <title>VA Tagging Team Excel File Merge Tool</title>
+            <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
             <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
             <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -316,10 +316,10 @@
                         <a href="documentation/va_excel.html" class="btn btn-ghost btn-sm" style="text-decoration:none; font-size:12px;">&#128214; View Docs</a> <a href="index.aspx" class="nav-pill nav-pill-ghost">&#8962; Hub</a>
                     </div>
 
-                    <div class="aw-header-brand" style="display:flex; align-items:center; gap:8px;">
-                        <img src="<%= ResolveUrl("~/Assets/branding/IDIntegration.jpg") %>" style="height:20px; width:auto; border-radius:3px;" alt="ID Integration Inc." />
-                        <span class="aw-header-text" style="font-weight:700; font-size:14px;">iDash<span class="bang" style="color:var(--accent);">.</span></span>
-                        <span class="aw-header-copy" style="font-size:11px; color:var(--muted); font-style:italic;">by ID Integration Inc.</span>
+                    <div class="aw-header-brand">
+                        <img src="<%= ResolveUrl("~/Assets/branding/assetworx.jpg") %>" class="aw-header-logo" />
+                        <span class="aw-header-text">AssetWorx<span class="bang">!</span> <span
+                                class="aw-header-copy">by InfinID Technologies</span></span>
                     </div>
 
                     <div class="card">

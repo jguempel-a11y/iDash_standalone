@@ -1,12 +1,12 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_tagteam_scan.aspx.cs" Inherits="va_tagteam_scan" MaintainScrollPositionOnPostback="true" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_tagteam_scan.aspx.cs" Inherits="va_tagteam_scan" MaintainScrollPositionOnPostback="true" EnableEventValidation="false" %>
     <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 
         <!DOCTYPE html>
         <html xmlns="http://www.w3.org/1999/xhtml">
 
         <head runat="server">
-            <title>Tag Team Scan &mdash; iDash</title>
-            <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+            <title>Tag Team Scan - AssetWorx</title>
+            <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
             <link rel="manifest" href="manifest.json" />
             <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
@@ -322,6 +322,7 @@
                 const OFFLINE_SITE   = 'TagTeam_SelectedSite';     // persisted site ID
                 const OFFLINE_SITETX = 'TagTeam_SelectedSiteText'; // persisted site Name
                 const OFFLINE_EMPL   = 'TagTeam_SelectedOperator'; // persisted operator
+                const OFFLINE_TAGTYPE = 'TagTeam_SelectedTagType'; // persisted tag type / label size
                 const PING_TIMEOUT   = 3000;                        // ms before treating as offline
                 let   _isOnline      = navigator.onLine;            // start with browser's best guess
                 let   _probeInFlight = false;
@@ -466,6 +467,22 @@
                         console.log('[TagTeam] Restored offline operator:', savedVal);
                     } else if (ddl.value) {
                         persistOperator(ddl.value);
+                    }
+                }
+                function persistTagType(typeVal) {
+                    if (typeVal) {
+                        localStorage.setItem(OFFLINE_TAGTYPE, typeVal);
+                    }
+                }
+                function restoreTagType() {
+                    var ddl = document.getElementById('DdlDefaultTagType');
+                    if (!ddl) return;
+                    var savedVal = localStorage.getItem(OFFLINE_TAGTYPE);
+                    if (savedVal && (!ddl.value || ddl.value !== savedVal)) {
+                        ddl.value = savedVal;
+                        console.log('[TagTeam] Restored offline tag type:', savedVal);
+                    } else if (ddl.value) {
+                        persistTagType(ddl.value);
                     }
                 }
 
@@ -738,7 +755,7 @@
                         if (btn) btn.innerHTML = '&#9881; Show Config';
                     }
 
-                    // Restore Site, Operator, and Location from localStorage
+                    // Restore Site, Operator, Location, and TagType from localStorage
                     restoreSite();
                     restoreOperator();
                     restoreLocation();
@@ -749,25 +766,31 @@
                         var ddl = document.getElementById('DdlDefaultTagType');
                         if (!ddl) return;
                         var standardTypes = ['IQ350', 'Large_Metal', 'Small_Standard', 'Small_Metal'];
-                        var currentVal = ddl.value || '';
+                        var savedVal = localStorage.getItem(OFFLINE_TAGTYPE) || '';
+                        var currentVal = ddl.value || savedVal || '';
                         var hasNonStandard = Array.from(ddl.options).some(function(opt) {
                             return standardTypes.indexOf(opt.value) === -1;
                         });
-                        if (hasNonStandard || ddl.options.length !== standardTypes.length) {
-                            var normVal = currentVal;
-                            if (normVal.indexOf('Metal') !== -1 || normVal.indexOf('Large') !== -1) normVal = 'Large_Metal';
-                            else if (normVal.indexOf('Std') !== -1 || normVal.indexOf('Small_Standard') !== -1) normVal = 'Small_Standard';
-                            else if (normVal === 'Small_Metal') normVal = 'Small_Metal';
-                            else normVal = 'IQ350';
 
+                        var normVal = currentVal;
+                        if (normVal.indexOf('Metal') !== -1 || normVal.indexOf('Large') !== -1 || normVal === 'Large_Metal') normVal = 'Large_Metal';
+                        else if (normVal.indexOf('Std') !== -1 || normVal.indexOf('Small_Standard') !== -1 || normVal === 'Small_Standard') normVal = 'Small_Standard';
+                        else if (normVal === 'Small_Metal') normVal = 'Small_Metal';
+                        else if (normVal.indexOf('IQ350') !== -1 || normVal === 'IQ350') normVal = 'IQ350';
+                        else if (savedVal && standardTypes.indexOf(savedVal) !== -1) normVal = savedVal;
+                        else normVal = 'IQ350';
+
+                        if (hasNonStandard || ddl.options.length !== standardTypes.length || ddl.value !== normVal) {
                             ddl.innerHTML = standardTypes.map(function(t) {
                                 return '<option value="' + t + '"' + (t === normVal ? ' selected="selected"' : '') + '>' + t + '</option>';
                             }).join('');
-                            console.log('[TagTeam] Sanitized DdlDefaultTagType options to standard 4');
+                            ddl.value = normVal;
+                            persistTagType(normVal);
+                            console.log('[TagTeam] Sanitized DdlDefaultTagType options to standard 4, active:', normVal);
                         }
                     })();
 
-                    // Attach change listeners to persist Site and Operator
+                    // Attach change listeners to persist Site, Operator, and TagType
                     var ddlSiteEl = document.getElementById('DdlCompany');
                     if (ddlSiteEl) {
                         ddlSiteEl.addEventListener('change', function() {
@@ -779,6 +802,13 @@
                     if (ddlEmplEl) {
                         ddlEmplEl.addEventListener('change', function() {
                             persistOperator(ddlEmplEl.value);
+                        });
+                    }
+                    var ddlTagTypeEl = document.getElementById('DdlDefaultTagType');
+                    if (ddlTagTypeEl) {
+                        ddlTagTypeEl.addEventListener('change', function() {
+                            persistTagType(ddlTagTypeEl.value);
+                            console.log('[TagTeam] User changed default tag type to:', ddlTagTypeEl.value);
                         });
                     }
 
@@ -1149,7 +1179,7 @@
             <div id="sync-toast"></div>
             <form id="form1" runat="server">
                 <div class="status-bar">
-                    <span>iDash Tag Team Scan</span>
+                    <span>AssetWorx Tag Team Scan</span>
                     <span id="connection-indicator">Checking Connection...</span>
                 </div>
                 <div class="wrap">
@@ -1601,10 +1631,27 @@
                                     const chosen = allTpls.find(function(t) { return t.id === parseInt(ddlTpl.value, 10); });
                                     if (chosen && chosen.filename) return chosen.filename;
                                 }
-                                const norm = (tagType || '').toLowerCase();
-                                if (norm.indexOf('metal') >= 0 && norm.indexOf('large') >= 0) return 'c:\\idash_prints\\iDash_Metal_Large.btw';
-                                if (norm.indexOf('iq350') >= 0 || norm.indexOf('metal') >= 0) return 'c:\\idash_prints\\iDash_Metal_IQ350.btw';
-                                return 'c:\\idash_prints\\iDash_Std_Small.btw';
+
+                                if (typeof window.findTemplateForTag === 'function') {
+                                    const ddlCompany = document.getElementById('DdlCompany');
+                                    const selectedCompanyId = ddlCompany && ddlCompany.value ? parseInt(ddlCompany.value, 10) : 0;
+                                    const allTemplates = (window.awPrintConfig && window.awPrintConfig.printTemplates) || [];
+                                    const siteTemplates = selectedCompanyId > 0
+                                        ? allTemplates.filter(function(t) { return t.companyId === selectedCompanyId || t.companyId === 0; })
+                                        : allTemplates;
+                                    const searchPool = siteTemplates.length > 0 ? siteTemplates : allTemplates;
+                                    const matched = window.findTemplateForTag(tagType, searchPool, allTemplates);
+                                    if (matched && matched.filename) return matched.filename;
+                                }
+
+                                const norm = (tagType || '').toLowerCase().replace(/[\s\-_]+/g, '');
+                                if ((norm.indexOf('large') >= 0 && norm.indexOf('metal') >= 0) || norm === 'largemetal' || norm === 'metallarge') {
+                                    return 'c:\\assetworx_prints\\AW_Large_Metal.btw';
+                                }
+                                if (norm.indexOf('iq350') >= 0) {
+                                    return 'c:\\assetworx_prints\\AW_Metal_IQ350.btw';
+                                }
+                                return 'c:\\assetworx_prints\\AW_Std_Small.btw';
                             }
 
                             async function openLabelPreview(barcode, desc, sn, cmr, tagType, assetId) {
@@ -1641,17 +1688,17 @@
                                     loader.style.display = 'none';
                                     container.style.display = 'block';
 
-                                    if ((data.Success || data.success) && (data.ImageBase64 || data.imageBase64)) {
-                                        img.src = 'data:image/png;base64,' + (data.ImageBase64 || data.imageBase64);
+                                    if (data.Success && data.ImageBase64) {
+                                        img.src = 'data:image/png;base64,' + data.ImageBase64;
                                         meta.innerHTML = 
                                             '<div><strong>Template:</strong> ' + templatePath + '</div>' +
                                             '<div><strong>Asset:</strong> ' + (barcode || 'N/A') + ' &bull; <strong>S/N:</strong> ' + (sn || 'N/A') + ' &bull; <strong>CMR:</strong> ' + (cmr || 'N/A') + '</div>' +
-                                            '<div><strong>Named Data Sources (' + ((data.DiscoveredFields || data.discoveredFields || []).length) + '):</strong> ' + 
-                                            ((data.DiscoveredFields || data.discoveredFields || []).join(', ') || 'None') + '</div>';
+                                            '<div><strong>Named Data Sources (' + (data.DiscoveredFields ? data.DiscoveredFields.length : 0) + '):</strong> ' + 
+                                            (data.DiscoveredFields ? data.DiscoveredFields.join(', ') : 'None') + '</div>';
                                         if (btnPrint) btnPrint.disabled = false;
                                     } else {
                                         img.src = '';
-                                        meta.innerHTML = '<div style="color:var(--danger);font-weight:600;">&#9888; Preview Failed: ' + (data.error || data.ErrorMessage || data.message || 'Unknown error') + '</div>';
+                                        meta.innerHTML = '<div style="color:var(--danger);font-weight:600;">&#9888; Preview Failed: ' + (data.ErrorMessage || 'Unknown error') + '</div>';
                                         if (btnPrint) btnPrint.disabled = true;
                                     }
                                 } catch (err) {
@@ -1690,5 +1737,4 @@
         </body>
 
         </html>
-
 

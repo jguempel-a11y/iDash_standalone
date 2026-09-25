@@ -4,18 +4,7 @@
 <head runat="server">
     <meta charset="utf-8" />
     <title>RFID Asset Locator &mdash; iDash</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
-    <script>
-        /* Apply saved theme or default to light BEFORE paint to prevent flash */
-        (function() {
-            var saved = localStorage.getItem('idash_theme') || localStorage.getItem('aw_theme_preference');
-            if (saved === 'dark') {
-                document.documentElement.removeAttribute('data-theme');
-            } else {
-                document.documentElement.setAttribute('data-theme', 'light');
-            }
-        })();
-    </script>
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
@@ -194,13 +183,27 @@
         }
         .grid td { padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
         
-        .grid tr.row-found { background: rgba(16,185,129,0.06); border-left: 5px solid #10b981; }
+        .grid tr.row-found { background: rgba(16,185,129,0.12) !important; border-left: 6px solid #10b981 !important; }
         .grid tr.row-searching { background: transparent; border-left: 5px solid var(--line); }
         .grid tr.row-unresolved { background: rgba(239,68,68,0.04); border-left: 5px solid #ef4444; opacity: 0.85; }
-        .grid tr.row-flash { background: rgba(16,185,129,0.2) !important; transition: background 0.15s; }
+        .grid tr.row-flash { background: rgba(16,185,129,0.28) !important; transition: background 0.15s; }
+
+        /* INLINE FOUND BADGE & TEXT */
+        .tag-found-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 15px; height: 15px; background: #10b981; color: #ffffff;
+            border-radius: 50%; font-size: 9px; font-weight: 900; margin-right: 5px;
+            vertical-align: middle; flex-shrink: 0; box-shadow: 0 1px 3px rgba(16,185,129,0.4);
+        }
+        .tag-search-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 15px; height: 15px; color: var(--muted); font-size: 11px;
+            margin-right: 5px; vertical-align: middle; flex-shrink: 0;
+        }
+        .asset-tag-found { color: #10b981; font-weight: 800; }
 
         /* BADGES */
-        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; }
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; white-space: nowrap; }
         .b-found { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
         .b-search { background: rgba(2,132,199,0.15); color: #0284c7; border: 1px solid rgba(2,132,199,0.3); }
         .b-unres { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
@@ -223,11 +226,14 @@
 
         [data-theme="light"] .grid th { background: #f1f5f9; color: #334155; border-bottom: 2px solid #cbd5e1; }
         [data-theme="light"] .grid td { color: #0f172a; border-bottom: 1px solid #e2e8f0; }
-        [data-theme="light"] .grid tr.row-found { background: #ecfdf5; border-left-color: #059669; }
+        [data-theme="light"] .grid tr.row-found { background: #ecfdf5 !important; border-left-color: #059669 !important; }
         [data-theme="light"] .grid tr.row-found td { color: #065f46; font-weight: 600; }
         [data-theme="light"] .grid tr.row-searching td { color: #0f172a; }
         [data-theme="light"] .grid tr.row-unresolved { background: #fef2f2; border-left-color: #dc2626; }
         [data-theme="light"] .grid tr.row-unresolved td { color: #991b1b; }
+
+        [data-theme="light"] .tag-found-icon { background: #059669; }
+        [data-theme="light"] .asset-tag-found { color: #047857; }
 
         [data-theme="light"] .b-found { background: #059669; color: #ffffff; border-color: #059669; }
         [data-theme="light"] .b-search { background: #0284c7; color: #ffffff; border-color: #0284c7; }
@@ -364,13 +370,13 @@
                         <table class="grid" id="tblAssets">
                             <thead>
                                 <tr>
-                                    <th style="width:40px;">#</th>
+                                    <th style="width:36px; text-align:center;">#</th>
+                                    <th style="width:115px; text-align:center;">Status</th>
                                     <th>Asset Tag</th>
                                     <th>Description / Model</th>
-                                    <th>RFID Tag</th>
                                     <th>Location</th>
+                                    <th>RFID Tag</th>
                                     <th>EIL / CMR</th>
-                                    <th style="width:120px; text-align:center;">Status</th>
                                 </tr>
                             </thead>
                             <tbody id="bodyAssets">
@@ -417,13 +423,9 @@
         const btnAudio = document.getElementById("btnAudioToggle");
 
         window.initApp = function () {
-            // Restore theme: keep existing light mode or honor saved theme (default to light)
-            const savedTheme = localStorage.getItem("idash_theme") || localStorage.getItem("aw_theme_preference");
-            if (savedTheme === "dark") {
-                document.documentElement.removeAttribute("data-theme");
-            } else {
-                document.documentElement.setAttribute("data-theme", "light");
-            }
+            // Restore theme
+            const savedTheme = localStorage.getItem("aw_theme_preference") || "dark";
+            document.documentElement.setAttribute("data-theme", savedTheme);
 
             // Restore audio pref
             const savedAudio = localStorage.getItem("aw_locator_audio");
@@ -454,7 +456,7 @@
             var isLight = html.getAttribute('data-theme') === 'light';
             if (isLight) {
                 html.removeAttribute('data-theme');
-                localStorage.setItem('idash_theme', 'dark');
+                localStorage.removeItem('idash_theme');
                 localStorage.setItem('aw_theme_preference', 'dark');
             } else {
                 html.setAttribute('data-theme', 'light');
@@ -664,7 +666,7 @@
         // ═══════════════════════════════════════════════════════
         function updateProximityRadar(idx, target) {
             proxCard.classList.add("active-target");
-            proxTarget.textContent = (target.name ? target.name + (target.description ? ' - ' + target.description : '') : (target.input || target.rfidtag));
+            proxTarget.textContent = target.input || target.name || target.rfidtag;
             proxStatus.textContent = "SIGNAL DETECTED!";
             proxStatus.style.color = "#10b981";
 
@@ -865,18 +867,23 @@
                     statusBadge = `<span class="badge b-found">&#10004; FOUND (${ago})</span>`;
                 } else if (!t.rfidtag) {
                     rowCls = "row-unresolved";
-                    statusBadge = `<span class="badge b-unres">&#9888; NO RFID TAG</span>`;
+                    statusBadge = `<span class="badge b-unres">&#9888; NO RFID</span>`;
                 }
+
+                const tagFoundIcon = t.found
+                    ? `<span class="tag-found-icon" title="Asset Located">&#10004;</span> `
+                    : `<span class="tag-search-icon">&#9711;</span> `;
+                const assetTagHtml = `${tagFoundIcon}<span class="${t.found ? 'asset-tag-found' : ''}">${escHtml(t.input || t.name)}</span>`;
 
                 tr.className = rowCls;
                 tr.innerHTML = `
-                    <td style="color:var(--muted);">${i + 1}</td>
-                    <td style="font-weight:700; font-family:Consolas,monospace;">${escHtml(t.input || t.name)}</td>
-                    <td style="font-weight:600;">${escHtml(t.description || t.name || '--')}</td>
-                    <td style="font-family:Consolas,monospace; font-size:11px;">${escHtml(t.rfidtag || '--')}</td>
-                    <td style="color:var(--muted);">${escHtml(t.location || '--')}</td>
-                    <td style="color:var(--muted);">${escHtml(t.eil || '--')}</td>
+                    <td style="color:var(--muted); text-align:center;">${i + 1}</td>
                     <td style="text-align:center;">${statusBadge}</td>
+                    <td style="font-weight:700; font-family:Consolas,monospace;">${assetTagHtml}</td>
+                    <td style="font-weight:600;">${escHtml(t.name || '--')}</td>
+                    <td style="color:var(--muted);">${escHtml(t.location || '--')}</td>
+                    <td style="font-family:Consolas,monospace; font-size:11px;">${escHtml(t.rfidtag || '--')}</td>
+                    <td style="color:var(--muted);">${escHtml(t.eil || '--')}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -885,11 +892,15 @@
         function flashRow(idx) {
             const row = document.getElementById("row_" + idx);
             if (!row) return;
+            row.classList.remove("row-searching");
+            row.classList.add("row-found");
             row.classList.add("row-flash");
             const t = _targets[idx];
             const cells = row.querySelectorAll("td");
             if (cells.length >= 7) {
-                cells[6].innerHTML = `<span class="badge b-found">&#10004; FOUND (just now)</span>`;
+                cells[1].innerHTML = `<span class="badge b-found">&#10004; FOUND (just now)</span>`;
+                const assetName = escHtml(t.input || t.name);
+                cells[2].innerHTML = `<span class="tag-found-icon" title="Asset Located">&#10004;</span> <span class="asset-tag-found">${assetName}</span>`;
             }
             setTimeout(() => {
                 if (row) row.classList.remove("row-flash");
@@ -903,7 +914,7 @@
                     if (row) {
                         const cells = row.querySelectorAll("td");
                         if (cells.length >= 7) {
-                            cells[6].innerHTML = `<span class="badge b-found">&#10004; FOUND (${timeSince(t.foundAt)})</span>`;
+                            cells[1].innerHTML = `<span class="badge b-found">&#10004; FOUND (${timeSince(t.foundAt)})</span>`;
                         }
                     }
                 }

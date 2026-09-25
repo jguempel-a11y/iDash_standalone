@@ -1,11 +1,11 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_asset_master.aspx.cs" Inherits="va_asset_master" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_asset_master.aspx.cs" Inherits="va_asset_master" %>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <meta charset="utf-8" />
-    <title>Asset Master &mdash; iDash</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <title>Asset Master &mdash; AssetWorx iDash</title>
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -665,6 +665,7 @@
 
     <div class="dp-actions">
         <button type="button" id="dpEditToggle" class="dp-edit-toggle" onclick="toggleEditMode()">&#9998; Edit Mode</button>
+        <a id="dpEditLink" href="#" target="_blank" class="dp-action-btn">&#8599; Open in AssetWorx</a>
         <button type="button" class="dp-action-btn" onclick="printFromDetail()">&#128424; Print Tag</button>
     </div>
 
@@ -1332,11 +1333,21 @@
     // ============================================================
     // ===================================================== PRINT MODAL =====================================================
     // ============================================================
+    // PRINT MODAL LOGIC
+    // ============================================================
     var printPrefix = '';
     var printPreviewData = [];
     var printTemplatesLoaded = false;
+    var _cachedSitePrefix = {};
+    var _currentModalSiteId = '0';
+    var _explicitAssetNames = null;
 
-    function openPrintModal() {
+    function openPrintModal(targetSiteId, onPrefixReady) {
+        if (typeof targetSiteId === 'function') {
+            onPrefixReady = targetSiteId;
+            targetSiteId = null;
+        }
+
         var overlay = document.getElementById('printOverlay');
         overlay.classList.add('show');
         document.body.style.overflow = 'hidden';
@@ -1346,9 +1357,18 @@
         document.getElementById('pmPreviewHeader').style.display = 'none';
         document.getElementById('pmTableWrap').style.display = 'none';
         printPreviewData = [];
+        _explicitAssetNames = null;
 
-        // Load prefix for current site
-        loadSitePrefix();
+        _currentModalSiteId = targetSiteId || $('#DdlCompany').val() || '0';
+
+        // Listen for manual number edits to clear explicit asset override
+        var pmInput = document.getElementById('pmNumbers');
+        if (pmInput) {
+            pmInput.oninput = function () { _explicitAssetNames = null; };
+        }
+
+        // Load prefix for target site, then invoke callback if provided
+        loadSitePrefix(_currentModalSiteId, onPrefixReady);
 
         // Load templates once
         if (!printTemplatesLoaded) loadPrintTemplates();
@@ -1357,6 +1377,7 @@
     function closePrintModal() {
         document.getElementById('printOverlay').classList.remove('show');
         document.body.style.overflow = '';
+        _explicitAssetNames = null;
     }
 
     function setPmStatus(msg, type) {
@@ -1365,13 +1386,26 @@
         el.textContent = msg;
     }
 
-    function loadSitePrefix() {
-        var siteId = $('#DdlCompany').val() || '0';
+    function loadSitePrefix(targetSiteId, callback) {
+        if (typeof targetSiteId === 'function') {
+            callback = targetSiteId;
+            targetSiteId = null;
+        }
+        var siteId = targetSiteId || _currentModalSiteId || $('#DdlCompany').val() || '0';
         if (siteId === '0') {
             document.getElementById('pmPrefix').textContent = '(Select a site first)';
             printPrefix = '';
+            if (typeof callback === 'function') callback(printPrefix);
             return;
         }
+
+        if (_cachedSitePrefix[siteId] !== undefined) {
+            printPrefix = _cachedSitePrefix[siteId];
+            document.getElementById('pmPrefix').textContent = printPrefix || '(No prefix configured)';
+            if (typeof callback === 'function') callback(printPrefix);
+            return;
+        }
+
         $.ajax({
             type: 'POST',
             url: 'va_asset_master.aspx/GetSitePrefix',
@@ -1380,11 +1414,14 @@
             success: function (resp) {
                 var r = JSON.parse(resp.d);
                 printPrefix = r.prefix || '';
+                _cachedSitePrefix[siteId] = printPrefix;
                 document.getElementById('pmPrefix').textContent = printPrefix || '(No prefix configured)';
+                if (typeof callback === 'function') callback(printPrefix);
             },
             error: function () {
                 document.getElementById('pmPrefix').textContent = '(Error loading prefix)';
                 printPrefix = '';
+                if (typeof callback === 'function') callback(printPrefix);
             }
         });
     }
@@ -1451,17 +1488,19 @@
         var input = document.getElementById('pmNumbers').value;
         var nums = parsePrintInput(input);
 
-        if (nums.length === 0) {
+        if (nums.length === 0 && (!_explicitAssetNames || _explicitAssetNames.length === 0)) {
             setPmStatus('Enter at least one asset number (e.g. 1, 3-25, 42).', 'error');
             return;
         }
-        if (!printPrefix) {
+        if (!printPrefix && (!_explicitAssetNames || _explicitAssetNames.length === 0)) {
             setPmStatus('No site prefix available. Please select a site with a configured prefix.', 'error');
             return;
         }
 
         // Build full asset names
-        var assetNames = nums.map(function (n) { return printPrefix + n; });
+        var assetNames = (_explicitAssetNames && _explicitAssetNames.length > 0)
+            ? _explicitAssetNames
+            : nums.map(function (n) { return printPrefix + n; });
 
         setPmStatus('Loading ' + assetNames.length + ' assets...', 'info');
         document.getElementById('btnSubmitPrint').style.display = 'none';
@@ -1471,7 +1510,7 @@
             url: 'va_asset_master.aspx/GetAssetsForPrint',
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify({
-                siteId: $('#DdlCompany').val() || '0',
+                siteId: _currentModalSiteId || $('#DdlCompany').val() || '0',
                 assetNamesJson: JSON.stringify(assetNames)
             }),
             success: function (resp) {
@@ -1792,8 +1831,9 @@
         _dpCurrentId = assetId;
         _dpCache = {};
 
-        // Set title
+        // Set title and edit link
         document.getElementById('dpTitle').textContent = assetName || 'Asset Detail';
+        document.getElementById('dpEditLink').href = '/#!/admin/editasset/' + assetId;
 
         // Reset badges
         ['badgeLoc','badgeCO','badgeMnt','badgeChild'].forEach(function(id) {
@@ -2139,27 +2179,40 @@
         var a = _dpCache.general;
         var chk = document.querySelector('#assetGrid .chk-print[value="' + a.id + '"]');
         if (chk) { chk.checked = true; updatePrintBtnAM(); }
-        openPrintModal();
 
-        // Auto-populate the asset number from the detail panel
-        var assetName = a.name || '';
-        if (assetName && printPrefix) {
-            // Strip the site prefix to get just the number portion
+        var targetSiteId = a.companyid || $('#DdlCompany').val() || '0';
+
+        // Indicate loading in the input box while prefix resolves
+        openPrintModal(targetSiteId, function (prefix) {
+            var assetName = a.name || '';
             var numPart = assetName;
-            if (assetName.indexOf(printPrefix) === 0) {
-                numPart = assetName.substring(printPrefix.length);
+
+            if (prefix && assetName.indexOf(prefix) === 0) {
+                // Strip the exact site prefix and any separator
+                numPart = assetName.substring(prefix.length).replace(/^[\s\-_]+/, '');
+            } else if (prefix && prefix.indexOf(' ') > 0) {
+                // If prefix has multiple tokens (e.g. "512 EE"), try regex matching
+                var tokens = prefix.trim().split(/\s+/);
+                var reg = new RegExp('^(?:' + tokens.join('[\\s\\-_]*') + ')[\\s\\-_]*', 'i');
+                if (reg.test(assetName)) {
+                    numPart = assetName.replace(reg, '');
+                }
+            } else {
+                // Fallback: strip leading digits and optional EE pattern
+                var m = assetName.match(/^(?:\d+\s*(?:EE)?)[\s\-_]+(.*)$/i);
+                if (m && m[1]) numPart = m[1].trim();
             }
+
             document.getElementById('pmNumbers').value = numPart;
-            // Auto-trigger preview after a short delay for templates to load
-            setTimeout(function() { loadPrintPreview(); }, 300);
-        } else if (assetName) {
-    // ===== No prefix loaded yet  put the full name and let user adjust =====
-            document.getElementById('pmNumbers').value = assetName;
-        }
+            if (assetName) {
+                _explicitAssetNames = [assetName];
+            }
+            // Automatically trigger print preview on first open!
+            setTimeout(function () { loadPrintPreview(); }, 200);
+        });
     }
 
 </script>
 </body>
 </html>
-
 

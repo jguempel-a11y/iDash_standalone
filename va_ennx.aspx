@@ -1,12 +1,12 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_ennx.aspx.cs" Inherits="iDash.va_ennx" EnableEventValidation="false" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_ennx.aspx.cs" Inherits="iDash.va_ennx" EnableEventValidation="false" %>
     <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 
         <!DOCTYPE html>
         <html xmlns="http://www.w3.org/1999/xhtml">
 
         <head runat="server">
-            <title>iDash &mdash; ENNX Export</title>
-            <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+            <title>VA AssetWorx! - ENNX Export</title>
+            <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
             <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
             <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -278,7 +278,7 @@
                     color: var(--accent);
                 }
 
-                /* iDash Footer */
+                /* AssetWorx Footer */
                 .aw-footer {
                     margin-top: 28px;
                     padding: 12px 16px;

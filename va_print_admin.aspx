@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Print Administration &mdash; iDash</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -92,6 +92,7 @@
 <div class="page-header">
     <h1>&#128424; Print Administration</h1>
     <div class="nav-links">
+        <a href="va_print_setup_wizard.aspx" style="background:#f59e0b; color:#000; font-weight:700; border-color:#f59e0b;">&#129668; Print Setup Wizard &rarr;</a>
         <a href="va_site_config.aspx" title="Site Configuration">&#9881; Site Config</a>
         <a href="index.aspx">&#8962; Hub</a>
         <a href="va_print_mapping.aspx">&#9881; Template Mapping</a>
@@ -101,11 +102,11 @@
 </div>
 
 <div class="tab-bar">
-    <button type="button" class="tab-btn active" onclick="switchTab('overview', event)">&#127760; Site Overview</button>
-    <button type="button" class="tab-btn" onclick="switchTab('templates', event)">&#128196; Templates</button>
-    <button type="button" class="tab-btn" onclick="switchTab('printers', event)">&#128424; Print Clients</button>
-    <button type="button" class="tab-btn" onclick="switchTab('status', event)">&#9889; Status &amp; Logs</button>
-    <button type="button" class="tab-btn" onclick="switchTab('wizard', event)">&#128640; Setup Wizard</button>
+    <button type="button" class="tab-btn active" onclick="switchTab('overview')">&#127760; Site Overview</button>
+    <button type="button" class="tab-btn" onclick="switchTab('templates')">&#128196; Templates</button>
+    <button type="button" class="tab-btn" onclick="switchTab('printers')">&#128424; Print Clients</button>
+    <button type="button" class="tab-btn" onclick="switchTab('status')">&#9889; Status &amp; Logs</button>
+    <button type="button" class="tab-btn" onclick="switchTab('wizard')">&#128640; Setup Wizard</button>
 </div>
 
 <div id="tab-overview" class="tab-panel active">
@@ -217,7 +218,7 @@
                     <div style="font-size:12px; font-weight:700; text-transform:uppercase; color:var(--muted); letter-spacing:.05em; margin:18px 0 10px; display:flex; align-items:center; gap:6px;">&#128274; Print Client Credentials</div>
                     <div class="form-group">
                         <label>Display Name</label>
-                        <input type="text" id="wizClientName" value="iDash Print Client" />
+                        <input type="text" id="wizClientName" value="Master Print Server" />
                     </div>
                     <div class="form-row">
                         <div class="form-group" style="flex:1;">
@@ -233,7 +234,7 @@
                     <div style="font-size:12px; font-weight:700; text-transform:uppercase; color:var(--muted); letter-spacing:.05em; margin:18px 0 10px; display:flex; align-items:center; gap:6px;">&#128196; Default Template</div>
                     <div class="form-group">
                         <label>BarTender File Path (.btw)</label>
-                        <input type="text" id="wizBtwPath" value="c:\idash_prints\iDash_Std_Small.btw" />
+                        <input type="text" id="wizBtwPath" value="c:\assetworx_prints\AW_Std_Small.btw" />
                     </div>
                 </div>
 
@@ -295,10 +296,16 @@
     <div class="modal">
         <h3 id="tplModalTitle">Add Template</h3>
         <input type="hidden" id="tplId" value="0" />
+        <div style="margin-bottom:12px; display:flex; gap:6px; align-items:center; flex-wrap:wrap; background:var(--chip,#1e293b); padding:8px 10px; border-radius:8px; border:1px solid var(--line,#334155);">
+            <span class="muted" style="font-size:11px; font-weight:700; color:var(--accent,#38bdf8);">&#127991;&#65039; Tag Team Presets:</span>
+            <button type="button" class="btn btn-sm" onclick="setTplPreset('AW_Std_Small', 'c:\\assetworx_prints\\AW_Std_Small.btw')">Small Metal (AW_Std_Small)</button>
+            <button type="button" class="btn btn-sm" onclick="setTplPreset('AW_Large_Metal', 'c:\\assetworx_prints\\AW_Large_Metal.btw')">Large Metal (AW_Large_Metal)</button>
+            <button type="button" class="btn btn-sm" onclick="setTplPreset('AW_Metal_IQ350', 'c:\\assetworx_prints\\AW_Metal_IQ350.btw')">IQ350 (AW_Metal_IQ350)</button>
+        </div>
         <div class="form-row">
             <div class="form-group" style="flex:1;">
                 <label>Template Name</label>
-                <input type="text" id="tplName" value="iDash_Std_Small" />
+                <input type="text" id="tplName" value="AW_Std_Small" />
             </div>
             <div class="form-group">
                 <label>Type</label>
@@ -308,7 +315,7 @@
         <div class="form-row">
             <div class="form-group" style="flex:1;">
                 <label>BarTender File (.btw)</label>
-                <input type="text" id="tplFile" value="c:\idash_prints\iDash_Std_Small.btw" />
+                <input type="text" id="tplFile" value="c:\assetworx_prints\AW_Std_Small.btw" />
             </div>
         </div>
         <div class="form-row">
@@ -353,7 +360,7 @@
         <div class="form-row">
             <div class="form-group" style="flex:1;">
                 <label>Friendly Name</label>
-                <input type="text" id="prtName" placeholder="e.g. iDash Print Client" />
+                <input type="text" id="prtName" placeholder="e.g. Master Print Server" />
             </div>
         </div>
         <div class="form-row">
@@ -387,12 +394,11 @@
 
 <script>
 // ======= TAB SWITCHING =======
-function switchTab(name, e) {
+function switchTab(name) {
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('tab-' + name).classList.add('active');
-    var btn = e ? (e.currentTarget || e.target) : document.querySelector('.tab-btn[onclick*="' + name + '"]');
-    if (btn) btn.classList.add('active');
+    event.target.classList.add('active');
     if (name === 'overview') loadOverview();
     if (name === 'templates') loadTemplates();
     if (name === 'printers') loadPrinters();
@@ -448,7 +454,7 @@ async function loadOverview() {
 }
 
 async function quickSetup(companyId) {
-    if (!confirm('Auto-configure printing for this site?\n\nThis will create:\n&bull; A template pointing to iDash_Std_Small.btw\n&bull; MasterPrint site assignment\n&bull; API client credentials')) return;
+    if (!confirm('Auto-configure printing for this site?\n\nThis will create:\n&bull; A template pointing to AW_Std_Small.btw\n&bull; MasterPrint site assignment\n&bull; API client credentials')) return;
     var data = await api('quickSetup', { body: { companyId: companyId } });
     if (data.error) alert('Error: ' + data.error);
     else alert(data.message);
@@ -545,9 +551,19 @@ async function loadTemplates() {
         '<th>ID</th><th>Name</th><th>Site</th><th>Type</th><th>BarTender File</th><th>File?</th><th>Printer</th><th></th>' +
         '</tr></thead><tbody>';
     (tplData.templates || []).forEach(function(t) {
+        var tagTeamBadge = '';
+        var tNorm = (t.name || '').toLowerCase().replace(/[\s\-_]+/g, '');
+        if (tNorm.includes('iq350')) {
+            tagTeamBadge = ' <span class="badge" style="background:rgba(59,130,246,.15); color:#60a5fa; font-size:10px; margin-left:4px; padding:2px 6px; border-radius:4px;" title="Used on Tag Team Scan for IQ350">&#127991;&#65039; Tag: IQ350</span>';
+        } else if (tNorm.includes('large')) {
+            tagTeamBadge = ' <span class="badge" style="background:rgba(168,85,247,.15); color:#c084fc; font-size:10px; margin-left:4px; padding:2px 6px; border-radius:4px;" title="Used on Tag Team Scan for Large Metal">&#127991;&#65039; Tag: Large_Metal</span>';
+        } else if (tNorm.includes('small') || tNorm.includes('std')) {
+            tagTeamBadge = ' <span class="badge" style="background:rgba(16,185,129,.15); color:#34d399; font-size:10px; margin-left:4px; padding:2px 6px; border-radius:4px;" title="Used on Tag Team Scan for Small Metal & Small Standard">&#127991;&#65039; Tag: Small_Metal</span>';
+        }
+
         html += '<tr>' +
             '<td>' + t.id + '</td>' +
-            '<td><strong>' + t.name + '</strong></td>' +
+            '<td><strong>' + t.name + '</strong>' + tagTeamBadge + '</td>' +
             '<td>' + (t.siteName || '&mdash;') + '</td>' +
             '<td>' + t.templateType + '</td>' +
             '<td style="font-size:11px;max-width:220px;overflow:hidden;text-overflow:ellipsis;">' + t.filename + '</td>' +
@@ -563,10 +579,15 @@ async function loadTemplates() {
     document.getElementById('templateGrid').innerHTML = html;
 }
 
+function setTplPreset(name, fn) {
+    document.getElementById('tplName').value = name;
+    document.getElementById('tplFile').value = fn;
+}
+
 async function testPreviewTemplate(encodedPath, encodedName) {
     var path = decodeURIComponent(encodedPath);
     var name = decodeURIComponent(encodedName);
-    document.getElementById('pvModalTitle').textContent = 'ðŸ‘ BarTender Preview: ' + (name || path);
+    document.getElementById('pvModalTitle').textContent = '👁 BarTender Preview: ' + (name || path);
     document.getElementById('pvLoading').style.display = 'block';
     document.getElementById('pvBody').style.display = 'none';
     document.getElementById('previewModal').classList.add('show');
@@ -588,15 +609,15 @@ async function testPreviewTemplate(encodedPath, encodedName) {
         document.getElementById('pvLoading').style.display = 'none';
         document.getElementById('pvBody').style.display = 'block';
 
-        if ((data.Success || data.success) && (data.ImageBase64 || data.imageBase64)) {
-            document.getElementById('pvImage').src = 'data:image/png;base64,' + (data.ImageBase64 || data.imageBase64);
+        if (data.Success && data.ImageBase64) {
+            document.getElementById('pvImage').src = 'data:image/png;base64,' + data.ImageBase64;
             document.getElementById('pvMeta').innerHTML = 
                 '<div><strong>Template Path:</strong> <code>' + path + '</code></div>' +
-                '<div><strong>Discovered Named Fields (' + ((data.DiscoveredFields || data.discoveredFields || []).length) + '):</strong> ' + 
-                ((data.DiscoveredFields || data.discoveredFields || []).length > 0 ? ('<code>' + (data.DiscoveredFields || data.discoveredFields).join('</code>, <code>') + '</code>') : '<em>None</em>') + '</div>';
+                '<div><strong>Discovered Named Fields (' + (data.DiscoveredFields ? data.DiscoveredFields.length : 0) + '):</strong> ' + 
+                (data.DiscoveredFields && data.DiscoveredFields.length > 0 ? ('<code>' + data.DiscoveredFields.join('</code>, <code>') + '</code>') : '<em>None</em>') + '</div>';
         } else {
             document.getElementById('pvImage').src = '';
-            document.getElementById('pvMeta').innerHTML = '<span style="color:#ef4444;font-weight:600;">&#9888; BarTender Engine Error: ' + (data.error || data.ErrorMessage || 'Could not render template') + '</span>';
+            document.getElementById('pvMeta').innerHTML = '<span style="color:#ef4444;font-weight:600;">&#9888; BarTender Engine Error: ' + (data.ErrorMessage || 'Could not render template') + '</span>';
         }
     } catch (e) {
         document.getElementById('pvLoading').style.display = 'none';
@@ -609,9 +630,9 @@ async function testPreviewTemplate(encodedPath, encodedName) {
 function openTemplateModal(t) {
     document.getElementById('tplModalTitle').textContent = t ? 'Edit Template' : 'Add Template';
     document.getElementById('tplId').value = t ? t.id : 0;
-    document.getElementById('tplName').value = t ? t.name : 'iDash_Std_Small';
+    document.getElementById('tplName').value = t ? t.name : 'AW_Std_Small';
     document.getElementById('tplType').value = t ? t.templateType : 'Asset';
-    document.getElementById('tplFile').value = t ? t.filename : 'c:\\idash_prints\\iDash_Std_Small.btw';
+    document.getElementById('tplFile').value = t ? t.filename : 'c:\\assetworx_prints\\AW_Std_Small.btw';
 
     // Populate company dropdown
     var ddlC = document.getElementById('tplCompany'); ddlC.innerHTML = '';
@@ -655,16 +676,32 @@ async function deleteTemplate(id) {
 var prtData = {};
 async function loadPrinters() {
     prtData = await api('getPrintClients');
+    var localMach = prtData.localMachineName || '';
     var html = '<table class="grid"><thead><tr>' +
-        '<th>ID</th><th>Name</th><th>MQTT User</th><th>MQTT Pass</th><th>Machine</th><th>Last Seen</th><th>Sites</th><th></th>' +
+        '<th>ID</th><th>Name</th><th>MQTT User</th><th>MQTT Pass</th><th>Station Machine Name</th><th>Last Seen</th><th>Sites</th><th></th>' +
         '</tr></thead><tbody>';
     (prtData.clients || []).forEach(function(c) {
+        var machName = c.machineName || '';
+        var isAntenna = machName.toLowerCase().indexOf('idashantenna') >= 0;
+        var isMatch = localMach && machName.toLowerCase() === localMach.toLowerCase();
+        var machHtml = '';
+
+        if (!machName) {
+            machHtml = '<span class="muted">(None)</span> ' + (localMach ? '<button type="button" class="btn btn-sm btn-success" style="font-size:10px;padding:2px 6px;margin-left:4px;" onclick="fixAdminMachineName(' + c.id + ')">Set to ' + localMach + '</button>' : '');
+        } else if (isAntenna) {
+            machHtml = '<span style="color:#ef4444;font-weight:700;">' + machName + '</span> <span class="badge badge-err" style="font-size:10px;padding:1px 6px;">⚠️ Antenna ID (Corrupted)</span> ' + (localMach ? '<button type="button" class="btn btn-sm btn-success" style="font-size:10px;padding:2px 6px;margin-left:4px;" onclick="fixAdminMachineName(' + c.id + ')">Set to ' + localMach + '</button>' : '');
+        } else if (isMatch) {
+            machHtml = '<strong>' + machName + '</strong> <span class="badge badge-ok" style="font-size:10px;padding:1px 6px;">✅ Matches this PC</span>';
+        } else {
+            machHtml = '<span>' + machName + '</span> <span class="badge badge-warn" style="font-size:10px;padding:1px 6px;">Different PC</span> ' + (localMach ? '<button type="button" class="btn btn-sm" style="font-size:10px;padding:2px 6px;margin-left:4px;" onclick="fixAdminMachineName(' + c.id + ')">Set to ' + localMach + '</button>' : '');
+        }
+
         html += '<tr>' +
             '<td>' + c.id + '</td>' +
             '<td><strong>' + c.name + '</strong></td>' +
             '<td><code>' + c.username + '</code></td>' +
             '<td><code style="font-size:11px;">' + c.password + '</code></td>' +
-            '<td>' + (c.machineName || '&mdash;') + '</td>' +
+            '<td>' + machHtml + '</td>' +
             '<td>' + (c.lastSeen || '<span class="muted">Never</span>') + '</td>' +
             '<td style="font-size:11px;">' + (c.assignedSites || '<span class="muted">None</span>') + '</td>' +
             '<td style="display:flex;gap:4px;">' +
@@ -674,6 +711,17 @@ async function loadPrinters() {
     });
     html += '</tbody></table>';
     document.getElementById('printerGrid').innerHTML = html;
+}
+
+async function fixAdminMachineName(id) {
+    var targetMach = prtData.localMachineName || 'this PC';
+    if (!confirm('Update this print client\'s machine name to "' + targetMach + '"?')) return;
+    var resp = await api('fixMachineName', { qs: '&id=' + id });
+    if (resp.error) alert('Error: ' + resp.error);
+    else {
+        alert('Machine name updated to ' + resp.machineName);
+        loadPrinters();
+    }
 }
 
 function openPrinterModal(c) {
@@ -785,14 +833,16 @@ async function loadConfigStatus() {
     try {
         var data = await api('getConfigStatus');
         var wc = data.webClient || {};
+        var ps = data.printServer || {};
         var dbClients = data.dbClients || [];
         var issues = data.issues || [];
 
-        // Build comparison table (WebClient vs DB)
+        // Build comparison table
         var html = '<table class="grid" style="font-size:12px;">' +
             '<thead><tr>' +
             '<th style="width:160px;">Setting</th>' +
             '<th>WebClient <code style="font-size:10px;">appsettings.json</code></th>' +
+            '<th>Print Server <code style="font-size:10px;">appsettings.json</code></th>' +
             '<th>DB <code style="font-size:10px;">printclient</code> table</th>' +
             '<th style="width:80px;">Status</th>' +
             '</tr></thead><tbody>';
@@ -801,22 +851,25 @@ async function loadConfigStatus() {
         html += '<tr style="color:var(--muted);font-size:11px;">' +
             '<td><strong>File Path</strong></td>' +
             '<td>' + (wc.path || '&mdash;') + (wc.exists ? '' : ' <span style="color:#ef4444;">(MISSING)</span>') + '</td>' +
+            '<td>' + (ps.path || '&mdash;') + (ps.exists ? '' : ' <span style="color:#f59e0b;">(not found)</span>') + '</td>' +
             '<td>SQL table</td>' +
             '<td></td></tr>';
 
         // Username row
         var dbUser = dbClients.length > 0 ? dbClients[0].username : '&mdash;';
-        var userMatch = wc.printClientUsername === dbUser;
+        var userMatch = wc.printClientUsername === dbUser && (!ps.exists || ps.printClientUsername === dbUser);
         html += '<tr><td><strong>MQTT Username</strong></td>' +
             '<td><code>' + (wc.printClientUsername || '&mdash;') + '</code></td>' +
+            '<td><code>' + (ps.exists ? (ps.printClientUsername || '&mdash;') : '<span class="muted">N/A</span>') + '</code></td>' +
             '<td><code>' + dbUser + '</code></td>' +
             '<td>' + (userMatch ? '<span class="badge badge-ok">&#10003; Match</span>' : '<span class="badge badge-err">&#10007; Mismatch</span>') + '</td></tr>';
 
         // Password row
         var dbPass = dbClients.length > 0 ? dbClients[0].passwordMasked : '&mdash;';
-        var passMatch = wc.printClientPasswordMasked === dbPass;
+        var passMatch = wc.printClientPasswordMasked === dbPass && (!ps.exists || ps.printClientPasswordMasked === dbPass);
         html += '<tr><td><strong>MQTT Password</strong></td>' +
             '<td><code>' + (wc.printClientPasswordMasked || '&mdash;') + '</code></td>' +
+            '<td><code>' + (ps.exists ? (ps.printClientPasswordMasked || '&mdash;') : '<span class="muted">N/A</span>') + '</code></td>' +
             '<td><code>' + dbPass + '</code></td>' +
             '<td>' + (passMatch ? '<span class="badge badge-ok">&#10003; Match</span>' : '<span class="badge badge-err">&#10007; Mismatch</span>') + '</td></tr>';
 
@@ -824,15 +877,15 @@ async function loadConfigStatus() {
         var ufp = wc.useForPrinting;
         html += '<tr><td><strong>UseForPrinting</strong></td>' +
             '<td>' + (ufp ? '<span style="color:#10b981;">&#10003; true</span>' : '<span style="color:#ef4444;font-weight:700;">&#10007; false</span>') + '</td>' +
-            '<td class="muted">Required to be <code>true</code> for MQTT broker to start</td>' +
+            '<td colspan="2" class="muted">Required to be <code>true</code> for MQTT broker to start</td>' +
             '<td>' + (ufp ? '<span class="badge badge-ok">&#10003; OK</span>' : '<span class="badge badge-err">&#10007; Off</span>') + '</td></tr>';
 
         // MQTT Server row
         html += '<tr><td><strong>MQTT Server</strong></td>' +
             '<td><code>' + (wc.mqttServer || '&mdash;') + ':' + (wc.mqttPort || '') + '</code></td>' +
+            '<td><code>' + (ps.exists ? (ps.mqttServer || '&mdash;') + ':' + (ps.mqttPort || '') : '<span class="muted">N/A</span>') + '</code></td>' +
             '<td class="muted">&mdash;</td>' +
             '<td></td></tr>';
-
 
         html += '</tbody></table>';
         document.getElementById('configStatusBody').innerHTML = html;
@@ -866,7 +919,7 @@ async function loadConfigStatus() {
 }
 
 async function fixConfig() {
-    if (!confirm('Auto-fix config issues?\n\nThis will:\n&bull; Set UseForPrinting = true in WebClient appsettings.json\n&bull; Sync MQTT credentials from DB &rarr; appsettings.json files\n&bull; Remove print client username from mqttclient table (if present)\n\nYou will need to restart IIS (iisreset) and the Print Server service after.')) return;
+    if (!confirm('Auto-fix config issues?\n\nThis will:\n&bull; Set UseForPrinting = true in WebClient appsettings.json\n&bull; Sync MQTT credentials from DB &rarr; appsettings.json files\n&bull; Remove print client username from mqttclient table (if present)\n\nYou will need to restart IIS (iisreset) and the AssetWorx Print Server service after.')) return;
 
     var data = await api('fixConfig');
     var box = document.getElementById('fixResultBox');
@@ -882,7 +935,7 @@ async function fixConfig() {
             html += '<div style="font-size:12px;margin:3px 0;color:' + (isWarn ? '#f59e0b' : 'var(--text)') + ';">&bull; ' + ch + '</div>';
         });
         html += '<div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--line); font-size:12px; color:var(--muted);">' +
-            '&#9889; <strong>Restart required:</strong> Run <code>iisreset</code> for changes to take effect.</div>';
+            '&#9889; <strong>Restart required:</strong> Run <code>iisreset</code> and restart the AssetWorx Print Server service for changes to take effect.</div>';
         html += '</div>';
         box.innerHTML = html;
     }
@@ -900,7 +953,7 @@ async function loadWizardDefaults() {
         document.getElementById('wizPfxPath').value = d.pfxPath || '';
         document.getElementById('wizUsername').value = d.printClientUsername || 'MasterPrint';
         document.getElementById('wizPassword').value = d.printClientPassword || '';
-        document.getElementById('wizClientName').value = d.printClientName || 'iDash Print Client';
+        document.getElementById('wizClientName').value = d.printClientName || 'Master Print Server';
         document.getElementById('wizBtwPath').value = d.defaultBtwPath || '';
 
         // Sites checkboxes
@@ -921,8 +974,7 @@ async function loadWizardDefaults() {
         // Config status
         var cfgHtml = '';
         cfgHtml += '<div>' + (d.webClientConfigExists ? '&#9989;' : '&#10060;') + ' WebClient: <code style="font-size:10px;">' + (d.webClientConfigPath || '') + '</code></div>';
-        // Print Server config removed (not used by iDash)
-                // cfgHtml += '<div>' + (d.printServerConfigExists ? '&#9989;' : '&#9888;') + ' Print Server: <code style="font-size:10px;">' + (d.printServerConfigPath || '') + '</code></div>';
+        cfgHtml += '<div>' + (d.printServerConfigExists ? '&#9989;' : '&#9888;') + ' Print Server: <code style="font-size:10px;">' + (d.printServerConfigPath || '') + '</code></div>';
         cfgHtml += '<div>' + (d.useForPrinting ? '&#9989;' : '&#10060;') + ' UseForPrinting: <strong>' + (d.useForPrinting ? 'true' : 'false') + '</strong></div>';
         document.getElementById('wizConfigStatus').innerHTML = cfgHtml;
     } catch (e) {
@@ -956,6 +1008,7 @@ async function runWizard() {
         'Read WebClient appsettings.json',
         'Set UseForPrinting = true',
         'Sync credentials to WebClient config',
+        'Sync credentials to Print Server config',
         'Upsert printclient record in database',
         'Remove conflicting mqttclient entries',
         'Create templates for selected sites',
@@ -963,7 +1016,7 @@ async function runWizard() {
     ];
     stepNames.forEach(function(name, i) {
         stepLog.innerHTML += '<div id="wizStep' + (i+1) + '" class="wiz-step" style="display:flex; align-items:flex-start; gap:10px; padding:10px 12px; margin-bottom:6px; border-radius:8px; border:1px solid var(--line); opacity:0.4;">' +
-            '<span class="wiz-icon" style="font-size:16px; min-width:20px; text-align:center;">&#x2B1C;</span>' +
+            '<span class="wiz-icon" style="font-size:16px; min-width:20px; text-align:center;">&#11036;</span>' +
             '<div style="flex:1;"><div style="font-weight:700; font-size:13px;">' + name + '</div>' +
             '<div class="wiz-detail muted" style="font-size:11px; margin-top:2px;"></div></div></div>';
     });
@@ -1006,20 +1059,20 @@ function animateStep(step, index) {
             var detail = el.querySelector('.wiz-detail');
 
             if (step.status === 'pass') {
-                icon.textContent = '\u2705';
+                icon.textContent = '&#9989;';
                 el.style.borderColor = 'color-mix(in srgb, #10b981 40%, transparent)';
                 el.style.background = 'color-mix(in srgb, #10b981 5%, transparent)';
             } else if (step.status === 'warn') {
-                icon.textContent = '\u26A0\uFE0F';
+                icon.textContent = '&#9888;';
                 el.style.borderColor = 'color-mix(in srgb, #f59e0b 40%, transparent)';
                 el.style.background = 'color-mix(in srgb, #f59e0b 5%, transparent)';
             } else {
-                icon.textContent = '\u274C';
+                icon.textContent = '&#10060;';
                 el.style.borderColor = 'color-mix(in srgb, #ef4444 40%, transparent)';
                 el.style.background = 'color-mix(in srgb, #ef4444 5%, transparent)';
             }
 
-            detail.innerHTML = (step.detail || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            detail.textContent = step.detail || '';
             if (step.filePath) {
                 detail.innerHTML += '<br><code style="font-size:10px; opacity:0.7;">' + step.filePath + '</code>';
             }
@@ -1063,7 +1116,7 @@ function showWizardSummary(result) {
     // Restart section
     html += '<div style="margin-top:24px; padding:20px; border-radius:12px; background:color-mix(in srgb, #f59e0b 8%, transparent); border:2px solid color-mix(in srgb, #f59e0b 40%, transparent); text-align:center;">' +
         '<div style="font-size:16px; font-weight:800; color:#f59e0b; margin-bottom:8px;">&#9888; RESTART REQUIRED</div>' +
-        '<div style="font-size:13px; color:var(--text); margin-bottom:16px;">Configuration changes will <strong>not take effect</strong> until IIS is restarted.</div>' +
+        '<div style="font-size:13px; color:var(--text); margin-bottom:16px;">Configuration changes will <strong>not take effect</strong> until IIS and the Print Server service are restarted.</div>' +
         '<div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">' +
         '<button type="button" class="btn btn-fill" onclick="doRestartIIS()" style="padding:8px 28px; font-size:13px;">' +
         '&#128260; Restart IIS Now</button>' +

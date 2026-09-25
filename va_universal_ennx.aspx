@@ -5,8 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="description" content="Universal ENNX Creator &mdash; high-performance RFID and barcode inventory export builder for Zebra handhelds and web clients." />
-    <title>Universal ENNX Creator &mdash; iDash</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <title>Universal ENNX Creator &mdash; AssetWorx</title>
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -165,6 +165,13 @@
         .manual-input-wrap .btn {
             border-radius: 8px; padding: 7px 14px; font-size: 12px;
         }
+        .prefix-filter-wrap {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: var(--chip); padding: 4px 10px; border-radius: 8px; border: 1.5px solid var(--line);
+        }
+        .prefix-filter-wrap .txt {
+            width: 110px; padding: 4px 8px; font-size: 11px; font-weight: 700; font-family: Consolas, monospace; text-transform: uppercase;
+        }
 
         /* SERVER MESSAGES */
         .msg-ok { background: rgba(16,185,129,0.1); border: 1px solid #10b981; border-left: 4px solid #10b981; color: #10b981; padding: 10px 14px; border-radius: 8px; margin-bottom: 12px; font-weight: 600; }
@@ -255,6 +262,8 @@
             .status-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; white-space: nowrap; padding: 2px; }
             .status-tab { padding: 5px 8px; font-size: 11px; flex-shrink: 0; }
             .stream-ctrl-row { flex-direction: column; align-items: stretch; gap: 10px; }
+            .prefix-filter-wrap { width: 100%; justify-content: flex-start; }
+            .prefix-filter-wrap .txt { flex: 1; width: auto; max-width: none; }
             .manual-input-wrap { width: 100%; justify-content: flex-start; }
             .manual-input-wrap .txt { flex: 1; width: auto; max-width: none; border-radius: 8px; }
             .manual-input-wrap .btn { border-radius: 8px; flex-shrink: 0; }
@@ -349,6 +358,14 @@
                                 <input id="chkAutoLoc" type="checkbox" checked="checked" /> Auto-Switch on 'SP'
                             </label>
                         </div>
+                        <div class="prefix-filter-wrap">
+                            <label for="prefixFilter" style="display:flex; align-items:center; gap:4px; font-size:11px; font-weight:800; color:var(--accent, #0284c7); cursor:pointer;" title="Only accept tags starting with this prefix (e.g. 517, 512, ABC). All other tags are ignored.">
+                                <span>&#128269; Prefix:</span>
+                            </label>
+                            <input type="text" id="prefixFilter" class="txt" style="width:110px; padding:3px 7px; font-size:11px; font-weight:700; font-family:Consolas,monospace; text-transform:uppercase; border-radius:6px;" placeholder="e.g. 517, 512" title="Prefix filter (e.g. 517 or 512, 517). Leave empty to accept all tags." oninput="handlePrefixChange();" />
+                            <button type="button" id="btnClearPrefix" class="btn btn-sm btn-outline" style="padding:1px 6px; font-size:10px; display:none;" onclick="clearPrefix();" title="Clear prefix filter">&times;</button>
+                            <span id="prefixBadge" style="display:none; font-size:10px; font-weight:800; padding:1px 6px; border-radius:10px; background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.3); white-space:nowrap;">FILTER ACTIVE</span>
+                        </div>
                         <div class="manual-input-wrap">
                             <input type="text" id="manualInput" class="txt" placeholder="Manual tag or room..." />
                             <button type="button" class="btn btn-sm btn-green" onclick="submitManual();">+ Add</button>
@@ -412,6 +429,7 @@
     <script>
     (function () {
         const STORAGE_KEY = 'UniversalEnnx_SessionBlocks_v2';
+        const PREFIX_STORAGE_KEY = 'UniversalEnnx_PrefixFilter';
         const IDLE_MS = 1000;
 
         let _blocks = [];       // [{ location: string, assets: string[], assetSet: {} }]
@@ -421,18 +439,22 @@
         let _totalAssets = 0;
         let _totalDupes = 0;
         let _totalReads = 0;
+        let _prefixFilter = "";
         
         let _sessionOpen = false;
         let _sessionTimer = null;
         let _isOnline = navigator.onLine;
 
         // DOM References
-        const rawInput    = document.getElementById("raw");
-        const manualInput = document.getElementById("manualInput");
-        const ennxPreview = document.getElementById("ennxPreview");
-        const chkDedup    = document.getElementById("chkDedup");
-        const chkAutoLoc  = document.getElementById("chkAutoLoc");
-        const bodyStream  = document.getElementById("bodyStream");
+        const rawInput      = document.getElementById("raw");
+        const manualInput   = document.getElementById("manualInput");
+        const prefixInput   = document.getElementById("prefixFilter");
+        const btnClearPrefix= document.getElementById("btnClearPrefix");
+        const prefixBadge   = document.getElementById("prefixBadge");
+        const ennxPreview   = document.getElementById("ennxPreview");
+        const chkDedup      = document.getElementById("chkDedup");
+        const chkAutoLoc    = document.getElementById("chkAutoLoc");
+        const bodyStream    = document.getElementById("bodyStream");
 
         // --- SESSION PERSISTENCE ---
         function saveSession() {
@@ -497,6 +519,77 @@
             m = s.match(/^EE\s*(\w+)$/i);           if (m) return "EE" + m[1].toUpperCase();
             m = s.match(/^(\d{3})EE(\w+)$/i);       if (m) return m[1] + " EE" + m[2].toUpperCase();
             return s.length >= 2 ? s : null;
+        }
+
+        // --- PREFIX FILTER ENGINE ---
+        function matchesPrefix(raw, tag) {
+            if (!_prefixFilter || !_prefixFilter.trim()) return true;
+            const parts = _prefixFilter.split(/[,\s]+/).map(p => p.trim().toUpperCase()).filter(Boolean);
+            if (!parts.length) return true;
+
+            const upperRaw = upperStr(raw);
+            const upperTag = upperStr(tag);
+            const cleanRaw = upperRaw.replace(/[\s\-_]/g, "");
+            const cleanTag = upperTag.replace(/[\s\-_]/g, "");
+
+            return parts.some(p => {
+                const cleanP = p.replace(/[\s\-_]/g, "");
+                if (!cleanP) return false;
+                return upperRaw.startsWith(p) || 
+                       upperTag.startsWith(p) || 
+                       cleanRaw.startsWith(cleanP) || 
+                       cleanTag.startsWith(cleanP);
+            });
+        }
+
+        window.handlePrefixChange = function() {
+            const input = document.getElementById("prefixFilter");
+            _prefixFilter = input ? input.value.trim() : "";
+            updatePrefixUI();
+            try {
+                if (_prefixFilter) {
+                    localStorage.setItem(PREFIX_STORAGE_KEY, _prefixFilter);
+                } else {
+                    localStorage.removeItem(PREFIX_STORAGE_KEY);
+                }
+            } catch(e) {}
+        };
+
+        window.clearPrefix = function() {
+            const input = document.getElementById("prefixFilter");
+            if (input) input.value = "";
+            _prefixFilter = "";
+            updatePrefixUI();
+            try { localStorage.removeItem(PREFIX_STORAGE_KEY); } catch(e) {}
+            focusScan();
+        };
+
+        function updatePrefixUI() {
+            const input = document.getElementById("prefixFilter");
+            const btn = document.getElementById("btnClearPrefix");
+            const badge = document.getElementById("prefixBadge");
+            const val = input ? input.value.trim() : "";
+            if (btn) btn.style.display = val ? "inline-block" : "none";
+            if (badge) {
+                if (val) {
+                    badge.style.display = "inline-block";
+                    badge.textContent = "FILTER: " + val.toUpperCase();
+                } else {
+                    badge.style.display = "none";
+                }
+            }
+        }
+
+        function restorePrefixFilter() {
+            try {
+                const saved = localStorage.getItem(PREFIX_STORAGE_KEY);
+                if (saved) {
+                    _prefixFilter = saved.trim();
+                    const input = document.getElementById("prefixFilter");
+                    if (input) input.value = _prefixFilter;
+                    updatePrefixUI();
+                }
+            } catch(e) {}
         }
 
         // --- ENNX BUILDER ---
@@ -567,9 +660,24 @@
         function handleLocationScan(raw) {
             const loc = upperStr(raw).replace(/F+$/, "");
             if (loc.includes("EE")) {
+                if (_prefixFilter) return;
                 addStreamEntry("Ignored", raw, _currentLoc, "Location cannot contain 'EE'");
                 return;
             }
+
+            // Guard: An RFID hex EPC (e.g. 24-char 303404602cd4381...) or shipping barcode cannot be a room location
+            if (/^[0-9A-F]{12,}$/i.test(loc) || !isLocationBarcode(loc)) {
+                if (_prefixFilter && !matchesPrefix(raw, raw)) {
+                    // Stray shipping tag or foreign EPC read while waiting for location: completely drop!
+                    return;
+                }
+                if (/^[0-9A-F]{12,}$/i.test(loc)) {
+                    if (_prefixFilter) return;
+                    addStreamEntry("Ignored", raw, _currentLoc, "Raw EPC cannot be used as room location");
+                    return;
+                }
+            }
+
             _currentLoc = loc;
             _forceLoc = false;
 
@@ -587,6 +695,7 @@
         function handleAssetScan(raw) {
             if (!_currentLoc) {
                 _forceLoc = true;
+                if (_prefixFilter) return; // Completely drop stray reads if prefix filter active while waiting for room location
                 addStreamEntry("Ignored", raw, "(none)", "Scan room location first");
                 refreshUI();
                 return;
@@ -594,7 +703,16 @@
 
             const tag = normalizeAssetTag(raw);
             if (!tag) {
+                // If prefix filter active, completely drop raw hex EPCs or invalid formats
+                if (_prefixFilter) return;
                 addStreamEntry("Ignored", raw, _currentLoc, "Invalid format or pure EPC");
+                return;
+            }
+
+            // Prefix filter validation:
+            // When a prefix filter is active, any tag that does NOT match is COMPLETELY DROPPED.
+            // It will not be added to room assets, will not be in ENNX, and will not pollute the stream table.
+            if (!matchesPrefix(raw, tag)) {
                 return;
             }
 
@@ -647,6 +765,9 @@
 
         function renderStreamTable() {
             const tbody = document.getElementById("bodyStream");
+            const gridWrap = document.querySelector(".grid-wrap");
+            const prevScroll = gridWrap ? gridWrap.scrollTop : 0;
+
             let filtered = _stream;
             if (_currentFilter !== 'All') {
                 filtered = _stream.filter(x => x.type === _currentFilter);
@@ -673,10 +794,14 @@
                     <td><span class="badge ${badgeCls}">${escHtml(entry.type)}</span></td>
                     <td style="font-weight:700; font-family:Consolas,monospace;">${escHtml(entry.val)}</td>
                     <td style="color:var(--muted);">${escHtml(entry.loc || '--')}</td>
-                    <td style="text-align:center;"><button type="button" class="btn btn-sm btn-red" onclick="window.removeStreamItem('${entry.id}', '${escHtml(entry.type)}', '${escHtml(entry.val)}', '${escHtml(entry.loc)}');" style="padding:2px 6px; font-size:10px;">X</button></td>
+                    <td style="text-align:center;"><button type="button" class="btn btn-sm btn-red" onmousedown="event.preventDefault();" onclick="event.stopPropagation(); window.removeStreamItem('${entry.id}', '${escHtml(entry.type)}', '${escHtml(entry.val)}', '${escHtml(entry.loc)}', event);" style="padding:2px 7px; font-size:10px; border-radius:4px; line-height:1.2;" title="Remove this item">X</button></td>
                 `;
                 tbody.appendChild(tr);
             });
+
+            if (gridWrap && prevScroll > 0) {
+                gridWrap.scrollTop = prevScroll;
+            }
         }
 
         // --- PUBLIC ACTIONS ---
@@ -703,7 +828,10 @@
             focusScan();
         };
 
-        window.removeStreamItem = function (id, type, val, loc) {
+        window.removeStreamItem = function (id, type, val, loc, ev) {
+            if (ev) {
+                try { ev.stopPropagation(); ev.preventDefault(); } catch(e){}
+            }
             _stream = _stream.filter(x => String(x.id) !== String(id));
             if (type === "Asset") {
                 _blocks.forEach(b => {
@@ -726,7 +854,8 @@
             renderStreamTable();
             saveSession();
             refreshUI();
-            focusScan();
+            // Note: We intentionally do NOT call focusScan() here.
+            // Calling focus() on the input forces the mobile on-screen keyboard to pop up and displace the viewport.
         };
 
         window.clearAll = function () {
@@ -760,7 +889,12 @@
 
         // --- SCAN INPUT KEY LISTENERS ---
         function focusScan() {
-            try { rawInput.focus(); } catch(e){}
+            // Guard: Do not steal focus or force software keyboard if user is typing in prefix filter or manual input
+            const active = document.activeElement;
+            if (active && (active.id === "prefixFilter" || active.id === "manualInput")) {
+                return;
+            }
+            try { rawInput.focus({ preventScroll: true }); } catch(e){}
         }
 
         rawInput.addEventListener("keydown", function(ev) {
@@ -781,9 +915,13 @@
             }
         });
 
-        // Click outside re-focuses scanner
+        // Click outside re-focuses scanner, but ignore interactive elements
         document.addEventListener("click", function(ev) {
-            if (ev.target && (ev.target.tagName === "INPUT" || ev.target.tagName === "BUTTON" || ev.target.tagName === "TEXTAREA" || ev.target.tagName === "A" || ev.target.tagName === "SUMMARY")) return;
+            if (ev.target) {
+                const tag = ev.target.tagName;
+                if (tag === "INPUT" || tag === "BUTTON" || tag === "TEXTAREA" || tag === "A" || tag === "SUMMARY") return;
+                if (ev.target.closest && (ev.target.closest("button") || ev.target.closest("input") || ev.target.closest("a") || ev.target.closest(".prefix-filter-wrap"))) return;
+            }
             setTimeout(focusScan, 50);
         });
 
@@ -851,6 +989,7 @@
         // --- INIT ---
         window.initApp = function() {
             restoreSession();
+            restorePrefixFilter();
             probeNetwork();
             focusScan();
         };
@@ -860,4 +999,3 @@
 </form>
 </body>
 </html>
-

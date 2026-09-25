@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_inventory_legacy.aspx.cs" Inherits="va_inventory_legacy" MaintainScrollPositionOnPostback="true" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_inventory_legacy.aspx.cs" Inherits="va_inventory_legacy" MaintainScrollPositionOnPostback="true" %>
     <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 
         <!DOCTYPE html>
@@ -6,8 +6,8 @@
 
         <head runat="server">
             <meta charset="utf-8" />
-            <title>VA Site Inventory &mdash; iDash</title>
-            <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+            <title>VA Site Inventory - AssetWorx</title>
+            <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
             <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
             <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -236,7 +236,7 @@
                     filter: var(--cal-filter);
                     cursor: pointer;
                 }
-                /* WebSerial section � hidden globally, not in use */
+                /* WebSerial section — hidden globally, not in use */
                 #serialSection { display: none; }
 
                 /* === MOBILE / SCANNER OPTIMIZATION (TC53, Android handhelds) === */
@@ -285,7 +285,7 @@
                 }
             </style>
             <script>
-                // -- Service Worker Registration ---------------------------------------
+                // ── Service Worker Registration ───────────────────────────────────────
                 (function() {
                     if (!('serviceWorker' in navigator)) return;
                     navigator.serviceWorker.register('sw.js').then(function(reg) {
@@ -295,7 +295,7 @@
                     });
                 })();
 
-                // -- Constants & State --------------------------------------------------
+                // ── Constants & State ──────────────────────────────────────────────────
                 const OFFLINE_KEY    = 'Inventory_OfflineQueue';
                 const OFFLINE_LOC    = 'Inventory_CurrentLocation';
                 const OFFLINE_SITE   = 'Inventory_SelectedSite';
@@ -306,7 +306,7 @@
                 let   _probeInFlight = false;
                 let   _probeTimer    = null;
 
-                // -- Connectivity Probe ---------------------------------------------
+                // ── Connectivity Probe ─────────────────────────────────────────────
                 function probeConnectivity() {
                     if (_probeInFlight) {
                         if (_probeTimer) return Promise.resolve(_isOnline);
@@ -362,7 +362,7 @@
                     updateIndicator(false);
                 });
 
-                // -- Offline Location, Site & Operator Persistence -----------------
+                // ── Offline Location, Site & Operator Persistence ─────────────────
                 function persistLocation(loc) {
                     if (loc && loc !== '(None Set)') localStorage.setItem(OFFLINE_LOC, loc);
                 }
@@ -408,7 +408,7 @@
                     }
                 }
 
-                // -- Barcode Validation (enforces 3-digit station prefix across all VA sites) --
+                // ── Barcode Validation (enforces 3-digit station prefix across all VA sites) ──
                 const BARCODE_REGEX = /^\d{3} EE\w+$/i;
                 function validateBarcode(barcode) {
                     if (!barcode || !BARCODE_REGEX.test(barcode.trim())) {
@@ -426,7 +426,7 @@
                     return { valid: true };
                 }
 
-                // -- Live Grid Visual Feedback (Offline) -----------------------------
+                // ── Live Grid Visual Feedback (Offline) ─────────────────────────────
                 function updateGridRowOffline(cleanBarcode) {
                     var grid = document.getElementById('GridScans');
                     if (!grid) return false;
@@ -1163,7 +1163,7 @@
         <body>
             <form id="form1" runat="server">
                 <div class="status-bar">
-                    <span>iDash VA Site Inventory</span>
+                    <span>AssetWorx VA Site Inventory</span>
                     <span id="connection-indicator">Checking Connection...</span>
                 </div>
                 <div class="wrap">
@@ -1366,6 +1366,5 @@
         </body>
 
         </html>
-
 
 

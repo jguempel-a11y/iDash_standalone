@@ -1,17 +1,17 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_cmr_stats.aspx.cs" Inherits="va_cmr_stats" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_cmr_stats.aspx.cs" Inherits="va_cmr_stats" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>CMR Progress Report &mdash; iDash</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <title>CMR Progress Report -- AssetWorx</title>
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="CMR accountability and turnover progress tracking for iDash asset inventories." />
+    <meta name="description" content="CMR accountability and turnover progress tracking for AssetWorx asset inventories." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -38,7 +38,7 @@
 
         .dash { max-width: 1480px; margin: 0 auto; padding: 28px 22px; }
 
-        /* -- HEADER ----------------------------------- */
+        /* ── HEADER ─────────────────────────────────── */
         .page-header {
             display: flex; justify-content: space-between; align-items: center;
             gap: 16px; flex-wrap: wrap;
@@ -64,7 +64,7 @@
         }
         .nav-pill:hover { border-color: var(--blue); color: var(--blue); }
 
-        /* -- GLASS PANEL ------------------------------- */
+        /* ── GLASS PANEL ─────────────────────────────── */
         .glass {
             background: var(--panel);
             backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
@@ -83,7 +83,7 @@
             border-bottom: 1px solid rgba(255,255,255,0.04);
         }
 
-        /* -- SCAN WINDOW TABS -------------------------- */
+        /* ── SCAN WINDOW TABS ────────────────────────── */
         .window-tabs {
             display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
             background: var(--chip);
@@ -109,7 +109,7 @@
             font-size: 12px; color: var(--muted); margin-left: 8px;
         }
 
-        /* -- KPI CARDS --------------------------------- */
+        /* ── KPI CARDS ───────────────────────────────── */
         .kpi-row {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
@@ -147,7 +147,7 @@
         .k-purple { color: var(--purple); } .k-purple::before { background: var(--purple); }
         .k-orange { color: var(--orange); } .k-orange::before { background: var(--orange); }
 
-        /* -- CONTROLS BAR ------------------------------ */
+        /* ── CONTROLS BAR ────────────────────────────── */
         .ctrl-bar {
             display: flex; align-items: center; gap: 12px;
             flex-wrap: wrap; margin-bottom: 16px;
@@ -162,7 +162,7 @@
         .ctrl-select option { background: var(--card); color: var(--text); }
         .ctrl-input::placeholder { color: var(--muted); opacity: 0.5; }
 
-        /* -- BUTTONS ----------------------------------- */
+        /* ── BUTTONS ─────────────────────────────────── */
         .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid; text-decoration: none; }
         .btn-blue   { background: color-mix(in srgb, var(--accent), transparent 85%);  color: var(--blue);   border-color: var(--blue);   }
         .btn-green  { background: color-mix(in srgb, var(--accent-2), transparent 85%);  color: var(--green);  border-color: var(--green);  }
@@ -173,7 +173,7 @@
         .btn-yellow:hover { background: rgba(245,158,11,0.28); }
         .btn-ghost:hover  { color: var(--text); border-color: var(--border); }
 
-        /* -- CMR SUMMARY TABLE ------------------------- */
+        /* ── CMR SUMMARY TABLE ───────────────────────── */
         .cmr-table-wrap { overflow-x: auto; }
         .cmr-table {
             width: 100%; border-collapse: collapse;
@@ -217,12 +217,12 @@
         .dt-length select { background: var(--chip); color:var(--text); border:1px solid var(--border); border-radius:4px; padding:4px; }
         .dt-search input { background: var(--chip); border: 1px solid var(--line); color: var(--text); padding: 6px 10px; border-radius: 6px; font-size: 12px; outline: none; }
 
-        /* -- MESSAGES ----------------------------------- */
+        /* ── MESSAGES ─────────────────────────────────── */
         .err-msg  { background: color-mix(in srgb, var(--danger), transparent 85%);  border: 1px solid rgba(239,68,68,0.3);  padding: 12px 16px; border-radius: 8px; margin-bottom: 14px; color: var(--red);   }
         .ok-msg   { background: color-mix(in srgb, var(--accent-2), transparent 85%); border: 1px solid rgba(16,185,129,0.3); padding: 12px 16px; border-radius: 8px; margin-bottom: 14px; color: var(--green); }
         .no-data  { color: var(--muted); padding: 32px; text-align: center; font-size: 14px; }
 
-        /* -- COMPLETION RING (overall %) --------------- */
+        /* ── COMPLETION RING (overall %) ─────────────── */
         .ring-wrap { display: flex; align-items: center; gap: 20px; margin-bottom: 6px; }
         .ring-svg  { flex-shrink: 0; }
         .ring-track { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 8; }
@@ -239,7 +239,7 @@
 <form id="form1" runat="server">
 <div class="dash">
 
-    <!-- -- HEADER -- -->
+    <!-- ── HEADER ── -->
     <div class="page-header">
         <div>
             <h1>&#128203; CMR Progress Report</h1>
@@ -256,7 +256,7 @@
         </div>
     </div>
 
-    <!-- -- SCAN WINDOW TABS -- -->
+    <!-- ── SCAN WINDOW TABS ── -->
     <div class="window-tabs">
         <span class="ctrl-label" style="padding:0 6px;">Scan Window:</span>
         <asp:LinkButton ID="BtnWinToday" runat="server" CssClass="window-tab" CommandArgument="today" OnClick="BtnScanWindow_Click">Today</asp:LinkButton>
@@ -266,7 +266,7 @@
         <span class="window-label-text">Click a window to see how many CMR assets were found in that period</span>
     </div>
 
-    <!-- -- HIDDEN FIELDS -- -->
+    <!-- ── HIDDEN FIELDS ── -->
     <asp:HiddenField ID="HdnScanWindow"  runat="server" Value="30" />
     <asp:HiddenField ID="HdnKpiTotal"    runat="server" Value="0" />
     <asp:HiddenField ID="HdnKpiScanned"  runat="server" Value="0" />
@@ -275,7 +275,7 @@
     <asp:HiddenField ID="HdnKpiCmrs"     runat="server" Value="0" />
     <asp:HiddenField ID="HdnKpiPct"      runat="server" Value="0" />
 
-    <!-- -- KPI CARDS -- -->
+    <!-- ── KPI CARDS ── -->
     <div class="kpi-row">
         <div class="kpi-card">
             <div class="kpi-value k-purple" id="kv-cmrs">0</div>
@@ -309,7 +309,7 @@
         </div>
     </div>
 
-    <!-- -- CMR SUMMARY PANEL -- -->
+    <!-- ── CMR SUMMARY PANEL ── -->
     <div class="glass">
         <div class="panel-label">CMR-by-CMR Breakdown &mdash; Found vs. Remaining</div>
 
@@ -346,7 +346,7 @@
 </form>
 
 <script type="text/javascript">
-    // -- Animated counter ------------------------------------------
+    // ── Animated counter ──────────────────────────────────────────
     function animVal(id, target, dur, fmt, isSuffix) {
         var el = document.getElementById(id);
         if (!el || isNaN(target)) return;
@@ -367,7 +367,7 @@
         return (val / total * 100).toFixed(1) + '%';
     }
 
-    // -- Init KPIs -------------------------------------------------
+    // ── Init KPIs ─────────────────────────────────────────────────
     function initKpis() {
         var total   = parseInt(document.getElementById('<%= HdnKpiTotal.ClientID %>').value)   || 0;
         var scanned = parseInt(document.getElementById('<%= HdnKpiScanned.ClientID %>').value) || 0;
@@ -413,7 +413,7 @@
         });
     }
 
-    // -- DataTable on CMR Summary ----------------------------------
+    // ── DataTable on CMR Summary ──────────────────────────────────
     $(document).ready(function() {
         initKpis();
 
@@ -437,5 +437,4 @@
 </script>
 </body>
 </html>
-
 

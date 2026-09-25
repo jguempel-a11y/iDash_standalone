@@ -1,10 +1,10 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_log_viewer.aspx.cs" Inherits="iDash.va_log_viewer" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_log_viewer.aspx.cs" Inherits="iDash.va_log_viewer" %>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>iDash &mdash; Log Viewer</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <title>VA AssetWorx! - Log Viewer</title>
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -369,5 +369,4 @@
 </form>
 </body>
 </html>
-
 

@@ -1,11 +1,11 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_system_update.aspx.cs" Inherits="va_system_update" ResponseEncoding="utf-8" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_system_update.aspx.cs" Inherits="va_system_update" ResponseEncoding="utf-8" %>
 <%-- System Update v2.2 --%>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>System Update &amp; Deployment &mdash; iDash</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -197,7 +197,7 @@
     <!-- SIDEBAR -->
     <div class="side">
         <h1>
-            <img src="Assets/branding/rfid.png" alt="" style="width:20px;height:20px;" />
+            <img src="/iDash/Assets/branding/rfid.png" alt="" style="width:20px;height:20px;" />
             Deployment Hub
         </h1>
         <div class="sub">System Update &amp; Maintenance</div>
@@ -213,7 +213,7 @@
     <!-- MAIN CONTENT -->
     <div class="main">
         <h1 class="page-title">
-            <img src="Assets/branding/rfid.png" alt="" style="width:28px;height:28px;" />
+            <img src="/iDash/Assets/branding/rfid.png" alt="" style="width:28px;height:28px;" />
             System Update &amp; Deployment
         </h1>
         <div class="page-sub">Effortless, zero-script web updater to synchronize remote laptops, mobile carts, and facility servers with the latest baseline.</div>
@@ -224,34 +224,69 @@
         <div class="msg-ok" style="background: rgba(16, 185, 129, 0.08); border-color: #10b981; color: var(--text);">
             <strong style="font-size:16px;">&#128274; Safe Migration Boundary Active:</strong>
             <div style="font-size:12px; color:var(--muted); margin-top:4px; line-height:1.5;">
-                Updating through this interface replaces application files, binaries, scripts, and documentation while strictly preserving your local <strong>web.config</strong> (database credentials &amp; server IP), <strong>App_Data/</strong> (users &amp; database files), and <strong>logs/</strong>.
+                Updating through this interface replaces application files, binaries, scripts, and documentation while strictly preserving all site-specific configuration:
+                <strong>web.config</strong> (DB credentials, OAuth, SMTP, MQTT, machineKey) &bull;
+                <strong>App_Data/</strong> (users, licenses, watchlists, scan columns) &bull;
+                <strong>config/</strong> (email, FHIR keys, reader intelligence, report automation) &bull;
+                <strong>printing/</strong> &amp; <strong>print_mapping_config.json</strong> (printer routing &amp; tag-type mapping) &bull;
+                <strong>Assets/printserver_appsettings.json</strong> (print server MQTT config) &bull;
+                <strong>services/</strong> (CrossSiteTagObserver) &bull;
+                <strong>workbench_profiles/</strong> &bull; <strong>site_maps/</strong> &bull; <strong>logs/</strong>
+        </div>
+
+        <!-- REMOTE MACHINE BOOTSTRAP NOTICE -->
+        <div class="panel" style="border: 2px solid #38bdf8; background: rgba(56, 189, 248, 0.05); margin-bottom: 24px;">
+            <h2 class="ptitle" style="color: #38bdf8;">&#9889; Updating a Remote / Older Computer from this Master Node?</h2>
+            <p class="psub" style="margin-bottom:12px;">
+                <strong>Important note:</strong> Clicking &ldquo;Start System Update Now&rdquo; under Option 1 updates <em>the server hosting this page (<%= Request.Url.Host %>)</em>. If you opened this web page in a browser on your laptop, clicking the button updates the server hosting the site (Lingcod), not your laptop!
+            </p>
+            <div style="font-weight:600; font-size:13px; margin-bottom:10px; color:#e2e8f0;">
+                To update that remote/older machine, run either of these <strong>on the remote machine</strong>:
+            </div>
+            
+            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px; margin-top:10px;">
+                <div style="background:var(--chip); border:1px solid var(--line); border-radius:10px; padding:16px;">
+                    <div style="font-weight:700; color:#10b981; font-size:13px; margin-bottom:6px;">&#128229; Method 1: Download &amp; Run Batch File</div>
+                    <div style="font-size:12px; color:var(--muted); margin-bottom:12px; line-height:1.4;">Download this batch file to the remote machine and double-click it. It connects to Lingcod, deploys all 972+ files, preserves <code>web.config</code>, and installs this update page locally!</div>
+                    <a href="va_system_update.aspx?action=get_bat" class="btn green" style="width:100%; justify-content:center; padding:10px 0; font-size:13px;">
+                        &#128229; Download update_this_machine.bat
+                    </a>
+                </div>
+                
+                <div style="background:var(--chip); border:1px solid var(--line); border-radius:10px; padding:16px;">
+                    <div style="font-weight:700; color:#38bdf8; font-size:13px; margin-bottom:6px;">&#128187; Method 2: 1-Line PowerShell Command</div>
+                    <div style="font-size:12px; color:var(--muted); margin-bottom:8px; line-height:1.4;">Open PowerShell (Run as Administrator) on the remote machine and paste:</div>
+                    <div style="background:#020617; border:1px solid #334155; border-radius:6px; padding:8px 10px; font-family:Consolas,monospace; font-size:11px; color:#38bdf8; word-break:break-all; user-select:all;">
+                        iex (irm '<%= GetBootstrapUrl() %>')
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- OPTION 1: 1-CLICK OVER-THE-AIR UPDATE -->
         <div class="panel" id="sec-ota">
-            <h2 class="ptitle">&#128640; Option 1: 1-Click Over-The-Air Update (Recommended)</h2>
+            <h2 class="ptitle">&#128640; Option 1: 1-Click Over-The-Air Update (Local System)</h2>
             <p class="psub">This server will directly download the clean baseline package from your master development node or GitHub repository, extract all application files, and refresh IIS &mdash; completely hands-free with real-time visual progress.</p>
 
             <div style="font-weight:600; font-size:13px; margin-bottom:6px;">Select Update Source:</div>
             
             <div class="source-grid">
-                <div class="source-card active" onclick="selectSource('master', 'https://lingcod.tail585c9b.ts.net/iDash/downloads/idash_full_site.zip')">
+                <div class="source-card active" onclick="selectSource('master', 'https://lingcod.tail585c9b.ts.net/iDash/downloads/idash_update.zip')">
                     <input type="radio" name="updateSourceRadio" id="srcMaster" checked="checked" />
-                    <label for="srcMaster" class="source-title">&#128279; Master Node (LingCod Tailscale)</label>
-                    <div class="source-desc">Direct high-speed P2P sync from your central master server across Tailscale.</div>
+                    <label for="srcMaster" class="source-title">&#128279; Master Node (LingCod Tailscale / Web)</label>
+                    <div class="source-desc">Direct sync from LingCod master over Tailscale Funnel (works inside or outside Tailnet).</div>
                 </div>
 
-                <div class="source-card" onclick="selectSource('github-release', 'https://github.com/jguempel-a11y/iDash/releases/latest/download/idash_full_site.zip')">
-                    <input type="radio" name="updateSourceRadio" id="srcGhRel" />
-                    <label for="srcGhRel" class="source-title">&#9729;&#65039; GitHub Official Release</label>
-                    <div class="source-desc">Download verified release package from GitHub when master is offline.</div>
+                <div class="source-card" onclick="selectSource('master-direct', 'http://100.90.225.121/iDash/downloads/idash_update.zip')">
+                    <input type="radio" name="updateSourceRadio" id="srcMasterDirect" />
+                    <label for="srcMasterDirect" class="source-title">&#128268; Master Node (Direct 100.90.225.121)</label>
+                    <div class="source-desc">Direct high-speed P2P sync across Tailscale (when connected to tailnet).</div>
                 </div>
 
-                <div class="source-card" onclick="selectSource('github-branch', 'https://github.com/jguempel-a11y/iDash/archive/refs/heads/main.zip')">
+                <div class="source-card" onclick="selectSource('github-branch', 'https://github.com/jguempel-a11y/iDash/archive/refs/heads/idash_update.zip')">
                     <input type="radio" name="updateSourceRadio" id="srcGhBranch" />
-                    <label for="srcGhBranch" class="source-title">&#128025; GitHub Main Branch Zip</label>
-                    <div class="source-desc">Direct snapshot of latest committed repository code.</div>
+                    <label for="srcGhBranch" class="source-title">&#128025; GitHub Update Branch Zip</label>
+                    <div class="source-desc">Direct snapshot of latest idash_update branch code from GitHub.</div>
                 </div>
 
                 <div class="source-card" onclick="selectSource('custom', '')">
@@ -294,10 +329,10 @@
             
             <div style="margin-top:12px;">
                 <label style="display:block; font-size:12px; font-weight:600; margin-bottom:4px;">Source Directory</label>
-                <asp:TextBox ID="TxtSourceDir" runat="server" Text="C:\inetpub\wwwroot\iDash" style="background:var(--chip);color:var(--text);border:1px solid var(--line);padding:8px;border-radius:6px;width:100%;max-width:600px;margin-bottom:10px;font-family:monospace;font-size:12px;" />
+                <asp:TextBox ID="TxtSourceDir" runat="server" Text="C:\inetpub\wwwroot\AssetWorx.WebClient\iDash" style="background:var(--chip);color:var(--text);border:1px solid var(--line);padding:8px;border-radius:6px;width:100%;max-width:600px;margin-bottom:10px;font-family:monospace;font-size:12px;" />
                 
                 <label style="display:block; font-size:12px; font-weight:600; margin-bottom:4px;">Target UNC Path</label>
-                <asp:TextBox ID="TxtTargetDir" runat="server" Text="\\laptop-e74ckmo5.tail2fc4c5.ts.net\c$\inetpub\wwwroot\iDash" style="background:var(--chip);color:var(--text);border:1px solid var(--line);padding:8px;border-radius:6px;width:100%;max-width:600px;margin-bottom:12px;font-family:monospace;font-size:12px;" />
+                <asp:TextBox ID="TxtTargetDir" runat="server" Text="\\laptop-e74ckmo5.tail2fc4c5.ts.net\c$\inetpub\wwwroot\AssetWorx.WebClient\iDash" style="background:var(--chip);color:var(--text);border:1px solid var(--line);padding:8px;border-radius:6px;width:100%;max-width:600px;margin-bottom:12px;font-family:monospace;font-size:12px;" />
             </div>
 
             <asp:Button ID="BtnDownloadScript" runat="server" Text="&#128190; Download deploy_idash.ps1" CssClass="btn" style="background:var(--chip); border-color:var(--line); color:var(--text);" OnClick="BtnDownloadScript_Click" />
@@ -340,6 +375,18 @@
                 Connecting to repository...
             </div>
 
+            <!-- Live Update Console -->
+            <div style="margin-top:14px; text-align:left;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#94a3b8;">Live Update Console</span>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span id="logCountBadge" style="font-size:11px; color:#38bdf8; font-family:Consolas,monospace;">0 events</span>
+                        <button type="button" onclick="copyConsoleLogs()" style="background:#1e293b; border:1px solid #334155; color:#38bdf8; border-radius:4px; padding:2px 8px; font-size:11px; cursor:pointer;">&#128203; Copy Logs</button>
+                    </div>
+                </div>
+                <div id="logConsole" style="background:#020617; border:1px solid #334155; border-radius:8px; padding:10px 12px; font-family:Consolas,monospace; font-size:11px; color:#38bdf8; height:130px; overflow-y:auto; white-space:pre-wrap; line-height:1.45;">[Ready] Waiting to start update...</div>
+            </div>
+
             <!-- Safety Notice -->
             <div class="modal-warning">
                 &#9888;&#65039; <strong>DO NOT REFRESH OR CLOSE THIS WINDOW</strong><br />
@@ -372,9 +419,14 @@
                 The update process could not be completed.
             </div>
 
-            <button type="button" class="btn" style="background:#334155; color:#fff; border-color:#475569;" onclick="closeOverlay()">
-                Close
-            </button>
+            <div style="display:flex; gap:10px; justify-content:center;">
+                <button type="button" class="btn" style="background:#0284c7; color:#fff; border-color:#38bdf8;" onclick="copyConsoleLogs()">
+                    &#128203; Copy Error Logs
+                </button>
+                <button type="button" class="btn" style="background:#334155; color:#fff; border-color:#475569;" onclick="closeOverlay()">
+                    Close
+                </button>
+            </div>
         </div>
 
     </div>
@@ -397,11 +449,26 @@
         }
     });
 
+    function copyConsoleLogs() {
+        var el = document.getElementById('logConsole');
+        var txt = el ? el.textContent : '';
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(txt).then(function() {
+                alert('Update logs copied to clipboard!');
+            }).catch(function() {
+                alert(txt);
+            });
+        } else {
+            alert(txt);
+        }
+    }
+
     function selectSource(type, url) {
         document.querySelectorAll('.source-card').forEach(function(c) { c.classList.remove('active'); });
         
         var radioId = 'srcMaster';
-        if (type === 'github-release') radioId = 'srcGhRel';
+        if (type === 'master-direct') radioId = 'srcMasterDirect';
+        else if (type === 'github-release') radioId = 'srcGhRel';
         else if (type === 'github-branch') radioId = 'srcGhBranch';
         else if (type === 'custom') radioId = 'srcCustom';
         
@@ -495,15 +562,42 @@
     function checkStatus() {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', 'va_system_update.aspx?action=status&t=' + Date.now(), true);
+        xhr.timeout = 3000;
         xhr.onload = function() {
             if (xhr.status === 200) {
                 try {
                     var data = JSON.parse(xhr.responseText);
                     updateProgressUi(data);
+                } catch(e) {
+                    // Handler returned non-JSON (likely IIS recycling) — fallback to status file
+                    checkStatusFallback();
+                }
+            } else {
+                checkStatusFallback();
+            }
+        };
+        xhr.onerror = function() { checkStatusFallback(); };
+        xhr.ontimeout = function() { checkStatusFallback(); };
+        xhr.send();
+    }
+
+    function checkStatusFallback() {
+        var xhr2 = new XMLHttpRequest();
+        xhr2.open('GET', 'scratch/update_status.json?t=' + Date.now(), true);
+        xhr2.timeout = 3000;
+        xhr2.onload = function() {
+            if (xhr2.status === 200) {
+                try {
+                    var data = JSON.parse(xhr2.responseText);
+                    updateProgressUi(data);
                 } catch(e) { }
             }
         };
-        xhr.send();
+        xhr2.onerror = function() {
+            var ticker = document.getElementById('currentFileTicker');
+            if (ticker) ticker.textContent = 'Application pool restarting with updated files...';
+        };
+        xhr2.send();
     }
 
     function updateProgressUi(data) {
@@ -525,6 +619,17 @@
             document.getElementById('currentFileTicker').textContent = 'Deploying: ' + data.currentFile;
         } else if (data.message) {
             document.getElementById('currentFileTicker').textContent = data.message;
+        }
+
+        // Render Live Log Console
+        if (data.recentLogs && data.recentLogs.length > 0) {
+            var logEl = document.getElementById('logConsole');
+            if (logEl) {
+                logEl.textContent = data.recentLogs.join('\n');
+                logEl.scrollTop = logEl.scrollHeight;
+            }
+            var badge = document.getElementById('logCountBadge');
+            if (badge) badge.textContent = data.recentLogs.length + ' events';
         }
 
         // Highlight Milestone Steps

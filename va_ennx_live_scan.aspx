@@ -5,8 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="description" content="ENNX Live Scan &mdash; mobile RFID and barcode inventory live scanner with automated database commitment for Zebra handhelds and web clients." />
-    <title>ENNX Live Scan &mdash; iDash</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <title>ENNX Live Scan &mdash; AssetWorx</title>
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -96,8 +96,14 @@
             background: rgba(99,102,241,0.12); color: #6366f1; border: 1px solid rgba(99,102,241,0.3);
             border-radius: 8px; font-size: 11px; font-weight: 700; white-space: nowrap; flex-shrink: 0;
         }
-        .site-row-eil {
-            display: flex; align-items: center; gap: 8px; width: 100%;
+
+        /* EIL STREAM PANEL AT TOP OF SCAN STREAM & RECONCILIATION */
+        .eil-stream-panel {
+            background: var(--chip); border: 1.5px solid var(--line); border-radius: 8px;
+            padding: 8px 10px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px;
+        }
+        .eil-stream-top {
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
         }
         .eil-toggle-label {
             display: inline-flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer;
@@ -106,8 +112,48 @@
         .eil-toggle-label input[type="checkbox"] {
             transform: scale(1.15); cursor: pointer; accent-color: var(--accent, #0284c7);
         }
-        .eil-select {
-            flex: 1; min-width: 0; padding: 5px 8px; font-size: 12px;
+        .eil-title-text {
+            font-size: 11px; font-weight: 800; color: var(--accent, #0284c7); text-transform: uppercase; letter-spacing: 0.3px;
+        }
+        .eil-controls-wrap {
+            display: flex; align-items: center; gap: 6px; flex-wrap: wrap; flex: 1; min-width: 240px; justify-content: flex-end;
+        }
+        .eil-collected-select {
+            flex: 1; min-width: 170px; max-width: 260px; padding: 4px 8px; font-size: 11px; font-weight: 700; height: 30px; border-radius: 6px;
+        }
+        .eil-search-wrap {
+            position: relative; display: inline-flex; align-items: center;
+        }
+        .eil-search-wrap .txt {
+            width: 140px; padding: 4px 22px 4px 8px; font-size: 11px; font-weight: 700; height: 30px; border-radius: 6px; text-transform: uppercase; font-family: Consolas, monospace;
+        }
+        .btn-clear-eil {
+            position: absolute; right: 3px; padding: 0 5px; font-size: 12px; line-height: 18px; border: none; background: transparent; color: var(--muted); cursor: pointer;
+        }
+        .btn-clear-eil:hover { color: var(--danger, #ef4444); }
+        .eil-chips-row {
+            display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 11px; padding-top: 2px;
+        }
+        .eil-chips-label {
+            font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.3px; flex-shrink: 0;
+        }
+        .eil-chips-list {
+            display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
+        }
+        .eil-chip {
+            display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px;
+            font-size: 10px; font-weight: 700; font-family: Consolas, monospace;
+            background: var(--card); color: var(--text); border: 1px solid var(--line);
+            cursor: pointer; transition: all 0.15s; user-select: none;
+        }
+        .eil-chip:hover {
+            border-color: var(--accent, #0284c7); color: var(--accent, #0284c7);
+        }
+        .eil-chip.active {
+            background: #0284c7; color: #ffffff; border-color: #0284c7; box-shadow: 0 1px 4px rgba(2,132,199,0.3);
+        }
+        .eil-empty-hint {
+            color: var(--muted); font-style: italic; font-size: 10px;
         }
 
         /* SCANNER CARD */
@@ -336,16 +382,6 @@
                 </div>
                 <span class="site-locked-pill" id="siteLockedBadge">&#128274; Station: <strong id="tStation">517</strong></span>
             </div>
-
-            <!-- ROW 2: SINGLE LINE FILTER BY EIL UNDER IT -->
-            <div class="site-row-eil">
-                <label class="eil-toggle-label" for="chkScanByEil">
-                    <input id="chkScanByEil" type="checkbox" onchange="onEilToggle();" />
-                    <span>Filter by EIL:</span>
-                </label>
-                <asp:DropDownList ID="DdlEIL" runat="server" CssClass="site-select eil-select">
-                </asp:DropDownList>
-            </div>
         </div>
 
         <!-- 1. HIGH-SPEED SCANNER CARD -->
@@ -406,6 +442,42 @@
                 <div class="card" style="margin-bottom:0; flex:1; display:flex; flex-direction:column;">
                     <div class="card-header">
                         <div class="card-title">&#128225; Scan Stream &amp; Reconciliation</div>
+                    </div>
+
+                    <!-- EIL FILTER BAR (MOVED TO TOP OF SCAN STREAM & RECONCILIATION) -->
+                    <div class="eil-stream-panel" id="eilStreamPanel">
+                        <div class="eil-stream-top">
+                            <label class="eil-toggle-label" for="chkScanByEil" title="Toggle EIL filtering for scanning and reconciliation">
+                                <input id="chkScanByEil" type="checkbox" onchange="onEilToggle();" />
+                                <span class="eil-title-text">&#128203; Filter by EIL:</span>
+                            </label>
+
+                            <!-- Dual-Mode Box: Choose from Collected EILs + Instant Search/Type Input -->
+                            <div class="eil-controls-wrap">
+                                <!-- 1. Box / Dropdown to choose from EILs collected with scan -->
+                                <select id="ddlCollectedEil" class="site-select eil-collected-select" onchange="onCollectedEilSelected(this.value);" title="Choose from EILs detected among your scanned items">
+                                    <option value="All">All Scanned EILs (All Items)</option>
+                                </select>
+
+                                <!-- 2. Search box with autocomplete for all 4,300+ station EILs -->
+                                <div class="eil-search-wrap">
+                                    <input type="text" id="txtEilSearch" class="txt" list="eilStationDataList" placeholder="Search / Type EIL..." autocomplete="off" oninput="onEilSearchInput(this.value);" title="Search or type any station EIL" />
+                                    <button type="button" id="btnClearEil" class="btn btn-sm btn-outline btn-clear-eil" onclick="clearEilFilter();" title="Clear EIL filter" style="display:none;">&times;</button>
+                                </div>
+                                <datalist id="eilStationDataList"></datalist>
+
+                                <!-- Hidden original server dropdown so ASP.NET doesn't complain -->
+                                <asp:DropDownList ID="DdlEIL" runat="server" style="display:none;"></asp:DropDownList>
+                            </div>
+                        </div>
+
+                        <!-- 3. Quick-Pick Chips of Collected EILs -->
+                        <div class="eil-chips-row" id="eilChipsRow">
+                            <span class="eil-chips-label">Detected EILs:</span>
+                            <div class="eil-chips-list" id="eilChipsList">
+                                <span class="eil-empty-hint">(Scan assets to detect EILs)</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- OPTIONS & MANUAL INPUT ROW (ROUNDED CORNERS & LEFT JUSTIFIED) -->
@@ -497,7 +569,7 @@
             <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:16px;">
                 <div>
                     <label class="lbl" style="display:block; margin-bottom:4px; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase;">Username</label>
-                    <input type="text" id="txtLoginUser" class="txt" style="width:100%;" placeholder="e.g. gary or idashadmin" autocomplete="username" />
+                    <input type="text" id="txtLoginUser" class="txt" style="width:100%;" placeholder="e.g. gary or assetworxadmin" autocomplete="username" />
                 </div>
                 <div>
                     <label class="lbl" style="display:block; margin-bottom:4px; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase;">Password</label>
@@ -527,6 +599,10 @@
     let startedUtc = new Date().toISOString();
     let currentFilter = 'All';
     let activeStation = '517';
+    let _selectedEil = 'All';
+    let _assetEilCache = {}; // { tag: eil }
+    let _collectedEils = {}; // { eil: count }
+    let _stationEilList = []; // [eil1, eil2, ...]
 
     // Elements
     const scanBox = document.getElementById('raw');
@@ -547,6 +623,11 @@
     const ddlCompany = document.getElementById('<%= DdlCompany.ClientID %>');
     const ddlEIL = document.getElementById('<%= DdlEIL.ClientID %>');
     const chkScanByEil = document.getElementById('chkScanByEil');
+    const ddlCollectedEil = document.getElementById('ddlCollectedEil');
+    const txtEilSearch = document.getElementById('txtEilSearch');
+    const btnClearEil = document.getElementById('btnClearEil');
+    const eilStationDataList = document.getElementById('eilStationDataList');
+    const eilChipsList = document.getElementById('eilChipsList');
     const tStation = document.getElementById('tStation');
 
     // Server Hidden Fields
@@ -571,6 +652,18 @@
         syncUserSession();
         onEilToggle();
 
+        // Populate station datalist from existing ddlEIL options if present
+        if (eilStationDataList && ddlEIL && ddlEIL.options && ddlEIL.options.length > 1) {
+            let dlHtml = '';
+            for (let i = 0; i < ddlEIL.options.length; i++) {
+                const v = ddlEIL.options[i].value;
+                if (v && v !== 'All') {
+                    dlHtml += '<option value="' + escapeHtml(v) + '">';
+                }
+            }
+            eilStationDataList.innerHTML = dlHtml;
+        }
+
         // Setup scanner listeners
         scanBox.addEventListener('keydown', function (e) {
             if (e.key === 'Enter') {
@@ -592,6 +685,7 @@
         document.addEventListener('click', function (e) {
             const tag = e.target.tagName;
             if (tag === 'INPUT' || tag === 'BUTTON' || tag === 'SELECT' || tag === 'A' || tag === 'TEXTAREA') return;
+            if (e.target.closest && (e.target.closest('#eilStreamPanel') || e.target.closest('button') || e.target.closest('select') || e.target.closest('input'))) return;
             focusScan();
         });
 
@@ -611,7 +705,9 @@
     }
 
     function focusScan() {
-        try { scanBox.focus(); } catch (e) {}
+        const active = document.activeElement;
+        if (active && (active.id === 'txtEilSearch' || active.id === 'manualInput' || active.id === 'ddlCollectedEil')) return;
+        try { scanBox.focus({ preventScroll: true }); } catch (e) {}
     }
 
     function onSiteChanged(val) {
@@ -622,14 +718,150 @@
         rebuildPreview();
     }
 
-    function onEilToggle() {
-        if (ddlEIL) {
-            ddlEIL.disabled = !chkScanByEil.checked;
+    // --- EIL FILTER ENGINE (COLLECTED EILS & STATION SEARCH) ---
+    function resolveAssetEILs(tags, callback) {
+        if (!tags || tags.length === 0) {
+            if (callback) callback('');
+            return;
         }
+        const needed = [];
+        tags.forEach(t => {
+            if (!t) return;
+            if (_assetEilCache[t] === undefined) needed.push(t);
+        });
+
+        if (needed.length === 0) {
+            updateCollectedEilsCounts();
+            if (callback) callback(_assetEilCache[tags[0]] || '');
+            return;
+        }
+
+        fetch('va_ennx_live_scan.aspx/GetEilsForTags', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json; charset=utf-8' },
+            body: JSON.stringify({ tags: needed })
+        })
+        .then(res => res.json())
+        .then(data => {
+            const map = data.d || {};
+            needed.forEach(t => {
+                const clean = t.replace(/\s+/g, '');
+                const val = map[t] || map[clean] || '';
+                _assetEilCache[t] = val;
+            });
+            updateCollectedEilsCounts();
+            if (callback) callback(_assetEilCache[tags[0]] || '');
+        })
+        .catch(() => {
+            needed.forEach(t => { if (_assetEilCache[t] === undefined) _assetEilCache[t] = ''; });
+            updateCollectedEilsCounts();
+            if (callback) callback(_assetEilCache[tags[0]] || '');
+        });
     }
 
+    function updateCollectedEilsCounts() {
+        _collectedEils = {};
+        blocks.forEach(b => {
+            b.assets.forEach(tag => {
+                const eil = _assetEilCache[tag];
+                if (eil) {
+                    _collectedEils[eil] = (_collectedEils[eil] || 0) + 1;
+                }
+            });
+        });
+        renderCollectedEilsUI();
+    }
+
+    function renderCollectedEilsUI() {
+        const ddl = document.getElementById('ddlCollectedEil');
+        const chipsList = document.getElementById('eilChipsList');
+        if (!ddl || !chipsList) return;
+
+        const keys = Object.keys(_collectedEils).sort();
+
+        // 1. Rebuild collected dropdown
+        let ddlHtml = '<option value="All">All Scanned EILs (' + totalAssets + ' assets)</option>';
+        keys.forEach(k => {
+            const count = _collectedEils[k];
+            const sel = (_selectedEil === k) ? ' selected="selected"' : '';
+            ddlHtml += `<option value="${escapeHtml(k)}"${sel}>${escapeHtml(k)} (${count} assets)</option>`;
+        });
+        ddl.innerHTML = ddlHtml;
+        if (_selectedEil && _selectedEil !== 'All') {
+            ddl.value = _selectedEil;
+        }
+
+        // 2. Rebuild chips
+        if (keys.length === 0) {
+            chipsList.innerHTML = '<span class="eil-empty-hint">(Scan assets to detect EILs)</span>';
+            return;
+        }
+
+        let chipsHtml = `<span class="eil-chip ${(_selectedEil === 'All' || !_selectedEil) ? 'active' : ''}" onclick="selectEil('All');">All (${totalAssets})</span>`;
+        keys.forEach(k => {
+            const count = _collectedEils[k];
+            const act = (_selectedEil === k) ? 'active' : '';
+            chipsHtml += `<span class="eil-chip ${act}" onclick="selectEil('${escapeHtml(k)}');" title="Filter by ${escapeHtml(k)}">${escapeHtml(k)} <strong style="opacity:0.85;">(${count})</strong></span>`;
+        });
+        chipsList.innerHTML = chipsHtml;
+    }
+
+    window.selectEil = function(eil) {
+        _selectedEil = eil || 'All';
+        const chk = document.getElementById('chkScanByEil');
+        const txtSearch = document.getElementById('txtEilSearch');
+        const btnClear = document.getElementById('btnClearEil');
+        const ddl = document.getElementById('ddlCollectedEil');
+
+        if (_selectedEil === 'All') {
+            if (chk) chk.checked = false;
+            if (txtSearch) txtSearch.value = '';
+            if (btnClear) btnClear.style.display = 'none';
+            if (ddl) ddl.value = 'All';
+        } else {
+            if (chk) chk.checked = true;
+            if (txtSearch) txtSearch.value = _selectedEil;
+            if (btnClear) btnClear.style.display = 'inline-block';
+            if (ddl) ddl.value = _selectedEil;
+        }
+
+        renderCollectedEilsUI();
+        renderStream();
+        rebuildPreview();
+    };
+
+    window.onCollectedEilSelected = function(val) {
+        selectEil(val);
+    };
+
+    window.onEilSearchInput = function(val) {
+        val = (val || '').trim().toUpperCase();
+        const btnClear = document.getElementById('btnClearEil');
+        if (btnClear) btnClear.style.display = val ? 'inline-block' : 'none';
+        if (!val) {
+            selectEil('All');
+        } else {
+            selectEil(val);
+        }
+    };
+
+    window.clearEilFilter = function() {
+        selectEil('All');
+    };
+
+    window.onEilToggle = function() {
+        const chk = document.getElementById('chkScanByEil');
+        if (chk && !chk.checked) {
+            selectEil('All');
+        } else if (chk && chk.checked && _selectedEil === 'All') {
+            const keys = Object.keys(_collectedEils);
+            if (keys.length > 0) {
+                selectEil(keys[0]);
+            }
+        }
+    };
+
     function reloadEIL(stationCode) {
-        if (!ddlEIL) return;
         fetch('va_ennx_live_scan.aspx/GetEILByStation', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json; charset=utf-8' },
@@ -638,11 +870,22 @@
         .then(res => res.json())
         .then(data => {
             const list = data.d || [];
-            let html = '<option value="All">All</option>';
-            list.forEach(item => {
-                html += '<option value="' + escapeHtml(item) + '">' + escapeHtml(item) + '</option>';
-            });
-            ddlEIL.innerHTML = html;
+            _stationEilList = list;
+            const dl = document.getElementById('eilStationDataList');
+            if (dl) {
+                let dlHtml = '';
+                list.forEach(item => {
+                    dlHtml += '<option value="' + escapeHtml(item) + '">';
+                });
+                dl.innerHTML = dlHtml;
+            }
+            if (ddlEIL) {
+                let html = '<option value="All">All</option>';
+                list.forEach(item => {
+                    html += '<option value="' + escapeHtml(item) + '">' + escapeHtml(item) + '</option>';
+                });
+                ddlEIL.innerHTML = html;
+            }
         })
         .catch(() => {});
     }
@@ -875,37 +1118,28 @@
         const currentBlk = blocks[blocks.length - 1];
         if (!currentBlk) return;
 
-        // Check EIL filter if active
-        if (chkScanByEil && chkScanByEil.checked && ddlEIL && ddlEIL.value !== 'All') {
-            const expectedEil = ddlEIL.value;
-            fetch('va_ennx_live_scan.aspx/CheckAssetEIL', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json; charset=utf-8' },
-                body: JSON.stringify({ assetName: tag })
-            })
-            .then(res => res.json())
-            .then(data => {
-                const actualEil = data.d || '';
-                if (actualEil === expectedEil) {
-                    commitAssetRecord(tag, currentBlk);
-                } else {
-                    addStreamRow('Ignored', tag, currentLocation, 'Skipped: EIL mismatch (' + (actualEil || 'none') + ')');
-                }
-            })
-            .catch(() => {
-                commitAssetRecord(tag, currentBlk);
-            });
-            return;
-        }
+        // Resolve EIL for tag (fetches and caches EIL from database)
+        resolveAssetEILs([tag], function(actualEil) {
+            const chkScanEil = document.getElementById('chkScanByEil');
+            const isEilFilterActive = (chkScanEil && chkScanEil.checked && _selectedEil && _selectedEil !== 'All');
 
-        commitAssetRecord(tag, currentBlk);
+            if (isEilFilterActive) {
+                if (actualEil === _selectedEil) {
+                    commitAssetRecord(tag, currentBlk, actualEil);
+                } else {
+                    addStreamRow('Ignored', tag, currentLocation, 'Skipped: EIL mismatch (' + (actualEil || 'none') + ' vs ' + _selectedEil + ')', actualEil);
+                }
+            } else {
+                commitAssetRecord(tag, currentBlk, actualEil);
+            }
+        });
     }
 
-    function commitAssetRecord(tag, block) {
+    function commitAssetRecord(tag, block, eil) {
         // De-duplication check
         if (chkDedup.checked && block.assetSet[tag]) {
             dupes++;
-            addStreamRow('Duplicate', tag, currentLocation, 'Duplicate tag in current room (skipped)');
+            addStreamRow('Duplicate', tag, currentLocation, 'Duplicate tag in current room (skipped)', eil);
             rebuildPreview();
             return;
         }
@@ -914,7 +1148,10 @@
         block.assetSet[tag] = true;
         totalAssets++;
 
-        addStreamRow('Asset', tag, currentLocation, 'Added to ' + currentLocation);
+        if (eil) _assetEilCache[tag] = eil;
+        updateCollectedEilsCounts();
+
+        addStreamRow('Asset', tag, currentLocation, 'Added to ' + currentLocation, eil);
         persistSession();
         rebuildPreview();
     }
@@ -940,12 +1177,13 @@
     }
 
     // --- STREAM TABLE & 4-COLOR VISUAL FEED ---
-    function addStreamRow(type, tag, location, note) {
+    function addStreamRow(type, tag, location, note, eil) {
         const now = new Date();
         const timeStr = now.toTimeString().substring(0, 8);
         const id = 'scan_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+        const entryEil = eil || _assetEilCache[tag] || '';
 
-        const entry = { id, time: timeStr, type, tag, location, note };
+        const entry = { id, time: timeStr, type, tag, location, note, eil: entryEil };
         logEntries.unshift(entry);
 
         renderStream();
@@ -966,12 +1204,20 @@
         badgeDupes.textContent = cntDupe;
 
         const filtered = logEntries.filter(e => {
-            if (currentFilter === 'All') return true;
-            return e.type === currentFilter;
+            if (currentFilter !== 'All' && e.type !== currentFilter) return false;
+            // If EIL filter is active, only show asset/dupe/ignored rows belonging to that EIL (or location rows)
+            if (_selectedEil && _selectedEil !== 'All') {
+                if (e.type === 'Asset' || e.type === 'Duplicate') {
+                    const rowEil = e.eil || _assetEilCache[e.tag] || '';
+                    if (rowEil !== _selectedEil) return false;
+                }
+            }
+            return true;
         });
 
         if (filtered.length === 0) {
-            bodyStream.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:32px 14px; color:var(--muted);">No scans matching filter "${currentFilter}".</td></tr>`;
+            const filterHint = (_selectedEil && _selectedEil !== 'All') ? ` and EIL "${_selectedEil}"` : '';
+            bodyStream.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:32px 14px; color:var(--muted);">No scans matching filter "${currentFilter}"${filterHint}.</td></tr>`;
             return;
         }
 
@@ -991,11 +1237,14 @@
                 rowCls = 'row-ignored'; badgeCls = 'b-unk'; typeIcon = '⛔';
             }
 
+            const rowEil = e.eil || _assetEilCache[e.tag] || '';
+            const eilBadge = rowEil ? `<span class="badge" style="background:rgba(59,130,246,0.18); color:#60a5fa; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:600; margin-left:6px;" title="EIL: ${escapeHtml(rowEil)}">EIL: ${escapeHtml(rowEil)}</span>` : '';
+
             html += `
                 <tr class="${rowCls}">
                     <td style="font-family:Consolas,monospace; font-size:11px; color:var(--muted);">${e.time}</td>
                     <td><span class="badge ${badgeCls}">${typeIcon} ${e.type}</span></td>
-                    <td style="font-family:Consolas,monospace; font-weight:700;">${escapeHtml(e.tag)}</td>
+                    <td style="font-family:Consolas,monospace; font-weight:700;">${escapeHtml(e.tag)}${eilBadge}</td>
                     <td style="font-size:11px; color:var(--text); font-weight:600;">${escapeHtml(e.location || '')}</td>
                     <td style="text-align:center;">
                         <button type="button" class="btn btn-sm btn-outline" style="padding:2px 6px; font-size:10px;" onclick="removeEntry('${e.id}');" title="Remove Entry">&times;</button>
@@ -1034,6 +1283,7 @@
                         break;
                     }
                 }
+                updateCollectedEilsCounts();
             } else if (entry.type === 'Location') {
                 const bIdx = blocks.findIndex(b => b.location === entry.location);
                 if (bIdx >= 0) {
@@ -1085,6 +1335,10 @@
         startedUtc = new Date().toISOString();
         tLoc.textContent = '(none)';
         kReads.textContent = '0';
+        _assetEilCache = {};
+        _collectedEils = {};
+        _selectedEil = 'All';
+        renderCollectedEilsUI();
         try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
         rebuildPreview();
         renderStream();
@@ -1094,10 +1348,17 @@
     // --- ENNX BUILDER & LIVE PREVIEW ---
     function buildEnnxText() {
         let lines = ['ENNX', 'ID'];
+        const isEilFiltered = (_selectedEil && _selectedEil !== 'All');
         for (const b of blocks) {
-            lines.push(b.location);
-            for (const a of b.assets) {
-                lines.push(a);
+            let matchedAssets = b.assets;
+            if (isEilFiltered) {
+                matchedAssets = b.assets.filter(a => (_assetEilCache[a] || '') === _selectedEil);
+            }
+            if (matchedAssets.length > 0 || !isEilFiltered) {
+                lines.push(b.location);
+                for (const a of matchedAssets) {
+                    lines.push(a);
+                }
             }
         }
         const count = lines.length - 2;
@@ -1109,8 +1370,14 @@
         const ennx = buildEnnxText();
         ennxPreview.value = ennx;
 
+        const isEilFiltered = (_selectedEil && _selectedEil !== 'All');
+        let dispAssets = totalAssets;
+        if (isEilFiltered) {
+            dispAssets = _collectedEils[_selectedEil] || 0;
+        }
+
         badgeLoc.textContent = totalLocations;
-        badgeAssets.textContent = totalAssets;
+        badgeAssets.textContent = dispAssets + (isEilFiltered ? ' (filtered)' : '');
         badgeDupes.textContent = dupes;
     }
 
@@ -1137,7 +1404,8 @@
                 dupes,
                 totalScans,
                 startedUtc,
-                activeStation
+                activeStation,
+                selectedEil: _selectedEil
             };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
         } catch (e) {}
@@ -1162,11 +1430,26 @@
                 totalScans = data.totalScans || totalAssets;
                 startedUtc = data.startedUtc || new Date().toISOString();
                 activeStation = data.activeStation || activeStation;
+                if (data.selectedEil) _selectedEil = data.selectedEil;
 
                 if (tLoc) tLoc.innerHTML = currentLocation ? escapeHtml(currentLocation) + ' <span style="font-size:10px; color:var(--accent-2, #10b981);" title="Room Locked">&#128274;</span>' : '(none)';
                 kReads.textContent = totalScans;
-                rebuildPreview();
-                renderStream();
+
+                // Collect all scanned tags to resolve their EILs in one fast batch
+                const allTags = [];
+                for (let b of blocks) {
+                    for (let a of b.assets) allTags.push(a);
+                }
+                if (allTags.length > 0) {
+                    resolveAssetEILs(allTags, function() {
+                        updateCollectedEilsCounts();
+                        renderStream();
+                        rebuildPreview();
+                    });
+                } else {
+                    rebuildPreview();
+                    renderStream();
+                }
             }
         } catch (e) {}
     }
@@ -1180,7 +1463,7 @@
         }
 
         if (kind === 'commit') {
-            if (!confirm(`Commit ${totalAssets} scanned asset(s) across ${totalLocations} location(s) to the iDash database?`)) {
+            if (!confirm(`Commit ${totalAssets} scanned asset(s) across ${totalLocations} location(s) to the AssetWorx database?`)) {
                 return false;
             }
         }
@@ -1305,4 +1588,3 @@
 
 </body>
 </html>
-

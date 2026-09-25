@@ -1,10 +1,10 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_data_import.aspx.cs" Inherits="iDash.va_data_import" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_data_import.aspx.cs" Inherits="iDash.va_data_import" %>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <meta charset="utf-8" />
-    <title>Data File Import &mdash; iDash</title>
+    <title>Data File Import - AssetWorx</title>
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <style>
@@ -97,7 +97,7 @@
     <a href="index.aspx" class="nav-pill nav-pill-ghost">&#8962; Hub</a>
 
     <div class="header-title">&#128229; Data File Import</div>
-    <div class="header-sub">Upload a tab-delimited data file and import directly into iDash. No SSMS, no file shares, no copy-paste.</div>
+    <div class="header-sub">Upload a tab-delimited data file and import directly into AssetWorx. No SSMS, no file shares, no copy-paste.</div>
 
     <!-- Recommendation card for Cart Data & Sync Hub -->
     <div style="background: color-mix(in srgb, var(--accent), transparent 90%); border: 1px solid var(--accent); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
@@ -110,10 +110,9 @@
         <a href="va_sitedata_export.aspx#sec-import" class="btn-preview" style="white-space: nowrap; text-decoration: none; padding: 8px 18px; font-weight:700;">Open Sync Hub &rarr;</a>
     </div>
 
-    <div class="aw-header-brand" style="display:flex; align-items:center; gap:8px;">
-        <img src="<%= ResolveUrl("~/Assets/branding/IDIntegration.jpg") %>" style="height:20px; width:auto; border-radius:3px;" alt="ID Integration Inc." />
-        <span class="aw-header-text" style="font-weight:700; font-size:14px;">iDash<span class="bang" style="color:var(--accent);">.</span></span>
-        <span class="aw-header-copy" style="font-size:11px; color:var(--muted); font-style:italic;">by ID Integration Inc.</span>
+    <div class="aw-header-brand">
+        <img src="<%= ResolveUrl("~/Assets/branding/assetworx.jpg") %>" class="aw-header-logo" />
+        <span class="aw-header-text">AssetWorx<span class="bang">!</span></span>
     </div>
 
     <!-- Mode Selection -->
@@ -157,7 +156,7 @@
         <div class="btn-row">
             <asp:Button ID="BtnPreview" runat="server" CssClass="btn-preview" Text="&#128270; Preview First 20 Rows" OnClick="BtnPreview_Click" />
             <asp:Button ID="BtnImport" runat="server" CssClass="btn-import btn-go" Text="&#9654; Import Data" OnClick="BtnImport_Click"
-                OnClientClick="return confirm('This will import all rows into iDash. Continue?');" />
+                OnClientClick="return confirm('This will import all rows into AssetWorx. Continue?');" />
         </div>
     </div>
 

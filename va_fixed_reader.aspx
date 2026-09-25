@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_fixed_reader.aspx.cs" Inherits="iDash.va_fixed_reader" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_fixed_reader.aspx.cs" Inherits="iDash.va_fixed_reader" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html lang="en">
@@ -583,19 +583,19 @@
             <!-- Coverage KPIs -->
             <div id="missingStats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0;">
                 <div class="kpi-card" style="text-align:center;padding:12px;">
-                    <div id="msTotalAssets" style="font-size:22px;font-weight:700;color:var(--accent);">�</div>
+                    <div id="msTotalAssets" style="font-size:22px;font-weight:700;color:var(--accent);">—</div>
                     <div style="font-size:11px;color:var(--muted);">Total Assets</div>
                 </div>
                 <div class="kpi-card" style="text-align:center;padding:12px;">
-                    <div id="msObserved" style="font-size:22px;font-weight:700;color:#10b981;">�</div>
+                    <div id="msObserved" style="font-size:22px;font-weight:700;color:#10b981;">—</div>
                     <div style="font-size:11px;color:var(--muted);">Observed (Covered)</div>
                 </div>
                 <div class="kpi-card" style="text-align:center;padding:12px;">
-                    <div id="msMissing" style="font-size:22px;font-weight:700;color:#ef4444;">�</div>
+                    <div id="msMissing" style="font-size:22px;font-weight:700;color:#ef4444;">—</div>
                     <div style="font-size:11px;color:var(--muted);">Missing (Not Seen)</div>
                 </div>
                 <div class="kpi-card" style="text-align:center;padding:12px;">
-                    <div id="msCoverage" style="font-size:22px;font-weight:700;color:#8B5CF6;">�</div>
+                    <div id="msCoverage" style="font-size:22px;font-weight:700;color:#8B5CF6;">—</div>
                     <div style="font-size:11px;color:var(--muted);">Reader Coverage</div>
                 </div>
             </div>
@@ -657,7 +657,7 @@
                     </tr>
                 </thead>
                 <tbody id="tblReaderBody">
-                    <tr><td colspan="8" class="loading"><span class="spinner"></span>Loading reader data from iDash API...</td></tr>
+                    <tr><td colspan="8" class="loading"><span class="spinner"></span>Loading reader data from AssetWorx API...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -674,6 +674,7 @@
     </div>
     <div class="dp-actions">
         <a id="dpMasterLink" href="#" class="dp-action-btn" title="Open full detail in Asset Master">Open in Asset Master</a>
+        <a id="dpEditLink" href="#" target="_blank" class="dp-action-btn">Edit in AssetWorx</a>
     </div>
     <div class="dp-body" id="dpBody">
         <div class="dp-loading">Select an asset to view details</div>
@@ -692,11 +693,11 @@ function loadAll() {
     loadTagStats();
     loadIntelligence();
     loadReaderActivity();
-    // loadReaderEvents() � deferred until user expands the panel
+    // loadReaderEvents() — deferred until user expands the panel
     loadLocationHistory();
 }
 
-// -- Theme toggle ---------------------------------------------
+// ── Theme toggle ─────────────────────────────────────────────
 function toggleTheme() {
     var html = document.documentElement;
     var isDark = html.getAttribute('data-theme') !== 'light';
@@ -707,34 +708,32 @@ function toggleTheme() {
         html.setAttribute('data-theme', next);
     }
     localStorage.setItem('idash_theme', next === 'dark' ? '' : 'light');
+    localStorage.setItem('aw_theme_preference', next === 'dark' ? 'dark' : 'light');
     updateThemeBtn();
 }
 
 function updateThemeBtn() {
-    var btn = document.getElementById("themeToggleBtn");
+    var btn = document.getElementById('themeToggleBtn');
     if (!btn) return;
-    var isLight = document.documentElement.getAttribute("data-theme") === "light";
-    btn.innerHTML = isLight ? "&#9790; Dark" : "&#9728; Light";
-    btn.title = isLight ? "Switch to dark mode" : "Switch to light mode";
+    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    btn.innerHTML = isLight ? '&#9790; Dark' : '&#9728; Light';
+    btn.title = isLight ? 'Switch to dark mode' : 'Switch to light mode';
 }
 
 // Init button icon on load and listen for storage changes
 updateThemeBtn();
-window.addEventListener("storage", function(e) {
-    if (e.key === "idash_theme" || e.key === "aw_theme_preference") {
-        if (e.newValue === "light") {
-            document.documentElement.setAttribute("data-theme", "light");
+window.addEventListener('storage', function(e) {
+    if (e.key === 'idash_theme' || e.key === 'aw_theme_preference') {
+        if (e.newValue === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
         } else {
-            document.documentElement.removeAttribute("data-theme");
+            document.documentElement.removeAttribute('data-theme');
         }
         updateThemeBtn();
     }
 });
 
-// Init button icon on load
-(function() { updateThemeBtn(); })();
-
-// ── Animated KPI counter ──────────────────────────────────────
+// â”€â”€ Animated KPI counter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function animVal(id, target, ms) {
     var el = document.getElementById(id);
     if (!el) return;
@@ -750,9 +749,9 @@ function animVal(id, target, ms) {
     requestAnimationFrame(step);
 }
 
-// ── READER DATA (from iDash API via proxy) ────────────────
+// â”€â”€ READER DATA (from AssetWorx API via proxy) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function loadReaders() {
-    document.getElementById('tblReaderBody').innerHTML = '<tr><td colspan="8" class="loading"><span class="spinner"></span>Loading reader data from iDash API...</td></tr>';
+    document.getElementById('tblReaderBody').innerHTML = '<tr><td colspan="8" class="loading"><span class="spinner"></span>Loading reader data from AssetWorx API...</td></tr>';
 
     fetch('va_fixed_reader.aspx?api=readers&t=' + Date.now())
         .then(function(r) { return r.json(); })
@@ -825,7 +824,7 @@ function renderReaderTable(readers) {
     tbody.innerHTML = html;
 }
 
-// ── TAG READ STATS (from SQL via proxy) ───────────────────────
+// â”€â”€ TAG READ STATS (from SQL via proxy) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function loadTagStats() {
     var siteId = document.getElementById('<%= DdlCompany.ClientID %>').value;
     var readerSiteId = document.getElementById('<%= DdlReaderSite.ClientID %>').value;
@@ -841,7 +840,7 @@ function loadTagStats() {
             animVal('ts-quarter', tr.quarter || 0, 700);
 
 
-            // Top locations — rows are clickable links to Asset Master
+            // Top locations â€” rows are clickable links to Asset Master
             var locBody = document.getElementById('tblLocBody');
             var locs = d.topLocations || [];
             if (!locs.length) {
@@ -850,7 +849,7 @@ function loadTagStats() {
             var siteId = document.getElementById('<%= DdlCompany.ClientID %>').value || '0';
             var locHtml = '';
             locs.forEach(function(loc) {
-                // Always use site=0 (All Sites) — reader locations can contain tags from any site
+                // Always use site=0 (All Sites) â€” reader locations can contain tags from any site
                 var href = 'va_asset_master.aspx?loc=' + encodeURIComponent(loc.label) + '&site=0';
                 locHtml += '<tr class="row-link" onclick="location.href=\'' + href + '\'" title="View assets at ' + esc(loc.label) + ' in Asset Master">' +
                     '<td>' + esc(loc.label) + '</td>' +
@@ -881,7 +880,7 @@ function loadTagStats() {
         .catch(function(err) { console.error('Tag stats error:', err); });
 }
 
-// ── TABLE SORT/FILTER ─────────────────────────────────────────
+// â”€â”€ TABLE SORT/FILTER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 var sortDir = {};
 function sortTbl(th, colIdx) {
     var key = 'col' + colIdx;
@@ -907,7 +906,7 @@ function filterTbl(colIdx, val) {
     renderReaderTable(filtered);
 }
 
-// ── HELPERS ───────────────────────────────────────────────────
+// â”€â”€ HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function esc(s) { if (!s) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
 function formatDate(s) {
@@ -919,7 +918,7 @@ function formatDate(s) {
     } catch(e) { return s; }
 }
 
-// ── INTELLIGENCE PANEL ────────────────────────────────────────
+// â”€â”€ INTELLIGENCE PANEL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function loadIntelligence() {
     var siteId = document.getElementById('<%= DdlCompany.ClientID %>').value;
     var readerSiteId = document.getElementById('<%= DdlReaderSite.ClientID %>').value;
@@ -1187,7 +1186,7 @@ function exportLocationHistoryCsv() {
     window.location.href = 'va_fixed_reader.aspx?api=location_history_csv&companyid=' + siteId + '&days=' + days + '&allsites=' + allSites;
 }
 
-// -- Reader Activity Log --------------------------------------
+// ── Reader Activity Log ──────────────────────────────────────
 var activityData = [];
 
 function loadReaderActivity() {
@@ -1418,12 +1417,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// ── ASSET DETAIL PANEL ────────────────────────────────────────
+// â”€â”€ ASSET DETAIL PANEL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 var _dpCurrentId = null;
 
 function openAssetDetail(assetId, assetName) {
     _dpCurrentId = assetId;
     document.getElementById('dpTitle').textContent = assetName || 'Asset Detail';
+    document.getElementById('dpEditLink').href = '/#!/admin/editasset/' + assetId;
     document.getElementById('dpMasterLink').href = 'va_asset_master.aspx?search=' + encodeURIComponent(assetName);
     document.getElementById('dpBody').innerHTML = '<div class="dp-loading"><span class="spinner"></span> Loading asset details...</div>';
     document.getElementById('detailPanel').classList.add('open');
@@ -1531,12 +1531,12 @@ function renderAssetDetail(a) {
     document.getElementById('dpBody').innerHTML = h;
 }
 
-// ── INIT ──────────────────────────────────────────────────────
+// â”€â”€ INIT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 document.addEventListener('DOMContentLoaded', function() {
     loadAll();
 });
 
-// -- Missing Asset Report ----------------------------------
+// ── Missing Asset Report ──────────────────────────────────
 var missingOpen = false;
 var missingLoaded = false;
 var missingData = [];
@@ -1594,7 +1594,7 @@ function loadMissingAssets() {
 function renderMissing(data) {
     var tbody = document.getElementById('tblMissingBody');
     if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="loading" style="color:var(--muted);">?? All assets have been observed by a fixed reader within this period!</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="loading" style="color:var(--muted);">🎉 All assets have been observed by a fixed reader within this period!</td></tr>';
         return;
     }
     var MAX_ROWS = 500;
@@ -1649,5 +1649,4 @@ function exportMissingCsv() {
 </script>
 </body>
 </html>
-
 

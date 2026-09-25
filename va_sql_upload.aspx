@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_sql_upload.aspx.cs" Inherits="iDash.va_sql_upload" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_sql_upload.aspx.cs" Inherits="iDash.va_sql_upload" %>
     <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 
         <!DOCTYPE html>
@@ -6,8 +6,8 @@
 
         <head runat="server">
             <meta charset="utf-8" />
-            <title>SQL Upload &mdash; iDash</title>
-            <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+            <title>SQL Upload - AssetWorx</title>
+            <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
             <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
             <style>
@@ -252,10 +252,10 @@
                     <div class="header-title">SQL Upload &amp; System Maintenance</div>
                     <div class="header-sub">Execute maintenance scripts, apply database hotfixes, or trigger over-the-air iDash replication.</div>
 
-                    <div class="aw-header-brand" style="display:flex; align-items:center; gap:8px;">
-                        <img src="<%= ResolveUrl("~/Assets/branding/IDIntegration.jpg") %>" style="height:20px; width:auto; border-radius:3px;" alt="ID Integration Inc." />
-                        <span class="aw-header-text" style="font-weight:700; font-size:14px;">iDash<span class="bang" style="color:var(--accent);">.</span></span>
-                        <span class="aw-header-copy" style="font-size:11px; color:var(--muted); font-style:italic;">by ID Integration Inc.</span>
+                    <div class="aw-header-brand">
+                        <img src="<%= ResolveUrl("~/Assets/branding/assetworx.jpg") %>" class="aw-header-logo" />
+                        <span class="aw-header-text">AssetWorx<span class="bang">!</span> <span
+                                class="aw-header-copy">by InfinID Technologies</span></span>
                     </div>
 
                     <!-- USAGE GUIDE CARD -->

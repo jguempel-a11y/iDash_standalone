@@ -3,8 +3,8 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title>VA Site Inventory &mdash; iDash</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <title>VA Site Inventory &mdash; AssetWorx</title>
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
@@ -1240,33 +1240,10 @@
     }
 
     // ============================================================
-    // LOCATION TAG DETECTION
-    // Checks the loaded datalist (exact match) then falls back to SP prefix.
-    // ============================================================
-    function isLocationTag(tok) {
-        if (!tok) return false;
-        tok = tok.trim().toUpperCase();
-
-        // 1. Exact match against known locations from the datalist
-        var dl = document.getElementById('locDatalist');
-        if (dl && dl.options) {
-            for (var i = 0; i < dl.options.length; i++) {
-                if (dl.options[i].value.toUpperCase() === tok) return true;
-            }
-        }
-
-        // 2. Heuristic: starts with "SP" (standard location prefix)
-        if (tok.startsWith('SP')) return true;
-
-        return false;
-    }
-
-    // ============================================================
     // LOAD ROOM MANIFEST
     // ============================================================
     function loadRoom() {
-        // Auto-close active scanner session so we can switch rooms mid-scan
-        if (_sessionOpen) { closeSession(); }
+        if (_sessionOpen) { log('[WARN] Cannot change room while trigger is active.'); return; }
         var loc = document.getElementById('txtLocation').value.trim().toUpperCase();
         if (!loc) { alert('Type or scan a location first.'); return; }
 
@@ -1275,10 +1252,9 @@
         log('[ROOM] Loading manifest for ' + loc + '...');
         document.getElementById('lblCurrentLocation').innerText = loc;
 
-        // Pass siteId 0 so backend resolves the location across all sites
         fetch('va_inventory.aspx/LoadLocationAssets', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ locationName: loc, siteId: 0 })
+            body: JSON.stringify({ locationName: loc, siteId: _siteId })
         }).then(function(r){ return r.json(); }).then(function(res) {
             var d = parse(res);
             if (!d || !d.success) { log('[ERROR] ' + (d ? d.error : 'Load failed')); return; }
@@ -1391,11 +1367,10 @@
     // Zero layout reflows during active trigger hold.
     // ============================================================
     function processTag(rawVal) {
-        var tok = (rawVal || '').trim().toUpperCase();
-        if (!tok || tok.length < 2) return;
+        var tok = rawVal.toUpperCase();
 
-        // Location barcode detection: check against loaded datalist first, then SP prefix
-        if (isLocationTag(tok)) {
+        // Location barcode shortcut (starts with SP): auto-load room
+        if (tok.startsWith('SP') && !tok.includes('EE')) {
             document.getElementById('txtLocation').value = tok;
             loadRoom();
             return;
@@ -2208,4 +2183,3 @@
 
 </body>
 </html>
-

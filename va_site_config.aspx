@@ -1,10 +1,10 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_site_config.aspx.cs" Inherits="va_site_config" ResponseEncoding="utf-8" EnableEventValidation="false" MaintainScrollPositionOnPostback="true" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_site_config.aspx.cs" Inherits="va_site_config" ResponseEncoding="utf-8" %>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Site Configuration &mdash; iDash</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -85,80 +85,9 @@
     .field-grid table td input[type=checkbox]{cursor:pointer;flex-shrink:0;}
     /* Script preview */
     .script-box{background:var(--chip);border:1px solid var(--line);border-radius:8px;padding:14px;font-family:Consolas,monospace;font-size:12px;color:#facc15;margin:12px 0;white-space:pre;}
-    /* Alerts */
-    .msg-ok{background:color-mix(in srgb, #10b981, transparent 88%);border:1px solid #10b981;border-left:4px solid #10b981;color:#10b981;padding:12px 16px;border-radius:8px;margin-bottom:18px;font-size:13px;line-height:1.5;}
-    .msg-err{background:color-mix(in srgb, #ef4444, transparent 88%);border:1px solid #ef4444;border-left:4px solid #ef4444;color:#ef4444;padding:12px 16px;border-radius:8px;margin-bottom:18px;font-size:13px;line-height:1.5;}
-    /* Port Presets Bar */
-    .preset-bar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px;}
-    .preset-btn{background:var(--chip);border:1px solid var(--chip-br);border-radius:8px;padding:6px 14px;color:var(--text);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
-    .preset-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
-    /* URL Preview Box */
-    .preview-box{background:var(--chip);border:1px solid var(--line);border-radius:10px;padding:16px;margin:16px 0;}
-    .preview-box-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
-    .preview-grid{display:grid;grid-template-columns:185px 1fr;gap:6px 12px;font-size:12px;}
-    .preview-lbl{color:var(--muted);font-weight:600;}
-    .preview-val{font-family:Consolas,monospace;color:var(--accent);word-break:break-all;}
-    /* Script Command Box */
-    .cmd-box{background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 0;}
-    .cmd-text{font-family:Consolas,monospace;font-size:12px;color:#38bdf8;overflow-x:auto;white-space:nowrap;}
-    .btn-copy{background:#334155;color:#e2e8f0;border:1px solid #475569;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;flex-shrink:0;transition:all .15s;}
-    .btn-copy:hover{background:#475569;color:#fff;}
 .header{background:var(--card);padding:14px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .header h1{margin:0;font-size:19px;font-weight:700;color:var(--accent);}
 .header-nav{display:flex;gap:8px;align-items:center;}
-
-    /* License Management Styles */
-    .summary-row{display:flex;gap:16px;margin:16px 0 20px;}
-    .summary-card{flex:1;background:var(--chip);border:1px solid var(--line);border-radius:10px;padding:16px;text-align:center;}
-    .summary-val{font-size:26px;font-weight:800;font-family:Consolas,monospace;}
-    .summary-lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px;}
-    .tabs-bar{display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--line);padding-bottom:12px;flex-wrap:wrap;}
-    .tab-btn{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid var(--line);background:var(--card);color:var(--muted);cursor:pointer;transition:all .15s;}
-    .tab-btn:hover{color:var(--text);border-color:var(--accent);}
-    .tab-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
-    table.lic-grid{width:100%;border-collapse:collapse;font-size:13px;}
-    table.lic-grid th{text-align:left;padding:8px 10px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--line);}
-    table.lic-grid td{padding:8px 10px;border-bottom:1px solid var(--line);}
-    table.lic-grid tr:hover{background:color-mix(in srgb, var(--accent) 5%, transparent);}
-    .mono{font-family:Consolas,monospace;font-size:11px;}
-    .badge-ok{background:color-mix(in srgb,#10b981 15%,transparent);color:#10b981;}
-    .badge-warn{background:color-mix(in srgb,#f59e0b 15%,transparent);color:#f59e0b;}
-    .badge-err{background:color-mix(in srgb,#ef4444 15%,transparent);color:#ef4444;}
-    .btn-del{background:color-mix(in srgb,#ef4444 12%,transparent);color:#ef4444;border:1px solid color-mix(in srgb,#ef4444 30%,transparent);padding:4px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;}
-    .btn-del:hover{background:#ef4444;color:#fff;}
-    .section-count{font-size:11px;font-weight:700;background:color-mix(in srgb, var(--accent) 15%, transparent);color:var(--accent);border-radius:12px;padding:2px 8px;margin-left:6px;}
-    .cart-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:18px;transition:border-color .15s;}
-    .cart-card:hover{border-color:color-mix(in srgb,var(--accent) 50%,var(--line));}
-    .cart-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:10px;}
-    .copy-chip{background:color-mix(in srgb, var(--accent) 15%, transparent);color:var(--accent);border:1px solid color-mix(in srgb, var(--accent) 30%, transparent);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:4px;text-decoration:none;}
-    .copy-chip:hover{background:var(--accent);color:#fff;}
-    .cart-meta-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));gap:10px;background:color-mix(in srgb, var(--accent) 4%, transparent);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:10px 0 14px 0;}
-    .cart-meta-item{display:flex;flex-direction:column;}
-    .cart-meta-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:2px;}
-    .cart-meta-val{font-size:12px;font-weight:600;}
-    pre.code-block{background:#0f172a;color:#e2e8f0;padding:10px 12px;border-radius:8px;font-size:11px;font-family:Consolas,monospace;word-break:break-all;white-space:pre-wrap;margin:6px 0;border:1px solid #1e293b;max-height:140px;overflow-y:auto;}
-    .toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:16px 0;flex-wrap:wrap;}
-    .search-box{flex:1;min-width:240px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;outline:none;}
-    .search-box:focus{border-color:var(--accent);}
-    .modal-backdrop{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;}
-    .modal-backdrop.show{display:flex;}
-    .modal-dialog{background:var(--card);border:1px solid var(--line);border-radius:14px;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 40px rgba(0,0,0,0.4);}
-    .modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line);}
-    .modal-header h3{margin:0;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;color:var(--accent);}
-    .modal-close{background:transparent;border:none;font-size:22px;color:var(--muted);cursor:pointer;line-height:1;}
-    .modal-close:hover{color:var(--text);}
-    .modal-body{padding:20px;}
-    .modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--line);}
-    .form-group{margin-bottom:14px;}
-    .form-group label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:5px;}
-    .form-input, .form-textarea, .form-select{width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);font-family:inherit;}
-    .form-input:focus, .form-textarea:focus, .form-select:focus{outline:none;border-color:var(--accent);}
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-    @media(max-width:600px){.form-row{grid-template-columns:1fr;}}
-    .lic-toast{position:fixed;bottom:20px;right:20px;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s;}
-    .lic-toast.show{transform:translateY(0);opacity:1;}
-    .lic-toast-ok{background:#10b981;color:#fff;}
-    .lic-toast-err{background:#ef4444;color:#fff;}
 </style>
 </head>
 <body>
@@ -178,15 +107,15 @@
     <h1>&#9881; Site Config</h1>
     <div class="sub">VISN Deployment Setup</div>
     <div class="slabel">Sections</div>
-    <a href="#sec-server"       class="nav-link">&#127760; Server &amp; Port</a>
-    <a href="#sec-licenses"     class="nav-link">&#128273; License Management</a>
     <a href="#sec-db"           class="nav-link">&#128196; Database</a>
     <a href="#sec-sql"          class="nav-link">&#9654; One-Time SQL</a>
+    <a href="#sec-api"          class="nav-link">&#128279; API / OAuth</a>
     <a href="#sec-mqtt"         class="nav-link">&#128225; Fixed Reader / MQTT</a>
     <a href="#sec-rabbitmq"     class="nav-link">&#128007; RabbitMQ Broker</a>
     <a href="#sec-mqtt-admin"   class="nav-link">&#128272; MQTT / Print Clients</a>
     <a href="#sec-readers"      class="nav-link">&#128250; Fixed Reader Mgmt</a>
     <a href="#sec-print-admin"  class="nav-link">&#128424; Printer Administration</a>
+    <a href="va_print_setup_wizard.aspx" class="nav-link" style="color:#f59e0b; font-weight:700;">&#129668; Print Setup Wizard</a>
     <a href="#sec-print-routing" class="nav-link">&#128438; Printer Routing</a>
     <a href="#sec-email"        class="nav-link">&#9993; Email / SMTP</a>
     <a href="#sec-recipients"   class="nav-link">&#128231; Recipients</a>
@@ -206,212 +135,43 @@
 
     <asp:Literal ID="LitMsg" runat="server" />
 
-    <!-- SERVER & LISTENING PORT -->
-    <div class="panel" id="sec-server">
-        <div class="ptitle">&#127760; Server Protocol &amp; Listening Port</div>
-        <div class="psub">
-            Configure the server listening port (e.g. 80, 443, 8181), network protocol, and host name for iDash.
-            When saved, all system endpoints, <code>web.config</code>, report runner scripts, remote database sync tools, and client configs are automatically synchronized.
-        </div>
-
-        <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;">Quick Port &amp; Protocol Presets:</div>
-        <div class="preset-bar">
-            <button type="button" class="preset-btn" onclick="applyPreset('http', '80', '/iDash')">&#128279; Port 80 (HTTP /iDash)</button>
-            <button type="button" class="preset-btn" onclick="applyPreset('https', '443', '/iDash')">&#128274; Port 443 (HTTPS /iDash)</button>
-            <button type="button" class="preset-btn" onclick="applyPreset('http', '8181', '')">&#127760; Port 8181 (HTTP Root Site)</button>
-            <button type="button" class="preset-btn" onclick="applyPreset('https', '443', '')">&#128274; Port 443 (HTTPS Root Site)</button>
-            <button type="button" class="preset-btn" onclick="applyPreset('http', '8080', '')">&#9881; Port 8080 (Dev / Alternate)</button>
-        </div>
-
-        <div class="fg">
-            <div class="fl">Protocol<span>HTTP (Standard) or HTTPS (SSL / TLS)</span></div>
-            <asp:DropDownList ID="DdlServerProtocol" runat="server" onchange="calcEndpoints();">
-                <asp:ListItem Value="http">HTTP (Standard Unencrypted)</asp:ListItem>
-                <asp:ListItem Value="https">HTTPS (Secure SSL / TLS)</asp:ListItem>
-            </asp:DropDownList>
-
-            <div class="fl">Listening Port<span>e.g. 80, 443, 8181, 8080</span></div>
-            <asp:TextBox ID="TxtServerPort" runat="server" placeholder="e.g. 8181" onkeyup="calcEndpoints();" />
-
-            <div class="fl">Server Host / Domain<span>e.g. localhost, server IP, or FQDN</span></div>
-            <asp:TextBox ID="TxtServerHost" runat="server" placeholder="localhost" onkeyup="calcEndpoints();" />
-
-            <div class="fl">Virtual Directory / App Path<span>Leave blank for root (/), or /iDash for IIS sub-application</span></div>
-            <asp:TextBox ID="TxtServerVirtualPath" runat="server" placeholder="e.g. /iDash or blank for root" onkeyup="calcEndpoints();" />
-        </div>
-
-        <div class="preview-box">
-            <div class="preview-box-title">&#128065; Live Endpoint Resolution Preview</div>
-            <div class="preview-grid">
-                <div class="preview-lbl">Base URL:</div>
-                <div class="preview-val" id="prevBaseUrl">http://localhost:8181</div>
-
-                <div class="preview-lbl">Report Runner Endpoint:</div>
-                <div class="preview-val" id="prevRunnerUrl">http://localhost:8181/va_report_automator_runner.aspx</div>
-
-                <div class="preview-lbl">Remote DB Import Endpoint:</div>
-                <div class="preview-val" id="prevImportUrl">http://localhost:8181/va_remote_import.ashx</div>
-
-                <div class="preview-lbl">Print Server Auth:</div>
-                <div class="preview-val" id="prevAuthUrl">http://localhost:8181</div>
-            </div>
-        </div>
-
-        <asp:Button ID="BtnSaveServerPort" runat="server" CssClass="btn" Text="&#128190; Save &amp; Update All Endpoints" OnClick="BtnSaveServerPort_Click" />
-        <asp:Button ID="BtnDetectPort" runat="server" CssClass="btn sm ghost" Text="&#128269; Detect Active Browser URL" OnClick="BtnDetectPort_Click" style="margin-left:8px;" />
-        <asp:Button ID="BtnDownloadIisScript" runat="server" CssClass="btn sm green" Text="&#128190; Download IIS Binding Script (.ps1)" OnClick="BtnDownloadIisScript_Click" style="margin-left:8px;" />
-
-        <div class="panel-sub" style="margin-top:20px;">
-            <div class="ptitle2">&#9889; Rollout to IIS &amp; Windows Firewall</div>
-            <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px;">
-                Saving above updates all internal application endpoints, <code>web.config</code>, runner scripts, and sync tools immediately.
-                To bind this port in IIS and open the Windows Firewall, run the elevated PowerShell script generated for this configuration:
-            </div>
-            <div class="cmd-box">
-                <span class="cmd-text" id="cmdIisScript">powershell -ExecutionPolicy Bypass -File "C:\inetpub\wwwroot\iDash\downloads\Scripts\apply_server_port.ps1"</span>
-                <button type="button" class="btn-copy" onclick="copyIisCmd();">&#128203; Copy Command</button>
-            </div>
-            <div style="font-size:11px;color:var(--muted);line-height:1.5;">
-                &#128161; <strong>For Port 443 (HTTPS):</strong> Ensure an SSL certificate is installed in the Windows Certificate Store (<code>Cert:\LocalMachine\My</code>). The script will automatically detect and bind it, or you can bind it manually in IIS Manager &rarr; Sites &rarr; Bindings &rarr; Port 443.
-            </div>
-        </div>
-    </div>
-
-    <!-- LICENSE MANAGEMENT -->
-    <div class="panel" id="sec-licenses">
-        <div class="ptitle">&#128273; License Management</div>
-        <div class="psub">
-            Unified license management for active fixed readers, handheld scanners, server registrations, and mobile carts.
-            View allocated slots, delete stale devices to free licenses, and maintain mobile cart cryptographic credentials.
-        </div>
-
-        <!-- Mode Tabs -->
-        <div class="tabs-bar">
-            <button type="button" class="tab-btn active" id="tabLiveLicBtn" onclick="switchLicTab('live')">&#128225; Active Readers &amp; Device Licenses</button>
-            <button type="button" class="tab-btn" id="tabCartsLicBtn" onclick="switchLicTab('carts')">&#128722; Mobile Carts &amp; Workstations Registry</button>
-            <a href="va_license_activation.aspx" class="tab-btn" style="text-decoration:none;">&#128273; Local iDash Activation</a>
-            <a href="documentation/va_software_agreement.html" target="_blank" class="tab-btn" style="text-decoration:none;">&#128220; Software Agreement</a>
-        </div>
-
-        <!-- TAB 1: LIVE DATABASE LICENSES -->
-        <div id="viewLicLive">
-            <div class="summary-row" id="licSummaryRow"></div>
-
-            <div class="panel-sub">
-                <div class="ptitle2" style="margin-top:0;">&#128225; Registered Readers <span class="section-count" id="readerCount">0</span></div>
-                <div class="psub" style="margin-bottom:12px;">Fixed RFID readers in the database. Each consumes a reader license slot.</div>
-                <div id="readerGrid">Loading readers...</div>
-            </div>
-
-            <div class="panel-sub">
-                <div class="ptitle2" style="margin-top:0;">&#128421; Server Registrations <span class="section-count" id="serverCount">0</span></div>
-                <div class="psub" style="margin-bottom:12px;">Registered services (AMS, print servers). Re-register automatically if still running.</div>
-                <div id="serverGrid">Loading servers...</div>
-            </div>
-
-            <div class="panel-sub">
-                <div class="ptitle2" style="margin-top:0;">&#128241; Scanner Users <span class="section-count" id="userCount">0</span></div>
-                <div class="psub" style="margin-bottom:12px;">Mobile/handheld scanner user accounts. Each consumes a user license slot.</div>
-                <div id="userGrid">Loading scanner users...</div>
-            </div>
-
-            <div class="panel-sub">
-                <div class="ptitle2" style="margin-top:0;">&#128241; Scanners (Handheld Devices) <span class="section-count" id="scannerCount">0</span></div>
-                <div class="psub" style="margin-bottom:12px;">Registered handheld RFID scanners. Each consumes a device license slot.</div>
-                <div id="scannerGrid">Loading scanners...</div>
-            </div>
-
-            <div class="panel-sub">
-                <div class="ptitle2" style="margin-top:0;">&#128268; MQTT Clients <span class="section-count" id="mqttCount">0</span></div>
-                <div class="psub" style="margin-bottom:12px;">MQTT client registrations for data subscriptions.</div>
-                <div id="mqttGrid">Loading MQTT clients...</div>
-            </div>
-        </div>
-
-        <!-- TAB 2: MOBILE CARTS & WORKSTATIONS REGISTRY -->
-        <div id="viewLicCarts" style="display:none;">
-            <div class="panel-sub" style="border-left:4px solid #38bdf8;">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
-                    <div>
-                        <div class="ptitle2" style="color:#38bdf8; margin-top:0; border-bottom:none;">&#128722; Mobile Carts &amp; Workstations Registry</div>
-                        <div class="psub" style="margin-bottom:0;">
-                            Central tracking repository for all mobile carts and field workstations across VA facilities. 
-                            Maintains both the <strong>modern cryptographic iDash portal license</strong> (RSA-2048) and the <strong>legacy database license</strong>.
-                        </div>
-                    </div>
-                    <div style="display:flex; gap:8px;">
-                        <a href="va_license_activation.aspx" class="ncard-btn ghost" style="width:auto; padding:6px 14px; text-decoration:none;">&#128273; Activate Local Machine</a>
-                        <button type="button" class="btn sm" onclick="openAddCartModal()">&#10010; Register New Cart</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Toolbar -->
-            <div class="toolbar">
-                <input type="text" id="cartSearchInput" class="search-box" placeholder="Search carts by name, site, station number, hardware ID..." oninput="filterCarts()" />
-                <div style="display:flex; gap:8px; align-items:center;">
-                    <span class="muted" style="font-size:12px;" id="cartCountBadge">0 registered</span>
-                </div>
-            </div>
-
-            <!-- Dynamic Cart Cards Container -->
-            <div id="cartListContainer">
-                <div class="muted" style="text-align:center; padding:40px;">Loading registered carts...</div>
-            </div>
-
-            <!-- Troubleshooting Reference -->
-            <div class="panel-sub" style="border-left:4px solid #f59e0b; margin-top:20px;">
-                <div class="ptitle2" style="color:#f59e0b; margin-top:0; border-bottom:none;">&#9888; Standalone Cart Licensing &amp; Deployment Guide</div>
-                <div style="margin-top:8px;">
-                    <p style="font-size:13px; font-weight:700; margin:0 0 4px 0;">1. Understanding the Two License Layers:</p>
-                    <p style="font-size:12px; color:var(--muted); margin:0 0 10px 0;">
-                        &bull; <strong>iDash Portal License (Modern RSA-2048)</strong>: Activated on each cart via <a href="va_license_activation.aspx" style="color:var(--accent);">va_license_activation.aspx</a> using the <code>.idashlic</code> file or key string. Locks web portal modules and sync tools to the cart's Installation ID.<br />
-                        &bull; <strong>Database Core License</strong>: Stored in <code>dbo.applicationsetting.licensekey</code>. Manages backend SQL engine parameters, fixed readers (max 5), and scanner users.
-                    </p>
-
-                    <p style="font-size:13px; font-weight:700; margin:0 0 4px 0;">2. How to License a New Mobile Cart:</p>
-                    <p style="font-size:12px; color:var(--muted); margin:0 0 10px 0;">
-                        Step 1: On the cart, browse to <code>http://localhost/idash/va_license_activation.aspx</code> and copy its <strong>Installation ID</strong> (e.g. <code>IDASH-80E4-5E4F-033F</code>).<br />
-                        Step 2: On your admin PC, run <code>.\New-IdashLicense.ps1 -InstallationId "IDASH-..." -Customer "..." -SiteName "..." -Perpetual -OutputFile "cart.idashlic"</code>.<br />
-                        Step 3: Click <strong>Register New Cart</strong> above to save it here in the central registry, then download or copy the key right onto the cart!
-                    </p>
-
-                    <p style="font-size:13px; font-weight:700; margin:0 0 4px 0;">3. Blank Screen / HTTP 500 After Login on Cart:</p>
-                    <p style="font-size:12px; color:var(--muted); margin:0 0 10px 0;">Check <code>appsettings.json</code>. Ensure: <code>"AuthServerUrl": "http://localhost"</code>. If it points to a computer name, internal token validation fails with timeout error IDX20803.</p>
-
-                    <p style="font-size:13px; font-weight:700; margin:0 0 4px 0;">4. Site Data Synchronization:</p>
-                    <p style="font-size:12px; color:var(--muted); margin:0;">Once licensed, use the <a href="va_sitedata_export.aspx" style="color:var(--accent); font-weight:700;">Cart Data &amp; Sync Hub</a> to clone or Smart Merge canonical master records onto the cart with 1 click.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- DATABASE -->
     <div class="panel" id="sec-db">
         <div class="ptitle">&#128196; Database Connection</div>
-        <div class="psub">
-            How iDash connects to the local SQL Server / Express instance.
-            Credentials are saved to <code>web.config</code> under <code>&lt;connectionStrings&gt;</code>.<br />
-            <strong>File Path:</strong> <code>c:\inetpub\wwwroot\iDash\web.config</code>
-        </div>
+        <div class="psub">How iDash connects to the local AssetWorx SQL Express instance. Server is usually <code>.\sqlexpress</code>.</div>
         <div class="fg">
             <div class="fl">SQL Server / Instance<span>e.g. .\sqlexpress</span></div>
             <asp:TextBox ID="TxtDbServer" runat="server" />
-            <div class="fl">Database Name<span>e.g. iDash, iDashDB</span></div>
+            <div class="fl">Database Name<span>Usually: assetworx</span></div>
             <asp:TextBox ID="TxtDbName" runat="server" />
-            <div class="fl">SQL Username (User ID)<span>Stored in web.config connection string (e.g. iDashDBAdmin)</span></div>
+            <div class="fl">SQL Username<span>Usually: assetworxadmin</span></div>
             <asp:TextBox ID="TxtDbUser" runat="server" />
-            <div class="fl">SQL Password<span>Leave blank to keep existing password</span></div>
+            <div class="fl">SQL Password<span>Leave blank to keep existing</span></div>
             <asp:TextBox ID="TxtDbPass" runat="server" TextMode="Password" placeholder="(unchanged if blank)" />
         </div>
-        <div style="margin-top:16px;">
-            <asp:Button ID="BtnSaveDb" runat="server" CssClass="btn" Text="&#128190; Save Database Settings" OnClick="BtnSaveDb_Click" />
-            <asp:Button ID="BtnTestConn" runat="server" CssClass="btn green" Text="&#9889; Test Connection" OnClick="BtnTestConn_Click" style="margin-left:8px;" />
+        <asp:Button ID="BtnSaveDb" runat="server" CssClass="btn" Text="Save Database Settings" OnClick="BtnSaveDb_Click" />
+        <asp:Button ID="BtnTestConn" runat="server" CssClass="btn green" Text="&#9889; Test Connection" OnClick="BtnTestConn_Click" style="margin-left:8px;" />
+        <div style="font-size:12px;color:var(--muted);margin-top:8px;">Save first, then Test to verify iDash can reach the database and core tables exist.</div>
+    </div>
+
+    <!-- API -->
+    <div class="panel" id="sec-api">
+        <div class="ptitle">&#128279; API / OAuth Settings</div>
+        <div class="psub">Credentials used to authenticate iDash against the local AssetWorx REST API.
+            The Client ID is your site-specific client registered in the <code>clientapp</code> database table
+            (e.g. <code>v512</code>, <code>idash_613</code>, <code>idash_512</code>).
+            The AssetWorx superadmin login is separate — sign in via AssetWorx &rarr; Tools &rarr; Options.</div>
+        <div class="fg">
+            <div class="fl">API Base URL<span>Usually: http://localhost/api</span></div>
+            <asp:TextBox ID="TxtApiBase" runat="server" />
+            <div class="fl">Token URL<span>Usually: http://localhost/connect/token</span></div>
+            <asp:TextBox ID="TxtTokenUrl" runat="server" />
+            <div class="fl">Client ID<span>e.g. visn5, visn8, visn19</span></div>
+            <asp:TextBox ID="TxtClientId" runat="server" />
+            <div class="fl">Client Secret<span>Leave blank to keep existing</span></div>
+            <asp:TextBox ID="TxtClientSecret" runat="server" TextMode="Password" placeholder="(unchanged if blank)" />
         </div>
-        <div style="font-size:12px;color:var(--muted);margin-top:10px;line-height:1.5;">
-            &#128161; <strong>Where to edit user/pass:</strong> You can edit the SQL credentials directly in the form above and click <em>Save Database Settings</em>, or manually in <code>c:\inetpub\wwwroot\iDash\web.config</code> inside the <code>&lt;connectionStrings&gt;</code> element.<br />
-            Click <strong>&#9889; Test Connection</strong> to verify that iDash can connect and that core tables (<code>asset</code>, <code>company</code>, <code>sysuser</code>, <code>location</code>) exist.
-        </div>
+        <asp:Button ID="BtnSaveApi" runat="server" CssClass="btn" Text="Save API Settings" OnClick="BtnSaveApi_Click" />
     </div>
 
     <!-- FIXED READER / MQTT -->
@@ -484,7 +244,7 @@
     <script>
     function loadRmqStatus() {
         // 1. Fetch iDash antenna service status
-        fetch('va_fixed_reader_live.aspx?api=status')
+        fetch('/idash/va_fixed_reader_live.aspx?api=status')
             .then(function(r){ return r.json(); })
             .then(function(d){
                 document.getElementById('rmqMsgs').innerHTML = '<span style="color:var(--accent)">' + (d.messagesReceived||0) + '</span>';
@@ -609,7 +369,8 @@
             <div class="nav-card-desc">
                 Templates, print client registrations, site readiness checks, configuration sync, and multi-site print setup.
             </div>
-            <div class="nav-card-btns">
+            <div class="nav-card-btns" style="display:flex; gap:8px; flex-wrap:wrap;">
+                <a href="va_print_setup_wizard.aspx" class="ncard-btn" style="background:#f59e0b; border-color:#f59e0b; color:#000; font-weight:700;">&#129668; Print Setup Wizard &rarr;</a>
                 <a href="va_print_admin.aspx" class="ncard-btn">&#128424; Open Print Admin &rarr;</a>
             </div>
         </div>
@@ -622,11 +383,11 @@
         <div class="psub">
             Maps BarTender template filenames (<code>.btw</code>) to Windows printer names for the bypass spooler.
             Edit the JSON below and save &mdash; changes apply on the next print job with no restart required.
-            File: <code>C:\idash_prints\printer_routing.json</code>
+            File: <code>C:\assetworx_prints\printer_routing.json</code>
         </div>
         <asp:TextBox ID="TxtPrintRouting" runat="server" TextMode="MultiLine"
             style="width:100%;height:240px;font-family:Consolas,monospace;font-size:13px;background:var(--chip);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:12px;box-sizing:border-box;resize:vertical;"
-            placeholder="{&#13;&#10;  &quot;iDash_Metal_IQ350.btw&quot;: &quot;Your Printer Name Here&quot;&#13;&#10;}" />
+            placeholder="{&#13;&#10;  &quot;AW_Metal_IQ350.btw&quot;: &quot;Your Printer Name Here&quot;&#13;&#10;}" />
         <asp:Button ID="BtnSavePrintRouting" runat="server" CssClass="btn" Text="Save Routing Table" OnClick="BtnSavePrintRouting_Click" style="margin-top:10px;" />
         <div style="font-size:12px;color:var(--muted);margin-top:8px;">Format: <code>{ "TemplateName.btw": "Windows Printer Name" }</code>. Printer names must match Windows print queue names exactly.</div>
     </div>
@@ -743,7 +504,10 @@
             <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">
                 Download this PowerShell script and schedule it in Windows Task Scheduler to trigger the nightly report run.
             </div>
-            <div class="script-box"><asp:Literal ID="LitRunnerScriptPreview" runat="server" /></div>
+            <div class="script-box"># AutoReportRunner.ps1
+$url = "http://localhost/iDash/va_report_automator_runner.aspx"
+$resp = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 300
+Write-Host $resp.Content</div>
             <asp:Button ID="BtnDownloadScript" runat="server" CssClass="btn green" Text="&#128190; Download Task Script (.ps1)" OnClick="BtnDownloadScript_Click" style="margin-top:8px;" />
         </div>
     </div>
@@ -838,7 +602,7 @@
                 card.style.cssText = 'background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;border-left:4px solid ' + color;
                 var uptimeStr = svc.uptime ? '<div style="font-size:11px;color:var(--muted);margin-top:4px;">Uptime: ' + svc.uptime + '</div>' : '';
                 var errStr = svc.error ? '<div style="font-size:11px;color:#ef4444;margin-top:4px;">' + svc.error + '</div>' : '';
-                var svcKey = svc.service === 'RabbitMQ' ? 'RabbitMQ' : svc.service === 'iDashPrintService' ? 'PrintServer' : svc.service === 'W3SVC' ? 'IIS' : svc.service === 'AntennaLocationService' ? 'Antenna' : '';
+                var svcKey = svc.service === 'RabbitMQ' ? 'RabbitMQ' : svc.service === 'AssetWorxPrintServer' ? 'PrintServer' : svc.service === 'W3SVC' ? 'IIS' : svc.service === 'AntennaLocationService' ? 'Antenna' : '';
                 var restartBtn = svcKey ? '<button type="button" onclick="svcRestartOne(\'' + svcKey + '\')" style="margin-top:8px;font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--line);background:var(--btn-alt);color:var(--text);cursor:pointer;">&#8635; Restart</button>' : '';
                 card.innerHTML = '<div style="font-weight:600;font-size:13px;">' + icon + ' ' + svc.name + '</div>' +
                     '<div style="font-size:12px;color:' + color + ';font-weight:600;margin-top:4px;">' + svc.status + '</div>' +
@@ -1112,48 +876,52 @@
     <!-- CHECKLIST -->
     <div class="panel" id="sec-check">
         <div class="ptitle">&#9989; New Site Deployment Checklist</div>
-        <div class="psub">Follow each step in order. This is designed for someone who has never set up an iDash system before.</div>
+        <div class="psub">Follow each step in order. This is designed for someone who has never set up an AssetWorx/iDash system before.</div>
         <ul class="checklist">
             <li><span>1&#65039;&#8419;</span><div><strong>Copy iDash files to new server</strong><br/>
-                Copy the entire <code>iDash</code> folder to <code>C:\inetpub\wwwroot\iDash\</code> on the new server.
+                Copy the entire <code>iDash</code> folder to <code>C:\inetpub\wwwroot\AssetWorx.WebClient\iDash\</code> on the new server.
                 Includes all <code>.aspx</code> pages, <code>.aspx.cs</code> code-behind files, and the <code>bin\</code> DLL folder.
                 <br/><span style="font-size:11px;color:var(--muted);">SQL scripts (<code>va_dbupdate.sql</code>, <code>va_dbupdate_upsert_enrich.sql</code>) must be in the iDash root and <code>downloads\Scripts\</code>.</span><span class="badge req">Required</span></div></li>
             <li><span>2&#65039;&#8419;</span><div><strong>Configure Database connection</strong><br/>
-                Fill in SQL Server instance (usually <code>.\sqlexpress</code>), database name (<code>iDash</code> or <code>iDashDB</code>), username (<code>iDashDBAdmin</code>) and password.
+                Fill in SQL Server instance (usually <code>.\sqlexpress</code>), database name (<code>AssetWorx</code>), username (<code>assetworxadmin</code>) and password.
                 Click <strong>Save Database Settings</strong> then <strong>&#9889; Test Connection</strong> to verify.
                 <br/><span style="font-size:11px;color:var(--muted);">If test fails: confirm SQL Server is running, the database exists, and credentials match SQL Server Management Studio.</span><span class="badge req">Required</span></div></li>
-            <li><span>3&#65039;&#8419;</span><div><strong>Execute One-Time Company / Site SQL</strong><br/>
+            <li><span>3&#65039;&#8419;</span><div><strong>Configure API / OAuth settings</strong><br/>
+                Set <strong>Client ID</strong> to match this VISN (e.g. <code>visn5</code>). <strong>Client Secret</strong> comes from AssetWorx <code>appsettings.json</code> or the OAuth clients table.
+                API Base URL is almost always <code>http://localhost/api</code>; Token URL is <code>http://localhost/connect/token</code>.
+                <span class="badge req">Required</span></div></li>
+            <li><span>4&#65039;&#8419;</span><div><strong>Execute One-Time Company / Site SQL</strong><br/>
                 Enter the 3-digit VA station number and city name. This creates a row in <code>dbo.company</code> like <code>649 San Diego</code>.
                 All asset imports use this name — if it doesn't exist, imports will fail to map assets to a site.
                 <br/><span style="font-size:11px;color:var(--muted);">Safe to re-run. Skips the insert if station already exists.</span><span class="badge req">Required</span></div></li>
-            <li><span>4&#65039;&#8419;</span><div><strong>Configure Fixed Reader / MQTT (if applicable)</strong><br/>
+            <li><span>5&#65039;&#8419;</span><div><strong>Configure Fixed Reader / MQTT (if applicable)</strong><br/>
                 Set the MQTT broker host/port and antenna service credentials in the <strong>Fixed Reader / MQTT</strong> section.
                 Register your Zebra FX9600 readers and antenna locations in <strong>Fixed Reader Mgmt</strong> and verify with the <strong>&#9889; Test Antenna Service</strong> button.
                 <br/><span style="font-size:11px;color:var(--muted);">Skip if no fixed RFID readers are deployed at this site.</span><span class="badge opt">Optional</span></div></li>
-            <li><span>5&#65039;&#8419;</span><div><strong>Configure MQTT / Print Clients (if printing)</strong><br/>
+            <li><span>6&#65039;&#8419;</span><div><strong>Configure MQTT / Print Clients (if printing)</strong><br/>
                 Open <strong>MQTT / Print Clients</strong> to set broker connection and per-site print client credentials.
                 Open <strong>Printer Administration</strong> to register templates, and set up <strong>Printer Routing</strong> to map BarTender <code>.btw</code> files to Windows printer queues.
                 <br/><span style="font-size:11px;color:var(--muted);">Skip if label printing is not used at this site.</span><span class="badge opt">Optional</span></div></li>
-            <li><span>6&#65039;&#8419;</span><div><strong>Configure Email / SMTP and add recipients</strong><br/>
+            <li><span>7&#65039;&#8419;</span><div><strong>Configure Email / SMTP and add recipients</strong><br/>
                 Each VISN site needs its own email sending account. Typical: <code>smtp.office365.com</code>, port <code>587</code>.
                 Set the From address and From Name (e.g. "iDash VISN 5 Reports"), then add recipient addresses in the <strong>Recipients</strong> section.
                 <span class="badge req">Required</span></div></li>
-            <li><span>7&#65039;&#8419;</span><div><strong>Create scanner user accounts</strong><br/>
-                Open <a href="va_user_management.aspx" style="color:var(--accent);font-weight:600;">&#128100; User Management</a> to create login accounts for RFID scanner operators.
+            <li><span>8&#65039;&#8419;</span><div><strong>Create scanner user accounts</strong><br/>
+                Open <a href="va_aw_user_management.aspx" style="color:var(--accent);font-weight:600;">&#128100; AssetWorx User Management</a> to create login accounts for RFID scanner operators.
                 Each operator needs a username, password, user type, and site assignment.
                 <br/><span style="font-size:11px;color:var(--muted);">Default accounts: <code>admin</code> / <code>superadmin</code> (password: <code>demo</code>). Change these after setup.</span><span class="badge req">Required</span></div></li>
-            <li><span>8&#65039;&#8419;</span><div><strong>Run the two-pass data import</strong><br/>
+            <li><span>9&#65039;&#8419;</span><div><strong>Run the two-pass data import</strong><br/>
                 Open <a href="va_dbupdate.aspx" style="color:var(--accent);font-weight:600;">Manual DB Update</a>.<br/>
                 <strong>Step A:</strong> Upload the VA data file (tab-delimited CDW/VistA export).<br/>
                 <strong>Step B:</strong> Run the <strong>Enrichment script</strong> (<code>va_dbupdate_upsert_enrich.sql</code>) — inserts new assets and fills blank fields.<br/>
                 <strong>Step C:</strong> Run the <strong>Standard script</strong> (<code>va_dbupdate.sql</code>) — full MERGE upsert.
                 <br/><span style="font-size:11px;color:var(--muted);">See <a href="documentation/va_dbupdate.html" style="color:var(--accent);">DB Update documentation</a> for the full field mapping guide.</span><span class="badge req">Required</span></div></li>
-            <li><span>9&#65039;&#8419;</span><div><strong>Configure Report Automation</strong><br/>
+            <li><span>10&#65039;&#8419;</span><div><strong>Configure Report Automation</strong><br/>
                 Enable automated reporting, set the schedule, subject, and Excel fields in the <strong>Report Automation</strong> section.
                 Download the PowerShell script and schedule it in Windows Task Scheduler for nightly runs.<span class="badge opt">Optional</span></div></li>
-            <li><span>10&#65039;&#8419;</span><div><strong>Configure Notifications &amp; Alerts</strong><br/>
+            <li><span>11&#65039;&#8419;</span><div><strong>Configure Notifications &amp; Alerts</strong><br/>
                 In the <strong>Notifications</strong> section, enable ENNX report automation and add email recipients.
-                Notifications use the SMTP settings configured in step 6. Watch list and service health alerts are configured per-user from the iDash Hub.
+                Notifications use the SMTP settings configured in step 7. Watch list and service health alerts are configured per-user from the iDash Hub.
                 <span class="badge opt">Optional</span></div></li>
             <li><span>&#128313;</span><div><strong>Verify connection in iDash Hub</strong><br/>
                 Open <a href="index.aspx" style="color:var(--accent);font-weight:600;">iDash Hub</a> &mdash; the status bar should show
@@ -1163,77 +931,11 @@
     </div>
 
     <div style="text-align:center;color:var(--muted);font-size:12px;margin-top:10px;padding-bottom:40px;">
-        Intelligent Distributed Asset Scanning Hub &mdash; Site Configuration &copy; 2026
+        VA Asset Intelligence Hub &mdash; Site Configuration &copy; 2026
     </div>
     <idash:Footer runat="server" />
 </main>
 </div>
-
-<!-- CART MODAL -->
-<div id="cartModal" class="modal-backdrop">
-    <div class="modal-dialog">
-        <div class="modal-header">
-            <h3 id="modalCartTitle">&#128722; Register Cart / Workstation</h3>
-            <button type="button" class="modal-close" onclick="closeCartModal()">&times;</button>
-        </div>
-        <div class="modal-body">
-            <input type="hidden" id="modalCartId" />
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Cart / Workstation Name *</label>
-                    <input type="text" id="modalCartName" class="form-input" placeholder="e.g. ID Integration Tagging Cart 1" />
-                </div>
-                <div class="form-group">
-                    <label>Facility / Site *</label>
-                    <input type="text" id="modalCartSite" class="form-input" placeholder="e.g. VAMC Facility or Traveling cart" />
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Station Number</label>
-                    <input type="text" id="modalCartStation" class="form-input" placeholder="e.g. Station Number, or ALL" />
-                </div>
-                <div class="form-group">
-                    <label>Status</label>
-                    <select id="modalCartStatus" class="form-select">
-                        <option value="Active">Active</option>
-                        <option value="Standby">Standby</option>
-                        <option value="Provisioning">Provisioning</option>
-                        <option value="Retired">Retired</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Installation ID (iDash Hardware ID)</label>
-                    <input type="text" id="modalCartInstallId" class="form-input mono" placeholder="e.g. IDASH-80E4-5E4F-033F" />
-                </div>
-                <div class="form-group">
-                    <label>Primary Ethernet MAC Address</label>
-                    <input type="text" id="modalCartMac" class="form-input mono" placeholder="e.g. 04:64:FA:FE:7F:A8" />
-                </div>
-            </div>
-            <div class="form-group">
-                <label>iDash Cryptographic License Key (RSA-2048)</label>
-                <textarea id="modalCartIdashKey" class="form-textarea mono" rows="3" placeholder="IDASH-LIC-v1-... (Paste cryptographic key here)"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Legacy Database License Key</label>
-                <textarea id="modalCartAwKey" class="form-textarea mono" rows="3" placeholder="ew0KICAiTGljZW5zZUtleSI6... (Base64 SQL license string)"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Deployment Notes / Description</label>
-                <textarea id="modalCartNotes" class="form-textarea" rows="2" placeholder="e.g. Assigned to logistics for annual inventory sweep..."></textarea>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn sm ghost" onclick="closeCartModal()">Cancel</button>
-            <button type="button" class="btn sm" onclick="saveCartModal()">&#128190; Save Cart Record</button>
-        </div>
-    </div>
-</div>
-
-<div id="licToast" class="lic-toast"></div>
 </form>
 <script>
 (function(){
@@ -1241,466 +943,11 @@
     var nm=document.getElementById('<%= TxtSiteName.ClientID %>');
     var pre=document.getElementById('sqlPreview');
     function upd(){
-        if (!pre) return;
-        var s=(stn?stn.value.trim():'')||'NNN', n=(nm?nm.value.trim():'')||'Site Name';
+        var s=stn.value.trim()||'NNN', n=nm.value.trim()||'Site Name';
         pre.textContent='-- Parameterized SQL (values are passed as @parameters, not concatenated)\nIF NOT EXISTS (SELECT 1 FROM dbo.company WHERE SUBSTRING(name,1,3) = @station)\n    INSERT INTO dbo.company (name) VALUES (@companyName);\n\n-- @station     = \'' + s + '\'\n-- @companyName = \'' + s + ' ' + n + '\'';
     }
-    if(stn){stn.addEventListener('input',upd);if(nm)nm.addEventListener('input',upd);upd();}
+    if(stn){stn.addEventListener('input',upd);nm.addEventListener('input',upd);upd();}
 })();
-
-function calcEndpoints() {
-    var ddlProto = document.getElementById('<%= DdlServerProtocol.ClientID %>');
-    var txtPort = document.getElementById('<%= TxtServerPort.ClientID %>');
-    var txtHost = document.getElementById('<%= TxtServerHost.ClientID %>');
-    var txtVpath = document.getElementById('<%= TxtServerVirtualPath.ClientID %>');
-
-    if (!ddlProto || !txtPort || !txtHost) return;
-
-    var proto = (ddlProto.value || 'http').toLowerCase();
-    var port = (txtPort.value || '').trim() || (proto === 'https' ? '443' : '80');
-    var host = (txtHost.value || '').trim() || 'localhost';
-    var vpath = (txtVpath ? txtVpath.value : '').trim();
-
-    if (vpath === '/') vpath = '';
-    if (vpath && !vpath.startsWith('/')) vpath = '/' + vpath;
-    vpath = vpath.replace(/\/+$/, '');
-
-    var isStandard = (proto === 'http' && port === '80') || (proto === 'https' && port === '443');
-    var authority = host + (isStandard ? '' : ':' + port);
-    var baseUrl = proto + '://' + authority + vpath;
-
-    var prevBaseUrl = document.getElementById('prevBaseUrl');
-    var prevRunnerUrl = document.getElementById('prevRunnerUrl');
-    var prevImportUrl = document.getElementById('prevImportUrl');
-    var prevAuthUrl = document.getElementById('prevAuthUrl');
-
-    if (prevBaseUrl) prevBaseUrl.textContent = baseUrl;
-    if (prevRunnerUrl) prevRunnerUrl.textContent = baseUrl + '/va_report_automator_runner.aspx';
-    if (prevImportUrl) prevImportUrl.textContent = baseUrl + '/va_remote_import.ashx';
-    if (prevAuthUrl) prevAuthUrl.textContent = baseUrl;
-}
-
-function applyPreset(proto, port, vpath) {
-    var ddlProto = document.getElementById('<%= DdlServerProtocol.ClientID %>');
-    var txtPort = document.getElementById('<%= TxtServerPort.ClientID %>');
-    var txtVpath = document.getElementById('<%= TxtServerVirtualPath.ClientID %>');
-
-    if (ddlProto) ddlProto.value = proto;
-    if (txtPort) txtPort.value = port;
-    if (txtVpath) txtVpath.value = vpath;
-
-    calcEndpoints();
-}
-
-function copyIisCmd() {
-    var el = document.getElementById('cmdIisScript');
-    if (!el) return;
-    var cmd = el.textContent;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(cmd).then(function(){
-            alert('Copied PowerShell command to clipboard!\nOpen an elevated PowerShell prompt (Run as Administrator) and paste to execute.');
-        }).catch(function(){
-            prompt('Copy this command and run in an elevated PowerShell prompt:', cmd);
-        });
-    } else {
-        prompt('Copy this command and run in an elevated PowerShell prompt:', cmd);
-    }
-}
-
-// Initialize preview on page load
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', calcEndpoints);
-} else {
-    calcEndpoints();
-}
-
-/* ========================================================
-   LICENSE MANAGEMENT MODULE
-   ======================================================== */
-var licCartsData = [];
-var licAllCartsLoaded = false;
-var licDataLoaded = false;
-
-function licApi(cmd) {
-    return fetch('va_site_config.aspx?action=api&cmd=' + cmd).then(function(r) { return r.json(); });
-}
-function licApiPost(cmd, body) {
-    return fetch('va_site_config.aspx?action=api&cmd=' + cmd, {
-        method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
-    }).then(function(r) { return r.json(); });
-}
-function licToast(msg, ok) {
-    var t = document.getElementById('licToast');
-    if (!t) return;
-    t.className = 'lic-toast ' + (ok ? 'lic-toast-ok' : 'lic-toast-err');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(function() { t.classList.remove('show'); }, 3000);
-}
-function licEsc(s) { return (s||'').replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
-function licTimeSince(dt) {
-    if (!dt) return 'Never';
-    var diff = Date.now() - new Date(dt).getTime();
-    if (diff < 60000) return 'Just now';
-    if (diff < 3600000) return Math.floor(diff/60000) + 'm ago';
-    if (diff < 86400000) return Math.floor(diff/3600000) + 'h ago';
-    return Math.floor(diff/86400000) + 'd ago';
-}
-
-async function loadAllLicenses() {
-    try {
-        var data = await licApi('getAll');
-        if (!data || data.error) { licToast(data ? data.error : 'Error loading licenses', false); return; }
-
-        var totalReaders = (data.readers ? data.readers.length : 0) + (data.scanners ? data.scanners.length : 0);
-        var readerLimit = 5;
-        var readerColor = totalReaders >= readerLimit ? '#ef4444' : '#10b981';
-
-        var summaryEl = document.getElementById('licSummaryRow');
-        if (summaryEl) {
-            summaryEl.innerHTML =
-                '<div class="summary-card" style="border-color:' + readerColor + '"><div class="summary-val" style="color:' + readerColor + '">' + totalReaders + ' / ' + readerLimit + '</div><div class="summary-lbl">Reader License Slots</div><div style="font-size:10px;color:var(--muted);margin-top:4px;">' + (data.readers ? data.readers.length : 0) + ' fixed + ' + (data.scanners ? data.scanners.length : 0) + ' handhelds</div></div>' +
-                '<div class="summary-card"><div class="summary-val">' + (data.servers ? data.servers.length : 0) + '</div><div class="summary-lbl">Servers</div></div>' +
-                '<div class="summary-card"><div class="summary-val">' + (data.users ? data.users.length : 0) + '</div><div class="summary-lbl">Scanner Users</div></div>' +
-                '<div class="summary-card"><div class="summary-val">' + (data.mqttClients ? data.mqttClients.length : 0) + '</div><div class="summary-lbl">MQTT Clients</div></div>';
-        }
-
-        renderLicReaders(data.readers || []);
-        renderLicServers(data.servers || []);
-        renderLicUsers(data.users || []);
-        renderLicScanners(data.scanners || []);
-        renderLicMqtt(data.mqttClients || []);
-        licDataLoaded = true;
-    } catch(e) {
-        licToast('License load failed: ' + e.message, false);
-    }
-}
-
-function renderLicReaders(list) {
-    var c = document.getElementById('readerCount');
-    if (c) c.textContent = list.length;
-    var g = document.getElementById('readerGrid');
-    if (!g) return;
-    if (!list.length) { g.innerHTML = '<div class="muted" style="padding:12px;font-size:12px;">No fixed readers in database.</div>'; return; }
-    var h = '<table class="lic-grid"><thead><tr><th>ID</th><th>Name</th><th>Model</th><th>IP</th><th>Location</th><th>Last Seen</th><th>Status</th><th></th></tr></thead><tbody>';
-    list.forEach(function(r) {
-        var stale = !r.lastSeen || (Date.now()-new Date(r.lastSeen).getTime()) > 86400000;
-        h += '<tr><td class="mono">'+r.id+'</td><td><strong>'+r.name+'</strong></td><td>'+(r.model||'—')+'</td><td class="mono">'+(r.ip||'—')+'</td><td>'+(r.location||'—')+'</td><td class="mono">'+licTimeSince(r.lastSeen)+'</td><td>'+(stale?'<span class="badge badge-warn">Stale</span>':'<span class="badge badge-ok">Active</span>')+'</td><td style="text-align:right;"><button type="button" class="btn-del" onclick="delLicense(\'reader\','+r.id+',\''+licEsc(r.name)+'\')">Delete</button></td></tr>';
-    });
-    g.innerHTML = h + '</tbody></table>';
-}
-function renderLicServers(list) {
-    var c = document.getElementById('serverCount');
-    if (c) c.textContent = list.length;
-    var g = document.getElementById('serverGrid');
-    if (!g) return;
-    if (!list.length) { g.innerHTML = '<div class="muted" style="padding:12px;font-size:12px;">No servers registered.</div>'; return; }
-    var h = '<table class="lic-grid"><thead><tr><th>ID</th><th>Name</th><th>Type</th><th>Version</th><th>Last Seen</th><th></th></tr></thead><tbody>';
-    list.forEach(function(s) {
-        h += '<tr><td class="mono">'+s.id+'</td><td><strong>'+s.name+'</strong></td><td>'+(s.serverType||'—')+'</td><td class="mono">'+(s.version||'—')+'</td><td class="mono">'+licTimeSince(s.lastSeen)+'</td><td style="text-align:right;"><button type="button" class="btn-del" onclick="delLicense(\'server\','+s.id+',\''+licEsc(s.name)+'\')">Delete</button></td></tr>';
-    });
-    g.innerHTML = h + '</tbody></table>';
-}
-function renderLicUsers(list) {
-    var c = document.getElementById('userCount');
-    if (c) c.textContent = list.length;
-    var g = document.getElementById('userGrid');
-    if (!g) return;
-    if (!list.length) { g.innerHTML = '<div class="muted" style="padding:12px;font-size:12px;">No scanner users.</div>'; return; }
-    var h = '<table class="lic-grid"><thead><tr><th>ID</th><th>Username</th><th>Name</th><th>Site</th><th>Type</th><th></th></tr></thead><tbody>';
-    list.forEach(function(u) {
-        h += '<tr><td class="mono">'+u.id+'</td><td><strong>'+u.username+'</strong></td><td>'+(u.fullName||'—')+'</td><td>'+(u.site||'—')+'</td><td>'+(u.userType||'—')+'</td><td style="text-align:right;"><button type="button" class="btn-del" onclick="delLicense(\'user\','+u.id+',\''+licEsc(u.username)+'\')">Delete</button></td></tr>';
-    });
-    g.innerHTML = h + '</tbody></table>';
-}
-function renderLicScanners(list) {
-    var c = document.getElementById('scannerCount');
-    if (c) c.textContent = list.length;
-    var g = document.getElementById('scannerGrid');
-    if (!g) return;
-    if (!list.length) { g.innerHTML = '<div class="muted" style="padding:12px;font-size:12px;">No scanners registered.</div>'; return; }
-    var h = '<table class="lic-grid"><thead><tr><th>ID</th><th>Device ID</th><th>Site</th><th>Last Seen</th><th>Status</th><th></th></tr></thead><tbody>';
-    list.forEach(function(s) {
-        var stale = !s.lastSeen || (Date.now()-new Date(s.lastSeen).getTime()) > 86400000*30;
-        var badge = s.inactive ? '<span class="badge badge-err">Inactive</span>' : (stale ? '<span class="badge badge-warn">Stale</span>' : '<span class="badge badge-ok">Active</span>');
-        h += '<tr><td class="mono">'+s.id+'</td><td><strong class="mono">'+s.deviceId+'</strong></td><td>'+(s.site||'—')+'</td><td class="mono">'+licTimeSince(s.lastSeen)+'</td><td>'+badge+'</td><td style="text-align:right;"><button type="button" class="btn-del" onclick="delLicense(\'scanner\','+s.id+',\''+licEsc(s.deviceId)+'\')">Delete</button></td></tr>';
-    });
-    g.innerHTML = h + '</tbody></table>';
-}
-function renderLicMqtt(list) {
-    var c = document.getElementById('mqttCount');
-    if (c) c.textContent = list.length;
-    var g = document.getElementById('mqttGrid');
-    if (!g) return;
-    if (!list.length) { g.innerHTML = '<div class="muted" style="padding:12px;font-size:12px;">No MQTT clients.</div>'; return; }
-    var h = '<table class="lic-grid"><thead><tr><th>ID</th><th>Username</th><th>Site</th><th></th></tr></thead><tbody>';
-    list.forEach(function(m) {
-        h += '<tr><td class="mono">'+m.id+'</td><td><strong>'+m.username+'</strong></td><td>'+(m.site||'—')+'</td><td style="text-align:right;"><button type="button" class="btn-del" onclick="delLicense(\'mqtt\','+m.id+',\''+licEsc(m.username)+'\')">Delete</button></td></tr>';
-    });
-    g.innerHTML = h + '</tbody></table>';
-}
-
-async function delLicense(type, id, name) {
-    var labels = {reader:'reader',server:'server registration',user:'scanner user',scanner:'scanner (handheld)',mqtt:'MQTT client'};
-    if (!confirm('Delete '+labels[type]+' "'+name+'" (ID '+id+')?\n\nThis frees the license slot.')) return;
-    var cmds = {reader:'deleteReader',server:'deleteServer',user:'deleteUser',scanner:'deleteScanner',mqtt:'deleteMqtt'};
-    var data = await licApiPost(cmds[type], {id:id});
-    if (data.error) licToast('Error: '+data.error, false);
-    else { licToast('"'+name+'" deleted', true); loadAllLicenses(); }
-}
-
-/* ========================================================
-   CARTS & WORKSTATIONS REGISTRY
-   ======================================================== */
-async function loadCarts() {
-    try {
-        var data = await licApi('getCarts');
-        if (Array.isArray(data)) {
-            licCartsData = data;
-            licAllCartsLoaded = true;
-            renderCarts(licCartsData);
-        } else if (data.error) {
-            licToast('Failed to load carts: ' + data.error, false);
-        }
-    } catch(e) {
-        licToast('Error loading cart registry: ' + e.message, false);
-    }
-}
-
-function filterCarts() {
-    var q = (document.getElementById('cartSearchInput').value || '').trim().toLowerCase();
-    if (!q) {
-        renderCarts(licCartsData);
-        return;
-    }
-    var filtered = licCartsData.filter(function(c) {
-        return (c.name || '').toLowerCase().includes(q) ||
-               (c.site || '').toLowerCase().includes(q) ||
-               (c.stationNumber || '').toLowerCase().includes(q) ||
-               (c.installationId || '').toLowerCase().includes(q) ||
-               (c.hardwareId || '').toLowerCase().includes(q) ||
-               (c.notes || '').toLowerCase().includes(q);
-    });
-    renderCarts(filtered);
-}
-
-function renderCarts(list) {
-    var container = document.getElementById('cartListContainer');
-    var badge = document.getElementById('cartCountBadge');
-    if (badge) badge.textContent = (list.length) + ' of ' + licCartsData.length + ' registered';
-
-    if (!list || !list.length) {
-        container.innerHTML = '<div class="panel-sub" style="text-align:center; padding:32px; color:var(--muted);"><p style="font-size:13px; margin-bottom:12px;">No matching carts found in the registry.</p><button type="button" class="btn sm" onclick="openAddCartModal()">&#10010; Register First Cart</button></div>';
-        return;
-    }
-
-    var html = '';
-    list.forEach(function(cart) {
-        var isOnline = (cart.status || '').toLowerCase() === 'active';
-        var statusBadge = isOnline ? '<span class="badge badge-ok">Active</span>' : '<span class="badge badge-warn">' + (cart.status || 'Provisioning') + '</span>';
-
-        var psScript = '';
-        if (cart.awLicenseKey) {
-            psScript = '$lic = "' + cart.awLicenseKey.replace(/"/g, '`"') + '"\r\n' +
-                '$conn = New-Object System.Data.SqlClient.SqlConnection("Server=localhost\\sqlexpress;Database=idash;User Id=idashadmin;Password=idashadmin;")\r\n' +
-                '$conn.Open()\r\n' +
-                '$cmd = $conn.CreateCommand()\r\n' +
-                '$cmd.CommandText = "UPDATE applicationsetting SET licensekey = @lic"\r\n' +
-                '$cmd.Parameters.AddWithValue("@lic", $lic) | Out-Null\r\n' +
-                '$cmd.ExecuteNonQuery() | Out-Null\r\n' +
-                '$conn.Close()\r\n' +
-                'iisreset';
-        }
-
-        html += '<div class="cart-card" id="card-' + cart.id + '">' +
-            '<div class="cart-header">' +
-                '<div>' +
-                    '<div style="font-size:15px; font-weight:700; color:var(--accent); display:flex; align-items:center; gap:8px;">' +
-                        '&#128722; ' + (cart.name || 'Unnamed Cart') + ' ' + statusBadge +
-                    '</div>' +
-                    '<span class="muted" style="font-size:12px;">' + (cart.site || 'VA Facility') + (cart.stationNumber ? ' &bull; Station ' + cart.stationNumber : '') + '</span>' +
-                '</div>' +
-                '<div style="display:flex; gap:6px; align-items:center;">' +
-                    '<button type="button" class="copy-chip" onclick="openEditCartModal(\'' + cart.id + '\')">&#9998; Edit</button>' +
-                    '<button type="button" class="btn-outline-danger" onclick="deleteCartItem(\'' + cart.id + '\', \'' + licEsc(cart.name) + '\')">&#128465;</button>' +
-                '</div>' +
-            '</div>';
-
-        html += '<div class="cart-meta-grid">' +
-            '<div class="cart-meta-item"><span class="cart-meta-lbl">Installation ID</span><span class="cart-meta-val mono" style="color:var(--accent);">' + (cart.installationId || '&mdash;') + '</span></div>' +
-            '<div class="cart-meta-item"><span class="cart-meta-lbl">Ethernet MAC</span><span class="cart-meta-val mono">' + (cart.hardwareId || '&mdash;') + '</span></div>' +
-            '<div class="cart-meta-item"><span class="cart-meta-lbl">License Tier</span><span class="cart-meta-val">' + (cart.licenseType || 'Perpetual') + '</span></div>' +
-            '<div class="cart-meta-item"><span class="cart-meta-lbl">Deployment Notes</span><span class="cart-meta-val muted" style="font-size:11px;">' + (cart.notes || 'None recorded') + '</span></div>' +
-        '</div>';
-
-        html += '<div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--line);">' +
-            '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">' +
-                '<span style="font-size:12px; font-weight:700; color:var(--text); display:flex; align-items:center; gap:6px;">' +
-                    '&#128273; Modern iDash Portal License (RSA-2048):' +
-                '</span>' +
-                '<div style="display:flex; gap:6px;">';
-        if (cart.idashLicenseKey) {
-            html += '<a href="va_site_config.aspx?action=downloadCart&id=' + cart.id + '" class="copy-chip" style="text-decoration:none;">&#128190; Download .idashlic</a>' +
-                    '<button type="button" class="copy-chip" onclick="copyLicRawText(\'' + licEsc(cart.idashLicenseKey) + '\', \'iDash License Key copied!\')">&#128203; Copy Key</button>';
-        } else {
-            html += '<span class="muted" style="font-size:11px;">Not yet issued</span>';
-        }
-        html += '</div></div>';
-
-        if (cart.idashLicenseKey) {
-            html += '<pre class="code-block" id="idashKey-' + cart.id + '">' + cart.idashLicenseKey + '</pre>';
-        } else {
-            html += '<div class="muted" style="font-size:12px; font-style:italic; padding:6px 0;">No cryptographic iDash portal license registered for this cart yet. Generate via New-IdashLicense.ps1 and click Edit to paste.</div>';
-        }
-        html += '</div>';
-
-        if (cart.awLicenseKey) {
-            html += '<div style="margin-top:12px; padding-top:12px; border-top:1px dashed var(--line);">' +
-                '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">' +
-                    '<span style="font-size:12px; font-weight:700; color:var(--text); display:flex; align-items:center; gap:6px;">' +
-                        '&#9881; Legacy Database License:' +
-                    '</span>' +
-                    '<div style="display:flex; gap:6px;">' +
-                        '<button type="button" class="copy-chip" onclick="copyLicRawText(\'' + licEsc(cart.awLicenseKey) + '\', \'SQL Key copied!\')">&#128203; Copy SQL Key</button>' +
-                        '<button type="button" class="copy-chip" onclick="copyLicRawText(\'' + licEsc(psScript) + '\', \'PowerShell SQL script copied!\')">&#128203; Copy PS Script</button>' +
-                    '</div>' +
-                '</div>' +
-                '<pre class="code-block">' + cart.awLicenseKey + '</pre>' +
-            '</div>';
-        }
-
-        html += '</div>';
-    });
-
-    container.innerHTML = html;
-}
-
-function openAddCartModal() {
-    document.getElementById('modalCartTitle').innerHTML = '&#128722; Register New Cart / Workstation';
-    document.getElementById('modalCartId').value = '';
-    document.getElementById('modalCartName').value = '';
-    document.getElementById('modalCartSite').value = '';
-    document.getElementById('modalCartStation').value = '';
-    document.getElementById('modalCartStatus').value = 'Active';
-    document.getElementById('modalCartInstallId').value = '';
-    document.getElementById('modalCartMac').value = '';
-    document.getElementById('modalCartIdashKey').value = '';
-    document.getElementById('modalCartAwKey').value = '';
-    document.getElementById('modalCartNotes').value = '';
-    document.getElementById('cartModal').classList.add('show');
-}
-
-function openEditCartModal(id) {
-    var cart = licCartsData.find(function(c) { return c.id === id; });
-    if (!cart) return;
-
-    document.getElementById('modalCartTitle').innerHTML = '&#9998; Edit Cart &mdash; ' + licEsc(cart.name);
-    document.getElementById('modalCartId').value = cart.id || '';
-    document.getElementById('modalCartName').value = cart.name || '';
-    document.getElementById('modalCartSite').value = cart.site || '';
-    document.getElementById('modalCartStation').value = cart.stationNumber || '';
-    document.getElementById('modalCartStatus').value = cart.status || 'Active';
-    document.getElementById('modalCartInstallId').value = cart.installationId || '';
-    document.getElementById('modalCartMac').value = cart.hardwareId || '';
-    document.getElementById('modalCartIdashKey').value = cart.idashLicenseKey || '';
-    document.getElementById('modalCartAwKey').value = cart.awLicenseKey || '';
-    document.getElementById('modalCartNotes').value = cart.notes || '';
-    document.getElementById('cartModal').classList.add('show');
-}
-
-function closeCartModal() {
-    document.getElementById('cartModal').classList.remove('show');
-}
-
-async function saveCartModal() {
-    var name = (document.getElementById('modalCartName').value || '').trim();
-    var site = (document.getElementById('modalCartSite').value || '').trim();
-    if (!name || !site) {
-        licToast('Cart name and facility/site are required.', false);
-        return;
-    }
-
-    var payload = {
-        id: document.getElementById('modalCartId').value || '',
-        name: name,
-        site: site,
-        stationNumber: (document.getElementById('modalCartStation').value || '').trim(),
-        status: document.getElementById('modalCartStatus').value,
-        installationId: (document.getElementById('modalCartInstallId').value || '').trim(),
-        hardwareId: (document.getElementById('modalCartMac').value || '').trim(),
-        idashLicenseKey: (document.getElementById('modalCartIdashKey').value || '').trim(),
-        awLicenseKey: (document.getElementById('modalCartAwKey').value || '').trim(),
-        licenseType: 'Perpetual',
-        notes: (document.getElementById('modalCartNotes').value || '').trim()
-    };
-
-    var res = await licApiPost('saveCart', payload);
-    if (res.error) {
-        licToast('Failed to save cart: ' + res.error, false);
-    } else {
-        licToast('Cart "' + name + '" saved successfully!', true);
-        closeCartModal();
-        loadCarts();
-    }
-}
-
-async function deleteCartItem(id, name) {
-    if (!confirm('Are you sure you want to remove "' + name + '" from the cart license registry?')) return;
-    var res = await licApiPost('deleteCart', { id: id });
-    if (res.error) {
-        licToast('Failed to delete cart: ' + res.error, false);
-    } else {
-        licToast('Cart "' + name + '" removed', true);
-        loadCarts();
-    }
-}
-
-function copyLicRawText(txt, msg) {
-    if (!txt) return;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(txt).then(function() {
-            licToast(msg || 'Copied to clipboard!', true);
-        }).catch(function() {
-            prompt('Copy text:', txt);
-        });
-    } else {
-        prompt('Copy text:', txt);
-    }
-}
-
-function switchLicTab(tab) {
-    var isLive = (tab === 'live');
-    var liveEl = document.getElementById('viewLicLive');
-    var cartsEl = document.getElementById('viewLicCarts');
-    var liveBtn = document.getElementById('tabLiveLicBtn');
-    var cartsBtn = document.getElementById('tabCartsLicBtn');
-    if (liveEl) liveEl.style.display = isLive ? 'block' : 'none';
-    if (cartsEl) {
-        cartsEl.style.display = isLive ? 'none' : 'block';
-        if (!isLive && !licAllCartsLoaded) loadCarts();
-    }
-    if (liveBtn) liveBtn.className = 'tab-btn' + (isLive ? ' active' : '');
-    if (cartsBtn) cartsBtn.className = 'tab-btn' + (!isLive ? ' active' : '');
-}
-
-// Auto-load licenses if hash contains license or licenses or carts, or on initial page load
-if (location.hash === '#sec-licenses' || location.hash === '#licenses' || location.hash === '#sec-carts' || location.hash === '#carts') {
-    if (location.hash === '#sec-carts' || location.hash === '#carts') {
-        switchLicTab('carts');
-    }
-    loadAllLicenses();
-} else {
-    loadAllLicenses();
-}
-
-window.addEventListener('hashchange', function() {
-    if (location.hash === '#sec-licenses' || location.hash === '#licenses') {
-        if (!licDataLoaded) loadAllLicenses();
-        switchLicTab('live');
-    } else if (location.hash === '#sec-carts' || location.hash === '#carts') {
-        switchLicTab('carts');
-    }
-});
 </script>
 </body>
 </html>

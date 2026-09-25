@@ -3,8 +3,8 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>iDash Training Modules</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <title>AssetWorx Training Modules</title>
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -268,7 +268,7 @@
         
         <div class="sidebar">
             <div class="sidebar-header">
-                <h2>iDash LMS</h2>
+                <h2>AssetWorx LMS</h2>
                 <div class="user-info">User: <asp:Label ID="LblUser" runat="server" /></div>
             </div>
             <ul class="module-list" id="module-list">
@@ -303,7 +303,7 @@
             </div>
             
             <div id="welcome-area" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--muted);">
-                <h2>Welcome to iDash Training</h2>
+                <h2>Welcome to AssetWorx Training</h2>
                 <p>Select a module from the sidebar to begin.</p>
             </div>
         </div>
@@ -526,5 +526,4 @@
     </form>
 </body>
 </html>
-
 

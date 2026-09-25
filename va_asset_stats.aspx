@@ -1,10 +1,10 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_asset_stats.aspx.cs" Inherits="iDash.va_asset_stats" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_asset_stats.aspx.cs" Inherits="iDash.va_asset_stats" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>Asset Statistics &mdash; iDash</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <title>Asset Statistics &mdash; AssetWorx</title>
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -45,7 +45,7 @@
 
         .dash { max-width: 1440px; margin: 0 auto; padding: 30px 24px; }
 
-        /* -- HEADER ----------------------------------- */
+        /* ── HEADER ─────────────────────────────────── */
         .page-header {
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 36px;
@@ -66,9 +66,9 @@
         }
         .ctrl-select option { background: var(--card); color: var(--text-main); }
 
-        /* header action pills � see theme.css .hdr-pill */
+        /* header action pills — see theme.css .hdr-pill */
 
-        /* -- GLASS PANEL ------------------------------- */
+        /* ── GLASS PANEL ─────────────────────────────── */
         .glass {
             background: var(--panel-bg);
             backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
@@ -88,7 +88,7 @@
             padding-bottom: 12px; margin-bottom: 20px;
         }
 
-        /* -- KPI ROW ----------------------------------- */
+        /* ── KPI ROW ─────────────────────────────────── */
         .kpi-row {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -110,7 +110,7 @@
         }
         .kpi-sub { font-size: 12px; color: var(--text-accent); margin-top: 4px; }
 
-        /* -- METRIC GRID (2col) ------------------------ */
+        /* ── METRIC GRID (2col) ──────────────────────── */
         .metric-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -118,7 +118,7 @@
         }
         @media(max-width:800px) { .metric-grid { grid-template-columns: 1fr; } }
 
-        /* -- STATUS BAR -------------------------------- */
+        /* ── STATUS BAR ──────────────────────────────── */
         .status-bar-wrap { margin-bottom: 14px; }
         .status-bar {
             display: flex; height: 28px; border-radius: 8px;
@@ -141,7 +141,7 @@
         .legend-pct { font-weight: 700; color: var(--text-main); min-width: 60px; text-align: right; font-variant-numeric: tabular-nums; }
         .legend-pct-sub { font-size: 12px; color: var(--text-accent); min-width: 60px; text-align: right; font-variant-numeric: tabular-nums; }
 
-        /* -- METRIC ROWS ------------------------------- */
+        /* ── METRIC ROWS ─────────────────────────────── */
         .metric-row {
             display: flex; align-items: center; justify-content: space-between;
             padding: 13px 0;
@@ -166,7 +166,7 @@
         .b-gray   { background: rgba(156,163,175,0.18);color: #9CA3AF; border: 1px solid rgba(156,163,175,0.3); }
         .b-label  { font-size: 10px; font-weight: 400; opacity: 0.75; margin-left: 2px; }
 
-        /* -- LOCATION TABLE ---------------------------- */
+        /* ── LOCATION TABLE ──────────────────────────── */
         .loc-table-wrap { overflow-x: auto; }
         .loc-table {
             width: 100%; border-collapse: collapse; font-size: 13px;
@@ -180,13 +180,13 @@
             user-select: none;
         }
         .loc-table th:hover { color: var(--text-main); }
-        /* Sort indicators � match va_location_list and va_asset_master */
+        /* Sort indicators — match va_location_list and va_asset_master */
         .loc-table th .sh-si { display:inline-block; margin-left:5px; font-size:9px; opacity:.3; transition:opacity .15s; }
         .loc-table th.sort-asc  .sh-si,
         .loc-table th.sort-desc .sh-si { opacity:1; color:var(--accent); }
         .loc-table th.sort-asc,
         .loc-table th.sort-desc { color:var(--accent); }
-        /* Filter row th � no cursor/uppercase styling, just holds col-search input */
+        /* Filter row th — no cursor/uppercase styling, just holds col-search input */
         .loc-table #locStatsFilterRow th,
         .loc-table #la-search-row th { cursor:default; text-transform:none; letter-spacing:0; padding:2px 4px !important; background:rgba(255,255,255,0.02); }
         .loc-table td {
@@ -349,12 +349,12 @@
         .an-chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:20px; }
         @media(max-width:800px) { .an-chart-grid { grid-template-columns:1fr; } }
 
-        /* -- COL CHOOSER PILLS -- */
+        /* ── COL CHOOSER PILLS ── */
         .col-toggle { display:inline-flex; align-items:center; gap:5px; padding:5px 11px; border-radius:20px; font-size:11px; font-weight:600; cursor:pointer; border:1.5px solid var(--line); color:var(--muted); transition:.2s; user-select:none; }
         .col-toggle:hover { border-color:var(--accent); color:var(--accent); }
         .col-toggle.active { background:color-mix(in srgb,var(--accent),transparent 88%); color:var(--accent); border-color:var(--accent); }
         .col-toggle input { display:none; }
-        /* -- DETAIL PANEL -- */
+        /* ── DETAIL PANEL ── */
         .detail-panel { position:fixed; top:0; right:0; bottom:0; width:700px; max-width:95vw; background:var(--card); border-left:2px solid var(--line); z-index:200; transform:translateX(100%); transition:transform .3s ease; display:flex; flex-direction:column; overflow:hidden; box-shadow:-8px 0 30px rgba(0,0,0,.25); }
         .detail-panel.open { transform:translateX(0); }
         body.detail-open .dash { margin-right:710px; transition:margin-right .3s ease; }
@@ -410,11 +410,11 @@
         .dp-save-toast.success { background:var(--accent-2); color:#fff; }
         .dp-save-toast.error { background:var(--danger); color:#fff; }
         @keyframes toastIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
-        /* -- LOC ASSET DRILL-DOWN TABLE -- */
+        /* ── LOC ASSET DRILL-DOWN TABLE ── */
         #locAssetTbl tbody tr { cursor:pointer; }
         #locAssetTbl tbody tr:hover td { background:var(--table-row-hover) !important; }
         #locAssetTbl tbody tr.la-selected td { background:color-mix(in srgb,var(--accent),transparent 88%) !important; }
-        /* col-search inputs � matches Asset Master style exactly */
+        /* col-search inputs — matches Asset Master style exactly */
         .col-search { width:100%; background:var(--chip); color:var(--text); border:1px solid var(--line); padding:4px 8px; border-radius:4px; font-size:11px; outline:none; box-sizing:border-box; font-family:inherit; }
         .col-search::placeholder { color:var(--muted); opacity:.4; }
         #la-search-row th { padding:2px 4px !important; }
@@ -424,7 +424,7 @@
 <form id="form1" runat="server">
 <div class="dash">
 
-    <!-- -- HEADER -- -->
+    <!-- ── HEADER ── -->
     <div class="page-header">
         <h1>Asset Statistics</h1>
         <div class="header-controls">
@@ -477,7 +477,7 @@
     <!-- TAB PANES -->
     <div id="as-tab-overview" class="tab-pane active">
 
-    <!-- -- TOP KPI CARDS -- -->
+    <!-- ── TOP KPI CARDS ── -->
     <div class="kpi-row section-gap">
         <div class="glass kpi-card">
             <div class="kpi-value" id="kv-total" style="color:var(--highlight);">0</div>
@@ -506,7 +506,7 @@
         </div>
     </div>
 
-    <!-- -- METRIC GRID (Status + Aging) -- -->
+    <!-- ── METRIC GRID (Status + Aging) ── -->
     <div class="metric-grid section-gap">
 
         <!-- Status Breakdown -->
@@ -604,7 +604,7 @@
 
     </div>
 
-    <!-- -- LOCATION TABLE -- -->
+    <!-- ── LOCATION TABLE ── -->
     <div class="glass section-gap">
         <div class="panel-title">Assets by Location &mdash; Top 50
             <span style="font-size:12px;font-weight:400;color:var(--text-accent);margin-left:8px;">Click a location name to view its assets below &bull; &#8599; opens in Asset Master</span>
@@ -637,7 +637,7 @@
         <asp:Literal ID="LitLocStatsJson" runat="server" />
     </div>
 
-    <!-- -- LOCATION ASSET DRILL-DOWN PANEL -- -->
+    <!-- ── LOCATION ASSET DRILL-DOWN PANEL ── -->
     <div id="locAssetPanel" class="glass section-gap" style="display:none;">
         <div class="panel-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
             <span>&#128203; <span id="locAssetTitle">Assets in Location</span></span>
@@ -729,7 +729,7 @@
             </div>
         </div>
 
-        <!-- -- STALE IMPORT DRILL-DOWN -- -->
+        <!-- ── STALE IMPORT DRILL-DOWN ── -->
         <div class="glass" id="stale-import-panel" style="margin-top:20px;">
             <div class="panel-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
                 <span>&#128465; Stale Import Records &mdash; Never Observed Since Import</span>
@@ -746,7 +746,7 @@
                 <div>
                     <div style="font-size:13px;font-weight:700;color:var(--text-main);margin-bottom:4px;">These records were bulk-imported from the VA legacy system and have never been physically scanned.</div>
                     <div style="font-size:12px;color:var(--text-accent);line-height:1.6;">
-                        Identified by: <strong style="color:var(--orange);">created = NULL</strong> (no creation date in the system) 
+                        Identified by: <strong style="color:var(--orange);">created = NULL</strong> (no creation date in AssetWorx) 
                         + <strong style="color:var(--orange);">lastobservedtime = NULL</strong> (never seen by RFID reader).
                         These are candidates for archival or deletion after admin review.
                     </div>
@@ -1210,7 +1210,7 @@ function extFilter(tblId, inp, colIdx) {
 </script>
 
 <script>
-// -- LOCATION STATS TABLE (render / filter / sort) --------------------------
+// ── LOCATION STATS TABLE (render / filter / sort) ──────────────────────────
 var _locData = [];          // full dataset from server
 var _locSortCol = 1;        // default sort: Total desc
 var _locSortDir = 'desc';
@@ -1269,7 +1269,7 @@ function sortLocTable(colIdx) {
     _applyLocFiltersAndSort();
 }
 
-// Single function that applies current filters AND current sort � always in sync
+// Single function that applies current filters AND current sort — always in sync
 function _applyLocFiltersAndSort() {
     var keys = ['loc','total','overdue','m1','m3','m6','m12'];
 
@@ -1306,7 +1306,7 @@ function _applyLocFiltersAndSort() {
     _updateLocSortIndicators();
 }
 
-// Update the ?? indicators in the header row to show active sort column
+// Update the ▲▼ indicators in the header row to show active sort column
 function _updateLocSortIndicators() {
     var headerRow = document.getElementById('locStatsHeaderRow');
     if (!headerRow) return;
@@ -1326,9 +1326,9 @@ if (typeof LOC_STATS_DATA !== 'undefined') {
     renderLocStatsTable();
 }
 
-// ----------------------------------------------------------------------
+// ══════════════════════════════════════════════════════════════════════
 // LOCATION ASSET DRILL-DOWN
-// ----------------------------------------------------------------------
+// ══════════════════════════════════════════════════════════════════════
 var LOC_ASSET_COLS = [
     { key: 'name',            label: 'Asset Name',       visible: true  },
     { key: 'description',     label: 'Description',      visible: false },
@@ -1434,20 +1434,20 @@ function renderLocAssetRows() {
     var thead = document.getElementById('locAssetThead');
     var tbody = document.getElementById('locAssetTbody');
     var vis = getLocVisibleCols();
-    // -- Row 1: sortable column labels (same as Asset Master header row) --
+    // ── Row 1: sortable column labels (same as Asset Master header row) ──
     var hh = '';
     vis.forEach(function(col) {
         var ind = (_laSortCol === col.key) ? (_laSortDir === 'asc' ? ' &#8593;' : ' &#8595;') : ' <span style="opacity:.3;">&#8597;</span>';
         hh += '<th onclick="sortLocAssets(\'' + col.key + '\')" style="cursor:pointer;white-space:nowrap;">' + col.label + ind + '</th>';
     });
-    // -- Row 2: per-column col-search inputs (matches Asset Master filter row) --
+    // ── Row 2: per-column col-search inputs (matches Asset Master filter row) ──
     var fh = '';
     vis.forEach(function(col) {
         var savedVal = (_laColFilters[col.key] || '').replace(/"/g, '&quot;');
         fh += '<th style="padding:2px 4px;"><input class="col-search" type="text" placeholder="..." data-col="' + col.key + '" value="' + savedVal + '" oninput="laColFilterInput(this)" /></th>';
     });
     thead.innerHTML = '<tr>' + hh + '</tr><tr id="la-search-row">' + fh + '</tr>';
-    // -- Sort --
+    // ── Sort ──
     var rows = _laFiltered.slice();
     if (_laSortCol) {
         var k = _laSortCol, d = _laSortDir;
@@ -1493,9 +1493,9 @@ function closeLocPanel() {
     closeDetail();
 }
 
-// ----------------------------------------------------------------------
+// ══════════════════════════════════════════════════════════════════════
 // ASSET DETAIL PANEL  (reuses va_asset_master.aspx GET endpoints)
-// ----------------------------------------------------------------------
+// ══════════════════════════════════════════════════════════════════════
 var _dpCurrentId = null, _dpCache = {}, _dpEditMode = false, _dpOriginal = {};
 var STATUS_OPTIONS = ['IN USE','TURNED IN','LOST OR STOLEN','OUT OF SERVICE','LOANED OUT','In Service'];
 var CHECKOUT_OPTIONS = ['Checked In','Checked Out'];
@@ -1604,7 +1604,7 @@ function loadChildren(assetId){ var el=document.getElementById('tab-children'),r
 function renderChildren(el,recs){ if(!recs||!recs.length){el.innerHTML='<div class="dp-empty"><span class="dp-empty-icon">&#128279;</span>No child assets.</div>';return;} var h='<table class="dp-history-table"><thead><tr><th>Name</th><th>Description</th><th>Location</th><th>Status</th></tr></thead><tbody>'; recs.forEach(function(r){h+='<tr style="cursor:pointer;" onclick="openDetail('+r.id+',\''+(r.name||'').replace(/\'/g,"\\'")+'\')" ><td><strong style="color:var(--accent);">'+dpVal(r.name)+'</strong></td><td>'+dpVal(r.description)+'</td><td>'+dpVal(r.locationname)+'</td><td>'+dpVal(r.listvalue1)+'</td></tr>';}); el.innerHTML=h+'</tbody></table>'; }
 </script>
 
-<!-- -- ASSET DETAIL PANEL (identical to Asset Master) -- -->
+<!-- ── ASSET DETAIL PANEL (identical to Asset Master) ── -->
 <div class="detail-panel" id="detailPanel">
     <div class="dp-header">
         <h2><span class="dp-icon">&#128203;</span> <span id="dpTitle">Asset Detail</span></h2>
@@ -1612,7 +1612,7 @@ function renderChildren(el,recs){ if(!recs||!recs.length){el.innerHTML='<div cla
     </div>
     <div class="dp-actions">
         <button type="button" id="dpEditToggle" class="dp-edit-toggle" onclick="toggleEditMode()">&#9998; Edit Mode</button>
-        <a id="dpEditLink" href="#" target="_blank" class="dp-action-btn">&#8599; Open in iDash</a>
+        <a id="dpEditLink" href="#" target="_blank" class="dp-action-btn">&#8599; Open in AssetWorx</a>
     </div>
     <div class="dp-tabs">
         <button type="button" class="dp-tab active" data-tab="general" onclick="switchTab(this)">General</button>
@@ -1638,7 +1638,7 @@ function renderChildren(el,recs){ if(!recs||!recs.length){el.innerHTML='<div cla
 </div>
 
 <script type="text/javascript">
-// -- SITE PERSISTENCE (shared across Asset Master / Stats / Locations) --
+// ── SITE PERSISTENCE (shared across Asset Master / Stats / Locations) ──
 (function () {
     var SITE_KEY = 'iDash_selectedSite';
     var ddl = document.getElementById('<%= DdlCompany.ClientID %>');
@@ -1664,6 +1664,5 @@ function renderChildren(el,recs){ if(!recs||!recs.length){el.innerHTML='<div cla
 
 </body>
 </html>
-
 
 

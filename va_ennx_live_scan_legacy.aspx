@@ -1,11 +1,11 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_ennx_live_scan_legacy.aspx.cs" Inherits="va_ennx_live_scan_legacy" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_ennx_live_scan_legacy.aspx.cs" Inherits="va_ennx_live_scan_legacy" %>
 
     <!DOCTYPE html>
     <html xmlns="http://www.w3.org/1999/xhtml">
 
     <head runat="server">
         <title>ENNX Live Scan</title>
-            <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+            <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
             <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -286,7 +286,7 @@
     <body>
         <form id="form1" runat="server">
             <div class="status-bar">
-                <span>iDash ENNX Live Scan &mdash; SERVER: <%= System.Environment.MachineName %> (<%= Request.ServerVariables["LOCAL_ADDR"] %>)</span>
+                <span>AssetWorx ENNX Live Scan &mdash; SERVER: <%= System.Environment.MachineName %> (<%= Request.ServerVariables["LOCAL_ADDR"] %>)</span>
                 <span id="connection-indicator">Checking Connection...</span>
             </div>
             <div class="wrap">
@@ -458,7 +458,7 @@
                     </div>
                 </div>
 
-                <div class="footer">iDash &mdash; RFID Asset Intelligence by ID Integration Inc. &copy; 2026</div>
+                <div class="footer">AssetWorx! by InfinID Technologies &mdash; iDash RFID Integration by ID Integration Inc. &copy; 2026</div>
             </div>
 
             <script>
@@ -1174,4 +1174,3 @@
     </body>
 
     </html>
-

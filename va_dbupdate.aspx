@@ -6,8 +6,8 @@
 
     <head runat="server">
         <meta charset="utf-8" />
-        <title>iDash &mdash; DB Update</title>
-        <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+        <title>VA AssetWorx DB Update</title>
+        <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
         <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
         <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -743,5 +743,4 @@
     </body>
 
     </html>
-
 

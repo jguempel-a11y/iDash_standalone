@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_downloads.aspx.cs" Inherits="va_downloads" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_downloads.aspx.cs" Inherits="va_downloads" %>
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -9,7 +9,7 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>Downloads &amp; Uploads | iDash</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
     <style>
@@ -242,7 +242,7 @@
                     <h3 style="margin-top:0; color:var(--accent); margin-bottom:15px;">Upload to Downloads Center</h3>
                     
                     <asp:Panel ID="PnlUploadLogin" runat="server" DefaultButton="BtnLogin">
-                        <div style="color:var(--muted); font-size:13px; margin-bottom:12px;">Please authenticate with your iDash credentials to upload files.</div>
+                        <div style="color:var(--muted); font-size:13px; margin-bottom:12px;">Please authenticate with your AssetWorx credentials to upload files.</div>
                         <div style="display:flex; gap:10px; max-width:500px;">
                             <asp:TextBox ID="TxtUser" runat="server" Placeholder="Username" style="flex:1; background:var(--bg); color:var(--text); border:1px solid var(--line); padding:10px; border-radius:4px;" />
                             <asp:TextBox ID="TxtPass" runat="server" TextMode="Password" Placeholder="Password" style="flex:1; background:var(--bg); color:var(--text); border:1px solid var(--line); padding:10px; border-radius:4px;" />

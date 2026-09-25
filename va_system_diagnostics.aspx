@@ -12,7 +12,7 @@
 <head>
     <meta charset="utf-8" />
     <title>iDash — System Diagnostics</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -137,41 +137,45 @@
 
     <!-- What this page does -->
     <div class="card" style="border-left:4px solid #3b82f6; margin-bottom:20px;">
-        <h2 style="color:#3b82f6; margin-bottom:14px;">&#128270; What This Page Does &mdash; System Diagnostics Overview</h2>
+        <h2 style="color:#3b82f6; margin-bottom:14px;">&#128270; What This Page Does &mdash; Simulation Overview</h2>
         <p style="margin:0 0 14px; font-size:14px; line-height:1.7; color:var(--text,#e0e0e0);">
-            This page runs a <strong>live end-to-end diagnostics suite for the iDash RFID portal and backend services</strong>.
-            It performs comprehensive health checks against user authentication, SQL database tables and license state,
-            service registrations, batch asset query latency, and MQTT broker connectivity to ensure peak operating performance.
+            This page runs a <strong>live end-to-end simulation of the AssetWorx mobile app in batch (offline) mode</strong>.
+            When a RFID scanner or mobile device operates without a network connection, it accumulates a queue of asset scans locally.
+            When it reconnects, it uploads that queue by calling the AssetWorx API once per asset &mdash; this page replicates
+            that exact sequence so you can verify the system is ready <em>before</em> deploying hardware.
         </p>
         <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; margin-top:4px;">
             <div style="background:color-mix(in srgb,#128273 8%,transparent); border:1px solid color-mix(in srgb,#128273 30%,transparent); border-radius:10px; padding:14px 16px;">
                 <div style="font-weight:700; font-size:13px; color:#128273; margin-bottom:6px;">&#128273; Step 1 &mdash; Authentication</div>
-                <div style="font-size:12px; color:var(--muted,#888); line-height:1.6;">Verifies the iDash portal user store in <code>App_Data/idash_users.json</code> and database security principals in <code>dbo.sysuser</code>. Confirms authentication integrity.</div>
+                <div style="font-size:12px; color:var(--muted,#888); line-height:1.6;">Requests an OAuth2 access token from the AssetWorx identity server using <code>client_credentials</code> &mdash; the same login flow the mobile app uses. Confirms the API is running and credentials are valid.</div>
             </div>
             <div style="background:color-mix(in srgb,#8b5cf6 8%,transparent); border:1px solid color-mix(in srgb,#8b5cf6 30%,transparent); border-radius:10px; padding:14px 16px;">
                 <div style="font-weight:700; font-size:13px; color:#8b5cf6; margin-bottom:6px;">&#128451; Step 2 &mdash; Database &amp; License Check</div>
-                <div style="font-size:12px; color:var(--muted,#888); line-height:1.6;">Queries <code>dbo.applicationsetting</code> to verify the license key is present and active. Verifies core company and asset tables and schemas.</div>
+                <div style="font-size:12px; color:var(--muted,#888); line-height:1.6;">Queries <code>dbo.applicationsetting</code> to verify the license key is present and matches this server. Checks company and asset counts. A missing or mismatched license causes all batch uploads to fail with &ldquo;License limits exceeded.&rdquo;</div>
             </div>
             <div style="background:color-mix(in srgb,#3b82f6 8%,transparent); border:1px solid color-mix(in srgb,#3b82f6 30%,transparent); border-radius:10px; padding:14px 16px;">
-                <div style="font-weight:700; font-size:13px; color:#3b82f6; margin-bottom:6px;">&#128268; Step 3 &mdash; Service Registrations</div>
-                <div style="font-size:12px; color:var(--muted,#888); line-height:1.6;">Checks <code>dbo.serverstatus</code> to confirm background services (Alarm Monitoring Service, Print Server, Antenna Service) are registered and healthy.</div>
+                <div style="font-weight:700; font-size:13px; color:#3b82f6; margin-bottom:6px;">&#128268; Step 3 &mdash; Server Registration</div>
+                <div style="font-size:12px; color:var(--muted,#888); line-height:1.6;">Checks <code>dbo.serverstatus</code> to confirm the Alarm Monitoring Service and Print Server are registered and recently active. After a DB restore, stale entries from the old server can inflate the &ldquo;server count&rdquo; and trigger the license limit.</div>
             </div>
             <div style="background:color-mix(in srgb,#f59e0b 8%,transparent); border:1px solid color-mix(in srgb,#f59e0b 30%,transparent); border-radius:10px; padding:14px 16px;">
-                <div style="font-weight:700; font-size:13px; color:#f59e0b; margin-bottom:6px;">&#128229; Step 4 &mdash; Batch Asset Read Test</div>
+                <div style="font-weight:700; font-size:13px; color:#f59e0b; margin-bottom:6px;">&#128229; Step 4 &mdash; Batch Read Test</div>
                 <div style="font-size:12px; color:var(--muted,#888); line-height:1.6;">
-                    Loads <em>N</em> asset records from <code>dbo.asset</code> (your configured Batch Size) to test live SQL read throughput and average latency per record.
-                    This is a <strong>read-only query test</strong> &mdash; no asset records are changed.
+                    Loads <em>N</em> asset IDs from the database (your &ldquo;Batch Size&rdquo; setting) and fetches each one via:
+                    <code style="display:block; margin:6px 0; padding:4px 8px; background:rgba(0,0,0,.3); border-radius:4px; font-size:11px;">GET /api/asset/{id}</code>
+                    This is a <strong>read-only test</strong> &mdash; it validates API authentication, authorization, and license limits without modifying any data. No asset records are changed.
                 </div>
             </div>
             <div style="background:color-mix(in srgb,#ef4444 8%,transparent); border:1px solid color-mix(in srgb,#ef4444 30%,transparent); border-radius:10px; padding:14px 16px; grid-column:1/-1;">
-                <div style="font-weight:700; font-size:13px; color:#ef4444; margin-bottom:6px;">&#128274; Step 5 &mdash; Security &amp; Hardening Tests</div>
+                <div style="font-weight:700; font-size:13px; color:#ef4444; margin-bottom:6px;">&#128274; Step 5 &mdash; Security &amp; Stress Tests</div>
                 <div style="font-size:12px; color:var(--muted,#888); line-height:1.6;">
-                    Executes non-destructive checks including: <strong>(1) Database Write Permissions</strong> (via a rolled-back SQL transaction), <strong>(2) File System Security</strong> (verifies IIS can write to <code>logs</code>), <strong>(3) DB Principle Check</strong> (least privilege audit), <strong>(4) Dependency Validation</strong> (scans loaded DLLs), and <strong>(5) Web.config Hardening</strong>.
+                    Executes non-destructive vulnerability checks including: <strong>(1) Database Write Permissions</strong> (via a rolled-back SQL transaction), <strong>(2) File System Security</strong> (verifies IIS can write to <code>logs</code>), <strong>(3) DB Principle Check</strong> (ensures the account is not <code>db_owner</code> or <code>sysadmin</code>), <strong>(4) Dependency Validation</strong> (scans loaded DLLs), and <strong>(5) Web.config Hardening</strong>.
                 </div>
             </div>
         </div>
         <div style="margin-top:14px; padding:10px 14px; background:rgba(0,0,0,.2); border-radius:8px; font-size:12px; color:var(--muted,#888);">
             &#128218; <a href="documentation/va_system_diagnostics.html" target="_blank" style="color:var(--accent,#2ea8ff);">Full documentation</a>
+            &nbsp;&mdash;&nbsp; &#128196; API log: <code>C:\Logs\WebClient_log.txt</code>
+            &nbsp;&mdash;&nbsp; &#128196; PowerShell equivalent: <code>C:\va_rfid\V5Data\tools\Invoke-BatchModeTest.ps1</code>
         </div>
     </div>
 
@@ -263,7 +267,7 @@
     </div>
 
     <!-- API Tests -->
-    <div class="section-label">&#128225; RFID / Core API Tests</div>
+    <div class="section-label">&#128225; AssetWorx API Tests</div>
     <div class="test-grid">
     <% foreach (var r in TestResults.Where(x => x.Category == "api")) { %>
         <div class="test-card <%= r.Passed ? "pass" : "fail" %>">

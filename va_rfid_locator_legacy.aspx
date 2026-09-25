@@ -1,9 +1,9 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_rfid_locator_legacy.aspx.cs" Inherits="va_rfid_locator_legacy" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_rfid_locator_legacy.aspx.cs" Inherits="va_rfid_locator_legacy" %>
 <!DOCTYPE html>
 <html lang="en">
 <head runat="server">
     <title>RFID Asset Locator (Legacy / Archived) &mdash; iDash</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -237,7 +237,7 @@
     <!-- Hidden scan capture (DataWedge keystroke target) -->
     <textarea id="scanCapture" class="scan-capture"></textarea>
 
-    <div class="footer">iDash &mdash; RFID Asset Intelligence by ID Integration Inc. &copy; 2026</div>
+    <div class="footer">AssetWorx! by InfinID Technologies &mdash; iDash RFID Integration by ID Integration Inc. &copy; 2026</div>
 </div>
 </form>
 
@@ -446,7 +446,7 @@
     //  EE TAG NORMALIZATION HELPERS
     // ═══════════════════════════════════════════════════════
 
-    // Strip trailing F-padding added by RFID encoding (e.g. 512EE17360FF -> 512EE17360)
+    // Strip trailing F-padding added by AssetWorx encoding (e.g. 512EE17360FF -> 512EE17360)
     function stripFPadding(s) {
         return s.replace(/F+$/i, '');
     }
@@ -824,4 +824,3 @@
 </script>
 </body>
 </html>
-

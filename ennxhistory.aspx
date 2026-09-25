@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" Inherits="System.Web.UI.Page" MaintainScrollPositionOnPostback="true" %>
+<%@ Page Language="C#" AutoEventWireup="true" Inherits="System.Web.UI.Page" MaintainScrollPositionOnPostback="true" %>
     <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
         <%@ Import Namespace="System" %>
             <%@ Import Namespace="System.Data" %>
@@ -17,8 +17,8 @@
 
                                                     <head>
                                                         <meta charset="utf-8" />
-                                                        <title>iDash &mdash; ENNX History</title>
-            <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+                                                        <title>VA AssetWorx ENNX History</title>
+            <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
             <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
                                                         <style>
@@ -623,7 +623,7 @@
 
     private string GetConnectionString()
                                                             {
-                                                                return ConfigurationManager.ConnectionStrings["iDash"].ConnectionString;
+                                                                return ConfigurationManager.ConnectionStrings["Assetworx"].ConnectionString;
                                                             }
 
                                                             protected void DateFilter_Changed(object sender, EventArgs e)
@@ -637,40 +637,49 @@
                                                                 string connStr = GetConnectionString();
                                                                 string siteFilterVal = (DdlSiteFilter != null && DdlSiteFilter.SelectedValue != "0") ? DdlSiteFilter.SelectedValue : null;
 
-                                                                string sql = @"
-                                                                SELECT
-                                                                    a.name AS[Name],
-                                                                    ISNULL(c.name, 'Unknown Site') AS [SiteName],
-                                                                    a.companyid,
-                                                                    ISNULL(l.name, a.locationname) AS locationname,
-                                                                    a.text6 AS [Previous_Location],
-                                                                    a.text6 AS [Scanned_Location],
-                                                                    CASE WHEN CHARINDEX(' ', a.name) > 0 THEN SUBSTRING(a.name, CHARINDEX(' ', a.name) + 1, LEN(a.name)) ELSE a.name END AS [EIL],
-                                                                    a.text8 AS [CMR],
-                                                                    a.description AS[Description],
-                                                                    a.text7 AS[Station_Number],
-                                                                    a.text14 AS[Sub_Station],
-                                                                    a.text19 AS[Tag_Type],
-                                                                    a.text13 AS[Empl_ID],
-                                                                    a.text10 AS[Previous_Inventory_Date],
-                                                                    a.text17 AS[Tag_Date],
-                                                                    a.text16 AS[LocationTagged],
-                                                                    a.rfidtag AS[RFID_Tag],
-                                                                    a.listvalue1 AS[DisposalStatus],
-                                                                    a.text20 AS[Notes],
-                                                                    a.lastmodifiedby,
-                                                                    a.lastinventoried
-                                                                FROM dbo.v_asset a
-                                                                LEFT JOIN dbo.location l ON l.id = a.locationid
-                                                                LEFT JOIN dbo.company c ON c.id = a.companyid
-                                                                WHERE a.lastinventoried IS NOT NULL
-                                                                  AND a.lastinventoried >= '2020-01-01'";
+                                                                 string sql = @"
+                                                                 SELECT
+                                                                     a.name AS[Name],
+                                                                     ISNULL(c.name, 'Unknown Site') AS [SiteName],
+                                                                     a.companyid,
+                                                                     ISNULL(l.name, a.locationname) AS locationname,
+                                                                     a.text6 AS [Previous_Location],
+                                                                     ISNULL(NULLIF(a.text16, ''), ISNULL(lh.HistoryLocationName, a.text6)) AS [Scanned_Location],
+                                                                     CASE WHEN CHARINDEX(' ', a.name) > 0 THEN SUBSTRING(a.name, CHARINDEX(' ', a.name) + 1, LEN(a.name)) ELSE a.name END AS [EIL],
+                                                                     a.text8 AS [CMR],
+                                                                     a.description AS[Description],
+                                                                     a.text7 AS[Station_Number],
+                                                                     a.text14 AS[Sub_Station],
+                                                                     a.text19 AS[Tag_Type],
+                                                                     a.text13 AS[Empl_ID],
+                                                                     a.text10 AS[Previous_Inventory_Date],
+                                                                     a.text17 AS[Tag_Date],
+                                                                     ISNULL(NULLIF(a.text16, ''), ISNULL(lh.HistoryLocationName, '')) AS [LocationTagged],
+                                                                     a.rfidtag AS[RFID_Tag],
+                                                                     a.listvalue1 AS[DisposalStatus],
+                                                                     a.text20 AS[Notes],
+                                                                     a.lastmodifiedby,
+                                                                     a.lastinventoried,
+                                                                     ISNULL(lh.HistoryLocationName, '') AS [HistoryLocation]
+                                                                 FROM dbo.v_asset a
+                                                                 LEFT JOIN dbo.location l ON l.id = a.locationid
+                                                                 LEFT JOIN dbo.company c ON c.id = a.companyid
+                                                                 OUTER APPLY (
+                                                                     SELECT TOP 1 hloc.name AS HistoryLocationName
+                                                                     FROM dbo.locationhistory lh WITH (NOLOCK)
+                                                                     INNER JOIN dbo.location hloc WITH (NOLOCK) ON lh.locationid = hloc.id
+                                                                     WHERE lh.assetid = a.id
+                                                                       AND ABS(DATEDIFF(second, lh.timeseen, a.lastinventoried)) <= 60
+                                                                     ORDER BY ABS(DATEDIFF(second, lh.timeseen, a.lastinventoried)) ASC
+                                                                 ) lh
+                                                                 WHERE a.lastinventoried IS NOT NULL
+                                                                   AND a.lastinventoried >= '2020-01-01'";
 
                                                                 if (siteFilterVal != null)
                                                                     sql += " AND a.companyid = @SiteId";
                                                                 else
                                                                 {
-                                                                    // No explicit site filter selected � still enforce allowed sites
+                                                                    // No explicit site filter selected — still enforce allowed sites
                                                                     var enforcedIds = UserManager.GetAllowedCompanyIds(Session, connStr);
                                                                     if (enforcedIds != null && enforcedIds.Count > 0)
                                                                     {
@@ -792,59 +801,71 @@
                                                             });
 
         DataTable filtered = filteredRows.Any() ? filteredRows.CopyToDataTable() : dt.Clone();
-                                                            GridPreview.DataSource = filtered;
-                                                            GridPreview.DataBind();
-                                                            if (GridPreview.HeaderRow != null)
-                                                                GridPreview.HeaderRow.TableSection = TableRowSection.TableHeader;
 
+        if (!filtered.Columns.Contains("ResolvedLocation"))
+            filtered.Columns.Add("ResolvedLocation", typeof(string));
 
-// Classic ENNX text format: Location + Name only (MATCHES ennx_batch)
-StringBuilder sb = new StringBuilder();
+        foreach (DataRow r in filtered.Rows)
+        {
+            string locTagged = Convert.ToString(r["LocationTagged"]).Trim();
+            string histLoc = filtered.Columns.Contains("HistoryLocation") ? Convert.ToString(r["HistoryLocation"]).Trim() : "";
+            string prevLoc = Convert.ToString(r["Previous_Location"]).Trim();
+            string sqlLoc = Convert.ToString(r["locationname"]).Trim();
 
-// Sort first so locations group correctly
-DataView v = filtered.DefaultView;
-                                                            v.Sort = "LocationTagged ASC, Previous_Location ASC, locationname ASC, Name ASC";
-DataTable sorted = v.ToTable();
+            string res;
+            if (!string.IsNullOrWhiteSpace(locTagged))
+                res = locTagged;
+            else if (!string.IsNullOrWhiteSpace(histLoc))
+                res = histLoc;
+            else if (!string.IsNullOrWhiteSpace(prevLoc))
+                res = prevLoc;
+            else if (!string.IsNullOrWhiteSpace(sqlLoc))
+                res = sqlLoc;
+            else
+                res = "MISSING";
 
-int lineCount = 0;
+            r["ResolvedLocation"] = res;
+        }
 
-                                                            sb.AppendLine("ENNX"); lineCount++;
-                                                            sb.AppendLine("ID"); lineCount++;
+        GridPreview.DataSource = filtered;
+        GridPreview.DataBind();
+        if (GridPreview.HeaderRow != null)
+            GridPreview.HeaderRow.TableSection = TableRowSection.TableHeader;
 
-string curLoc = null;
+        // Classic ENNX text format: Location + Name only (MATCHES ennx_batch)
+        StringBuilder sb = new StringBuilder();
 
-                                                            foreach(DataRow r in sorted.Rows)
-                                                            {
-    // Resolve final ENNX location (EXACT same priority as ennx_batch)
-    string resolvedLoc;
+        // Sort by final ResolvedLocation and Name so locations are grouped into ONE clean header block!
+        DataView v = filtered.DefaultView;
+        v.Sort = "ResolvedLocation ASC, Name ASC";
+        DataTable sorted = v.ToTable();
 
-    string locTagged = Convert.ToString(r["LocationTagged"]).Trim();
-    string prevLoc = Convert.ToString(r["Previous_Location"]).Trim();
-    string sqlLoc = Convert.ToString(r["locationname"]).Trim();
+        int lineCount = 0;
 
-                                                                if (!string.IsNullOrWhiteSpace(locTagged))
-                                                                    resolvedLoc = locTagged;
-                                                                else if (!string.IsNullOrWhiteSpace(prevLoc))
-                                                                    resolvedLoc = prevLoc;
-                                                                else if (!string.IsNullOrWhiteSpace(sqlLoc))
-                                                                    resolvedLoc = sqlLoc;
-                                                                else
-                                                                    resolvedLoc = "MISSING";
+        sb.AppendLine("ENNX"); lineCount++;
+        sb.AppendLine("ID"); lineCount++;
 
-                                                                // Emit location header ONLY when it truly changes
-                                                                if (curLoc == null || !resolvedLoc.Equals(curLoc, StringComparison.OrdinalIgnoreCase)) {
-                                                                    sb.AppendLine(resolvedLoc);
-                                                                    lineCount++;
-                                                                    curLoc = resolvedLoc;
-                                                                }
+        string curLoc = null;
 
-    // Asset name (NULL-prefixed names are allowed, empty names are not)
-    string name = Convert.ToString(r["Name"]).Trim();
-                                                                if (!string.IsNullOrWhiteSpace(name)) {
-                                                                    sb.AppendLine(name);
-                                                                    lineCount++;
-                                                                }
-                                                            }
+        foreach(DataRow r in sorted.Rows)
+        {
+            string resolvedLoc = Convert.ToString(r["ResolvedLocation"]).Trim();
+            if (string.IsNullOrWhiteSpace(resolvedLoc)) resolvedLoc = "MISSING";
+
+            // Emit location header ONLY when it truly changes
+            if (curLoc == null || !resolvedLoc.Equals(curLoc, StringComparison.OrdinalIgnoreCase)) {
+                sb.AppendLine(resolvedLoc);
+                lineCount++;
+                curLoc = resolvedLoc;
+            }
+
+            // Asset name (NULL-prefixed names are allowed, empty names are not)
+            string name = Convert.ToString(r["Name"]).Trim();
+            if (!string.IsNullOrWhiteSpace(name)) {
+                sb.AppendLine(name);
+                lineCount++;
+            }
+        }
 
 // ---- FINAL END COUNT (MATCHES ENNX EXACTLY) ----
 
@@ -1051,7 +1072,7 @@ protected void BtnExportCsv_Click(object sender, EventArgs e)
 
                                                                 var sb = new StringBuilder();
 
-                                                                // CSV HEADER �&rdquo; must match the 14-column order
+                                                                // CSV HEADER â€&rdquo; must match the 14-column order
                                                                 sb.AppendLine("Name,EIL,Description,Station_Number,Sub_Station,Tag_Type,Empl_ID,Previous_Inventory_Date,Tag_Date,Previous_Location,LocationTagged,DisposalStatus,Notes,Last_Modified_By");
 
 
@@ -1528,5 +1549,4 @@ protected void BtnExportCsv_Click(object sender, EventArgs e)
                                                     </body>
 
                                                     </html>
-
 

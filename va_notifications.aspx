@@ -4,7 +4,7 @@
 <head runat="server">
     <meta charset="utf-8" />
     <title>iDash Notifications &amp; Asset Watch List</title>
-    <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
