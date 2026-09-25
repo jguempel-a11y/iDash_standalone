@@ -282,9 +282,10 @@
                 <strong>Enter Target Identifiers:</strong> In the <strong>Target Asset List</strong> panel on the left, type or paste 
                 one or more asset numbers, barcodes, or serial numbers (one per line).<br/>
                 <em>Example:</em><br/>
-                <code>649 EE16835</code><br/>
-                <code>649 EE12345</code><br/>
-                <code>649 EE99999</code>
+                <code>517 EE10</code><br/>
+                <code>517 EE100</code><br/>
+                <code>517 EE10000</code><br/>
+                <code>517 EE10001</code>
             </div>
         </div>
 
@@ -298,14 +299,14 @@
 
         <figure class="screenshot-wrap">
             <img src="img/locate/locator_resolved.png" alt="Resolved target assets in iDash RFID Asset Locator" />
-            <figcaption>Figure 2: Target assets successfully resolved with description, RFID tag EPC, recorded location, and initial Searching status.</figcaption>
+            <figcaption>Figure 2: Target 517 assets successfully resolved from local database with description (RADIALARMSAW,DEWALT, LINENCART, FanCoil/ExhaustFan), RFID tag EPC, recorded location, and initial Searching status.</figcaption>
         </figure>
 
         <div class="alert-blue">
             <strong>&#9432; Automatic Target Resolution</strong><br/>
             &bull; <strong>Found in Database:</strong> Populates the Asset Tag, Description / Model, RFID Tag EPC, Recorded Location, and EIL / CMR, with status set to <span class="badge-ref badge-search">Searching</span>.<br/>
             &bull; <strong>Unresolved Asset:</strong> If an identifier cannot be found in the database, it is flagged as <span class="badge-ref badge-unres">Unresolved</span> so you can verify the number.<br/>
-            &bull; <strong>Deep-Link URL Pre-loading:</strong> You can launch the locator with pre-loaded assets directly by appending <code>?assets=EE12345,EE12346</code> to the URL.
+            &bull; <strong>Deep-Link URL Pre-loading:</strong> You can launch the locator with pre-loaded assets directly by appending <code>?assets=517%20EE10,517%20EE100</code> to the URL.
         </div>
     </div>
 
@@ -366,7 +367,7 @@
 
         <figure class="screenshot-wrap">
             <img src="img/locate/locator_active.png" alt="Active target lock and proximity bar in iDash RFID Asset Locator" />
-            <figcaption>Figure 3: Active target lock on asset 649 EE16835 &mdash; green proximity bar at 100%, audio pulsing, and Found status badge.</figcaption>
+            <figcaption>Figure 3: Active target lock on asset 517 EE10 (RADIALARMSAW,DEWALT) in Light Mode &mdash; green proximity bar, audio pulse indicator, and Found status badge.</figcaption>
         </figure>
 
         <div class="step">

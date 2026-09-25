@@ -5,6 +5,17 @@
     <meta charset="utf-8" />
     <title>RFID Asset Locator &mdash; iDash</title>
     <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+    <script>
+        /* Apply saved theme or default to light BEFORE paint to prevent flash */
+        (function() {
+            var saved = localStorage.getItem('idash_theme') || localStorage.getItem('aw_theme_preference');
+            if (saved === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
@@ -406,9 +417,13 @@
         const btnAudio = document.getElementById("btnAudioToggle");
 
         window.initApp = function () {
-            // Restore theme
-            const savedTheme = localStorage.getItem("aw_theme_preference") || "dark";
-            document.documentElement.setAttribute("data-theme", savedTheme);
+            // Restore theme: keep existing light mode or honor saved theme (default to light)
+            const savedTheme = localStorage.getItem("idash_theme") || localStorage.getItem("aw_theme_preference");
+            if (savedTheme === "dark") {
+                document.documentElement.removeAttribute("data-theme");
+            } else {
+                document.documentElement.setAttribute("data-theme", "light");
+            }
 
             // Restore audio pref
             const savedAudio = localStorage.getItem("aw_locator_audio");
@@ -439,7 +454,7 @@
             var isLight = html.getAttribute('data-theme') === 'light';
             if (isLight) {
                 html.removeAttribute('data-theme');
-                localStorage.removeItem('idash_theme');
+                localStorage.setItem('idash_theme', 'dark');
                 localStorage.setItem('aw_theme_preference', 'dark');
             } else {
                 html.setAttribute('data-theme', 'light');
@@ -649,7 +664,7 @@
         // ═══════════════════════════════════════════════════════
         function updateProximityRadar(idx, target) {
             proxCard.classList.add("active-target");
-            proxTarget.textContent = target.input || target.name || target.rfidtag;
+            proxTarget.textContent = (target.name ? target.name + (target.description ? ' - ' + target.description : '') : (target.input || target.rfidtag));
             proxStatus.textContent = "SIGNAL DETECTED!";
             proxStatus.style.color = "#10b981";
 
@@ -857,7 +872,7 @@
                 tr.innerHTML = `
                     <td style="color:var(--muted);">${i + 1}</td>
                     <td style="font-weight:700; font-family:Consolas,monospace;">${escHtml(t.input || t.name)}</td>
-                    <td style="font-weight:600;">${escHtml(t.name || '--')}</td>
+                    <td style="font-weight:600;">${escHtml(t.description || t.name || '--')}</td>
                     <td style="font-family:Consolas,monospace; font-size:11px;">${escHtml(t.rfidtag || '--')}</td>
                     <td style="color:var(--muted);">${escHtml(t.location || '--')}</td>
                     <td style="color:var(--muted);">${escHtml(t.eil || '--')}</td>

@@ -81,7 +81,8 @@ public partial class va_rfid_locator : System.Web.UI.Page
                         a.text8           AS eil,
                         a.text12          AS barcode,
                         ISNULL(l.name,'') AS locationName,
-                        ISNULL(c.name,'') AS siteName
+                        ISNULL(c.name,'') AS siteName,
+                        ISNULL(a.description,'') AS description
                     FROM dbo.asset a WITH (NOLOCK)
                     LEFT JOIN dbo.location l ON a.locationid = l.id
                     LEFT JOIN dbo.company  c ON a.companyid  = c.id
@@ -108,10 +109,11 @@ public partial class va_rfid_locator : System.Web.UI.Page
                                 rfidtag   = rdr.IsDBNull(2) ? "" : rdr.GetString(2),
                                 serial    = rdr.IsDBNull(3) ? "" : rdr.GetString(3),
                                 eil       = rdr.IsDBNull(4) ? "" : rdr.GetString(4),
-                                barcode   = rdr.IsDBNull(5) ? "" : rdr.GetString(5),
-                                location  = rdr.IsDBNull(6) ? "" : rdr.GetString(6),
-                                site      = rdr.IsDBNull(7) ? "" : rdr.GetString(7),
-                                found     = false
+                                barcode     = rdr.IsDBNull(5) ? "" : rdr.GetString(5),
+                                location    = rdr.IsDBNull(6) ? "" : rdr.GetString(6),
+                                site        = rdr.IsDBNull(7) ? "" : rdr.GetString(7),
+                                description = rdr.IsDBNull(8) ? "" : rdr.GetString(8),
+                                found       = false
                             });
                         }
                         else
