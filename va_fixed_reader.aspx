@@ -191,7 +191,6 @@
                     AutoPostBack="false" ClientIDMode="Static" onchange="loadAll()" />
             </div>
             <button type="button" class="nav-pill nav-pill-ghost" onclick="loadAll()" title="Refresh all data">&#8635; Refresh</button>
-            <button type="button" id="themeToggleBtn" class="nav-pill nav-pill-ghost" onclick="toggleTheme()" title="Switch between light and dark mode" style="font-size:16px;padding:6px 10px;">??</button>
             <div style="width:1px;height:20px;background:var(--line);"></div>
             <a href="va_asset_master.aspx" class="nav-pill nav-pill-ghost">&#128203; Asset Master</a>
             <a href="va_fixed_reader.aspx" class="nav-pill nav-pill-primary nav-pill-primary--active">&#128202; Dashboard</a>
@@ -199,6 +198,8 @@
             <div style="width:1px;height:20px;background:var(--line);"></div>
             <a href="documentation/va_fixed_reader.html" class="nav-pill nav-pill-docs">&#128214; Docs</a>
             <a href="index.aspx" class="nav-pill nav-pill-ghost">&#8962; Hub</a>
+            <div style="width:1px;height:20px;background:var(--line);"></div>
+            <button type="button" id="themeToggleBtn" class="nav-pill nav-pill-ghost" onclick="toggleTheme()" title="Switch between light and dark mode" style="font-size:11px;padding:5px 10px;cursor:pointer;">&#9681; Theme</button>
         </div>
     </div>
 
@@ -582,19 +583,19 @@
             <!-- Coverage KPIs -->
             <div id="missingStats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0;">
                 <div class="kpi-card" style="text-align:center;padding:12px;">
-                    <div id="msTotalAssets" style="font-size:22px;font-weight:700;color:var(--accent);">—</div>
+                    <div id="msTotalAssets" style="font-size:22px;font-weight:700;color:var(--accent);">ï¿½</div>
                     <div style="font-size:11px;color:var(--muted);">Total Assets</div>
                 </div>
                 <div class="kpi-card" style="text-align:center;padding:12px;">
-                    <div id="msObserved" style="font-size:22px;font-weight:700;color:#10b981;">—</div>
+                    <div id="msObserved" style="font-size:22px;font-weight:700;color:#10b981;">ï¿½</div>
                     <div style="font-size:11px;color:var(--muted);">Observed (Covered)</div>
                 </div>
                 <div class="kpi-card" style="text-align:center;padding:12px;">
-                    <div id="msMissing" style="font-size:22px;font-weight:700;color:#ef4444;">—</div>
+                    <div id="msMissing" style="font-size:22px;font-weight:700;color:#ef4444;">ï¿½</div>
                     <div style="font-size:11px;color:var(--muted);">Missing (Not Seen)</div>
                 </div>
                 <div class="kpi-card" style="text-align:center;padding:12px;">
-                    <div id="msCoverage" style="font-size:22px;font-weight:700;color:#8B5CF6;">—</div>
+                    <div id="msCoverage" style="font-size:22px;font-weight:700;color:#8B5CF6;">ï¿½</div>
                     <div style="font-size:11px;color:var(--muted);">Reader Coverage</div>
                 </div>
             </div>
@@ -691,7 +692,7 @@ function loadAll() {
     loadTagStats();
     loadIntelligence();
     loadReaderActivity();
-    // loadReaderEvents() — deferred until user expands the panel
+    // loadReaderEvents() ï¿½ deferred until user expands the panel
     loadLocationHistory();
 }
 
@@ -710,12 +711,25 @@ function toggleTheme() {
 }
 
 function updateThemeBtn() {
-    var btn = document.getElementById('themeToggleBtn');
+    var btn = document.getElementById("themeToggleBtn");
     if (!btn) return;
-    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
-    btn.textContent = isLight ? '??' : '??';
-    btn.title = isLight ? 'Switch to dark mode' : 'Switch to light mode';
+    var isLight = document.documentElement.getAttribute("data-theme") === "light";
+    btn.innerHTML = isLight ? "&#9790; Dark" : "&#9728; Light";
+    btn.title = isLight ? "Switch to dark mode" : "Switch to light mode";
 }
+
+// Init button icon on load and listen for storage changes
+updateThemeBtn();
+window.addEventListener("storage", function(e) {
+    if (e.key === "idash_theme" || e.key === "aw_theme_preference") {
+        if (e.newValue === "light") {
+            document.documentElement.setAttribute("data-theme", "light");
+        } else {
+            document.documentElement.removeAttribute("data-theme");
+        }
+        updateThemeBtn();
+    }
+});
 
 // Init button icon on load
 (function() { updateThemeBtn(); })();
