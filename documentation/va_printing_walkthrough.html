@@ -94,7 +94,7 @@
                 You'll see the <strong>Intelligent Distributed Asset Scanning Hub</strong> login screen.
                 Enter your <strong>iDash username</strong> and <strong>password</strong>, then click <strong>Sign In</strong>.
             </div>
-            <img src="images/light_step01_login.png?v=2" alt="iDash Login Page" class="step-img" />
+            <img src="images/light_step01_login.png?v=3" alt="iDash Login Page" class="step-img" />
             <div class="step-caption">The iDash login screen &mdash; enter your credentials and click Sign In</div>
             <div class="tip-box">
                 <strong>&#128161; Tip:</strong> If you see <em>"Contact your administrator if you need an account"</em>, ask your iDash admin to create an account for you with access to the Excel Print tile.
@@ -109,8 +109,8 @@
                 This shows all the tiles and tools available to your account. You'll see category tabs at the top:
                 <strong>Favorites</strong>, <strong>Guides &amp; Downloads</strong>, <strong>Scanning &amp; Tools</strong>, and <strong>Reports</strong>.
             </div>
-            <img src="images/light_step02_hub.png?v=2" alt="iDash Hub Dashboard" class="step-img" />
-            <div class="step-caption">The iDash Hub showing your available tiles and categories (logged in as bob)</div>
+            <img src="images/light_step02_hub.png?v=3" alt="iDash Hub Dashboard" class="step-img" />
+            <div class="step-caption">The iDash Hub showing your available tiles and categories (logged in as idashadmin)</div>
         </div>
 
         <!-- ------- STEP 3 ------- -->
@@ -121,7 +121,7 @@
                 Look for the <strong>&#128218; Excel Equipment Import &amp; Print</strong> tile &mdash; it has an orange border and describes bulk equipment loading.
                 Click the tile to open the import page.
             </div>
-            <img src="images/light_step03_scanning_tools.png?v=2" alt="Scanning & Tools Category" class="step-img" />
+            <img src="images/light_step03_scanning_tools.png?v=3" alt="Scanning & Tools Category" class="step-img" />
             <div class="step-caption">The Scanning &amp; Tools section showing the Excel Equipment Import tile</div>
         </div>
 
@@ -135,7 +135,7 @@
                 <li><strong>&#128193; Auto-Detect (Default)</strong> &mdash; Automatically reads <code>C:\va_rfid\excel_data\equipment.xlsx</code> if the file exists on the server. A green dot indicates the file was found.</li>
                 <li><strong>&#128194; Browse File</strong> &mdash; Click <strong>Choose File</strong> to browse your local computer or network share for any <code>.xlsx</code> file, then click <strong>&#128196; Load File</strong> to upload it.</li>
             </ul>
-            <img src="images/light_step04_excel_page.png?v=2" alt="Excel Import Page" class="step-img" />
+            <img src="images/light_step04_excel_page.png?v=3" alt="Excel Import Page" class="step-img" />
             <div class="step-caption">The Excel Import page with file source options, toolbar, and equipment data grid</div>
             <div class="tip-box">
                 <strong>&#128161; Tip:</strong> The active file source is highlighted with a colored border. If you upload a file, it stays active for your entire session &mdash; refreshing the page won't lose it.
@@ -154,7 +154,7 @@
                 <li><span style="background:rgba(16,185,129,.15); color:#10b981; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700;">NEW</span> &mdash; This asset doesn't exist in iDash yet</li>
                 <li><span style="background:rgba(245,158,11,.15); color:#f59e0b; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700;">UPDATE</span> &mdash; This asset already exists and will be updated</li>
             </ul>
-            <img src="images/light_step05_grid.png?v=1" alt="Equipment Data Grid" class="step-img" />
+            <img src="images/light_step05_grid.png?v=3" alt="Equipment Data Grid" class="step-img" />
             <div class="step-caption">The data grid showing equipment rows loaded from the Excel file</div>
         </div>
 
@@ -171,7 +171,7 @@
                 <li>Use the header checkbox to toggle all at once</li>
             </ul>
             <div class="step-desc">The counter in the toolbar updates to show <strong>"X of Y rows selected"</strong>.</div>
-            <img src="images/light_step05_rows_selected.png?v=2" alt="Rows Selected" class="step-img" />
+            <img src="images/light_step05_rows_selected.png?v=3" alt="Rows Selected" class="step-img" />
             <div class="step-caption">Select rows using checkboxes &mdash; they turn blue when active</div>
         </div>
 
@@ -184,11 +184,11 @@
                 Common options include:
             </div>
             <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
-                <li><strong>AW_Std_Small</strong> &mdash; Standard small RFID label</li>
-                <li><strong>AW_Metal_Large</strong> &mdash; Large metal-mount tag</li>
-                <li>Each template shows its assigned site in brackets (e.g. <code>[613 Martinsburg]</code>)</li>
+                <li><strong>517_iDash_Std_Small</strong> &mdash; Standard small RFID label for Site 517 Beckley</li>
+                <li><strong>iDash_Std_Small</strong> &mdash; Standard small RFID label for other assigned sites (e.g. <code>[512 Baltimore]</code>, <code>[540 Clarksburg]</code>, <code>[581 Huntington]</code>, <code>[613 Martinsburg]</code>)</li>
+                <li>Each template shows its assigned site in brackets (e.g. <code>[517 Beckley]</code>)</li>
             </ul>
-            <img src="images/light_step07_template.png?v=1" alt="Template Selection" class="step-img" />
+            <img src="images/light_step07_template.png?v=3" alt="Template Selection" class="step-img" />
             <div class="step-caption">The Template dropdown showing available label formats and their assigned sites</div>
         </div>
 
@@ -199,8 +199,8 @@
                 Before importing, you can optionally configure:
             </div>
             <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
-                <li><strong>Site Override</strong> &mdash; Forces all selected rows to a specific company/site regardless of the Station # column in the Excel file. Leave on <em>Auto</em> to use the Station column.</li>
-                <li><strong>Name Prefix</strong> &mdash; Inserts a text prefix before the Entry # when generating asset names (e.g. entering <code>EE</code> turns entry <code>600636</code> into <code>512-A60090 EE600636</code>).</li>
+                <li><strong>Site Override</strong> &mdash; Forces all selected rows to a specific company/site (such as <strong>517 Beckley</strong>) regardless of the Station # column in the Excel file. Leave on <em>Auto</em> to use the Station column.</li>
+                <li><strong>Name Prefix</strong> &mdash; Inserts a text prefix before the Entry # when generating asset names (e.g. entering <code>EE</code> turns entry <code>80886</code> into <code>517 Beckley EE80886</code>).</li>
             </ul>
             <div class="step-desc">
                 Use the <strong>&#128269; Preview Names</strong> tab to see exactly what asset names will be generated before importing. Names update instantly as you change the Site Override or Name Prefix.
