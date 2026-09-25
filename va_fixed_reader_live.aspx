@@ -1,10 +1,21 @@
 <%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_fixed_reader_live.aspx.cs" Inherits="va_fixed_reader_live" %>
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <title>Fixed Reader Live Feed — iDash</title>
 <link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+<script>
+/* iDash Theme Pre-paint Initializer */
+(function() {
+    var saved = localStorage.getItem('idash_theme') || localStorage.getItem('aw_theme_preference');
+    if (saved === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+    } else {
+        document.documentElement.removeAttribute('data-theme');
+    }
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
 <style>
@@ -438,6 +449,43 @@ function openFoundInMaster(){
   try{sessionStorage.setItem('idash-watch-filter',JSON.stringify(found));}catch{}
   window.open('va_asset_master.aspx?watchFilter=1','_blank');
 }
+
+// ── Theme Management ─────────────────────────────────────────
+function toggleTheme() {
+  var html = document.documentElement;
+  var isLight = html.getAttribute('data-theme') === 'light';
+  var next = isLight ? 'dark' : 'light';
+  if (next === 'light') {
+    html.setAttribute('data-theme', 'light');
+    localStorage.setItem('idash_theme', 'light');
+    localStorage.setItem('aw_theme_preference', 'light');
+  } else {
+    html.removeAttribute('data-theme');
+    localStorage.setItem('idash_theme', 'dark');
+    localStorage.setItem('aw_theme_preference', 'dark');
+  }
+  updateThemeBtn();
+}
+
+function updateThemeBtn() {
+  var btn = document.getElementById('bThm');
+  if (!btn) return;
+  var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  btn.innerHTML = isLight ? '🌙 Dark' : '☀ Light';
+  btn.title = isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode';
+}
+
+updateThemeBtn();
+window.addEventListener('storage', function(e) {
+  if (e.key === 'idash_theme' || e.key === 'aw_theme_preference') {
+    if (e.newValue === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+    updateThemeBtn();
+  }
+});
 </script>
 </body>
 </html>
