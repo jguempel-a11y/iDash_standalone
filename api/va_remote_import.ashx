@@ -273,7 +273,7 @@ BEGIN
         [maintenancesingledate] datetimeoffset(7) NULL, [nextmaintenance] datetimeoffset(7) NULL,
         [date1] datetimeoffset(7) NULL, [date2] datetimeoffset(7) NULL, [date3] datetimeoffset(7) NULL,
         [date4] datetimeoffset(7) NULL, [date5] datetimeoffset(7) NULL,
-        [listvalue1] varchar(100) NULL, [listvalue2] varchar(100) NULL, [listvalue3] varchar(100) NULL,
+        [listvalue1] varchar(100) NULL, [listvalue2] varchar(100) NULL, [listvalue3] varchar(100) NULL, [listvalue4] varchar(100) NULL, [listvalue5] varchar(100) NULL,
         [text1] varchar(500) NULL, [text2] varchar(500) NULL, [text3] varchar(500) NULL,
         [text4] varchar(500) NULL, [text5] varchar(500) NULL, [text6] varchar(500) NULL,
         [text7] varchar(500) NULL, [text8] varchar(500) NULL, [text9] varchar(500) NULL,
@@ -425,22 +425,58 @@ SET @asset_skipped = (SELECT ISNULL(SUM(dup_count - 1), 0) FROM #asset_name_comp
 
 CREATE TABLE #new_assets (rfidtag varchar(50) NOT NULL PRIMARY KEY);
 
-/* Insert new assets */
+/* Update / Merge existing assets matching (name, companyid) */
+UPDATE a
+SET
+    a.description = COALESCE(NULLIF(sa.description, ''), a.description),
+    a.text1 = COALESCE(NULLIF(sa.text1, ''), a.text1),               -- Manufacturer
+    a.text2 = COALESCE(NULLIF(sa.text2, ''), a.text2),               -- Model
+    a.text3 = COALESCE(NULLIF(sa.text3, ''), a.text3),               -- Serial #
+    a.text4 = COALESCE(NULLIF(sa.text4, ''), a.text4),               -- Equipment Category
+    a.text5 = COALESCE(NULLIF(sa.text5, ''), a.text5),               -- Service Pointer
+    a.text7 = COALESCE(NULLIF(sa.text7, ''), a.text7),               -- Station Number
+    a.text8 = COALESCE(NULLIF(sa.text8, ''), a.text8),               -- CMR
+    a.text9 = COALESCE(NULLIF(sa.text9, ''), a.text9),               -- PO #
+    a.text10 = CASE 
+        WHEN sa.text10 IS NOT NULL AND sa.text10 <> '01/01/1900' AND sa.text10 <> 'NULL' AND sa.text10 <> ''
+        THEN sa.text10 ELSE a.text10 END,                             -- Physical Inventory Date
+    a.text11 = COALESCE(NULLIF(sa.text11, ''), a.text11),             -- Previous Location
+    a.assettype = COALESCE(NULLIF(sa.assettype, ''), a.assettype),   -- Category Stock Number
+    a.listvalue1 = COALESCE(NULLIF(sa.listvalue1, ''), a.listvalue1), -- Use Status
+    a.text6 = CASE 
+        WHEN sa.text6 IS NOT NULL AND sa.text6 <> 'SPZZUNKNOWN' AND sa.text6 <> ''
+        THEN sa.text6 ELSE a.text6 END,
+    a.lastobservedlocation = CASE 
+        WHEN sa.lastobservedlocation IS NOT NULL AND sa.lastobservedlocation <> 'SPZZUNKNOWN' AND sa.lastobservedlocation <> ''
+        THEN sa.lastobservedlocation ELSE a.lastobservedlocation END,
+    a.lastinventoried = CASE 
+        WHEN sa.lastinventoried IS NOT NULL AND sa.lastinventoried <> '1900-01-01 17:00:00.0000000 +00:00'
+             AND (a.lastinventoried IS NULL OR sa.lastinventoried > a.lastinventoried)
+        THEN sa.lastinventoried ELSE a.lastinventoried END,
+    a.rfidtag = CASE 
+        WHEN (a.rfidtag IS NULL OR a.rfidtag = '' OR a.rfidtag LIKE '%FFFF%') 
+             AND NULLIF(sa.rfidtag, '') IS NOT NULL
+        THEN sa.rfidtag ELSE a.rfidtag END,
+    a.lastmodified = SYSDATETIMEOFFSET(),
+    a.lastmodifiedby = 'iDash Remote Import'
+FROM dbo.asset a
+INNER JOIN #staged_assets sa 
+   ON a.name = sa.name AND (a.companyid = sa.companyid OR sa.companyid = 0)
+WHERE sa.rn = 1;
+
+SET @asset_updated = @@ROWCOUNT;
+
+/* Insert new assets that do not yet exist */
 INSERT INTO dbo.asset (
     name, description, rfidtag, assettype, departmentcode, maxunseentime,
     lastobservedlocation, lastobservedtime, checkinstatus, checkedoutto,
     additionalinformation, disposalstatus, disposalmethod, disposaldate, disposaldestination,
     maintenancestartdate, maintenancesingledate, nextmaintenance, date1, date2, date3, date4, date5,
-    listvalue1, listvalue2, listvalue3, text1, text2, text3, text4, text5,
+    listvalue1, listvalue2, listvalue3, listvalue4, listvalue5,
+    text1, text2, text3, text4, text5,
     text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, text16, text17, text18, text19, text20,
     maintenancemethod, maintenanceintervalmonths, nearestfixed, lastmodified, locationid,
-    sensorreadinghistoryid, alertingactionid, sensorstatshistoryid, readerid,
-    assetparentid, assetchildcount, vtagboxx, vtagboxy, vtagboxwidth, vtagboxheight,
-    vtagx, vtagy, vtagaccelsensor, vtagpositiontype, vtagalgorithmtype, batterylevel,
-    vtagid, vtagz, vtaglastseen, vtaglastmoved, filedataid, created, lastmodifiedby,
-    latitude, longitude, altitude, numberofsatellites, gpsaccuracy, lastgpsfix,
-    vtagtype, parentvtag, missedsatellitefixes, lastinventoried, vtaggpsdeviceid, vtaggpsappkey,
-    deviceregistered, lastmaintenance, companyid, unseennotified
+    created, lastmodifiedby, lastinventoried, companyid
 )
 OUTPUT inserted.rfidtag INTO #new_assets(rfidtag)
 SELECT
@@ -449,22 +485,17 @@ SELECT
     sa.additionalinformation, sa.disposalstatus, sa.disposalmethod, sa.disposaldate, sa.disposaldestination,
     sa.maintenancestartdate, sa.maintenancesingledate, sa.nextmaintenance,
     sa.date1, sa.date2, sa.date3, sa.date4, sa.date5,
-    sa.listvalue1, sa.listvalue2, sa.listvalue3,
+    sa.listvalue1, sa.listvalue2, sa.listvalue3, sa.listvalue4, sa.listvalue5,
     sa.text1, sa.text2, sa.text3, sa.text4, sa.text5, sa.text6, sa.text7, sa.text8, sa.text9, sa.text10,
     sa.text11, sa.text12, sa.text13, sa.text14, sa.text15, sa.text16, sa.text17, sa.text18, sa.text19, sa.text20,
     sa.maintenancemethod, sa.maintenanceintervalmonths, sa.nearestfixed, sa.lastmodified, sa.locationid,
-    sa.sensorreadinghistoryid, sa.alertingactionid, sa.sensorstatshistoryid, sa.readerid,
-    sa.assetparentid, sa.assetchildcount, sa.vtagboxx, sa.vtagboxy, sa.vtagboxwidth, sa.vtagboxheight,
-    sa.vtagx, sa.vtagy, sa.vtagaccelsensor, sa.vtagpositiontype, sa.vtagalgorithmtype,
-    sa.batterylevel, sa.vtagid, sa.vtagz, sa.vtaglastseen, sa.vtaglastmoved,
-    sa.filedataid, sa.created, sa.lastmodifiedby, sa.latitude, sa.longitude, sa.altitude,
-    sa.numberofsatellites, sa.gpsaccuracy, sa.lastgpsfix, sa.vtagtype, sa.parentvtag,
-    sa.missedsatellitefixes, sa.lastinventoried, sa.vtaggpsdeviceid, sa.vtaggpsappkey,
-    sa.deviceregistered, sa.lastmaintenance, sa.companyid, sa.unseennotified
+    sa.created, sa.lastmodifiedby, sa.lastinventoried, sa.companyid
 FROM #staged_assets AS sa
 WHERE sa.rn = 1
-  AND NOT EXISTS (SELECT 1 FROM dbo.asset AS a WITH (UPDLOCK, HOLDLOCK) WHERE a.name = sa.name AND a.companyid = sa.companyid)
-  AND NOT EXISTS (SELECT 1 FROM dbo.asset AS a WITH (UPDLOCK, HOLDLOCK) WHERE a.rfidtag = sa.rfidtag);
+  AND NOT EXISTS (
+      SELECT 1 FROM dbo.asset AS a WITH (UPDLOCK, HOLDLOCK) 
+      WHERE a.name = sa.name AND (a.companyid = sa.companyid OR sa.companyid = 0)
+  );
 
 SET @asset_inserted = @@ROWCOUNT;
 

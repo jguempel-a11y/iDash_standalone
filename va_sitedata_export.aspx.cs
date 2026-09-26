@@ -1605,8 +1605,7 @@ namespace iDash
                                         ELSE a.locationid
                                     END");
                                 }
-                                if (updateCols.Contains("rfidtag"))
-                                    setItems.Add("a.vtagid = COALESCE(NULLIF(t.rfidtag,''), a.vtagid)");
+                                // vtagid omitted for iDashDB
 
                                 if (!updateCols.Contains("lastobservedtime") && updateCols.Contains("lastinventoried") && updateCols.Contains("lastobservedlocation"))
                                 {
@@ -1638,8 +1637,7 @@ namespace iDash
                                 }
                                 if (hasLoc)
                                     setItems.Add("a.locationid = COALESCE(l.id, a.locationid)");
-                                if (updateCols.Contains("rfidtag"))
-                                    setItems.Add("a.vtagid = COALESCE(NULLIF(t.rfidtag,''), a.vtagid)");
+                                // vtagid omitted for iDashDB
 
                                 setItems.Add("a.lastmodified = SYSDATETIMEOFFSET()");
                                 setItems.Add("a.lastmodifiedby = 'iDash Full Overwrite'");
@@ -1731,15 +1729,7 @@ namespace iDash
                             }
                         }
 
-                        if (updateCols.Contains("rfidtag"))
-                        {
-                            string vtagSql = "UPDATE dbo.asset SET vtagid = rfidtag WHERE vtagid IS NULL AND rfidtag IS NOT NULL AND LTRIM(RTRIM(rfidtag)) <> '';";
-                            using (var cmd = new SqlCommand(vtagSql, conn))
-                            {
-                                cmd.CommandTimeout = 300;
-                                cmd.ExecuteNonQuery();
-                            }
-                        }
+                        // vtagid update omitted for iDashDB
 
                         if (isProvision && !dryRun)
                         {

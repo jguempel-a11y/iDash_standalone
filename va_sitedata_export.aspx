@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_sitedata_export.aspx.cs" Inherits="iDash.va_sitedata_export" ResponseEncoding="utf-8" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_sitedata_export.aspx.cs" Inherits="iDash.va_sitedata_export" ResponseEncoding="utf-8" %>
 <%-- Smart Merge v2.1 --%>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
@@ -342,7 +342,7 @@
          ==================================================== -->
     <aside class="side">
         <div class="side-logo">
-            <img src="<%= ResolveUrl("~/Assets/branding/assetworx.jpg") %>" alt="AssetWorx" />
+            <img src="<%= ResolveUrl("~/Assets/branding/idintegration_icon.png") %>" alt="iDash" style="height:32px; width:auto; object-fit:contain;" />
         </div>
         <h1>&#128257; Cart Data &amp; Sync</h1>
         <div class="sub">Unified cross-cart data synchronization &amp; export hub</div>

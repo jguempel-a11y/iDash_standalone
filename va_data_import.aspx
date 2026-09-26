@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_data_import.aspx.cs" Inherits="iDash.va_data_import" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_data_import.aspx.cs" Inherits="iDash.va_data_import" %>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -99,7 +99,7 @@
     <a href="index.aspx" class="nav-pill nav-pill-ghost">&#8962; Hub</a>
 
     <div class="header-title">&#128229; Data File Import</div>
-    <div class="header-sub">Upload a tab-delimited data file and import directly into AssetWorx. No SSMS, no file shares, no copy-paste.</div>
+    <div class="header-sub">Upload a tab-delimited data file and import directly into iDash. No SSMS, no file shares, no copy-paste.</div>
 
     <!-- Recommendation card for Cart Data & Sync Hub -->
     <div style="background: color-mix(in srgb, var(--accent), transparent 90%); border: 1px solid var(--accent); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
@@ -112,9 +112,9 @@
         <a href="va_sitedata_export.aspx#sec-import" class="btn-preview" style="white-space: nowrap; text-decoration: none; padding: 8px 18px; font-weight:700;">Open Sync Hub &rarr;</a>
     </div>
 
-    <div class="aw-header-brand">
-        <img src="<%= ResolveUrl("~/Assets/branding/assetworx.jpg") %>" class="aw-header-logo" />
-        <span class="aw-header-text">AssetWorx<span class="bang">!</span></span>
+    <div class="aw-header-brand" style="display:flex; align-items:center; gap:10px;">
+        <img src="<%= ResolveUrl("~/Assets/branding/idintegration_icon.png") %>" class="aw-header-logo" style="width:24px; height:24px; object-fit:contain;" />
+        <span class="aw-header-text">iDash <span class="bang" style="color:var(--accent);">Data Intelligence</span></span>
     </div>
 
     <!-- Mode Selection -->

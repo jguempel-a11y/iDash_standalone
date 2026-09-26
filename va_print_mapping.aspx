@@ -1,4 +1,5 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_print_mapping.aspx.cs" Inherits="va_print_mapping" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_print_mapping.aspx.cs" Inherits="va_print_mapping" %>
+<%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -117,6 +118,7 @@
                 </asp:GridView>
             </div>
         </div>
+            <idash:Footer runat="server" />
     </form>
 </body>
 </html>

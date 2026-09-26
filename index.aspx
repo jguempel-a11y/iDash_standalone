@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="index.aspx.cs" Inherits="index" ResponseEncoding="utf-8" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="index.aspx.cs" Inherits="index" ResponseEncoding="utf-8" %>
     <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 
 
@@ -442,10 +442,10 @@
                     <% if (!IsLoggedIn) { %>
                     <!-- LOGIN-REQUIRED GATE -->
                     <div style="max-width:420px; margin:80px auto; text-align:center;">
-                        <div class="header-title" style="font-size:28px;">VA Asset Intelligence Hub</div>
-                        <div class="aw-header-brand" style="justify-content:center; margin-bottom:30px;">
-                            <img src="<%= ResolveUrl("~/Assets/branding/assetworx.jpg") %>" class="aw-header-logo" />
-                            <span class="aw-header-text">AssetWorx<span class="bang">!</span></span>
+                        <div class="header-title" style="font-size:28px;">iDash Intelligence Portal</div>
+                        <div class="aw-header-brand" style="justify-content:center; margin-bottom:26px; display:flex; align-items:center; gap:12px;">
+                            <img src="<%= ResolveUrl("~/Assets/branding/idintegration_icon.png") %>" class="aw-header-logo" style="width:36px; height:36px; object-fit:contain;" />
+                            <span class="aw-header-text" style="font-size:22px; font-weight:700; color:var(--text);">iDash <span style="color:var(--accent);">Standalone</span></span>
                         </div>
                         <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:28px;">
                             <div style="font-size:16px; font-weight:700; color:var(--text); margin-bottom:6px;">&#128274; Sign In Required</div>
@@ -468,13 +468,13 @@
                     <!-- ======================================================
          HEADER
          ====================================================== -->
-                    <div class="header-title">VA Asset Intelligence Hub</div>
+                    <div class="header-title">iDash Intelligence Hub</div>
                     <div class="header-sub">View reports, search for assets, download files, and manage RFID inventory &mdash; everything your team needs, in one place.</div>
-                    <div class="aw-header-brand">
-                        <img src="<%= ResolveUrl("~/Assets/branding/assetworx.jpg") %>" class="aw-header-logo" />
-                        <span class="aw-header-text">
-                            AssetWorx<span class="bang">!</span>
-                            <span class="aw-header-copy">by InfinID Technologies</span>
+                    <div class="aw-header-brand" style="display:flex; align-items:center; gap:10px;">
+                        <img src="<%= ResolveUrl("~/Assets/branding/idintegration_icon.png") %>" class="aw-header-logo" style="width:28px; height:28px; object-fit:contain;" />
+                        <span class="aw-header-text" style="font-size:16px; font-weight:700; color:var(--text);">
+                            iDash
+                            <span class="aw-header-copy" style="font-size:13px; color:var(--muted); font-weight:normal; margin-left:6px;">by ID Integration Inc.</span>
                         </span>
                     </div>
 
@@ -746,7 +746,7 @@
                         <div class="tile" style="border-left: 4px solid var(--danger); background: color-mix(in srgb, var(--danger), transparent 92%);">
                             <div class="tile-title" style="color:var(--danger);">&#128274; Authentication Required</div>
                             <div class="tile-desc" style="margin-bottom: 12px;">
-                                Please log in with the AssetWorx SQL Administrator account to access tools that write database changes, including System Administration.
+                                Please log in with an iDash Administrator account to access tools that write database changes, including System Administration.
                             </div>
                             <asp:TextBox ID="TxtUser" runat="server" Placeholder="Username" style="width:100%; box-sizing:border-box; background:var(--bg); color:var(--text); border:1px solid var(--line); padding:8px; border-radius:4px; margin-bottom:8px;" />
                             <asp:TextBox ID="TxtPass" runat="server" TextMode="Password" Placeholder="Password" style="width:100%; box-sizing:border-box; background:var(--bg); color:var(--text); border:1px solid var(--line); padding:8px; border-radius:4px; margin-bottom:8px;" />
