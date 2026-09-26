@@ -5,14 +5,14 @@
         <!DOCTYPE html>
         <html xmlns="http://www.w3.org/1999/xhtml">
         <script>/* Apply saved theme BEFORE paint to prevent flash */
-        (function(){var t=localStorage.getItem('idash_theme');if(t)document.documentElement.setAttribute('data-theme',t);})();
+        (function(){var t=localStorage.getItem('idash_theme');if(t!=='dark')document.documentElement.setAttribute('data-theme','light');})();
         </script>
 
         <head runat="server">
             <meta charset="utf-8" />
-            <title>VA Asset Intelligence Hub</title>
+            <title>iDash — Intelligent Distributed Asset Scanning Hub</title>
             <link rel="icon" type="image/png" href="Assets/branding/idintegration_icon.png" />
-    <link rel="shortcut icon" href="favicon.ico" />
+            <link rel="shortcut icon" href="favicon.ico" />
             <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
             <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -20,402 +20,389 @@
             <meta http-equiv="Expires" content="0" />
 
             <style>
-                /* ---------- AssetWorx Global Header ---------- */
-                .aw-header-brand {
-                    margin-top: 8px;
-                    margin-bottom: 14px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    opacity: 0.95;
-                }
-
-                .aw-header-logo {
-                    height: 26px;
-                    width: auto;
-                }
-
-                .aw-header-text {
-                    font-size: 14px;
-                    font-weight: 600;
-                    color: var(--accent);
-                    letter-spacing: 0.4px;
-                }
-
-                .aw-header-text .bang {
-                    color: var(--accent-2);
-                }
-
-                .aw-header-copy {
-                    display: block;
-                    font-size: 12px;
-                    font-weight: 400;
-                    color: var(--muted);
-                    margin-top: 2px;
-                }
-
-                /* ---------- AssetWorx Global Footer ---------- */
-                .aw-footer {
-                    margin-top: 28px;
-                    padding: 12px 16px;
-                    border-top: 1px solid var(--line);
-                    font-size: 20px;
-                    color: var(--muted);
-                    opacity: 0.9;
-                }
-
-                .aw-footer-inner {
-                    max-width: 1400px;
-                    margin: 0 auto;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    gap: 16px;
-                }
-
-                .aw-left,
-                .aw-right {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                }
-
-                .aw-logo {
-                    height: 20px;
-                    width: auto;
-                }
-
-                .aw-name {
-                    font-weight: 600;
-                    color: var(--accent);
-                    letter-spacing: 0.4px;
-                }
-
-                .aw-name .bang {
-                    color: var(--accent-2);
-                }
-
-                .copy {
-                    white-space: nowrap;
-                }
-
-                .id-logo {
-                    height: 16px;
-                    width: auto;
-                    opacity: 0.85;
-                }
-
-
                 /* ============================================================
-   GLOBAL THEME (Matches dbupdate & autodbupdate)
+   iDash REDESIGNED HUB — Premium CSS
    ============================================================ */
 
-                :root {
-                    --chip-br:  var(--line);
+                /* ---------- Global ---------- */
+                :root { --chip-br: var(--line); --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.4); --glass: rgba(255,255,255,0.03); --glass-border: rgba(255,255,255,0.06); }
+                [data-theme="light"] { --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); --glass: rgba(255,255,255,0.6); --glass-border: rgba(0,0,0,0.06); }
+                body { margin:0; background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,-apple-system,sans-serif; }
+                * { box-sizing:border-box; }
+
+                /* ---------- Hero Section ---------- */
+                .hero {
+                    background: linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #0f172a 100%);
+                    padding: 24px 40px 24px;
+                    position: relative;
+                    overflow: hidden;
+                    border-bottom: 1px solid rgba(255,255,255,0.06);
                 }
-
-                [data-theme="light"] {
-                    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-                }
-
-                :root {
-                    --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.4);
-                }
-
-
-                body {
-                    margin: 0;
-                    background: var(--bg);
-                    color: var(--text);
-                    font-family: Segoe UI, Tahoma, Arial, sans-serif;
-                }
-
-                * {
-                    box-sizing: border-box;
-                }
-
-                /* ============================================================
-   PAGE LAYOUT
-   ============================================================ */
-
-                .page {
-                    max-width: 1300px;
-                    margin: 40px auto;
-                    padding: 0 40px;
-                }
-
-                /* ============================================================
-   HEADER
-   ============================================================ */
-                .aw-header-brand {
-                    margin-top: 8px;
-                    margin-bottom: 14px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    opacity: 0.95;
-                }
-
-                .aw-header-logo {
-                    height: 26px;
-                    width: auto;
-                }
-
-                .aw-header-text {
-                    font-size: 14px;
-                    font-weight: 600;
-                    color: var(--accent);
-                    letter-spacing: 0.4px;
-                }
-
-                .aw-header-text .bang {
-                    color: var(--accent-2);
-                }
-
-                .aw-header-copy {
-                    display: block;
-                    font-size: 12px;
-                    font-weight: 400;
-                    color: var(--muted);
-                    margin-top: 2px;
-                }
-
-                .header-title {
-                    font-size: 32px;
-                    font-weight: 700;
-                    margin-bottom: 6px;
-                }
-
-                .header-sub {
-                    font-size: 14px;
-                    color: var(--muted);
-                    margin-bottom: 32px;
-                }
-
-                /* ============================================================
-   SECTION HEADINGS
-   ============================================================ */
-
-                .section-title {
-                    margin-top: 36px;
-                    margin-bottom: 14px;
-                    font-size: 20px;
-                    font-weight: 600;
-                    color: var(--accent);
-                }
-
-                /* ============================================================
-   DASHBOARD TILE GRID
-   ============================================================ */
-
-                .tile-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-                    gap: 24px;
-                    margin-bottom: 12px;
-                }
-
-                /* ============================================================
-   TILE STYLING
-   ============================================================ */
-
-                .card {
-                    background: var(--card);
-                    border: 1px solid var(--line);
-                    border-radius: 12px;
-                    padding: 24px;
-                    box-shadow: var(--shadow);
-                    transition: transform 0.2s, box-shadow 0.2s;
-                }
-
-                .tile {
-                    background: var(--card);
-                    border: 1px solid var(--line);
-                    border-radius: 14px;
-                    padding: 22px;
-                    cursor: pointer;
-                    transition: 0.15s ease;
-                    box-shadow: var(--shadow);
-                }
-
-                .tile:hover {
-                    transform: translateY(-4px);
-                    box-shadow: 0 12px 28px rgba(0, 0, 0, .4);
-                    border-color: var(--accent);
-                }
-
-                .tile-title {
-                    font-size: 18px;
-                    font-weight: 600;
-                    margin-bottom: 6px;
-                }
-
-                .tile-desc {
-                    font-size: 13px;
-                    color: var(--muted);
-                    line-height: 1.4em;
-                }
-
-                /* ============================================================
-   FOOTER
-   ============================================================ */
-
-                .footer {
-                    margin-top: 50px;
-                    font-size: 12px;
-                    color: var(--muted);
-                    text-align: center;
-                }
-
-                .status-bar {
-                    display: flex;
-                    justify-content: space-between;
-                    background: #1a243a;
-                    padding: 8px 20px;
-                    font-size: 13px;
+                [data-theme="light"] .hero {
+                    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 40%, #f1f5f9 100%);
                     border-bottom: 1px solid var(--line);
                 }
-                
-                #connection-indicator {
-                    font-size: 14px;
-                    font-weight: 700;
-                    color: #10b981;
+                .hero::before {
+                    content:''; position:absolute; inset:0;
+                    background: radial-gradient(ellipse at 20% 50%, rgba(59,130,246,0.08) 0%, transparent 60%),
+                                radial-gradient(ellipse at 80% 50%, rgba(16,185,129,0.06) 0%, transparent 50%);
+                    pointer-events: none;
+                }
+                .hero > * { position:relative; z-index:1; }
+                .hero-top { display:flex; align-items:center; justify-content:space-between; max-width:1300px; margin:0 auto; }
+                .hero-brand { display:flex; align-items:center; gap:12px; }
+                .hero-brand img { height:28px; width:auto; border-radius:4px; }
+                .hero-brand-name { font-size:22px; font-weight:800; color:#f8fafc; letter-spacing:-0.3px; }
+                [data-theme="light"] .hero-brand-name { color: var(--text); }
+                .hero-brand-name .accent { color:#3b82f6; }
+                .hero-brand-sub { font-size:11px; color:#64748b; font-weight:500; margin-left:4px; letter-spacing:0.3px; }
+                .hero-actions { display:flex; align-items:center; gap:12px; }
+                .hero-user { font-size:12px; color:#94a3b8; display:flex; align-items:center; gap:6px; }
+                [data-theme="light"] .hero-user { color: var(--muted); }
+                .hero-user strong { color:#e2e8f0; }
+                [data-theme="light"] .hero-user strong { color: var(--text); }
+
+                /* ---------- Command Palette ---------- */
+                .cmd-bar {
+                    max-width: 100%; margin: 20px 0 0;
+                    position: relative;
+                }
+                .cmd-input {
+                    width: 100%; padding: 12px 18px 12px 42px;
+                    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+                    border-radius: 12px; color: #e2e8f0; font-size: 14px;
+                    outline: none; transition: all 0.2s;
+                }
+                [data-theme="light"] .cmd-input {
+                    background: #fff; border-color: var(--line); color: var(--text);
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+                }
+                .cmd-input::placeholder { color: #64748b; }
+                .cmd-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+                .cmd-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:16px; color:#64748b; pointer-events:none; }
+                .cmd-results {
+                    display:none; position:absolute; top:calc(100% + 6px); left:0; right:0;
+                    background: var(--card); border:1px solid var(--line); border-radius:12px;
+                    max-height: 320px; overflow-y:auto; z-index:500;
+                    box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+                }
+                [data-theme="light"] .cmd-results { box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+                .cmd-results.active { display:block; }
+                .cmd-item {
+                    padding: 10px 16px; cursor:pointer; font-size:13px;
+                    display:flex; align-items:center; gap:10px;
+                    border-bottom: 1px solid var(--line); transition: background 0.15s;
+                }
+                .cmd-item:last-child { border-bottom:none; }
+                .cmd-item:hover, .cmd-item.selected { background: rgba(59,130,246,0.08); }
+                .cmd-item-icon { font-size:18px; flex-shrink:0; }
+                .cmd-item-text { font-weight:600; }
+                .cmd-item-desc { font-size:11px; color:var(--muted); margin-top:2px; }
+
+                /* ---------- KPI Strip ---------- */
+                .kpi-strip {
+                    display: grid; grid-template-columns: repeat(4, 1fr);
+                    gap: 14px; max-width: 1300px; margin: -16px auto 0;
+                    padding: 0 40px; position: relative; z-index: 2;
+                }
+                .kpi-card {
+                    background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+                    border: 1px solid var(--glass-border); border-radius: 14px;
+                    padding: 18px 20px; text-align: center;
+                    transition: transform 0.2s, border-color 0.2s;
+                }
+                .kpi-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+                .kpi-value {
+                    font-size: 28px; font-weight: 800; letter-spacing: -1px;
+                    background: linear-gradient(135deg, #3b82f6, #10b981);
+                    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                }
+                .kpi-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+
+                /* ---------- Page Layout ---------- */
+                .page { max-width:1300px; margin:24px auto; padding:0 40px; }
+
+                /* ---------- Section Cards ---------- */
+                .section-card {
+                    background: var(--glass); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+                    border: 1px solid var(--glass-border); border-radius: 16px;
+                    margin-bottom: 14px; overflow: hidden;
+                    transition: border-color 0.2s;
+                }
+                .section-card:hover { border-color: rgba(59,130,246,0.2); }
+                .section-header {
+                    padding: 16px 24px; cursor: pointer; user-select: none;
+                    display: flex; align-items: center; justify-content: space-between;
+                    transition: background 0.2s;
+                }
+                .section-header:hover { background: rgba(59,130,246,0.03); }
+                .section-title {
+                    font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px;
+                    margin: 0; padding: 0; border: none;
+                }
+                .section-badge {
+                    font-size: 11px; padding: 2px 8px; border-radius: 10px;
+                    background: rgba(59,130,246,0.1); color: #3b82f6; font-weight: 700;
+                }
+                .section-chevron {
+                    font-size: 12px; color: var(--muted); transition: transform 0.3s;
+                    width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+                    border-radius: 6px; background: var(--chip);
+                }
+                .section-card.collapsed .section-chevron { transform: rotate(-90deg); }
+                .section-body {
+                    padding: 0 24px 20px; transition: max-height 0.35s ease, opacity 0.25s ease, padding 0.3s;
+                    max-height: 2000px; opacity: 1; overflow: hidden;
+                }
+                .section-card.collapsed .section-body {
+                    max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0;
                 }
 
-                .fav-star:hover {
-                    color: #facc15 !important;
-                    transform: scale(1.1);
+                /* ---------- Tile Grid ---------- */
+                .tile-grid {
+                    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                    gap: 14px;
                 }
 
+                /* ---------- Tile Cards (Glassmorphism) ---------- */
+                .tile {
+                    background: var(--card); border: 1px solid var(--line);
+                    border-radius: 12px; padding: 18px 20px;
+                    cursor: pointer; position: relative;
+                    transition: transform 0.25s ease, border-color 0.25s, box-shadow 0.25s;
+                    border-left: 4px solid transparent;
+                    opacity: 0; animation: fadeInUp 0.4s ease forwards;
+                }
+                .tile:hover {
+                    transform: translateY(-4px);
+                    border-color: var(--accent);
+                    box-shadow: 0 8px 32px rgba(59,130,246,0.1);
+                }
+                .tile-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+                .tile-desc { font-size: 12px; color: var(--muted); line-height: 1.55; }
+
+                @keyframes fadeInUp {
+                    from { opacity: 0; transform: translateY(12px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+
+                /* ---------- Favorites ---------- */
+                #favoritesSection .tile {
+                    border-image: linear-gradient(135deg, #3b82f6, #10b981) 1;
+                    border-left: 4px solid;
+                    box-shadow: 0 0 20px rgba(59,130,246,0.06);
+                }
+                #favoritesSection .tile:hover {
+                    box-shadow: 0 8px 40px rgba(59,130,246,0.15);
+                }
+
+                /* ---------- Star Button ---------- */
+                .fav-star {
+                    position: absolute; top: 10px; right: 10px;
+                    font-size: 16px; cursor: pointer; opacity: 0.3;
+                    transition: opacity 0.2s, transform 0.2s;
+                    z-index: 5; background: none; border: none; padding: 4px;
+                }
+                .fav-star:hover { opacity: 1; transform: scale(1.2); }
+                .fav-star.active { opacity: 1; color: #facc15; }
+
+                .quick-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.12); margin: 0 4px; }
+                [data-theme="light"] .quick-divider { background: var(--line); }
+
+                /* ---------- Nav Tabs ---------- */
                 .nav-tab {
-                    color: var(--text);
-                    text-decoration: none;
-                    padding: 8px 16px;
-                    background: var(--card);
-                    border: 1px solid var(--line);
-                    border-radius: 30px;
-                    font-size: 13px;
-                    font-weight: 600;
-                    transition: 0.2s;
+                    display: inline-flex; align-items: center; gap: 6px;
+                    padding: 6px 16px; text-decoration: none;
+                    color: var(--muted); border: 1px solid var(--line);
+                    background: var(--card); border-radius: 30px;
+                    font-size: 13px; font-weight: 600; transition: 0.2s;
+                    white-space: nowrap;
                 }
+                .nav-tab:hover { background: var(--accent) !important; color: #fff !important; border-color: var(--accent) !important; }
 
-                .nav-tab:hover {
-                    background: var(--accent) !important;
-                    color: #fff !important;
-                    border-color: var(--accent) !important;
+                /* ---------- Quick Actions ---------- */
+                .quick-actions { display: flex; gap: 8px; margin-top: 16px; align-items: center; flex-wrap: wrap; }
+                .quick-btn {
+                    display: inline-flex; align-items: center; gap: 8px;
+                    padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600;
+                    text-decoration: none; transition: all 0.2s; border: 1px solid;
                 }
+                .quick-btn-primary {
+                    background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #ffffff; text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+                    border-color: transparent; box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+                }
+                .quick-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,0.4); }
+                .quick-btn-secondary {
+                    background: rgba(255,255,255,0.06); color: #94a3b8;
+                    border-color: rgba(255,255,255,0.1);
+                }
+                [data-theme="light"] .quick-btn-secondary { background: #fff; color: var(--text); border-color: var(--line); }
+                .quick-btn-secondary:hover { border-color: #3b82f6; color: #3b82f6; }
+
                 /* ---------- Support Request Modal ---------- */
-                .sr-overlay {
-                    display:none;
-                    position:fixed;
-                    inset:0;
-                    background:rgba(0,0,0,0.72);
-                    z-index:9000;
-                    align-items:center;
-                    justify-content:center;
-                }
+                .sr-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.72); z-index:9000; align-items:center; justify-content:center; }
                 .sr-overlay.active { display:flex; }
-                .sr-modal {
-                    background:var(--card);
-                    border:1px solid var(--line);
-                    border-radius:16px;
-                    padding:32px 36px;
-                    width:540px;
-                    max-width:94vw;
-                    max-height:90vh;
-                    overflow-y:auto;
-                    box-shadow:0 24px 64px rgba(0,0,0,0.5);
-                    position:relative;
-                }
-                .sr-modal h2 {
-                    margin:0 0 6px;
-                    font-size:20px;
-                    color:var(--accent);
-                }
-                .sr-modal .sr-sub {
-                    color:var(--muted);
-                    font-size:13px;
-                    margin-bottom:22px;
-                    line-height:1.5;
-                }
+                .sr-modal { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:32px 36px; width:540px; max-width:94vw; max-height:90vh; overflow-y:auto; box-shadow:0 24px 64px rgba(0,0,0,0.5); position:relative; }
+                .sr-modal h2 { margin:0 0 6px; font-size:20px; color:var(--accent); }
+                .sr-modal .sr-sub { color:var(--muted); font-size:13px; margin-bottom:22px; line-height:1.5; }
                 .sr-field { margin-bottom:16px; }
-                .sr-label {
-                    display:block;
-                    font-size:12px;
-                    font-weight:700;
-                    text-transform:uppercase;
-                    letter-spacing:.05em;
-                    color:var(--muted);
-                    margin-bottom:6px;
-                }
-                .sr-input {
-                    width:100%;
-                    box-sizing:border-box;
-                    padding:10px 13px;
-                    border-radius:9px;
-                    border:1px solid var(--line);
-                    background:var(--bg);
-                    color:var(--text);
-                    font-size:14px;
-                    font-family:inherit;
-                    outline:none;
-                    transition:border-color .15s;
-                }
+                .sr-label { display:block; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin-bottom:6px; }
+                .sr-input { width:100%; box-sizing:border-box; padding:10px 13px; border-radius:9px; border:1px solid var(--line); background:var(--bg); color:var(--text); font-size:14px; font-family:inherit; outline:none; transition:border-color .15s; }
                 .sr-input:focus { border-color:var(--accent); }
                 .sr-input.invalid { border-color:var(--danger) !important; }
                 .sr-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
                 .sr-textarea { min-height:110px; resize:vertical; }
-                .sr-subject-display {
-                    padding:10px 13px;
-                    border-radius:9px;
-                    border:1px solid var(--line);
-                    background:var(--chip);
-                    color:var(--muted);
-                    font-size:13px;
-                }
+                .sr-subject-display { padding:10px 13px; border-radius:9px; border:1px solid var(--line); background:var(--chip); color:var(--muted); font-size:13px; }
                 .sr-footer { display:flex; justify-content:flex-end; gap:10px; margin-top:22px; }
-                .sr-send {
-                    padding:10px 26px;
-                    background:var(--accent);
-                    color:#fff;
-                    border:none;
-                    border-radius:10px;
-                    font-weight:700;
-                    font-size:14px;
-                    cursor:pointer;
-                    transition:filter .15s;
-                }
+                .sr-send { padding:10px 26px; background:var(--accent); color:#fff; border:none; border-radius:10px; font-weight:700; font-size:14px; cursor:pointer; transition:filter .15s; }
                 .sr-send:hover { filter:brightness(1.12); }
-                .sr-cancel {
-                    padding:10px 20px;
-                    background:transparent;
-                    color:var(--muted);
-                    border:1px solid var(--line);
-                    border-radius:10px;
-                    font-size:14px;
-                    cursor:pointer;
-                }
+                .sr-cancel { padding:10px 20px; background:transparent; color:var(--muted); border:1px solid var(--line); border-radius:10px; font-size:14px; cursor:pointer; }
                 .sr-cancel:hover { border-color:var(--accent); color:var(--accent); }
                 .sr-msg-ok  { background:color-mix(in srgb,#10b981 15%,transparent); border:1px solid #10b981; color:#10b981; padding:10px 14px; border-radius:8px; margin-bottom:14px; font-size:14px; }
                 .sr-msg-err { background:color-mix(in srgb,var(--danger) 15%,transparent); border:1px solid var(--danger); color:var(--danger); padding:10px 14px; border-radius:8px; margin-bottom:14px; font-size:14px; }
-                .sr-pill {
-                    display:inline-flex;
-                    align-items:center;
-                    gap:5px;
-                    padding:4px 13px;
-                    border-radius:20px;
-                    border:1px solid var(--accent);
-                    background:color-mix(in srgb,var(--accent) 12%,transparent);
-                    color:var(--accent);
-                    font-size:12px;
-                    font-weight:700;
-                    cursor:pointer;
-                    text-decoration:none;
-                    transition:background .15s, color .15s;
+                .sr-pill { display:inline-flex; align-items:center; gap:5px; padding:4px 13px; border-radius:20px; border:1px solid var(--accent); background:color-mix(in srgb,var(--accent) 12%,transparent); color:var(--accent); font-size:12px; font-weight:700; cursor:pointer; text-decoration:none; transition:background .15s, color .15s; }
+                .sr-pill:hover { background:var(--accent); color:#fff; }
+
+                /* ---------- Status Bar ---------- */
+                .status-bar { display:flex; justify-content:space-between; padding:5px 20px; font-size:11px; background:var(--chip); color:var(--muted); border-bottom:1px solid var(--line); }
+
+                /* ---------- Responsive ---------- */
+                @media (max-width: 768px) {
+                    .hero { padding: 24px 16px 20px; }
+                    .hero-top { flex-direction: column; gap: 12px; text-align: center; }
+                    .hero-actions { justify-content: center; }
+                    .kpi-strip { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 16px; margin-top: -16px; }
+                    .page { padding: 0 16px; }
+                    .tile-grid { grid-template-columns: 1fr; }
+                    .quick-actions { flex-direction: column; align-items: center; }
+                    .cmd-bar { margin-top: 16px; }
                 }
-                .sr-pill:hover {
-                    background:var(--accent);
-                    color:#fff;
+
+                /* ---------- Redesigned Landing / Login Gate ---------- */
+                .login-gate-wrapper {
+                    max-width: 440px;
+                    margin: 64px auto 48px;
+                    text-align: center;
+                    padding: 0 16px;
+                }
+                .login-gate-brand {
+                    margin-bottom: 28px;
+                }
+                .login-brand-lockup {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 12px;
+                    margin-bottom: 10px;
+                }
+                .login-brand-logo {
+                    height: 38px;
+                    width: auto;
+                    border-radius: 6px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+                    display: block;
+                }
+                .login-brand-title {
+                    font-size: 36px;
+                    font-weight: 800;
+                    letter-spacing: -0.6px;
+                    color: var(--text);
+                    line-height: 1;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+                }
+                .login-brand-dot {
+                    color: var(--accent, #38bdf8);
+                }
+                .login-gate-title {
+                    font-size: 15px;
+                    font-weight: 600;
+                    color: var(--muted);
+                    letter-spacing: 0.3px;
+                    line-height: 1.4;
+                    margin: 0 auto 6px;
+                    max-width: 360px;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+                }
+                .login-gate-sub {
+                    font-size: 12px;
+                    font-weight: 500;
+                    color: var(--muted);
+                    opacity: 0.85;
+                    letter-spacing: 0.2px;
+                }
+                .login-gate-card {
+                    background: var(--card);
+                    border: 1px solid var(--line);
+                    border-top: 3px solid var(--accent, #38bdf8);
+                    border-radius: 14px;
+                    padding: 30px 28px;
+                    box-shadow: 0 12px 32px -4px rgba(0,0,0,0.22), 0 4px 12px -2px rgba(0,0,0,0.12);
+                    text-align: center;
+                }
+                .login-gate-input {
+                    width: 100%;
+                    box-sizing: border-box;
+                    background: var(--chip);
+                    color: var(--text);
+                    border: 1px solid var(--line);
+                    padding: 11px 14px;
+                    border-radius: 8px;
+                    margin-bottom: 12px;
+                    font-size: 14px;
+                    font-family: inherit;
+                    outline: none;
+                    transition: border-color 0.2s, box-shadow 0.2s;
+                }
+                .login-gate-input:focus {
+                    border-color: var(--accent);
+                    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+                }
+                .login-gate-agreement {
+                    margin-bottom: 16px;
+                    text-align: left;
+                    font-size: 12px;
+                    color: var(--muted);
+                    line-height: 1.45;
+                    background: var(--bg);
+                    border: 1px solid var(--line);
+                    border-radius: 8px;
+                    padding: 10px 12px;
+                }
+                .login-gate-btn {
+                    width: 100%;
+                    background: linear-gradient(135deg, var(--accent, #38bdf8), #0284c7);
+                    color: #ffffff;
+                    border: none;
+                    padding: 12px;
+                    border-radius: 8px;
+                    font-weight: 700;
+                    font-size: 14px;
+                    cursor: pointer;
+                    letter-spacing: 0.3px;
+                    box-shadow: 0 4px 12px color-mix(in srgb, var(--accent) 35%, transparent);
+                    transition: transform 0.15s, box-shadow 0.15s;
+                }
+                .login-gate-btn:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 45%, transparent);
+                }
+                .login-gate-about-btn {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-size: 12px;
+                    color: var(--muted);
+                    text-decoration: none;
+                    padding: 6px 14px;
+                    border: 1px solid var(--line);
+                    border-radius: 6px;
+                    background: var(--card);
+                    transition: all 0.2s;
+                }
+                .login-gate-about-btn:hover {
+                    border-color: var(--accent);
+                    color: var(--accent);
                 }
             </style>
 
@@ -424,62 +411,94 @@
         <body>
 
             <form id="form1" runat="server">
-                <div class="status-bar">
-                    <span>VA Asset Intelligence Hub &mdash; SERVER: <%= System.Environment.MachineName %> (<%= Request.ServerVariables["LOCAL_ADDR"] %>)</span>
-                    <span id="connection-indicator">&bull; CONNECTED</span>
-                </div>
+                <!-- ====== HERO SECTION ====== -->
                 <% if (IsLoggedIn) { %>
-                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card); padding:8px 20px; font-size:13px; border-bottom:1px solid var(--line);">
-                    <span style="color:var(--accent-2);">&#128100; Signed in as <strong style="color:var(--text);"><%= Server.HtmlEncode(Convert.ToString(Session["IdashUsername"])) %></strong></span>
-                    <span style="display:flex; align-items:center; gap:14px;">
-                        <a href="#" class="sr-pill" onclick="openSupportModal(); return false;"><img src="/iDash/Assets/branding/rfid.png" style="height:13px;width:auto;vertical-align:middle;margin-right:4px;" alt="RFID" />Support Request</a>
-                        <button type="button" id="themeToggleBtn" onclick="toggleIdashTheme()" title="Toggle Light/Dark Mode" style="background:none; border:1px solid var(--line); border-radius:8px; padding:4px 10px; cursor:pointer; font-size:14px; color:var(--text); transition:all 0.2s; display:inline-flex; align-items:center; gap:5px;"><span id="themeIcon">&#127769;</span><span id="themeLabel" style="font-size:12px; font-weight:600;">Dark</span></button>
-                        <asp:LinkButton ID="BtnUserLogout" runat="server" OnClick="BtnLogout_Click" style="color:var(--muted); font-size:12px; text-decoration:underline;">Sign Out</asp:LinkButton>
-                    </span>
+                <div class="hero">
+                    <div class="hero-top">
+                        <div class="hero-brand">
+                            <img src="<%= ResolveUrl("~/Assets/branding/IDIntegration.jpg") %>" alt="ID Integration" />
+                            <div>
+                                <span class="hero-brand-name">iDash<span class="accent">.</span></span>
+                                <span class="hero-brand-sub">Intelligent Distributed Asset Scanning Hub</span>
+                            </div>
+                        </div>
+                        <div class="hero-actions">
+                            <a href="#" class="sr-pill" onclick="openSupportModal(); return false;">&#128172; Support</a>
+                            <button type="button" id="themeToggleBtn" onclick="toggleIdashTheme()" title="Toggle Light/Dark Mode" style="background:none; border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:4px 10px; cursor:pointer; font-size:14px; color:#94a3b8; transition:all 0.2s; display:inline-flex; align-items:center; gap:5px;"><span id="themeIcon">&#127769;</span><span id="themeLabel" style="font-size:12px; font-weight:600;">Dark</span></button>
+                            <div class="hero-user">&#128100; <strong><%= Server.HtmlEncode(Convert.ToString(Session["IdashUsername"])) %></strong></div>
+                            <asp:LinkButton ID="BtnUserLogout" runat="server" OnClick="BtnLogout_Click" style="color:#94a3b8; font-size:11px; text-decoration:underline;">Sign Out</asp:LinkButton>
+                        </div>
+                    </div>
+                    <div style="max-width:1300px; margin:0 auto;">
+                    <!-- Command Palette -->
+                    <div class="cmd-bar">
+                        <span class="cmd-icon">&#128269;</span>
+                        <input type="text" class="cmd-input" id="cmdSearch" placeholder="Jump to any page..." autocomplete="off" />
+                        <div class="cmd-results" id="cmdResults"></div>
+                    </div>
+                    <!-- Navigation Strip -->
+                    <div class="quick-actions">
+                        <a href="va_asset_master.aspx" class="quick-btn quick-btn-secondary">&#128202; Asset Master</a>
+                        <a href="va_fixed_reader.aspx" class="quick-btn quick-btn-secondary">&#128225; Fixed Readers</a>
+                        <div class="quick-divider"></div>
+                        <a href="#favoritesSection" class="quick-btn quick-btn-secondary">&#11088; Favorites</a>
+                        <% if (CanSeeSection("downloads","docs")) { %><a href="#sec-docs-card" class="quick-btn quick-btn-secondary" onclick="var c=document.getElementById('sec-docs-card');if(c)c.classList.remove('collapsed');">&#128218; Guides</a><% } %>
+                        <% if (CanSeeSection("rpt_")) { %><a href="#sec-reports-card" class="quick-btn quick-btn-secondary" onclick="var c=document.getElementById('sec-reports-card');if(c)c.classList.remove('collapsed');">&#128202; Reports</a><% } %>
+                        <% if (CanSeeSection("scan_", "print_", "excel_print")) { %><a href="#sec-scanning-card" class="quick-btn quick-btn-secondary" onclick="var c=document.getElementById('sec-scanning-card');if(c)c.classList.remove('collapsed');">&#128241; Scanning</a><% } %>
+                        <% if (IsLoggedIn && Convert.ToString(Session["IdashUserRole"]) == "admin") { %><a href="#sec-admin" class="quick-btn quick-btn-secondary" style="border-color:rgba(239,68,68,0.3); color:#ef4444;">&#128274; Admin</a><% } %>
+                        <div class="quick-divider"></div>
+                        <a href="documentation/index.aspx" class="quick-btn quick-btn-secondary" style="opacity:0.7; font-size:12px;">Docs</a>
+                        <a href="about.html" class="quick-btn quick-btn-secondary" style="opacity:0.7; font-size:12px;">About</a>
+                    </div>
+                    </div>
+                </div>
+
+                <!-- ====== KPI STRIP ====== -->
+                <div class="kpi-strip">
+                    <div class="kpi-card"><div class="kpi-value" id="kpiAssets">—</div><div class="kpi-label">Total Assets</div></div>
+                    <div class="kpi-card"><div class="kpi-value" id="kpiTagged">—</div><div class="kpi-label">Parts Tagged</div></div>
+                    <div class="kpi-card"><div class="kpi-value" id="kpiSites">—</div><div class="kpi-label">Active Sites</div></div>
+                    <div class="kpi-card"><div class="kpi-value" id="kpiPrinted">—</div><div class="kpi-label">Printed Today</div></div>
                 </div>
                 <% } %>
                 <div class="page">
                     <% if (!IsLoggedIn) { %>
                     <!-- LOGIN-REQUIRED GATE -->
-                    <div style="max-width:420px; margin:80px auto; text-align:center;">
-                        <div class="header-title" style="font-size:28px;">iDash Intelligence Portal</div>
-                        <div class="aw-header-brand" style="justify-content:center; margin-bottom:26px; display:flex; align-items:center; gap:12px;">
-                            <img src="<%= ResolveUrl("~/Assets/branding/idintegration_icon.png") %>" class="aw-header-logo" style="width:36px; height:36px; object-fit:contain;" />
-                            <span class="aw-header-text" style="font-size:22px; font-weight:700; color:var(--text);">iDash <span style="color:var(--accent);">Standalone</span></span>
+                    <div class="login-gate-wrapper">
+                        <div class="login-gate-brand">
+                            <div class="login-brand-lockup">
+                                <img src="<%= ResolveUrl("~/Assets/branding/IDIntegration.jpg") %>" class="login-brand-logo" alt="ID Integration" />
+                                <div class="login-brand-title">iDash<span class="login-brand-dot">.</span></div>
+                            </div>
+                            <div class="login-gate-title">Intelligent Distributed Asset Scanning Hub</div>
+                            <div class="login-gate-sub">by ID Integration Inc. &bull; Enterprise RFID Platform</div>
                         </div>
-                        <div style="background:var(--card); border:1px solid var(--line); border-radius:12px; padding:28px;">
+
+                        <div class="login-gate-card">
                             <div style="font-size:16px; font-weight:700; color:var(--text); margin-bottom:6px;">&#128274; Sign In Required</div>
                             <div style="font-size:13px; color:var(--muted); margin-bottom:20px;">Enter your iDash credentials to access the portal.</div>
-                            <asp:TextBox ID="TxtUserGate" runat="server" Placeholder="Username" style="width:100%; box-sizing:border-box; background:var(--chip); color:var(--text); border:1px solid var(--line); padding:10px 12px; border-radius:6px; margin-bottom:10px; font-size:14px;" />
-                            <asp:TextBox ID="TxtPassGate" runat="server" TextMode="Password" Placeholder="Password" style="width:100%; box-sizing:border-box; background:var(--chip); color:var(--text); border:1px solid var(--line); padding:10px 12px; border-radius:6px; margin-bottom:14px; font-size:14px;" />
-                            <div style="margin-bottom:14px; text-align:left; font-size:12px; color:var(--muted); line-height:1.45; background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px 12px;">
+                            <asp:TextBox ID="TxtUserGate" runat="server" Placeholder="Username" CssClass="login-gate-input" />
+                            <asp:TextBox ID="TxtPassGate" runat="server" TextMode="Password" Placeholder="Password" CssClass="login-gate-input" style="margin-bottom:14px;" />
+                            <div class="login-gate-agreement">
                                 <label style="display:flex; align-items:flex-start; gap:8px; cursor:pointer; color:var(--text);">
                                     <asp:CheckBox ID="ChkAgreementGate" runat="server" style="margin-top:2px;" />
                                     <span>I agree to the <a href="documentation/va_software_agreement.html" target="_blank" style="color:var(--accent); font-weight:600; text-decoration:underline;">Software Usage &amp; Non-Duplication Agreement</a> (<a href="javascript:void(0)" onclick="openAgreementModal(); return false;" style="color:var(--accent); text-decoration:underline;">preview</a>).</span>
                                 </label>
                             </div>
-                            <asp:Button ID="BtnLoginGate" runat="server" Text="Sign In" OnClick="BtnLoginGate_Click" style="width:100%; background:var(--accent); color:var(--bg); border:none; padding:11px; border-radius:6px; font-weight:700; font-size:14px; cursor:pointer; letter-spacing:0.3px;" />
+                            <asp:Button ID="BtnLoginGate" runat="server" Text="Sign In" OnClick="BtnLoginGate_Click" CssClass="login-gate-btn" />
                             <asp:Label ID="LblLoginGateError" runat="server" ForeColor="#ef4444" style="display:block; margin-top:10px; font-size:13px;"></asp:Label>
                         </div>
-                        <div style="font-size:11px; color:var(--muted); margin-top:16px;">Contact your administrator if you need an account.</div>
+                        <div style="font-size:12px; color:var(--muted); margin-top:18px;">Contact your administrator if you need an account.</div>
+                        <div style="margin-top:14px; display:flex; align-items:center; justify-content:center; gap:10px;">
+                            <a href="about.html" class="login-gate-about-btn">
+                                &#128218; About iDash
+                            </a>
+                        </div>
                     </div>
                     <% } else { %>
 
-                    <!-- ======================================================
-         HEADER
-         ====================================================== -->
-                    <div class="header-title">iDash Intelligence Hub</div>
-                    <div class="header-sub">View reports, search for assets, download files, and manage RFID inventory &mdash; everything your team needs, in one place.</div>
-                    <div class="aw-header-brand" style="display:flex; align-items:center; gap:10px;">
-                        <img src="<%= ResolveUrl("~/Assets/branding/idintegration_icon.png") %>" class="aw-header-logo" style="width:28px; height:28px; object-fit:contain;" />
-                        <span class="aw-header-text" style="font-size:16px; font-weight:700; color:var(--text);">
-                            iDash
-                            <span class="aw-header-copy" style="font-size:13px; color:var(--muted); font-weight:normal; margin-left:6px;">by ID Integration Inc.</span>
-                        </span>
-                    </div>
-
-                    <!-- TAB BAR -->
-                    <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:25px; margin-bottom:10px; border-bottom:1px solid var(--line); padding-bottom:15px;" id="nav-tabs">
+                    <!-- SECTION NAV (merged into hero) -->
+                    <div id="nav-tabs" style="display:none;">
                         <a href="#favoritesSection" class="nav-tab">&#11088; Favorites</a>
                         
                         <% if (CanSeeSection("downloads","docs")) { %><a href="#sec-docs" class="nav-tab">&#128218; Guides &amp; Downloads</a><% } %>
@@ -492,9 +511,6 @@
                         <a href="#sec-admin" class="nav-tab" style="border-color:#ef4444; color:#ef4444;">&#128274; Admin Tools</a>
                         <% } %>
                     </div>
-                    <div style="font-size:12px; color:var(--muted); margin-bottom:18px; padding-left:2px;">
-                        &#11088; <strong>Tip:</strong> Click the <strong style="color:#facc15;">&#9733;</strong> star on any tile to save it to your Favorites for quick access.
-                    </div>
 
 
 
@@ -502,7 +518,7 @@
          WELCOME CARD (first-time users only)
          ====================================================== -->
                     <div id="welcomeCard" style="display:none; background:linear-gradient(135deg,var(--card),var(--chip)); border:1px solid #2ea8ff44; border-left:4px solid #2ea8ff; border-radius:12px; padding:20px 24px; margin-bottom:28px; position:relative;">
-                        <div style="font-size:18px; font-weight:700; color:var(--text); margin-bottom:8px;">&#128075; Welcome to the VA Asset Intelligence Hub</div>
+                        <div style="font-size:18px; font-weight:700; color:var(--text); margin-bottom:8px;">&#128075; Welcome to the Intelligent Distributed Asset Scanning Hub</div>
                         <div style="font-size:13px; color:var(--muted); line-height:1.7; margin-bottom:14px;">
                             This site helps you track, search, and report on RFID-tagged VA equipment.<br>
                             &bull; <strong style="color:var(--text);">Search Assets</strong> &mdash; find any asset or see where it was last scanned<br>
@@ -526,11 +542,7 @@
          DOCUMENTATION & PROCEDURES
          ====================================================== -->
                     <% if (CanSeeSection("downloads","docs")) { %>
-                    <div class="section-title" id="sec-docs">&#128218; Guides &amp; Downloads
-                        <span style="display:block; font-size:13px; font-weight:400; color:var(--muted); margin-top:4px;">Step-by-step procedures, reference documents, approved software downloads, and file uploads.</span>
-                    </div>
-
-                    <div class="tile-grid">
+                    <div class="section-card collapsed" id="sec-docs-card"><div class="section-header" onclick="toggleSection('sec-docs-card')"><div class="section-title" id="sec-docs">&#128218; Guides &amp; Downloads</div><span class="section-chevron">&#9660;</span></div><div class="section-body"><div class="tile-grid">
                     
                         <!-- Secure Downloads Hub -->
                         <% if (CanSeeTile("downloads")) { %>
@@ -568,12 +580,12 @@
                         <div class="tile" onclick="location.href='documentation/idi_mobile_connectivity_cookbook.html'" style="border-left: 4px solid #10b981; background: color-mix(in srgb, #10b981, transparent 94%);">
                             <div class="tile-title" style="color:#10b981;">&#128241; IDI Mobile Connectivity Cookbook</div>
                             <div class="tile-desc">
-                                Field guide for VA OIT &amp; deployment teams &mdash; WiFi onboarding, scanner setup, firewall rules, printer configuration, and end-to-end troubleshooting for AssetWorx! by InfinID Technologies.
+                                Field guide for VA OIT &amp; deployment teams &mdash; WiFi onboarding, scanner setup, firewall rules, printer configuration, and end-to-end troubleshooting for iDash by ID Integration Inc.
                             </div>
                         </div>
                         <% } %>
 
-                    </div>
+                    </div></div></div>
 
                     <% } /* end guides */ %>
 
@@ -581,15 +593,11 @@
          REPORTS
          ====================================================== -->
                     <% if (CanSeeSection("rpt_")) { %>
-                    <div class="section-title" id="sec-reports">&#128202; Reports
-                        <span style="display:block; font-size:13px; font-weight:400; color:var(--muted); margin-top:4px;">Browse dashboards and download inventory data for your site.</span>
-                    </div>
-
-                    <div class="tile-grid">
+                    <div class="section-card collapsed" id="sec-reports-card"><div class="section-header" onclick="toggleSection('sec-reports-card')"><div class="section-title" id="sec-reports">&#128202; Reports</div><span class="section-chevron">&#9660;</span></div><div class="section-body"><div class="tile-grid">
 
                         <% if (CanSeeTile("rpt_notifications")) { %><div class="tile" id="tileNotifications" onclick="location.href='va_notifications.aspx'" style="border-left: 4px solid #3b82f6; background: color-mix(in srgb, #3b82f6, transparent 94%);">
                             <div class="tile-title" style="color:#3b82f6; display:flex; align-items:center; justify-content:space-between;">
-                                <span>🔔 iDash Notifications</span>
+                                <span>?? iDash Notifications</span>
                                 <span id="tileWatchBadge" style="font-size:11px; padding:2px 8px; border-radius:12px; background:color-mix(in srgb, #3b82f6 20%, transparent); color:#3b82f6; font-weight:700; display:none;">0 Watched</span>
                             </div>
                             <div class="tile-desc">
@@ -666,7 +674,7 @@
 
                         <%-- REMOVED: search_history, search_asset, search_location — all consolidated into Asset Master detail panel (07/31) --%>
 
-                    </div>
+                    </div></div></div>
 
                     <% } /* end reports */ %>
 
@@ -674,10 +682,7 @@
          SCANNING & TOOLS
          ====================================================== -->
                     <% if (CanSeeSection("scan_", "print_", "excel_print")) { %>
-                    <div class="section-title" id="sec-scanning">&#128241; Scanning &amp; Tools
-                        <span style="display:block; font-size:13px; font-weight:400; color:var(--muted); margin-top:4px;">Live scanning dashboards, inventory tools, and print mapping.</span>
-                    </div>
-                    <div class="tile-grid">
+                    <div class="section-card collapsed" id="sec-scanning-card"><div class="section-header" onclick="toggleSection('sec-scanning-card')"><div class="section-title" id="sec-scanning">&#128241; Scanning &amp; Tools</div><span class="section-chevron">&#9660;</span></div><div class="section-body"><div class="tile-grid">
 
                             <% if (CanSeeTile("scan_maps")) { %><div class="tile" onclick="location.href='va_site_maps.aspx'" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05);">
                                 <div class="tile-title" style="color:#3b82f6;">&#x1f5fa;&#xfe0f; Site Maps &amp; Tagging</div>
@@ -691,7 +696,7 @@
 
                             <% if (CanSeeTile("scan_inventory")) { %><div class="tile" onclick="location.href='va_inventory.aspx'" style="border-left: 4px solid var(--accent-2);">
                                 <div class="tile-title" style="color:var(--accent-2);">VA Site Inventory</div>
-                                <div class="tile-desc">Rapid location sweep interface. Pre-loads room assets, verifies found items, tracks misplaced assets in memory, and allows optional database commit.</div>
+                                <div class="tile-desc">Rapid location sweep interface. Pre-loads room assets, verifies found items, and automatically moves misplaced assets to the current scanned location.</div>
                             </div><% } %>
 
                             <% if (CanSeeTile("scan_locator")) { %><div class="tile" onclick="location.href='va_rfid_locator.aspx'" style="border-left: 4px solid #8B5CF6; background:rgba(139,92,246,0.05);">
@@ -699,7 +704,7 @@
                                 <div class="tile-desc">Locate specific missing assets using RFID proximity scanning. Geiger counter-style proximity meter, audio feedback, and DataWedge/WebSerial USB support.</div>
                             </div><% } %>
 
-                            <% if (CanSeeTile("scan_ennx")) { %><div class="tile" data-href="va_ennx_live_scan.aspx" onclick="location.href='va_ennx_live_scan.aspx?v=<%= DateTime.Now.Ticks %>'">
+                            <% if (CanSeeTile("scan_ennx")) { %><div class="tile" onclick="location.href='va_ennx_live_scan.aspx?v=<%= DateTime.Now.Ticks %>'">
                                 <div class="tile-title">ENNX Live Scan</div>
                                 <div class="tile-desc">Live asset scanning tool. Requires site selection and database connection.</div>
                             </div><% } %>
@@ -709,7 +714,7 @@
                                 <div class="tile-desc">Build and download an ENNX file from any scanner &mdash; barcode, RFID, or both. No site selection or database required.</div>
                             </div><% } %>
 
-                            <% if (CanSeeTile("scan_eil")) { %><div class="tile" data-href="va_eil_live_scan.aspx" onclick="location.href='va_eil_live_scan.aspx?v=<%= DateTime.Now.Ticks %>'">
+                            <% if (CanSeeTile("scan_eil")) { %><div class="tile" onclick="location.href='va_eil_live_scan.aspx?v=<%= DateTime.Now.Ticks %>'">
                                 <div class="tile-title">EIL Live Scan &amp; Reconciliation</div>
                                 <div class="tile-desc">Load EIL parts list and reconcile. Live scanning for TC53/RFD40.</div>
                             </div><% } %>
@@ -718,13 +723,7 @@
                             <!-- Excel Equipment Import & Print -->
                             <% if (CanSeeTile("excel_print")) { %><div class="tile" onclick="location.href='va_excel_print.aspx'" style="border-left:4px solid #10b981; background:rgba(16,185,129,0.05);">
                                 <div class="tile-title" style="color:#10b981;">&#128218; Excel Equipment Import &amp; Print</div>
-                                <div class="tile-desc">Load <code>equipment.xlsx</code> from <code>C:\va_rfid\excel_data\</code>, preview all rows, select assets, and <strong>import into AssetWorx</strong> and/or <strong>print labels immediately</strong> via MQTT/BarTender &mdash; no need to be in AssetWorx first.</div>
-                            </div><% } %>
-                            <!-- Print Setup Wizard -->
-                            <% if (CanSeeTile("excel_print") || CanSeeTile("print_mapping") || CanSeeTile("admin_site_config") || CanSeeTile("admin_printer_routing")) { %>
-                            <div class="tile" onclick="location.href='va_print_setup_wizard.aspx'" style="border-left:4px solid #f59e0b; background:rgba(245,158,11,0.05);">
-                                <div class="tile-title" style="color:#f59e0b;">&#129668; Print Setup Wizard</div>
-                                <div class="tile-desc">Diagnostic &amp; configuration wizard for BarTender, Zebra label printers, template validation, and test printing.</div>
+                                <div class="tile-desc">Load <code>equipment.xlsx</code> from <code>C:\va_rfid\excel_data\</code>, preview all rows, select assets, and <strong>import into iDash</strong> and/or <strong>print labels immediately</strong> via BarTender &mdash; no need for external software.</div>
                             </div><% } %>
 
 
@@ -746,7 +745,7 @@
                         <div class="tile" style="border-left: 4px solid var(--danger); background: color-mix(in srgb, var(--danger), transparent 92%);">
                             <div class="tile-title" style="color:var(--danger);">&#128274; Authentication Required</div>
                             <div class="tile-desc" style="margin-bottom: 12px;">
-                                Please log in with an iDash Administrator account to access tools that write database changes, including System Administration.
+                                Please log in with your iDash Administrator account to access tools that write database changes, including System Administration.
                             </div>
                             <asp:TextBox ID="TxtUser" runat="server" Placeholder="Username" style="width:100%; box-sizing:border-box; background:var(--bg); color:var(--text); border:1px solid var(--line); padding:8px; border-radius:4px; margin-bottom:8px;" />
                             <asp:TextBox ID="TxtPass" runat="server" TextMode="Password" Placeholder="Password" style="width:100%; box-sizing:border-box; background:var(--bg); color:var(--text); border:1px solid var(--line); padding:8px; border-radius:4px; margin-bottom:8px;" />
@@ -769,8 +768,8 @@
                                 <div class="tile-desc">1-Click Over-The-Air code updater. Synchronize this server or remote laptops from Master Node (Tailscale) or GitHub with live progress, zero scripts, and safe boundary protection. <a href="documentation/va_system_migration_guide.html" style="color:#38bdf8; text-decoration:underline;" onclick="event.stopPropagation();">View Playbook &rarr;</a></div>
                             </div><% } %>
                             <% if (CanSeeTile("admin_training")) { %><div class="tile" onclick="location.href='va_training_hub.aspx'" style="border-left: 4px solid #8b5cf6; background: linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(59,130,246,0.05) 100%); grid-column: span 2;">
-                                <div class="tile-title" style="color:#8b5cf6;">&#127891; AssetWorx Training &amp; Setup Hub</div>
-                                <div class="tile-desc">One-stop guide to deploy, configure, and operate AssetWorx with iDash. Links to every tool and its documentation &mdash; setup wizards, RFID scanner user management, data imports, scanning workflows, reports, and administration. Start here if you're new.</div>
+                                <div class="tile-title" style="color:#8b5cf6;">&#127891; iDash Training &amp; Setup Hub</div>
+                                <div class="tile-desc">One-stop guide to deploy, configure, and operate iDash. Links to every tool and its documentation &mdash; setup wizards, RFID scanner user management, data imports, scanning workflows, reports, and administration. Start here if you're new.</div>
                             </div><% } %>
 
 
@@ -806,11 +805,11 @@
                             </div><% } %>
                             <% if (CanSeeTile("admin_bcp")) { %><div class="tile" onclick="location.href='documentation/va_bcp_query.html'">
                                 <div class="tile-title">VA On Network Queries (Pull)</div>
-                                <div class="tile-desc">Interactive BCP extraction and SQLCMD batch generation utility â€” pulls CDW/VistA data into AssetWorx.</div>
+                                <div class="tile-desc">Interactive BCP extraction and SQLCMD batch generation utility &mdash; pulls CDW/VistA data into iDash.</div>
                             </div><% } %>
                             <% if (CanSeeTile("admin_bcp")) { %><div class="tile" onclick="location.href='documentation/va_bcp_awpush_query.html'" style="border-left: 4px solid #10b981; background: color-mix(in srgb, #10b981, transparent 94%);">
-                                <div class="tile-title" style="color:#10b981;">&#128228; AW Push to VA SQL (Push)</div>
-                                <div class="tile-desc">Reverse pipeline â€” generate BCP OUT and SQLCMD MERGE scripts to export AssetWorx data to a remote VA SQL server.</div>
+                                <div class="tile-title" style="color:#10b981;">&#128228; Push to VA SQL (Push)</div>
+                                <div class="tile-desc">Reverse pipeline &mdash; generate BCP OUT and SQLCMD MERGE scripts to export iDash data to a remote VA SQL server.</div>
                             </div><% } %>
                             <% if (CanSeeTile("admin_excel")) { %><div class="tile" onclick="location.href='va_excel.aspx'">
                                 <div class="tile-title">Excel Merge Tool</div>
@@ -825,25 +824,25 @@
                             <!-- IIS & App Log Analyzer -->
                             <% if (CanSeeTile("admin_loganalyzer")) { %><div class="tile" onclick="location.href='va_log_viewer.aspx'" style="border-left: 4px solid #10b981; background: color-mix(in srgb, var(--accent-2), transparent 92%);">
                                 <div class="tile-title" style="color:#10b981;">&#128270; IIS &amp; App Log Analyzer</div>
-                                <div class="tile-desc">Advanced web server log analysis &mdash; filter by IP, URI, and status code. Auto-diagnoses common AssetWorx service errors from Serilog app logs. Includes login audit trail.</div>
+                                <div class="tile-desc">Advanced web server log analysis &mdash; filter by IP, URI, and status code. Auto-diagnoses common service and ingest errors from Serilog app logs. Includes login audit trail.</div>
                             </div><% } %>
                             <!-- Database Restore -->
                             <% if (CanSeeTile("admin_restore")) { %><div class="tile"
                                 onclick="if(confirm('Warning: This is a dangerous administrative action.\nAre you sure you want to proceed to Database Restore?')) location.href='va_db_restore.aspx';"
                                 style="border-left: 4px solid #ef4444;">
                                 <div class="tile-title" style="color:#ef4444;">&#128293; Database Restore</div>
-                                <div class="tile-desc">Restore the AssetWorx database from a backup file. &#9888; DANGER ZONE &mdash; this overwrites the live production database.</div>
+                                <div class="tile-desc">Restore the iDash database from a backup file. &#9888; DANGER ZONE &mdash; this overwrites the live production database.</div>
                             </div><% } %>
 
                             <!-- VA FHIR Bridge -->
                             <% if (CanSeeTile("admin_fhir_bridge")) { %><div class="tile" onclick="location.href='va_fhir_bridge.aspx'" style="border-left: 4px solid #e87722; background: rgba(232,119,34,0.05);">
-                                <div class="tile-title" style="color:#e87722;">&#127973; Supply Chain Bridge - AssetWorx to VistA</div>
-                                <div class="tile-desc">Push supply chain data (assets &amp; locations) from AssetWorx to VA VistA via AEMS/MERS SQL sync. No patient data &mdash; supply chain inventory only.</div>
+                                <div class="tile-title" style="color:#e87722;">&#127973; Supply Chain Bridge - iDash to VistA</div>
+                                <div class="tile-desc">Push supply chain data (assets &amp; locations) from iDash to VA VistA via AEMS/MERS SQL sync. No patient data &mdash; supply chain inventory only.</div>
                             </div><% } %>
                             <!-- User Management (Consolidated) -->
                             <% if (CanSeeTile("admin_users")) { %><div class="tile" onclick="location.href='va_user_management.aspx'" style="border-left: 4px solid #a855f7; background: rgba(168,85,247,0.05);">
                                 <div class="tile-title" style="color:#a855f7;">&#128100; User Management (Consolidated)</div>
-                                <div class="tile-desc">One page for all user &amp; site administration. <strong>iDash Portal Users:</strong> roles, tile access, site permissions, login history. <strong>AssetWorx &amp; RFID Users:</strong> create/edit/delete scanner accounts (dbo.sysuser). <strong>Companies / Sites:</strong> add, rename, delete sites (dbo.company) with cascade cleanup.</div>
+                                <div class="tile-desc">One page for all user &amp; site administration. <strong>iDash Portal Users:</strong> roles, tile access, site permissions, login history. <strong>Scanner &amp; System Users:</strong> create/edit/delete accounts (dbo.sysuser). <strong>Companies / Sites:</strong> add, rename, delete sites (dbo.company) with cascade cleanup.</div>
                             </div><% } %>
                             <!-- System Diagnostics -->
                             <% if (CanSeeTile("admin_diagnostics") || CanSeeTile("admin_users")) { %>
@@ -852,25 +851,11 @@
                                 <div class="tile-desc">Run live health checks: API auth, license validation, server registrations, and batch update simulation. Send HTML report by email. MQTT &amp; reader tests coming soon.</div>
                             </div>
                             <% } %>
-                            <!-- Print Setup Wizard -->
-                            <% if (CanSeeTile("excel_print") || CanSeeTile("print_mapping") || CanSeeTile("admin_site_config") || CanSeeTile("admin_printer_routing") || CanSeeTile("admin_users")) { %>
-                            <div class="tile" onclick="location.href='va_print_setup_wizard.aspx'" style="border-left:4px solid #f59e0b; background:rgba(245,158,11,0.05);">
-                                <div class="tile-title" style="color:#f59e0b;">&#129668; Print Setup Wizard</div>
-                                <div class="tile-desc">Diagnostic &amp; configuration wizard for BarTender, Zebra label printers, template validation, and test printing.</div>
-                            </div>
-                            <% } %>
-                            <!-- License Manager (Consolidated: Live Readers + Standalone Cart Keys) -->
-                            <% if (CanSeeTile("admin_license_manager") || CanSeeTile("admin_diagnostics") || CanSeeTile("admin_users") || CanSeeTile("admin_site_config")) { %>
-                            <div class="tile" onclick="location.href='va_license_manager.aspx'" style="border-left:4px solid #ef4444; background:rgba(239,68,68,0.05);">
-                                <div class="tile-title" style="color:#ef4444;">&#128273; iDash License and Setup</div>
-                                <div class="tile-desc">Unified license management. View active reader &amp; handheld slots, delete stale scanners to free licenses, manage server registrations, and access mobile cart keys with 1-click apply scripts.</div>
-                            </div>
-                            <% } %>
-                            <!-- System Configuration (DB, API, RabbitMQ, SMTP, Services, Mobile Columns) -->
-                            <% if (CanSeeTile("admin_site_config") || CanSeeTile("admin_mqtt") || CanSeeTile("admin_printer_routing") || CanSeeTile("print_mapping")) { %>
+                            <!-- System Configuration (DB, License Management, Server Ports, API, RabbitMQ, SMTP, Services) -->
+                            <% if (CanSeeTile("admin_site_config") || CanSeeTile("admin_license_manager") || CanSeeTile("admin_mqtt") || CanSeeTile("admin_printer_routing") || CanSeeTile("print_mapping")) { %>
                             <div class="tile" onclick="location.href='va_site_config.aspx'" style="border-left: 4px solid #8B5CF6; background: rgba(139,92,246,0.05);">
                                 <div class="tile-title" style="color:#8B5CF6;">&#9881; System Configuration</div>
-                                <div class="tile-desc">All system &amp; facility configuration &mdash; Database connections, API / OAuth credentials, RabbitMQ broker, Email / SMTP, Windows Services, and mobile scanning columns.</div>
+                                <div class="tile-desc">All system &amp; facility configuration &mdash; Server ports, License management (readers, handhelds, carts), Database connections, API credentials, RabbitMQ broker, Email / SMTP, and Windows Services.</div>
                             </div>
                             <% } %>
                             <!-- Fixed Reader Configuration (Zebra FX9600 / FX7500 reader registrations) -->
@@ -898,10 +883,10 @@
                     // -- Theme toggle --
                     function toggleIdashTheme() {
                         var html = document.documentElement;
-                        var current = html.getAttribute('data-theme');
-                        if (current === 'light') {
+                        var isLight = html.getAttribute('data-theme') === 'light';
+                        if (isLight) {
                             html.removeAttribute('data-theme');
-                            localStorage.removeItem('idash_theme');
+                            localStorage.setItem('idash_theme', 'dark');
                         } else {
                             html.setAttribute('data-theme', 'light');
                             localStorage.setItem('idash_theme', 'light');
@@ -940,7 +925,79 @@
                         }
                     }
 
+                    // ======= KPI FETCH + COUNT-UP =======
+function animateCount(el, target) {
+    if (!el || isNaN(target)) return;
+    var duration = 1200, start = 0, step = Math.ceil(target / (duration / 16));
+    function tick() {
+        start = Math.min(start + step, target);
+        el.textContent = start.toLocaleString();
+        if (start < target) requestAnimationFrame(tick);
+    }
+    tick();
+}
+function loadKPIs() {
+    fetch('index.aspx?action=kpi').then(r => r.json()).then(d => {
+        if (!d.error) {
+            animateCount(document.getElementById('kpiAssets'), d.totalAssets || 0);
+            animateCount(document.getElementById('kpiTagged'), d.totalTagged || 0);
+            animateCount(document.getElementById('kpiSites'), d.activeSites || 0);
+            animateCount(document.getElementById('kpiPrinted'), d.printedToday || 0);
+        }
+    }).catch(function(){});
+}
+if (document.getElementById('kpiAssets')) loadKPIs();
+
+// ======= SECTION TOGGLE =======
+function toggleSection(id) {
+    var card = document.getElementById(id);
+    if (card) card.classList.toggle('collapsed');
+}
+
+// ======= COMMAND PALETTE =======
+(function() {
+    var input = document.getElementById('cmdSearch');
+    var results = document.getElementById('cmdResults');
+    if (!input || !results) return;
+
+    input.addEventListener('input', function() {
+        var q = this.value.toLowerCase().trim();
+        if (q.length < 1) { results.classList.remove('active'); return; }
+        var tiles = document.querySelectorAll('.page .tile-grid:not(#favoritesGrid) .tile');
+        var matches = [];
+        tiles.forEach(function(t) {
+            var title = t.querySelector('.tile-title');
+            var desc = t.querySelector('.tile-desc');
+            var text = ((title ? title.textContent : '') + ' ' + (desc ? desc.textContent : '')).toLowerCase();
+            if (text.indexOf(q) > -1) {
+                var href = t.getAttribute('data-href') || (t.getAttribute('onclick') || '').match(/'([^']+)'/);
+                href = href ? (typeof href === 'string' ? href : href[1]) : '#';
+                matches.push({ icon: (title ? title.textContent.substring(0,2) : '??'), title: title ? title.textContent.replace(/^.{1,2}\s*/, '') : 'Page', desc: desc ? desc.textContent.substring(0,80) + '...' : '', href: href });
+            }
+        });
+        if (matches.length === 0) { results.classList.remove('active'); return; }
+        results.innerHTML = matches.slice(0, 8).map(function(m) {
+            return '<div class="cmd-item" onclick="location.href=\'' + m.href + '\'"><div class="cmd-item-icon">' + m.icon + '</div><div><div class="cmd-item-text">' + m.title + '</div><div class="cmd-item-desc">' + m.desc + '</div></div></div>';
+        }).join('');
+        results.classList.add('active');
+    });
+    input.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') { results.classList.remove('active'); input.blur(); }
+        if (e.key === 'Enter') {
+            var sel = results.querySelector('.cmd-item');
+            if (sel) sel.click();
+        }
+    });
+    document.addEventListener('click', function(e) {
+        if (!input.contains(e.target) && !results.contains(e.target)) results.classList.remove('active');
+    });
+})();
+
                     document.addEventListener('DOMContentLoaded', function() {
+                        // Stagger tile animations
+                        var allTilesAnim = document.querySelectorAll('.page .tile');
+                        allTilesAnim.forEach(function(t, i) { t.style.animationDelay = (i * 0.04) + 's'; });
+
                         // -- Welcome card --
                         if (!localStorage.getItem('aw_welcomed')) {
                             var card = document.getElementById('welcomeCard');
@@ -956,20 +1013,16 @@
                         // 2. Pre-process all tiles to assign data-href based on their onclick handlers
                         var allTiles = document.querySelectorAll('.page .tile-grid .tile');
                         allTiles.forEach(function(tile) {
-                            var currentDataHref = tile.getAttribute('data-href');
-                            if (!currentDataHref) {
+                            if (!tile.getAttribute('data-href')) {
                                 var onclickAttr = tile.getAttribute('onclick');
                                 if (onclickAttr) {
                                     var match = onclickAttr.match(/'([^']+)'/);
                                     if (match) {
                                         var href = match[1];
-                                        if (href.indexOf('?') > -1) href = href.split('?')[0];
                                         if (onclickAttr.indexOf('va_db_restore.aspx') > -1) href = 'va_db_restore.aspx';
                                         tile.setAttribute('data-href', href);
                                     }
                                 }
-                            } else if (currentDataHref.indexOf('?') > -1) {
-                                tile.setAttribute('data-href', currentDataHref.split('?')[0]);
                             }
                         });
 
@@ -1020,17 +1073,11 @@
                                 var ownTiles = {};
                                 grid.querySelectorAll(':scope > .tile').forEach(function(t) {
                                     var h = t.getAttribute('data-href');
-                                    if (h) {
-                                        var cleanH = h.split('?')[0];
-                                        ownTiles[h] = t;
-                                        ownTiles[cleanH] = t;
-                                    }
+                                    if (h) ownTiles[h] = t;
                                 });
                                 // Append in saved order, but ONLY for tiles that live in this grid
                                 order.forEach(function(href) {
-                                    var cleanHref = href.split('?')[0];
-                                    if (ownTiles[cleanHref]) grid.appendChild(ownTiles[cleanHref]);
-                                    else if (ownTiles[href]) grid.appendChild(ownTiles[href]);
+                                    if (ownTiles[href]) grid.appendChild(ownTiles[href]);
                                 });
                             });
                         }
@@ -1041,7 +1088,7 @@
                                 var hrefs = [];
                                 grid.querySelectorAll(':scope > .tile').forEach(function(c) {
                                     var h = c.getAttribute('data-href');
-                                    if(h) hrefs.push(h.split('?')[0]);
+                                    if(h) hrefs.push(h);
                                 });
                                 layout[grid.id] = hrefs;
                             });
@@ -1127,41 +1174,18 @@
                         renderFavorites();
                         
                         function toggleFav(href) {
-                            if (!href) return;
-                            var cleanHref = href.split('?')[0];
-                            var rawFavs = JSON.parse(localStorage.getItem('aw_idash_favorites') || '[]');
-                            var currentFavs = [];
-                            rawFavs.forEach(function(item) {
-                                if (!item) return;
-                                var c = item.split('?')[0];
-                                if (currentFavs.indexOf(c) === -1) currentFavs.push(c);
-                            });
-                            var idx = currentFavs.indexOf(cleanHref);
-                            if (idx > -1) {
-                                currentFavs.splice(idx, 1);
+                            var currentFavs = JSON.parse(localStorage.getItem('aw_idash_favorites') || '[]');
+                            if (currentFavs.indexOf(href) > -1) {
+                                currentFavs.splice(currentFavs.indexOf(href), 1);
                             } else {
-                                currentFavs.push(cleanHref);
+                                currentFavs.push(href);
                             }
                             localStorage.setItem('aw_idash_favorites', JSON.stringify(currentFavs));
                             renderFavorites();
                         }
                         
                         function renderFavorites() {
-                            var rawFavs = JSON.parse(localStorage.getItem('aw_idash_favorites') || '[]');
-                            var currentFavs = [];
-                            var needsResave = false;
-                            rawFavs.forEach(function(item) {
-                                if (!item) return;
-                                var clean = item.split('?')[0];
-                                if (currentFavs.indexOf(clean) === -1) {
-                                    currentFavs.push(clean);
-                                }
-                                if (clean !== item) needsResave = true;
-                            });
-                            if (needsResave) {
-                                localStorage.setItem('aw_idash_favorites', JSON.stringify(currentFavs));
-                            }
-                            
+                            var currentFavs = JSON.parse(localStorage.getItem('aw_idash_favorites') || '[]');
                             var favSection = document.getElementById('favoritesSection');
                             var favGrid = document.getElementById('favoritesGrid');
                             
@@ -1184,11 +1208,7 @@
 
                             // 2. Render favorites exactly in the saved array order
                             currentFavs.forEach(function(href) {
-                                var cleanHref = href.split('?')[0];
-                                var original = Array.from(originals).find(function(t) { 
-                                    var th = t.getAttribute('data-href');
-                                    return th === cleanHref || (th && th.split('?')[0] === cleanHref); 
-                                });
+                                var original = Array.from(originals).find(function(t) { return t.getAttribute('data-href') === href; });
                                 if (!original) return;
 
                                 // Hide the original and mark its star
@@ -1205,7 +1225,7 @@
                                 clone.addEventListener('dragstart', function(e) {
                                     e.stopPropagation();
                                     e.dataTransfer.effectAllowed = 'move';
-                                    e.dataTransfer.setData('fav-href', cleanHref);
+                                    e.dataTransfer.setData('fav-href', href);
                                     setTimeout(function() { clone.style.opacity = '0.4'; }, 0);
                                 });
                                 clone.addEventListener('dragend', function(e) {
@@ -1233,12 +1253,11 @@
                                     clone.style.boxShadow = '';
                                     
                                     var draggedHref = e.dataTransfer.getData('fav-href');
-                                    if (draggedHref && draggedHref !== cleanHref) {
+                                    if (draggedHref && draggedHref !== href) {
                                          // Reorder items in Local Storage
                                          var favList = JSON.parse(localStorage.getItem('aw_idash_favorites') || '[]');
-                                         favList = favList.map(function(item) { return item ? item.split('?')[0] : ''; }).filter(Boolean);
                                          favList = favList.filter(function(item) { return item !== draggedHref; });
-                                         var targetIdx = favList.indexOf(cleanHref);
+                                         var targetIdx = favList.indexOf(href);
                                          if (targetIdx !== -1) {
                                              favList.splice(targetIdx, 0, draggedHref);
                                          } else {
@@ -1254,7 +1273,7 @@
                                 if (cloneStar) {
                                     cloneStar.addEventListener('click', function(e) {
                                         e.stopPropagation();
-                                        toggleFav(cleanHref);
+                                        toggleFav(href);
                                     });
                                 }
                                 favGrid.appendChild(clone);
@@ -1270,7 +1289,7 @@
                      ====================================================== -->
                 <div id="srOverlay" class="sr-overlay" onclick="if(event.target===this)closeSupportModal()">
                     <div class="sr-modal" onclick="event.stopPropagation()">
-                        <h2><img src="/iDash/Assets/branding/rfid.png" style="height:22px;width:auto;vertical-align:middle;margin-right:8px;" alt="RFID" />Support Request</h2>
+                        <h2><img src="Assets/branding/rfid.png" style="height:22px;width:auto;vertical-align:middle;margin-right:8px;" alt="RFID" />Support Request</h2>
                         <p class="sr-sub">
                             Your request will be sent to <strong>ID Integration Support</strong> at
                             <em>varfid_support@id-integration.com</em> and a copy will go to the email you provide.
@@ -1412,7 +1431,7 @@
                                         if (badge && d.summary.totalWatched > 0) {
                                             var txt = d.summary.totalWatched + ' Watched';
                                             if (d.summary.high > 0) txt += ' • ' + d.summary.high + ' High';
-                                            if (d.summary.mismatch > 0) txt += ' • ⚠️ ' + d.summary.mismatch;
+                                            if (d.summary.mismatch > 0) txt += ' • ?? ' + d.summary.mismatch;
                                             badge.textContent = txt;
                                             badge.style.display = 'inline-block';
                                         }
@@ -1473,4 +1492,3 @@
         </body>
 
         </html>
-
