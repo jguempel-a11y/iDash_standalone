@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>API REFERENCE &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -62,7 +63,7 @@
         <div style="background:var(--chip); border:1px solid var(--line); border-radius:12px; padding:18px; margin-bottom:30px;">
             <strong>Contents</strong>
             <ul style="margin:8px 0 0 0; padding-left:20px; line-height:2;">
-                <li><a href="#sec-idash">iDash REST API</a> &mdash; Asset CRUD, printing, readers, scanners</li>
+                <li><a href="#sec-assetworx">AssetWorx REST API</a> &mdash; Asset CRUD, printing, readers, scanners</li>
                 <li><a href="#sec-zebra">Zebra IoT Connector REST API</a> &mdash; FX9600 fixed reader management</li>
                 <li><a href="#sec-zebra-mobile">Zebra Handheld &amp; Mobile Scanning APIs</a> &mdash; TC530e, RFD40/RFD90, DataWedge &amp; EB</li>
                 <li><a href="#sec-rabbitmq">RabbitMQ Management API</a> &mdash; Broker monitoring</li>
@@ -76,11 +77,11 @@
         </div>
 
         <!-- ============================================================ -->
-        <!-- iDash API -->
+        <!-- ASSETWORX API -->
         <!-- ============================================================ -->
-        <div class="api-section" id="sec-idash">
-            <h2>&#128279; iDash REST API</h2>
-            <p>The iDash API is a .NET Web API hosted in the same IIS application pool as the iDash web portal.
+        <div class="api-section" id="sec-assetworx">
+            <h2>&#128279; AssetWorx REST API</h2>
+            <p>The AssetWorx API is a .NET Web API hosted in the same IIS application pool as the AssetWorx web client.
                It provides CRUD operations for assets, readers, antennas, print jobs, and user accounts.</p>
 
             <div class="base-url">
@@ -107,7 +108,7 @@
                     <strong style="display:block;margin-top:8px;">Response:</strong>
                     <div class="example-block">{ "access_token": "eyJ...", "token_type": "bearer", "expires_in": 86400 }</div>
                 </div>
-                <div class="used-in">Used in: <a href="../App_Code/IdashApiHelper.cs">IdashApiHelper.cs</a></div>
+                <div class="used-in">Used in: <a href="../App_Code/AssetWorxApiHelper.cs">AssetWorxApiHelper.cs</a></div>
             </div>
 
             <h3>Print Jobs</h3>
@@ -115,7 +116,7 @@
                 <span class="method post">POST</span>
                 <span class="path">/api/printjob/print</span>
                 <div class="desc">Create a print job, generate RFID tag, insert <code>dbo.printjob</code> row, and notify the native Print Server via MQTT on port 8883.
-                    <br/><strong style="color:#10b981;">✔ Active Native Pipeline:</strong> iDash uses this endpoint as the primary printing mechanism via <code>IdashApiHelper.SubmitPrintJob()</code>, providing 100% independent server-side label printing without external scripts. Automatic database fallback is included if the API is offline.</div>
+                    <br/><strong style="color:#10b981;">✔ Active Native Pipeline:</strong> iDash uses this endpoint as the primary printing mechanism via <code>AssetWorxApiHelper.SubmitPrintJob()</code>, providing 100% independent server-side label printing without external scripts. Automatic database fallback is included if the API is offline.</div>
                 <div class="params">
                     <strong>Request Body</strong> (JSON):
                     <div class="example-block">{
@@ -128,7 +129,7 @@
                     <strong>Response:</strong> Print job ID (integer) on success, or error message string.
                 </div>
                 <div class="used-in">
-                    Used in: <a href="../App_Code/IdashApiHelper.cs">IdashApiHelper.cs</a> (Asset Master, Excel Print, Tag Team Scan, Print Admin)<br/>
+                    Used in: <a href="../App_Code/AssetWorxApiHelper.cs">AssetWorxApiHelper.cs</a> (Asset Master, Excel Print, Tag Team Scan, Print Admin)<br/>
                     <span class="badge badge-get" style="background:var(--accent); color:#fff; font-size:10px;">Primary Print Engine</span>
                 </div>
             </div>
@@ -397,7 +398,7 @@ Content-Type: application/json</div>
             <h3>Zebra DataWedge Ingestion Pipeline</h3>
             <div class="endpoint">
                 <span class="method post">KEYSTROKE / INTENT</span>
-                <span class="path">DataWedge Profile: "idash_portal"</span>
+                <span class="path">DataWedge Profile: "AssetWorx_iDash"</span>
                 <div class="desc">
                     Zebra DataWedge intercepts hardware trigger events from the barcode imager or RFD40 RFID sled, buffers the scanned payload, and delivers it to the active browser input field or broadcast intent receiver.
                     <br/><strong style="color:#10b981;">✔ Zero-Flicker Hardware Buffer:</strong> Configured with 5ms inter-character delay and Enter/CR (<code>\n</code>) suffix. The input field in <code>va_inventory.aspx</code> captures continuous tag bursts while user holds the trigger, passing tokens directly to the in-memory lookup table.
@@ -406,11 +407,11 @@ Content-Type: application/json</div>
                     <strong>DataWedge Profile Configuration:</strong>
                     <table>
                         <tr><th>Setting</th><th>Required Value</th><th>Purpose</th></tr>
-                        <tr><td>Profile Name</td><td><code>idash_portal</code></td><td>Associated with Chrome / Zebra Enterprise Browser package</td></tr>
+                        <tr><td>Profile Name</td><td><code>AssetWorx_iDash</code></td><td>Associated with Chrome / Zebra Enterprise Browser package</td></tr>
                         <tr><td>Barcode Input</td><td>Enabled (Code 39, Code 128, DataMatrix, QR)</td><td>Scans room barcodes (<code>SP...</code>) &amp; asset serials</td></tr>
                         <tr><td>RFID Input</td><td>Enabled (RFD40/RFD90 eConnex)</td><td>Continuous EPC streaming on trigger hold</td></tr>
                         <tr><td>Keystroke Output</td><td>Enabled (Action: Send Enter / <code>\n</code>)</td><td>Delivers tag stream to focused DOM input</td></tr>
-                        <tr><td>Intent Output</td><td>Action: <code>com.idash.idash.SCAN</code></td><td>Background headless capture (optional)</td></tr>
+                        <tr><td>Intent Output</td><td>Action: <code>com.assetworx.idash.SCAN</code></td><td>Background headless capture (optional)</td></tr>
                     </table>
                 </div>
                 <div class="used-in">Used in: <a href="../va_inventory.aspx">va_inventory.aspx</a>, <a href="../va_zebra_browser_test.aspx">va_zebra_browser_test.aspx</a></div>
@@ -847,7 +848,7 @@ Content-Type: application/json</div>
   Dependencies: Reader network access | JWT auth
 
 <strong>PRINTING (iDash Native Engine)</strong>
-  iDash &rarr; POST /api/printjob/print &rarr; iDash API &rarr; Native Print Server &rarr; BarTender / Zebra ZPL
+  iDash &rarr; POST /api/printjob/print &rarr; AssetWorx API &rarr; Native Print Server &rarr; BarTender / Zebra ZPL
   Fallback: Direct INSERT dbo.printjob (100% independent server-side pipeline)
         </div>
 

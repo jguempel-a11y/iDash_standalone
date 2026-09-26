@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>iDash Software Licensing Guide &mdash; Architecture &amp; Deployment Reference</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -113,8 +114,8 @@
                 <td>Native RSA-2048 Asymmetric Digital Signatures verified against Windows OS GUID &amp; Ethernet MAC. Zero database dependency for initial gate.</td>
             </tr>
             <tr>
-                <td><strong>iDash Cart &amp; Device License</strong></td>
-                <td>The underlying <strong>iDash RFID Hardware Engine</strong> (Fixed readers, handheld scanner users, server registration).</td>
+                <td><strong>AssetWorx Cart &amp; Device License</strong></td>
+                <td>The underlying <strong>AssetWorx RFID Hardware Engine</strong> (Fixed readers, handheld scanner users, server registration).</td>
                 <td><a href="../va_license_manager.aspx"><code>va_license_manager.aspx</code></a> &amp; <code>cart_licenses.aspx</code></td>
                 <td>Standard Base64 encrypted JSON keys stored in SQL Server table <code>tblLicense</code>.</td>
             </tr>
@@ -123,7 +124,7 @@
 
     <div class="callout">
         <div class="callout-title">&#128161; Dual-Tier Independence</div>
-        A cart can have a valid iDash database license for RFID readers while still requiring an <strong>iDash Software License</strong> to authorize the high-speed synchronization hub, reporting tools, and administrative dashboards.
+        A cart can have a valid AssetWorx database license for RFID readers while still requiring an <strong>iDash Software License</strong> to authorize the high-speed synchronization hub, reporting tools, and administrative dashboards.
     </div>
 
     <!-- SECTION: CRYPTOGRAPHIC DESIGN -->
@@ -162,7 +163,7 @@
             <span class="workflow-number">1</span>
             <h3 class="step-title">Deploy iDash Files &amp; Launch Activation Portal</h3>
         </div>
-        <p>Deploy the standard iDash web client package to <code>C:\inetpub\wwwroot\iDash\iDash</code>. Open a web browser on the cart and navigate to:</p>
+        <p>Deploy the standard iDash web client package to <code>C:\inetpub\wwwroot\AssetWorx.WebClient\iDash</code>. Open a web browser on the cart and navigate to:</p>
         <div class="code-box">http://localhost/idash/va_license_activation.aspx</div>
         <p>The page will display the current status as <span class="badge-status badge-unlicensed">&#9679; Not Licensed</span> and present the <strong>System Hardware Identity</strong> card.</p>
     </div>

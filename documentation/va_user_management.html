@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>VA USER MANAGEMENT &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -21,7 +22,7 @@
         <div class="kv"><span class="k">File</span><code>va_user_management.aspx</code> / <code>va_user_management.aspx.cs</code></div>
         <div class="kv"><span class="k">Storage</span><code>App_Data\idash_users.json</code> (auto-created on first run)</div>
         <div class="kv"><span class="k">Access</span>Administrator role or <code>admin_users</code> tile permission</div>
-        <p>The unified User Management page controls <strong>two systems from one page</strong>: iDash portal users (roles, tiles, sites) and iDash/RFID scanner accounts (dbo.sysuser). Toggle between systems with the tab bar at the top &mdash; no page reload needed.</p>
+        <p>The unified User Management page controls <strong>two systems from one page</strong>: iDash portal users (roles, tiles, sites) and AssetWorx/RFID scanner accounts (dbo.sysuser). Toggle between systems with the tab bar at the top &mdash; no page reload needed.</p>
 
         <div class="toc">
             <a href="#concepts">Access Model Concepts</a>
@@ -100,7 +101,7 @@
     <!-- SITE PERMISSIONS -->
     <div class="card" id="site-perms">
         <h2>Site Permissions</h2>
-        <p>After setting a portal role, you assign which VA medical center sites the user can access, and what level of permission they have at each site. Sites come directly from <code>dbo.company</code> in the iDash database.</p>
+        <p>After setting a portal role, you assign which VA medical center sites the user can access, and what level of permission they have at each site. Sites come directly from <code>dbo.company</code> in the AssetWorx database.</p>
 
         <table>
             <tr><th>Permission</th><th>Code Value</th><th>What the User Can Do</th><th>What is Blocked</th></tr>
@@ -275,7 +276,7 @@ Site Access:
     <!-- STORAGE -->
     <div class="card" id="storage">
         <h2>How Users Are Stored</h2>
-        <p>All user records live in a single JSON file: <code>App_Data\idash_users.json</code>. This file is created automatically on first use, seeded with the default <code>idashadmin</code> account.</p>
+        <p>All user records live in a single JSON file: <code>App_Data\idash_users.json</code>. This file is created automatically on first use, seeded with the default <code>assetworxadmin</code> account.</p>
 
         <h3>Example Record</h3>
         <pre>{
@@ -331,7 +332,7 @@ Site Access:
 
         <h3>Default Account</h3>
         <div class="alert alert-danger">
-            The default seeded account is <code>idashadmin</code> / <code>idashadmin</code>. <strong>Change this password immediately after first deployment.</strong> Edit the default admin account, enter a new strong password, and save.
+            The default seeded account is <code>assetworxadmin</code> / <code>assetworxadmin</code>. <strong>Change this password immediately after first deployment.</strong> Edit the default admin account, enter a new strong password, and save.
         </div>
 
         <h3>Admin Lock-Out Prevention</h3>
@@ -519,9 +520,9 @@ UserManager.CanReportSite(user, siteName)</pre>
 
         <div class="changelog-entry" style="border-left:4px solid #a855f7; padding-left:16px; margin-bottom:24px;">
             <div style="font-size:12px; color:var(--muted-docs); margin-bottom:4px;">2026-07-12 &mdash; <span style="color:#a855f7; font-weight:700;">MAJOR</span></div>
-            <h3 style="margin-top:0;">Unified User Management &mdash; iDash + iDash in One Page</h3>
-            <p><strong>What changed:</strong> The iDash User Management and Scanner & System User Management pages are now combined into a single unified page with a system toggle at the top. Users click <strong>"iDash Portal Users"</strong> (purple) or <strong>"Scanner &amp; System Users"</strong> (amber) to switch views &mdash; no page reload.</p>
-            <p>The iDash section loads via an embedded iframe to keep both ASP.NET postback pipelines independent and avoid conflicts.</p>
+            <h3 style="margin-top:0;">Unified User Management &mdash; iDash + AssetWorx in One Page</h3>
+            <p><strong>What changed:</strong> The iDash User Management and AssetWorx User Management pages are now combined into a single unified page with a system toggle at the top. Users click <strong>"iDash Portal Users"</strong> (purple) or <strong>"AssetWorx &amp; RFID Users"</strong> (amber) to switch views &mdash; no page reload.</p>
+            <p>The AssetWorx section loads via an embedded iframe to keep both ASP.NET postback pipelines independent and avoid conflicts.</p>
             <p><strong>Hub change:</strong> The two separate tiles were merged into one <strong>"User Management"</strong> tile.</p>
         </div>
 
@@ -570,7 +571,7 @@ UserManager.CanReportSite(user, siteName)</pre>
             <p><strong>What changed:</strong></p>
             <ul>
                 <li>Duplicate <strong>"Site Configuration"</strong> tile (<code>admin_site_config</code> &rarr; <code>va_site_config.aspx</code>) removed from hub. Surviving tile renamed <strong>"System Configuration"</strong>, now links to <code>va_reader_config.aspx</code>, gated on <code>admin_site_config</code> OR <code>admin_reader_config</code> / <code>admin_mqtt</code> / <code>admin_printer_routing</code> / <code>print_mapping</code>.</li>
-                <li><strong>"Direct MQTT Label Printing"</strong> tile (<code>docs_print</code>) removed from hub. Documentation file preserved but no longer surfaced as a tile.</li>
+                <li><strong>"Printing without AssetWorx Print Server"</strong> tile (<code>docs_print</code>) removed from hub. Documentation file preserved but no longer surfaced as a tile.</li>
                 <li><code>admin_site_config</code> label updated to <strong>"System Configuration"</strong> (was "Site Configuration") &mdash; reflected in the User Management checkbox grid.</li>
                 <li><code>docs_print</code> removed from <code>TILE_KEYS</code>, <code>TILE_GROUPS</code>, and <code>TileLabel()</code> in <code>UserManager.cs</code> &mdash; no longer a User Management checkbox.</li>
             </ul>

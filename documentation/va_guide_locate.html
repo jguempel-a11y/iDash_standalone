@@ -2,19 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>How to Use the RFID Asset Locator &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
-    <script>
-        /* Apply saved theme or default to light before paint */
-        (function() {
-            var saved = localStorage.getItem('idash_theme');
-            if (saved === 'dark') {
-                document.documentElement.removeAttribute('data-theme');
-            } else {
-                document.documentElement.setAttribute('data-theme', 'light');
-            }
-        })();
-    </script>
+    <title>How to Use the Locate Feature &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -22,24 +12,30 @@
     <meta http-equiv="Expires" content="0" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
+        .screenshot-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+            align-items: flex-start;
+        }
         .screenshot-wrap {
-            margin: 20px 0 24px;
+            flex: 0 0 auto;
             text-align: center;
         }
         .screenshot-wrap img {
-            max-width: 100%;
-            height: auto;
+            max-height: 380px;
+            width: auto;
             border-radius: 12px;
             border: 2px solid var(--line);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+            box-shadow: 0 4px 18px rgba(0,0,0,0.25);
             display: block;
-            margin: 0 auto;
         }
         .screenshot-wrap figcaption {
-            font-size: 0.85rem;
+            font-size: 0.78rem;
             color: var(--muted);
-            margin-top: 10px;
-            font-weight: 500;
+            margin-top: 8px;
+            max-width: 200px;
         }
         .strength-demo {
             background: var(--chip);
@@ -55,476 +51,269 @@
             margin-bottom: 14px;
         }
         .strength-label {
-            width: 95px;
+            width: 80px;
             font-size: 0.85rem;
             color: var(--muted);
             font-weight: 700;
         }
         .strength-bar-track {
             flex: 1;
-            height: 20px;
+            height: 18px;
             background: rgba(0,0,0,0.15);
-            border-radius: 10px;
+            border-radius: 9px;
             overflow: hidden;
-            border: 1px solid var(--line);
         }
         .strength-bar-fill {
             height: 100%;
-            border-radius: 8px;
+            background: var(--accent);
+            border-radius: 9px;
             transition: width 0.3s;
         }
         .strength-note {
             font-size: 0.82rem;
             color: var(--muted);
             font-style: italic;
-            width: 220px;
-        }
-        .step {
-            display: flex;
-            gap: 16px;
-            margin: 20px 0 16px;
-            align-items: flex-start;
-        }
-        .step-num {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            font-weight: 800;
-            font-size: 15px;
-            flex-shrink: 0;
-            color: #ffffff;
-        }
-        .sn-blue { background: #0284c7; }
-        .sn-green { background: #10b981; }
-        .sn-purple { background: #8b5cf6; }
-        .sn-amber { background: #f59e0b; }
-        
-        .alert-blue {
-            background: color-mix(in srgb, var(--accent, #0284c7), transparent 90%);
-            border-left: 4px solid var(--accent, #0284c7);
-            border-radius: 8px;
-            padding: 14px 18px;
-            margin: 18px 0;
-            font-size: 13.5px;
-            line-height: 1.6;
-        }
-        .alert-green {
-            background: color-mix(in srgb, #10b981, transparent 90%);
-            border-left: 4px solid #10b981;
-            border-radius: 8px;
-            padding: 14px 18px;
-            margin: 18px 0;
-            font-size: 13.5px;
-            line-height: 1.6;
-        }
-        .alert-amber {
-            background: color-mix(in srgb, #f59e0b, transparent 90%);
-            border-left: 4px solid #f59e0b;
-            border-radius: 8px;
-            padding: 14px 18px;
-            margin: 18px 0;
-            font-size: 13.5px;
-            line-height: 1.6;
-        }
-        .badge-ref {
-            display: inline-block;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-        .badge-found { background: #10b981; color: #fff; }
-        .badge-search { background: #0284c7; color: #fff; }
-        .badge-unres { background: #ef4444; color: #fff; }
-
-        .btn-live-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, var(--accent, #0284c7), #0369a1);
-            color: #ffffff !important;
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 13px;
-            text-decoration: none !important;
-            box-shadow: 0 4px 12px color-mix(in srgb, var(--accent, #0284c7), transparent 75%);
-            transition: transform 0.15s, box-shadow 0.15s;
-            margin-top: 10px;
-        }
-        .btn-live-link:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px color-mix(in srgb, var(--accent, #0284c7), transparent 60%);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 16px 0;
-            font-size: 13px;
-        }
-        th, td {
-            padding: 10px 14px;
-            text-align: left;
-            border-bottom: 1px solid var(--line);
-        }
-        th {
-            background: var(--chip);
-            color: var(--accent);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            font-size: 11px;
         }
     </style>
 </head>
 <body>
 <div class="wrap">
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <a href="index.aspx">&#8592; Back to Documentation Hub</a>
-        <a href="../va_rfid_locator.aspx" class="btn-live-link" target="_blank">&#128246; Open RFID Asset Locator</a>
-    </div>
+    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
+    <br/><br/>
 
     <!-- Hero -->
     <div class="card">
-        <h1>&#128205; How to Use the RFID Asset Locator</h1>
-        <p style="font-size:16px; line-height:1.7;">
-            The <strong>RFID Asset Locator</strong> (<a href="../va_rfid_locator.aspx"><code>va_rfid_locator.aspx</code></a>) 
-            is a web-based, real-time search tool in iDash that turns your mobile computer or RFID sled into an 
-            audio-visual <strong>Geiger proximity counter</strong>. As you walk toward a target asset, the proximity meter 
-            fills with color and synthesized audio beeps accelerate in frequency and pitch, allowing you to pinpoint 
-            the exact physical location of missing, misplaced, or scheduled items.
+        <h1>&#128205; How to Use the Locate Feature</h1>
+        <p style="font-size:16px;">
+            The <strong>Locate</strong> feature turns the Zebra Sled into an RFID Geiger counter &mdash; hold the
+            top trigger and walk toward the asset. A blue strength bar fills and beeping becomes higher-pitched as
+            you get closer, helping you pinpoint exactly where a tagged item is physically located.
         </p>
         <div class="alert-blue">
-            <strong>&#9432; Supported Hardware &amp; Environments</strong><br/>
-            &bull; <strong>Mobile Handhelds:</strong> Zebra TC53 / TC58 with RFD40, RFD90, or RFD8500 RFID sled (using DataWedge keystroke output).<br/>
-            &bull; <strong>USB Desktop Readers:</strong> USB RFID antennas / cradles connected via direct WebSerial API.<br/>
-            &bull; <strong>Universal Browser Access:</strong> Runs entirely in Microsoft Edge or Chrome with zero mobile client installation required.
+            <strong>&#9432; Equipment Required</strong><br/>
+            Zebra TC53 mobile computer with Zebra Sled (RFID reader attachment) and the AssetWorx! app installed.
         </div>
         <h2 style="margin-top:28px;">Contents</h2>
         <div class="toc">
-            <a href="#overview">1. Locator Workspace Overview</a>
-            <a href="#step1">2. Step 1: Loading &amp; Resolving Target Assets</a>
-            <a href="#step2">3. Step 2: Hardware Setup &amp; Scanner Focus</a>
-            <a href="#step3">4. Step 3: Conducting the Search &amp; Reading the Geiger Meter</a>
-            <a href="#locking">5. Step 4: Locking onto a Specific Target Asset</a>
-            <a href="#signals">6. Signal Strength &amp; Audio Beep Reference</a>
-            <a href="#tactics">7. Field Search Tactics &amp; Physical Pinpointing</a>
-            <a href="#actions">8. Session Management &amp; Re-Searching</a>
+            <a href="#method1">Method 1: Locate via Asset Search</a>
+            <a href="#method2">Method 2: Locate During Room Inventory</a>
+            <a href="#reading">Reading the Strength Bar</a>
+            <a href="#tips">Tips &amp; Notes</a>
         </div>
     </div>
 
-    <!-- Overview -->
-    <div class="card" id="overview">
-        <h2>1. Locator Workspace Overview</h2>
+    <!-- How Locate Works -->
+    <div class="card">
+        <h2>How Locate Works</h2>
         <p>
-            When you open the <strong>RFID Asset Locator</strong> from the iDash Hub, the application presents a dual-panel 
-            workspace designed for high-speed field operations:
+            When you tap <strong>Locate</strong> on any asset and hold the <strong>top trigger</strong> on the Zebra Sled,
+            the app shows the <strong>Locate Asset</strong> screen with three pieces of information:
         </p>
-
-        <figure class="screenshot-wrap">
-            <img src="img/locate/locator_main.png" alt="iDash RFID Asset Locator Clean Workspace" />
-            <figcaption>Figure 1: RFID Asset Locator initial workspace showing status bar, Geiger meter, scanner engine, and two-panel grid.</figcaption>
-        </figure>
-
         <table>
-            <thead>
-                <tr>
-                    <th style="width:200px;">Component</th>
-                    <th>Function</th>
-                </tr>
-            </thead>
+            <thead><tr><th>Field</th><th>What It Shows</th></tr></thead>
             <tbody>
-                <tr>
-                    <td><strong>Geiger Proximity Meter</strong></td>
-                    <td>Displays the active target asset name, description, dynamic percentage bar (0%&ndash;100%), and status indicator.</td>
-                </tr>
-                <tr>
-                    <td><strong>Continuous Scan Engine</strong></td>
-                    <td>High-speed keystroke listener field (<code>#raw</code>) with pulsing green focus indicator. Maintains focus automatically so every RFID read registers instantly.</td>
-                </tr>
-                <tr>
-                    <td><strong>Target Asset List (Left)</strong></td>
-                    <td>Drawer for entering or pasting Asset Numbers (EE#), Barcodes, Serial Numbers, or Tag EPCs with one-click database resolution.</td>
-                </tr>
-                <tr>
-                    <td><strong>Radar &amp; Results Grid (Right)</strong></td>
-                    <td>Real-time table listing all loaded targets, expected EPCs, recorded locations, and live discovery status.</td>
-                </tr>
-                <tr>
-                    <td><strong>Filter &amp; Count Toolbar</strong></td>
-                    <td>Filter tabs for <em>All</em>, <em>Found</em>, <em>Searching</em>, and <em>Unresolved</em> with total tag read counters and session reset actions.</td>
-                </tr>
-                <tr>
-                    <td><strong>Audio Controls</strong></td>
-                    <td>Top navigation button (<code>&#128266; Sound On</code> / <code>&#128263; Sound Off</code>) to enable or mute Web Audio Geiger feedback.</td>
-                </tr>
+                <tr><td><strong>Name</strong></td><td>The asset name from AssetWorx (e.g., 649 EE16835)</td></tr>
+                <tr><td><strong>RFID</strong></td><td>The RFID tag EPC code on the label</td></tr>
+                <tr><td><strong>Strength</strong></td><td>Signal strength 0&ndash;100. Higher = closer. The blue bar fills as you approach.</td></tr>
             </tbody>
         </table>
+
+        <div class="strength-demo">
+            <p style="margin-top:0; font-weight:700; color:var(--accent);">Signal Strength Reference</p>
+            <div class="strength-row">
+                <span class="strength-label">Far away</span>
+                <div class="strength-bar-track"><div class="strength-bar-fill" style="width:8%"></div></div>
+                <span class="strength-note">Strength ~0 &mdash; silent, bar empty</span>
+            </div>
+            <div class="strength-row">
+                <span class="strength-label">Getting closer</span>
+                <div class="strength-bar-track"><div class="strength-bar-fill" style="width:40%"></div></div>
+                <span class="strength-note">Strength ~40 &mdash; slow beeping</span>
+            </div>
+            <div class="strength-row">
+                <span class="strength-label">Very close</span>
+                <div class="strength-bar-track"><div class="strength-bar-fill" style="width:80%"></div></div>
+                <span class="strength-note">Strength ~80+ &mdash; rapid high-pitched beeping</span>
+            </div>
+        </div>
     </div>
 
-    <!-- Step 1 -->
-    <div class="card" id="step1">
-        <h2>2. Step 1: Loading &amp; Resolving Target Assets</h2>
-        <p>
-            You can load a single asset or an entire batch of assets (e.g., from an ENNX discrepancy list or maintenance schedule) 
-            into the search list.
-        </p>
+    <!-- Method 1 -->
+    <div class="card" id="method1">
+        <h2>Method 1 &mdash; Locate a Single Asset via Asset Search</h2>
+        <p>Use this method when you know the asset&rsquo;s EE# and want to find it directly without scanning a room first.</p>
 
         <div class="step">
             <div class="step-num sn-blue">1</div>
             <div>
-                <strong>Enter Target Identifiers:</strong> In the <strong>Target Asset List</strong> panel on the left, type or paste 
-                one or more asset numbers, barcodes, or serial numbers (one per line).<br/>
-                <em>Example:</em><br/>
-                <code>517 EE10</code><br/>
-                <code>517 EE100</code><br/>
-                <code>517 EE10000</code><br/>
-                <code>517 EE10001</code>
+                <strong>Open AssetWorx! and tap the <em>ASSETS</em> tab</strong> at the top of the screen.<br/>
+                This switches from Scan Room mode to the asset search screen.
             </div>
+        </div>
+        <div class="screenshot-row">
+            <figure class="screenshot-wrap">
+                <img src="img/locate/image1.png" alt="Scan Room Location screen with ASSETS tab at top" />
+                <figcaption>Tap <strong>ASSETS</strong> tab at the top</figcaption>
+            </figure>
         </div>
 
         <div class="step">
             <div class="step-num sn-blue">2</div>
             <div>
-                <strong>Click "Load &amp; Resolve":</strong> Tap the <span class="badge-ref badge-search">&#128269; Load &amp; Resolve</span> button. 
-                iDash immediately queries the database to cross-reference each identifier against the asset master.
+                <strong>Enter the EE# in the search box</strong>, beginning with your site number (e.g., <code>649 EE16835</code>).<br/>
+                Tap <strong>Search</strong>. The matching asset will appear in the list below.
             </div>
         </div>
+        <div class="screenshot-row">
+            <figure class="screenshot-wrap">
+                <img src="img/locate/image2.png" alt="Assets tab with EE number entered and asset result showing" />
+                <figcaption>Type EE# &rarr; tap <strong>SEARCH</strong></figcaption>
+            </figure>
+        </div>
 
-        <figure class="screenshot-wrap">
-            <img src="img/locate/locator_resolved.png" alt="Resolved target assets in iDash RFID Asset Locator" />
-            <figcaption>Figure 2: Target 517 assets successfully resolved from local database with description (RADIALARMSAW,DEWALT, LINENCART, FanCoil/ExhaustFan), RFID tag EPC, recorded location, and initial Searching status.</figcaption>
-        </figure>
+        <div class="step">
+            <div class="step-num sn-blue">3</div>
+            <div>
+                <strong>Tap the asset row</strong> in the results list to open the Action menu, then select <strong>Locate</strong>.
+            </div>
+        </div>
+        <div class="screenshot-row">
+            <figure class="screenshot-wrap">
+                <img src="img/locate/image3.png" alt="Action menu showing Edit, Delete, Associate RFID, Maintenance Histories, Locate" />
+                <figcaption>Tap <strong>Locate</strong> from the Action menu</figcaption>
+            </figure>
+        </div>
+
+        <div class="step">
+            <div class="step-num sn-green">4</div>
+            <div>
+                <strong>Hold the top trigger on the Zebra Sled</strong> and walk through the area.<br/>
+                Watch the blue <strong>Strength</strong> bar and listen for beeping. Move toward the direction where the bar fills most &mdash; you are getting closer to the asset.
+            </div>
+        </div>
+        <div class="screenshot-row">
+            <figure class="screenshot-wrap">
+                <img src="img/locate/image4.png" alt="Locate Asset screen showing Strength 0, empty blue bar" />
+                <figcaption>Strength 0 &mdash; asset not yet detected</figcaption>
+            </figure>
+            <figure class="screenshot-wrap">
+                <img src="img/locate/image5.png" alt="Locate Asset screen showing Strength 51, half-filled blue bar" />
+                <figcaption>Strength 51 &mdash; getting closer, beeping starts</figcaption>
+            </figure>
+        </div>
+        <div class="alert-green">
+            <strong>&#9989; Found it!</strong> When the bar is nearly full and beeping is rapid and high-pitched, the asset is within a foot or two. Check behind equipment, under beds, or inside storage nearby.
+        </div>
+    </div>
+
+    <!-- Method 2 -->
+    <div class="card" id="method2">
+        <h2>Method 2 &mdash; Locate an Asset During Room Inventory</h2>
+        <p>
+            You can trigger Locate on any asset you encounter during a normal room scan &mdash; useful for tracking
+            down unexpected (blue) items or confirming where a missing (orange) item ended up.
+        </p>
+
+        <div class="step">
+            <div class="step-num sn-blue">1</div>
+            <div>
+                <strong>Squeeze the bottom trigger</strong> on the Zebra Sled and scan the linear barcode location tag for the room.
+            </div>
+        </div>
+        <div class="screenshot-row">
+            <figure class="screenshot-wrap">
+                <img src="img/locate/image6.png" alt="Scan Room Location home screen ready for barcode scan" />
+                <figcaption>Scan Room home &mdash; bottom trigger to scan location</figcaption>
+            </figure>
+        </div>
+
+        <div class="step">
+            <div class="step-num sn-blue">2</div>
+            <div>
+                <strong>Squeeze the top trigger</strong> and sweep the room to perform an RFID inventory scan.<br/>
+                When complete, tap the <strong>Name column header arrow</strong> to re-sort assets so scanned items rise to the top.
+            </div>
+        </div>
+        <div class="screenshot-row">
+            <figure class="screenshot-wrap">
+                <img src="img/locate/image7.png" alt="Room inventory with blue item at top after sorting, orange items below" />
+                <figcaption>After scan &mdash; blue asset at top (unexpected, scanned), orange below (not found)</figcaption>
+            </figure>
+        </div>
+
+        <div class="step">
+            <div class="step-num sn-blue">3</div>
+            <div>
+                <strong>Tap the asset you want to locate</strong>. The Action menu will appear. Select <strong>Locate</strong>.
+            </div>
+        </div>
+        <div class="screenshot-row">
+            <figure class="screenshot-wrap">
+                <img src="img/locate/image8.png" alt="Action menu for a scanned green asset showing Locate option" />
+                <figcaption>Action menu on a scanned (green) asset &mdash; select <strong>Locate</strong></figcaption>
+            </figure>
+            <figure class="screenshot-wrap">
+                <img src="img/locate/image9.png" alt="Action menu for a blue unexpected asset showing Move, Ignore, Locate options" />
+                <figcaption>Action menu on an unexpected (blue) asset &mdash; also has <strong>Locate</strong></figcaption>
+            </figure>
+        </div>
 
         <div class="alert-blue">
-            <strong>&#9432; Automatic Target Resolution</strong><br/>
-            &bull; <strong>Found in Database:</strong> Populates the Asset Tag, Description / Model, RFID Tag EPC, Recorded Location, and EIL / CMR, with status set to <span class="badge-ref badge-search">Searching</span>.<br/>
-            &bull; <strong>Unresolved Asset:</strong> If an identifier cannot be found in the database, it is flagged as <span class="badge-ref badge-unres">Unresolved</span> so you can verify the number.<br/>
-            &bull; <strong>Deep-Link URL Pre-loading:</strong> You can launch the locator with pre-loaded assets directly by appending <code>?assets=517%20EE10,517%20EE100</code> to the URL.
+            <strong>&#9432; Locate works on any color.</strong> Green, orange, blue &mdash; you can tap Locate on any asset regardless of its scan status. It is not limited to unexpected items.
+        </div>
+
+        <div class="step">
+            <div class="step-num sn-green">4</div>
+            <div>
+                <strong>Hold the top trigger</strong> and walk the room. The strength bar fills and beeping intensifies as you close in on the asset.
+            </div>
+        </div>
+        <div class="screenshot-row">
+            <figure class="screenshot-wrap">
+                <img src="img/locate/image10.png" alt="Locate Asset screen showing Strength 51 with partial blue bar" />
+                <figcaption>Locate screen &mdash; move toward higher strength readings</figcaption>
+            </figure>
         </div>
     </div>
 
-    <!-- Step 2 -->
-    <div class="card" id="step2">
-        <h2>3. Step 2: Hardware Setup &amp; Scanner Focus</h2>
-        <p>
-            The locator listens continuously for tag reads through its integrated scan engine without requiring manual form submits.
-        </p>
-
-        <div class="step">
-            <div class="step-num sn-purple">1</div>
-            <div>
-                <strong>Verify Scanner Focus:</strong> Ensure the top input box shows a pulsing green indicator (<code>SCANNER READY</code>). 
-                If the input loses focus (turns amber), simply tap anywhere on the screen or press the trigger to restore focus.
-            </div>
-        </div>
-
-        <div class="step">
-            <div class="step-num sn-purple">2</div>
-            <div>
-                <strong>Zebra Mobile Handheld (TC53 / TC58 + Sled):</strong> Ensure your Zebra DataWedge profile is configured for 
-                keystroke output with an <strong>Enter</strong> terminator. Squeezing the sled trigger will stream RFID reads directly into iDash.
-            </div>
-        </div>
-
-        <div class="step">
-            <div class="step-num sn-purple">3</div>
-            <div>
-                <strong>USB Desktop Reader:</strong> If using a USB RFID antenna or cradle reader, tap <strong>&#128268; Connect USB Reader</strong> 
-                in the top status bar. Select your serial port in the browser prompt to stream reads via WebSerial API.
-            </div>
-        </div>
-    </div>
-
-    <!-- Step 3 -->
-    <div class="card" id="step3">
-        <h2>4. Step 3: Conducting the Search &amp; Reading the Geiger Meter</h2>
-        <p>
-            With your target assets loaded and scanner active, walk through the facility holding the RFID trigger.
-        </p>
-
-        <div class="step">
-            <div class="step-num sn-green">1</div>
-            <div>
-                <strong>Sweep the Area:</strong> Hold the RFID trigger and sweep the handheld in wide, slow arcs across rooms, 
-                shelves, equipment bays, or storage areas.
-            </div>
-        </div>
-
-        <div class="step">
-            <div class="step-num sn-green">2</div>
-            <div>
-                <strong>Watch the Proximity Meter:</strong> As soon as the reader detects a tag matching any loaded target, 
-                the <strong>Geiger Proximity Meter</strong> activates and locks onto the asset.
-            </div>
-        </div>
-
-        <figure class="screenshot-wrap">
-            <img src="img/locate/locator_active.png" alt="Active target lock and proximity bar in iDash RFID Asset Locator" />
-            <figcaption>Figure 3: Active target lock on asset 517 EE10 (RADIALARMSAW,DEWALT) in Light Mode &mdash; green proximity bar, audio pulse indicator, and Found status badge.</figcaption>
-        </figure>
-
-        <div class="step">
-            <div class="step-num sn-green">3</div>
-            <div>
-                <strong>Follow the Signal Rise:</strong>
-                &bull; The progress bar fills and changes color from gray &rarr; blue &rarr; green &rarr; peak.<br/>
-                &bull; Synthesized audio beeps become faster and higher-pitched as read density increases.<br/>
-                &bull; Move in the direction where the signal percentage increases.
-            </div>
-        </div>
-
-        <div class="alert-green">
-            <strong>&#9989; Asset Found!</strong> When the signal bar reaches 90%&ndash;100% and audio pulses are rapid, 
-            the asset is within 1 to 2 feet of your antenna. Check behind equipment, inside closets, or under beds.
-        </div>
-    </div>
-
-    <!-- Locking -->
-    <div class="card" id="locking">
-        <h2>5. Step 4: Locking onto a Specific Target Asset</h2>
-        <p>
-            When searching for multiple assets simultaneously, multiple tags might register in the same vicinity. 
-            iDash allows you to focus exclusively on one item:
-        </p>
-        <ul>
-            <li><strong>Automatic Tracking:</strong> By default, the Geiger meter highlights the most recently detected target asset.</li>
-            <li><strong>Click-to-Lock Target:</strong> Click any asset row in the <em>Search Targets &amp; Resolution</em> table. 
-                The Geiger meter immediately locks onto that specific asset, ignoring reads from other items until you locate it.</li>
-            <li><strong>Live Row Flashing:</strong> Whenever a matching tag is read in real time, its corresponding table row 
-                flashes with a bright green highlight.</li>
-            <li><strong>Discovery Timestamps:</strong> Located assets display when they were found (e.g., <em>"just now"</em>, <em>"18s ago"</em>) 
-                along with the cumulative tag read count.</li>
-        </ul>
-    </div>
-
-    <!-- Signals -->
-    <div class="card" id="signals">
-        <h2>6. Signal Strength &amp; Audio Beep Reference</h2>
-        <p>
-            The Geiger meter calculates proximity using a combination of tag read density and signal timing decay. 
-            Use this reference to gauge your physical distance:
-        </p>
-
-        <div class="strength-demo">
-            <p style="margin-top:0; font-weight:700; color:var(--accent);">Live Proximity Decay Scale</p>
-            <div class="strength-row">
-                <span class="strength-label">0% (Idle)</span>
-                <div class="strength-bar-track"><div class="strength-bar-fill" style="width:0%; background:var(--line);"></div></div>
-                <span class="strength-note">Silent &mdash; tag out of range</span>
-            </div>
-            <div class="strength-row">
-                <span class="strength-label">1%&ndash;35%</span>
-                <div class="strength-bar-track"><div class="strength-bar-fill" style="width:30%; background:#38bdf8;"></div></div>
-                <span class="strength-note">Low-pitch, slow beeping (10&ndash;20 ft)</span>
-            </div>
-            <div class="strength-row">
-                <span class="strength-label">36%&ndash;75%</span>
-                <div class="strength-bar-track"><div class="strength-bar-fill" style="width:65%; background:#10b981;"></div></div>
-                <span class="strength-note">Medium-pitch, steady beeps (4&ndash;8 ft)</span>
-            </div>
-            <div class="strength-row">
-                <span class="strength-label">76%&ndash;100%</span>
-                <div class="strength-bar-track"><div class="strength-bar-fill" style="width:100%; background:linear-gradient(90deg, #10b981, #f59e0b);"></div></div>
-                <span class="strength-note">Rapid high-pitch pulse (under 2 ft)</span>
-            </div>
-        </div>
-
+    <!-- Reading the bar -->
+    <div class="card" id="reading">
+        <h2>&#128308; Reading the Strength Bar</h2>
         <table>
-            <thead>
-                <tr>
-                    <th>Percentage</th>
-                    <th>Bar Color</th>
-                    <th>Audio Feedback</th>
-                    <th>Estimated Distance &amp; Action</th>
-                </tr>
-            </thead>
+            <thead><tr><th>Strength Range</th><th>Beep Pattern</th><th>What To Do</th></tr></thead>
             <tbody>
-                <tr>
-                    <td><strong>0%</strong></td>
-                    <td>Gray / Empty</td>
-                    <td>Silent</td>
-                    <td>Out of range. Move to adjacent corridors or rooms.</td>
-                </tr>
-                <tr>
-                    <td><strong>1%&ndash;35%</strong></td>
-                    <td>Light Blue</td>
-                    <td>Slow, low-pitched beeps</td>
-                    <td>Perimeter detection (10&ndash;25 ft). Asset is in this room or adjacent wall.</td>
-                </tr>
-                <tr>
-                    <td><strong>36%&ndash;75%</strong></td>
-                    <td>Emerald Green</td>
-                    <td>Medium-tempo, higher tone</td>
-                    <td>Closing in (3&ndash;8 ft). Narrow search to specific corner, bay, or cart.</td>
-                </tr>
-                <tr>
-                    <td><strong>76%&ndash;100%</strong></td>
-                    <td>Green to Amber/Red</td>
-                    <td>Rapid, high-frequency Geiger tone</td>
-                    <td>Immediate proximity (within arm's reach). Visually inspect equipment.</td>
-                </tr>
+                <tr><td><strong>0</strong></td><td>Silent</td><td>Asset not in range. Move to a different area of the room.</td></tr>
+                <tr><td><strong>1&ndash;30</strong></td><td>Slow, low-pitched</td><td>Asset is in the general area. Keep scanning.</td></tr>
+                <tr><td><strong>31&ndash;60</strong></td><td>Moderate, medium-pitched</td><td>Getting warmer &mdash; narrow down the search zone.</td></tr>
+                <tr><td><strong>61&ndash;90</strong></td><td>Fast, higher-pitched</td><td>Very close. Check immediate surroundings carefully.</td></tr>
+                <tr><td><strong>91&ndash;100</strong></td><td>Rapid, high-pitched</td><td>Asset is within arm&rsquo;s reach. Look precisely at that spot.</td></tr>
             </tbody>
         </table>
-
         <div class="alert-amber">
-            <strong>&#9888; Signal Decay Feature:</strong> When you stop scanning or walk away from the asset, the proximity 
-            bar naturally decays downward toward 0%. This decay provides immediate physical feedback on whether you are walking 
-            toward or away from the asset.
+            <strong>&#9888; RFID signals can bounce.</strong> Metal surfaces and dense equipment can reflect RFID signals, causing false peaks. If the bar drops as you move closer, try approaching from a different angle or check behind/under nearby equipment.
         </div>
     </div>
 
-    <!-- Tactics -->
-    <div class="card" id="tactics">
-        <h2>7. Field Search Tactics &amp; Physical Pinpointing</h2>
+    <!-- Tips -->
+    <div class="card" id="tips">
+        <h2>&#128161; Tips &amp; Notes</h2>
         <ul>
-            <li><strong>Move at a Normal Walking Pace:</strong> RFID sweeps require milliseconds to respond. Moving too fast 
-                can cause you to walk past an item before the initial ping registers.</li>
-            <li><strong>Check Vertical Levels:</strong> Assets are frequently stored high on top shelves or under patient beds. 
-                Angle the reader up toward the ceiling and down toward the floor during sweeps.</li>
-            <li><strong>Beware of Metal Reflections:</strong> Metal walls, stainless steel carts, and aluminum lockers reflect 
-                RFID signals. If signal strength fluctuates erratically, step back and approach the area from a 90-degree angle.</li>
-            <li><strong>Through-Wall Reads:</strong> Ultra-High Frequency (UHF) RFID easily penetrates drywall and acoustic ceiling 
-                tiles. If a signal maxes out against an empty wall, the asset is almost certainly in the room directly behind it.</li>
-            <li><strong>Use Audio Feedback:</strong> Keep audio enabled (<code>&#128266; Sound On</code>) whenever feasible. 
-                Hearing the pitch change allows you to keep your eyes focused on equipment rather than staring constantly at the screen.</li>
+            <li><strong>Always hold the top trigger continuously</strong> while locating &mdash; releasing it stops the RFID scan and the bar will freeze or reset.</li>
+            <li><strong>Move slowly.</strong> RFID reads take a moment to register. Fast movement can cause the bar to lag behind your actual position.</li>
+            <li><strong>Check above and below.</strong> Tags on equipment stored vertically (on shelves, under beds) still read &mdash; the signal passes through most non-metal materials.</li>
+            <li><strong>Locate works offline.</strong> Because the locate function only needs the RFID tag EPC (downloaded during sync), it works even without an active internet connection.</li>
+            <li><strong>After locating,</strong> you can tap the back arrow to return to your asset list and continue the inventory or choose another action (Move, Edit, etc.).</li>
         </ul>
-    </div>
-
-    <!-- Actions -->
-    <div class="card" id="actions">
-        <h2>8. Session Management &amp; Re-Searching</h2>
-        <p>
-            Once an asset search is completed, use the action toolbar to transition to your next task:
-        </p>
-        <ul>
-            <li><strong>Filter by Status:</strong> Click the <span class="badge-ref badge-found">Found</span> tab to view only confirmed items, 
-                or <span class="badge-ref badge-search">Searching</span> to see remaining unlocated assets.</li>
-            <li><strong>Reset Found Status:</strong> Click <strong>&#8634; Reset Found</strong> to clear detection timestamps and re-verify 
-                the same batch of assets without re-entering the numbers.</li>
-            <li><strong>Clear All Targets:</strong> Click <strong>&#128465; Clear All</strong> to purge the table and load a new list.</li>
-            <li><strong>Transition to Tagging or Inventory:</strong> Once located, verify the asset in 
-                <a href="va_guide_batch_scanning.html">Site Inventory</a> or <a href="va_guide_ennx_reporting.html">ENNX Reporting</a>.</li>
-        </ul>
-
         <div class="alert-blue">
-            <strong>&#9432; Related Documentation:</strong><br/>
-            &bull; <a href="va_guide_ennx_reporting.html">ENNX Report Generator Guide</a> &mdash; reconcile missing and unexpected assets.<br/>
-            &bull; <a href="va_guide_batch_scanning.html">Site Inventory Batch Scanning Guide</a> &mdash; full physical room inventory workflows.<br/>
-            &bull; <a href="va_guide_power_settings.html">Reader Antenna Power Settings</a> &mdash; optimizing RF power levels for handheld sleds.
+            <strong>&#9432; Related guide:</strong> For the full inventory workflow, see the
+            <a href="va_batch_scan.html">Batch Mode Scanning Guide</a>.
         </div>
     </div>
 
-    <div style="margin-top:30px; display:flex; justify-content:space-between; align-items:center;">
-        <a href="index.aspx">&#8592; Back to Documentation Hub</a>
-        <a href="../va_rfid_locator.aspx" class="btn-live-link" target="_blank">&#128246; Open RFID Asset Locator</a>
-    </div>
+    <br/>
+    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
+    <br/><br/>
 
 </div>
 </body>

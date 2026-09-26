@@ -4,11 +4,12 @@
 <head>
 <meta charset="utf-8" />
 <title>Fixed Reader Live Feed — iDash</title>
-<link rel="icon" type="image/png" href="Assets/branding/rfid.png" />
+<link rel="icon" type="image/png" href="Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="favicon.ico" />
 <script>
 /* iDash Theme Pre-paint Initializer */
 (function() {
-    var saved = localStorage.getItem('idash_theme') || localStorage.getItem('aw_theme_preference');
+    var saved = localStorage.getItem('idash_theme') || localStorage.getItem('aw_theme_preference') || localStorage.getItem('idash-theme');
     if (saved === 'light') {
         document.documentElement.setAttribute('data-theme', 'light');
     } else {
@@ -213,7 +214,18 @@ let es=null,paused=false,soundOn=false,lastSeq=0,sessReads=0,uniqA=new Set(),act
 let watchAssets=new Set(), watchResults=new Map(), watchPanelOpen=true;
 const MAX=200;
 
-window.addEventListener('DOMContentLoaded',()=>{buildSB();applyTheme(localStorage.getItem('idash-theme')||'dark');loadWatch();startSSE();});
+window.addEventListener('DOMContentLoaded', () => {
+    buildSB();
+    var saved = localStorage.getItem('idash_theme') || localStorage.getItem('aw_theme_preference') || localStorage.getItem('idash-theme');
+    applyTheme(saved === 'light' ? 'light' : 'dark');
+    loadWatch();
+    startSSE();
+});
+window.addEventListener('storage', (e) => {
+    if (e.key === 'idash_theme' || e.key === 'aw_theme_preference' || e.key === 'idash-theme') {
+        applyTheme(e.newValue === 'light' ? 'light' : 'dark');
+    }
+});
 
 function buildSB(){
   const c=document.getElementById('rList');c.innerHTML='';
@@ -327,8 +339,26 @@ function setSt(s){const d=document.getElementById('sDot'),t=document.getElementB
   if(s==='connected'){d.className='sd';t.textContent='Connected — streaming live';cd.className='live-dot';}
   else if(s==='reconnecting'){d.className='sd red';t.textContent='Reconnecting…';cd.className='live-dot off';}
   else{d.className='sd red';t.textContent='Connecting…';cd.className='live-dot off';}}
-function applyTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('idash-theme',t);document.getElementById('bThm').textContent=t==='dark'?'☀ Light':'🌙 Dark';}
-function toggleTheme(){applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark');}
+function applyTheme(t) {
+    var isLight = (t === 'light');
+    if (isLight) {
+        document.documentElement.setAttribute('data-theme', 'light');
+        localStorage.setItem('idash_theme', 'light');
+        localStorage.setItem('aw_theme_preference', 'light');
+        localStorage.setItem('idash-theme', 'light');
+    } else {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('idash_theme', '');
+        localStorage.setItem('aw_theme_preference', 'dark');
+        localStorage.setItem('idash-theme', 'dark');
+    }
+    var b = document.getElementById('bThm');
+    if (b) b.textContent = isLight ? '🌙 Dark' : '☀ Light';
+}
+function toggleTheme() {
+    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    applyTheme(isLight ? 'dark' : 'light');
+}
 function fmtT(iso){if(!iso)return'—';try{const d=new Date(iso);return d.toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});}catch{return iso.substring(11,19);}}
 
 // ── Asset Watch List ──────────────────────────────────────

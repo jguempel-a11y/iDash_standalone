@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <title>Fixed Reader Setup &amp; Configuration Guide &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -28,14 +29,14 @@
     <a href="index.aspx">&#8592; Back to Documentation Hub</a>
     <br/><br/>
 
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- TITLE -->
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <div class="card">
         <h1>&#128225; Fixed Reader Setup &amp; Configuration Guide</h1>
         <p style="font-size:16px;">
             Complete end-to-end guide for deploying a Zebra FX9600 (or compatible) fixed RFID reader with
-            iDash and iDash. Covers hardware setup, MQTT broker configuration, antenna registration,
+            AssetWorx and iDash. Covers hardware setup, MQTT broker configuration, antenna registration,
             database alignment, and the Asset Master "Fixed Reader Report" feature.
         </p>
         <div class="alert-green">
@@ -45,9 +46,9 @@
         </div>
     </div>
 
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- TABLE OF CONTENTS -->
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <div class="card">
         <h2>Table of Contents</h2>
         <div class="toc">
@@ -55,7 +56,7 @@
                 <li><a href="#prereqs">Prerequisites &amp; Architecture</a></li>
                 <li><a href="#hardware">Hardware Setup (Zebra FX9600)</a></li>
                 <li><a href="#mqtt">MQTT Broker Configuration</a></li>
-                <li><a href="#reader-config">Reader Registration in iDash / iDash</a></li>
+                <li><a href="#reader-config">Reader Registration in AssetWorx / iDash</a></li>
                 <li><a href="#antenna">Antenna Configuration</a></li>
                 <li><a href="#db-alignment">Database Alignment (Company, Tags, vtagid)</a></li>
                 <li><a href="#verification">Verification &amp; Troubleshooting</a></li>
@@ -67,9 +68,9 @@
         </div>
     </div>
 
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- 1. PREREQUISITES -->
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <div class="card" id="prereqs">
         <h2>1. Prerequisites &amp; Architecture</h2>
 
@@ -80,7 +81,7 @@
         </div>
         <div class="alert-green">
             <strong>&#9989; Updated Aug 2026:</strong> Fixed reader tag data now routes through <strong>RabbitMQ 4.3.5</strong> on port 1883 (TCP).
-            The iDash embedded broker (port 8883/TLS) remains in use for label printing only.
+            The AssetWorx embedded broker (port 8883/TLS) remains in use for label printing only.
             See <a href="va_rabbitmq_setup.html" style="color:#10b981;">RabbitMQ Setup Guide</a> for installation details.
         </div>
 
@@ -89,25 +90,25 @@
             <thead><tr><th>Component</th><th>Version / Requirement</th><th>Notes</th></tr></thead>
             <tbody>
                 <tr><td><strong>Zebra FX9600</strong></td><td>Firmware 3.x+</td><td>Or any MQTT-capable RFID reader</td></tr>
-                <tr><td><strong>iDash Web Portal</strong></td><td>Current (Kestrel-hosted)</td><td>Includes built-in MQTT broker on port 8883 (used for printing only)</td></tr>
+                <tr><td><strong>AssetWorx WebClient</strong></td><td>Current (Kestrel-hosted)</td><td>Includes built-in MQTT broker on port 8883 (used for printing only)</td></tr>
                 <tr><td><strong>RabbitMQ</strong></td><td>4.3.5 + Erlang 27.3.4</td><td>MQTT broker for fixed reader tag data on port 1883 (TCP). <a href="va_rabbitmq_setup.html">Setup Guide</a></td></tr>
                 <tr><td><strong>SQL Server Express</strong></td><td>2019+</td><td>Local instance <code>.\sqlexpress</code></td></tr>
-                <tr><td><strong>TLS Certificate</strong></td><td>PFX format</td><td>Used by iDash broker (port 8883) for printing. Not needed for RabbitMQ on 1883.</td></tr>
+                <tr><td><strong>TLS Certificate</strong></td><td>PFX format</td><td>Used by AssetWorx broker (port 8883) for printing. Not needed for RabbitMQ on 1883.</td></tr>
                 <tr><td><strong>Network</strong></td><td>Port 1883 open</td><td>Firewall must allow MQTT/TCP between reader and server. See <a href="va_rabbitmq_setup.html#sec-firewall">firewall requirements</a>.</td></tr>
             </tbody>
         </table>
 
         <div class="alert-blue">
             <strong>&#9432; No Redis Required</strong><br/>
-            iDash can function without Redis. Set <code>"UseRedis": false</code> in
+            AssetWorx can function without Redis. Set <code>"UseRedis": false</code> in
             <code>appsettings.json</code>. Tag lookups will fall back to direct SQL queries via
             <code>IAssetRepository.GetByVTagId()</code>. Redis is an optional performance cache, not a dependency.
         </div>
     </div>
 
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- 2. HARDWARE SETUP -->
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <div class="card" id="hardware">
         <h2>2. Hardware Setup (Zebra FX9600)</h2>
 
@@ -135,11 +136,11 @@
             <thead><tr><th>Field</th><th>Value</th><th>Notes</th></tr></thead>
             <tbody>
                 <tr><td>Endpoint Type</td><td>MQTT</td><td>&mdash;</td></tr>
-                <tr><td>Server Address</td><td><code>192.168.x.x</code> (iDash server IP)</td><td>The IP of your iDash/iDash server</td></tr>
-                <tr><td>Port</td><td><code>8883</code></td><td>TLS port. iDash MQTT broker listens here.</td></tr>
-                <tr><td>Security</td><td>TLS</td><td>Must match iDash cert configuration</td></tr>
-                <tr><td>Username</td><td><code>fx9600_f78c85</code></td><td>Must match iDash reader username (lowercase, underscores OK, NO SPACES)</td></tr>
-                <tr><td>Password</td><td><code>FX9600mqtt2026!</code></td><td>Must match iDash reader password</td></tr>
+                <tr><td>Server Address</td><td><code>192.168.x.x</code> (AssetWorx server IP)</td><td>The IP of your AssetWorx/iDash server</td></tr>
+                <tr><td>Port</td><td><code>8883</code></td><td>TLS port. AssetWorx MQTT broker listens here.</td></tr>
+                <tr><td>Security</td><td>TLS</td><td>Must match AssetWorx cert configuration</td></tr>
+                <tr><td>Username</td><td><code>fx9600_f78c85</code></td><td>Must match AssetWorx reader username (lowercase, underscores OK, NO SPACES)</td></tr>
+                <tr><td>Password</td><td><code>FX9600mqtt2026!</code></td><td>Must match AssetWorx reader password</td></tr>
             </tbody>
         </table>
 
@@ -148,7 +149,7 @@
             <ul style="margin:4px 0 0 0;">
                 <li><strong>NO SPACES</strong> in usernames, topic names, or reader names</li>
                 <li>Use underscores (<code>_</code>) to separate words</li>
-                <li>The username on the FX9600 must <em>exactly</em> match the username stored in the iDash <code>reader</code> table</li>
+                <li>The username on the FX9600 must <em>exactly</em> match the username stored in the AssetWorx <code>reader</code> table</li>
                 <li>The reader name (<code>physicalid</code>) should match the FX9600's identity string</li>
             </ul>
         </div>
@@ -158,7 +159,7 @@
         <table class="field-table">
             <thead><tr><th>Topic</th><th>Value</th><th>Purpose</th></tr></thead>
             <tbody>
-                <tr><td>Control Topic</td><td><code>gateway/cmd/FX9600_F78C85</code></td><td>iDash sends commands to the reader on this topic. Must match <span class="db-col">mqttcontroltopic</span> in the <code>reader</code> table.</td></tr>
+                <tr><td>Control Topic</td><td><code>gateway/cmd/FX9600_F78C85</code></td><td>AssetWorx sends commands to the reader on this topic. Must match <span class="db-col">mqttcontroltopic</span> in the <code>reader</code> table.</td></tr>
                 <tr><td>Tag Data Topic</td><td><code>gateway/data/FX9600_F78C85</code></td><td>Reader publishes tag read events here</td></tr>
                 <tr><td>Management Topic</td><td><code>gateway/mgmt/FX9600_F78C85</code></td><td>Heartbeat and status messages</td></tr>
             </tbody>
@@ -172,18 +173,18 @@
         </p>
     </div>
 
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- 3. MQTT BROKER -->
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <div class="card" id="mqtt">
         <h2>3. MQTT Broker Configuration</h2>
 
-        <h3>iDash Built-in MQTT Broker</h3>
+        <h3>AssetWorx Built-in MQTT Broker</h3>
         <p>
-            iDash Web Portal includes a built-in MQTT broker that starts automatically with the Kestrel process.
+            AssetWorx WebClient includes a built-in MQTT broker that starts automatically with the Kestrel process.
             It listens on port <strong>8883</strong> (TLS) using the certificate at:
         </p>
-        <div class="cmd">c:\inetpub\wwwroot\iDash.WebClient\mycert.pfx</div>
+        <div class="cmd">c:\inetpub\wwwroot\AssetWorx.WebClient\mycert.pfx</div>
 
         <p>You can verify the broker is running by checking the log at startup:</p>
         <div class="cmd">
@@ -213,20 +214,20 @@
         <div class="alert-green">
             <strong>&#9989; Heartbeat Verification</strong><br/>
             Once connected, the FX9600 sends periodic heartbeat messages on the management topic.
-            The iDash <code>reader.lastseen</code> column updates with each heartbeat.
+            The AssetWorx <code>reader.lastseen</code> column updates with each heartbeat.
             If <code>lastseen</code> is more than 5 minutes stale, the reader has disconnected.
         </div>
     </div>
 
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- 4. READER REGISTRATION -->
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <div class="card" id="reader-config">
-        <h2>4. Reader Registration in iDash / iDash</h2>
+        <h2>4. Reader Registration in AssetWorx / iDash</h2>
 
         <h3>Automatic Registration</h3>
         <p>
-            When a reader connects to the MQTT broker for the first time, iDash automatically creates a
+            When a reader connects to the MQTT broker for the first time, AssetWorx automatically creates a
             <code>reader</code> record in the database. However, critical fields often need manual correction:
         </p>
 
@@ -247,9 +248,9 @@
         </table>
 
         <div class="alert-amber">
-            <strong>&#9888; Warning: iDash UI May Overwrite SQL Changes</strong><br/>
+            <strong>&#9888; Warning: AssetWorx UI May Overwrite SQL Changes</strong><br/>
             If you manually correct reader settings via SQL, do NOT subsequently edit the reader via the
-            iDash Angular UI (<code>http://localhost/#!/admin/editreader/21</code>). Saving from the UI
+            AssetWorx Angular UI (<code>http://localhost/#!/admin/editreader/21</code>). Saving from the UI
             overwrites fields like <code>username</code>, <code>password</code>, and <code>devicesettings</code>
             with whatever is in the form &mdash; which may be blank.
         </div>
@@ -279,15 +280,15 @@
         </p>
     </div>
 
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- 5. ANTENNA CONFIGURATION -->
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <div class="card" id="antenna">
         <h2>5. Antenna Configuration</h2>
 
         <p>
             Each reader needs at least one antenna record in the <code>antenna</code> table. Without it,
-            iDash may not process tag reads from the reader.
+            AssetWorx may not process tag reads from the reader.
         </p>
 
         <h3>Adding via iDash Reader Config UI</h3>
@@ -311,15 +312,15 @@
         </div>
     </div>
 
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- 6. DATABASE ALIGNMENT -->
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <div class="card" id="db-alignment">
         <h2>6. Database Alignment (Company, Tags, vtagid)</h2>
 
         <div class="alert-amber">
             <strong>&#9888; This is the #1 cause of "Tag Not Provisioned" errors</strong><br/>
-            iDash tag lookups are scoped by company AND require the <span class="db-col">vtagid</span>
+            AssetWorx tag lookups are scoped by company AND require the <span class="db-col">vtagid</span>
             field to be populated. If either condition is not met, tags will be logged as "Tag Not Provisioned"
             even though they exist in the <code>asset</code> table.
         </div>
@@ -328,7 +329,7 @@
         <p>
             The reader's <span class="db-col">companyid</span> must match the
             <span class="db-col">companyid</span> of the assets you want it to detect.
-            iDash queries: <code>WHERE vtagid = @tag AND companyid = @readerCompany</code>
+            AssetWorx queries: <code>WHERE vtagid = @tag AND companyid = @readerCompany</code>
         </p>
         <p>
             If your reader is in Company 7 but your tags are in Company 6, <strong>every tag read will fail</strong>.
@@ -337,7 +338,7 @@
 
         <h3>vtagid Population</h3>
         <p>
-            iDash uses <span class="db-col">vtagid</span> &mdash; not <span class="db-col">rfidtag</span>
+            AssetWorx uses <span class="db-col">vtagid</span> &mdash; not <span class="db-col">rfidtag</span>
             &mdash; as the primary lookup key for real-time tag processing. If your assets were imported
             with only the <code>rfidtag</code> column populated, you must copy the values to <code>vtagid</code>:
         </p>
@@ -363,7 +364,7 @@
 
         <h3>iDash API Client Company Scope</h3>
         <p>
-            The iDash API client (configured in <code>web.config</code> as <code>iDash_ClientId</code>)
+            The iDash API client (configured in <code>web.config</code> as <code>AssetWorx_ClientId</code>)
             is scoped to a specific company in the <code>clientapp</code> table. The API will only return
             readers and assets belonging to that company.
         </p>
@@ -378,9 +379,9 @@
         </p>
     </div>
 
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- 7. VERIFICATION -->
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <div class="card" id="verification">
         <h2>7. Verification &amp; Troubleshooting</h2>
 
@@ -447,19 +448,19 @@
 
         <h4>&#10060; Duplicate readers appearing</h4>
         <p>
-            iDash auto-registers a new reader record each time an unrecognized device connects via MQTT.
+            AssetWorx auto-registers a new reader record each time an unrecognized device connects via MQTT.
             After an IIS restart, if credentials/physicalid don't match the existing record, a duplicate is created.
             Delete the duplicate via the API:
         </p>
         <div class="cmd">
-            <span class="comment"># Delete duplicate reader via iDash REST API</span><br/>
+            <span class="comment"># Delete duplicate reader via AssetWorx REST API</span><br/>
             DELETE /api/readers/?ids=23&amp;madeBy=iDash
         </div>
 
         <h4>&#10060; LICENSE KEY ERROR</h4>
         <p>
             <code>"License only allows for 5 companies but 7 companies are found"</code> &mdash; this does not block
-            tag processing but will appear in logs. Contact ID IntegrationTech support for a license key update.
+            tag processing but will appear in logs. Contact InfiniDTech support for a license key update.
         </p>
 
         <h4>&#10060; After IIS Restart, no tags are being processed</h4>
@@ -470,9 +471,9 @@
         </ol>
     </div>
 
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- 8. ASSET MASTER INTEGRATION -->
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <div class="card" id="asset-master">
         <h2>8. Asset Master &mdash; Fixed Reader Report</h2>
 
@@ -554,9 +555,9 @@
         <p>Assets never observed by a reader will show "Not observed" in gray.</p>
     </div>
 
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- 9. DATABASE REFERENCE -->
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <div class="card" id="db-reference">
         <h2>9. Database Column Reference</h2>
 
@@ -604,17 +605,17 @@
         </table>
     </div>
 
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- 10. DEVELOPER NOTES -->
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <div class="card" id="dev-notes">
         <h2>10. Developer Notes</h2>
 
         <h3>Tag Processing Pipeline (BatchBeaconWorker)</h3>
-        <p>The tag processing pipeline in iDash works as follows:</p>
+        <p>The tag processing pipeline in AssetWorx works as follows:</p>
         <ol>
             <li>FX9600 publishes a tag read message on the data topic via MQTT</li>
-            <li>iDash <code>MessageInterceptor</code> receives the message and queues it for processing</li>
+            <li>AssetWorx <code>MessageInterceptor</code> receives the message and queues it for processing</li>
             <li><code>BatchBeaconWorker</code> dequeues the tag and calls <code>dataCache.GetAssetByVTag(tagId)</code></li>
             <li>If <code>UseRedis: false</code>, the cache falls through to <code>IAssetRepository.GetByVTagId(companyId, vtagId)</code></li>
             <li>If a matching asset is found:
@@ -630,9 +631,9 @@
         <table>
             <thead><tr><th>Assembly</th><th>Relevant Classes</th></tr></thead>
             <tbody>
-                <tr><td><code>iDash.Web.dll</code></td><td><code>BatchBeaconWorker</code>, <code>RedisDataCache</code>, <code>MessageInterceptor</code></td></tr>
-                <tr><td><code>iDash.Repository.dll</code></td><td><code>EventRepository</code> (InsertTagNotProvisioned), <code>AssetRepository</code> (GetByVTagId, GetByRfidTag)</td></tr>
-                <tr><td><code>iDash.Repository.Interface.dll</code></td><td><code>IAssetRepository</code>, <code>IEventRepository</code></td></tr>
+                <tr><td><code>AssetWorx.Web.dll</code></td><td><code>BatchBeaconWorker</code>, <code>RedisDataCache</code>, <code>MessageInterceptor</code></td></tr>
+                <tr><td><code>AssetWorx.Repository.dll</code></td><td><code>EventRepository</code> (InsertTagNotProvisioned), <code>AssetRepository</code> (GetByVTagId, GetByRfidTag)</td></tr>
+                <tr><td><code>AssetWorx.Repository.Interface.dll</code></td><td><code>IAssetRepository</code>, <code>IEventRepository</code></td></tr>
             </tbody>
         </table>
 
@@ -677,15 +678,15 @@
                 </tr>
                 <tr>
                     <td><code>web.config</code></td>
-                    <td><code>iDash_ClientId</code>, <code>iDash_ClientSecret</code> &mdash; API credentials scoped to a company</td>
+                    <td><code>AssetWorx_ClientId</code>, <code>AssetWorx_ClientSecret</code> &mdash; API credentials scoped to a company</td>
                 </tr>
             </tbody>
         </table>
     </div>
 
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- 11. LESSONS LEARNED -->
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <div class="card" id="lessons">
         <h2>11. Lessons Learned</h2>
 
@@ -711,12 +712,12 @@
                 </tr>
                 <tr>
                     <td>4</td>
-                    <td><strong>iDash UI can overwrite SQL changes.</strong> Editing a reader via the iDash Angular UI resets manually configured SQL fields.</td>
+                    <td><strong>AssetWorx UI can overwrite SQL changes.</strong> Editing a reader via the AssetWorx Angular UI resets manually configured SQL fields.</td>
                     <td>Lost credentials and device settings twice.</td>
                 </tr>
                 <tr>
                     <td>5</td>
-                    <td><strong>Duplicate readers on IIS restart.</strong> After an IIS restart, the MQTT broker restarts. If the reader reconnects before the old record is updated, iDash may auto-register a duplicate.</td>
+                    <td><strong>Duplicate readers on IIS restart.</strong> After an IIS restart, the MQTT broker restarts. If the reader reconnects before the old record is updated, AssetWorx may auto-register a duplicate.</td>
                     <td>Required deleting duplicate reader records.</td>
                 </tr>
                 <tr>
@@ -731,16 +732,16 @@
                 </tr>
                 <tr>
                     <td>8</td>
-                    <td><strong>IP address can be 0.0.0.0 for MQTT.</strong> Since the reader connects to the server (not the other way around), the reader's IP in iDash is for display only when using MQTT.</td>
+                    <td><strong>IP address can be 0.0.0.0 for MQTT.</strong> Since the reader connects to the server (not the other way around), the reader's IP in AssetWorx is for display only when using MQTT.</td>
                     <td>Simplifies config for DHCP-assigned readers.</td>
                 </tr>
             </tbody>
         </table>
     </div>
 
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- RELATED DOCS -->
-    <!-- ------------------------------------------------------------------- -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <div class="card">
         <h2>Related Documentation</h2>
         <ul>

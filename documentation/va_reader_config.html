@@ -1,10 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Fixed Reader Configuration &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="../theme.css" />
     <script src="../theme-init.js"></script>
     <style>
@@ -51,7 +52,7 @@
     <div class="doc-sub">Manage fixed RFID reader registrations, antenna mappings, and online/offline status — all from a single dashboard.</div>
 
     <h2>Overview</h2>
-    <p>The Fixed Reader Configuration page is the central management tool for all fixed RFID readers deployed across VA sites. It connects to the iDash REST API to provide a real-time view of every registered reader and allows you to:</p>
+    <p>The Fixed Reader Configuration page is the central management tool for all fixed RFID readers deployed across VA sites. It connects to the AssetWorx REST API to provide a real-time view of every registered reader and allows you to:</p>
     <ul>
         <li>View all readers with live online/offline status</li>
         <li>Add, edit, and delete reader registrations</li>
@@ -80,7 +81,7 @@
         <tr><th>Column</th><th>Description</th></tr>
         <tr><td><strong>Status Dot</strong></td><td>Green dot = Online, Red dot = Offline.</td></tr>
         <tr><td><strong>Name</strong></td><td>Human-readable reader name (e.g., "Hallway Reader 1").</td></tr>
-        <tr><td><strong>Location</strong></td><td>The iDash location linked to this reader.</td></tr>
+        <tr><td><strong>Location</strong></td><td>The AssetWorx location linked to this reader.</td></tr>
         <tr><td><strong>IP Address</strong></td><td>Network IP address of the reader hardware.</td></tr>
         <tr><td><strong>Model</strong></td><td>Reader manufacturer/model (CSL, Zebra, Impinj, Other).</td></tr>
         <tr><td><strong>Status</strong></td><td>Badge showing "Online" or "Offline".</td></tr>
@@ -117,7 +118,7 @@
         </div>
         <div class="field-card">
             <strong>Location</strong>
-            <span>The iDash location to associate with this reader. <strong>Dynamically filtered</strong> — only shows locations belonging to the site selected above. Changing the Site automatically reloads the location list.</span>
+            <span>The AssetWorx location to associate with this reader. <strong>Dynamically filtered</strong> — only shows locations belonging to the site selected above. Changing the Site automatically reloads the location list.</span>
         </div>
         <div class="field-card">
             <strong>MQTT Control Topic</strong>
@@ -152,10 +153,10 @@
     <p>Click the <strong>✎ Edit</strong> button on any reader row to re-open the modal pre-filled with that reader's current settings. The modal title changes to show the reader name. All fields can be modified, and the existing antenna configuration is loaded automatically.</p>
 
     <h2>Deleting a Reader</h2>
-    <p>Click the <strong>🗑 Delete</strong> button on any reader row. You will be prompted to confirm before the reader is permanently removed. This action calls the iDash API's delete endpoint and <strong>cannot be undone</strong>.</p>
+    <p>Click the <strong>🗑 Delete</strong> button on any reader row. You will be prompted to confirm before the reader is permanently removed. This action calls the AssetWorx API's delete endpoint and <strong>cannot be undone</strong>.</p>
 
     <h2>Discovering Unregistered Readers</h2>
-    <p>The <strong>Unregistered / Discovered Readers</strong> panel (below the main table) lets you scan the network for readers that are broadcasting but not yet registered in iDash. Click <strong>↻ Scan</strong> to query the API for unregistered CSL and Zebra readers.</p>
+    <p>The <strong>Unregistered / Discovered Readers</strong> panel (below the main table) lets you scan the network for readers that are broadcasting but not yet registered in AssetWorx. Click <strong>↻ Scan</strong> to query the API for unregistered CSL and Zebra readers.</p>
     <p>When unregistered readers are found, each row displays the reader's name, IP, model, and physical ID along with a <strong>✓ Register</strong> button that pre-fills the Add Reader modal with those values.</p>
 
     <div class="callout callout-ok">
@@ -173,7 +174,7 @@
 
     <h2>How It Works (Technical)</h2>
     <h3>Architecture</h3>
-    <p>The page communicates with the iDash REST API using OAuth2 client credentials. All reader CRUD operations go through the API — the page itself does not write directly to the database. Location and company data for the modal dropdowns are fetched directly from SQL Server via dedicated API endpoints.</p>
+    <p>The page communicates with the AssetWorx REST API using OAuth2 client credentials. All reader CRUD operations go through the API — the page itself does not write directly to the database. Location and company data for the modal dropdowns are fetched directly from SQL Server via dedicated API endpoints.</p>
 
     <h3>API Endpoints Used</h3>
     <table>
@@ -199,10 +200,10 @@
     <p>The code-behind obtains an OAuth2 bearer token using the <code>client_credentials</code> grant type. Tokens are cached in memory and automatically refreshed 60 seconds before expiry. The following <code>web.config</code> app settings are required:</p>
     <table>
         <tr><th>Setting</th><th>Purpose</th></tr>
-        <tr><td><code>iDash_ApiBase</code></td><td>Base URL of the iDash API (e.g., <code>https://aw-server/iDash</code>)</td></tr>
-        <tr><td><code>iDash_TokenUrl</code></td><td>OAuth2 token endpoint URL</td></tr>
-        <tr><td><code>iDash_ClientId</code></td><td>OAuth2 client ID</td></tr>
-        <tr><td><code>iDash_ClientSecret</code></td><td>OAuth2 client secret</td></tr>
+        <tr><td><code>AssetWorx_ApiBase</code></td><td>Base URL of the AssetWorx API (e.g., <code>https://aw-server/AssetWorx</code>)</td></tr>
+        <tr><td><code>AssetWorx_TokenUrl</code></td><td>OAuth2 token endpoint URL</td></tr>
+        <tr><td><code>AssetWorx_ClientId</code></td><td>OAuth2 client ID</td></tr>
+        <tr><td><code>AssetWorx_ClientSecret</code></td><td>OAuth2 client secret</td></tr>
     </table>
 
     <h2>Site Filtering &amp; Permissions</h2>
@@ -215,10 +216,10 @@
     <h2>Troubleshooting</h2>
 
     <h3>All readers show as Offline</h3>
-    <p>Check that the iDash API is reachable and that the OAuth2 credentials in <code>web.config</code> are correct. If the API returns data but <code>lastSeen</code> timestamps are stale, verify that the reader middleware (MQTT broker or polling service) is running and updating reader heartbeats.</p>
+    <p>Check that the AssetWorx API is reachable and that the OAuth2 credentials in <code>web.config</code> are correct. If the API returns data but <code>lastSeen</code> timestamps are stale, verify that the reader middleware (MQTT broker or polling service) is running and updating reader heartbeats.</p>
 
-    <h3>"iDash API not configured" error</h3>
-    <p>The <code>iDash_ApiBase</code> or <code>iDash_TokenUrl</code> app settings are missing or blank in <code>web.config</code>. Add or correct them and recycle the app pool.</p>
+    <h3>"AssetWorx API not configured" error</h3>
+    <p>The <code>AssetWorx_ApiBase</code> or <code>AssetWorx_TokenUrl</code> app settings are missing or blank in <code>web.config</code>. Add or correct them and recycle the app pool.</p>
 
     <h3>No locations in the dropdown</h3>
     <p>Locations are loaded directly from <code>dbo.location</code> filtered by the selected company ID. If the dropdown is empty, confirm that locations exist in the database for that site. You may need to run a data import first.</p>

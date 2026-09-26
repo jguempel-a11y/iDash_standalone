@@ -1,10 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>Asset Master &mdash; iDash Documentation</title>
     <meta name="description" content="Complete reference for the iDash Asset Master: unified asset reporting with 600K+ row pagination, live filtering, KPI cards, inline editing, detail panel, print labels, and Excel export." />
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <script src="theme-init.js"></script>
     <link rel="stylesheet" href="docs_theme.css" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -261,7 +262,7 @@
                 <div class="step-item amber"><strong>Click any row</strong> in the grid (not on a checkbox or link). The row highlights.</div>
                 <div class="step-item amber">The panel <strong>slides in from the right</strong> (700px wide).</div>
                 <div class="step-item amber">Browse the <strong>5 tabs</strong> &mdash; each shows a badge count of records.</div>
-                <div class="step-item amber">Use the action buttons: <strong>&#9998; Edit Mode</strong> &mdash; <strong>&#8599; Open in iDash</strong> &mdash; <strong>&#128424; Print Tag</strong>.</div>
+                <div class="step-item amber">Use the action buttons: <strong>&#9998; Edit Mode</strong> &mdash; <strong>&#8599; Open in AssetWorx</strong> &mdash; <strong>&#128424; Print Tag</strong>.</div>
                 <div class="step-item amber">Press <strong>Escape</strong> or click <strong>&times;</strong> to close.</div>
             </div>
             <table>
@@ -281,7 +282,7 @@
                 <div class="feat-icon fi-red">&#9998;</div>
                 <div class="feat-title">
                     <h2>Inline Editing <span class="new-badge" style="background:color-mix(in srgb,#ef4444 15%,transparent);color:#ef4444;border:1px solid #ef4444;">New 07/31</span></h2>
-                    <div class="feat-subtitle">Modify 20+ asset fields directly in iDash without opening iDash. Full audit trail included.</div>
+                    <div class="feat-subtitle">Modify 20+ asset fields directly in iDash without opening AssetWorx. Full audit trail included.</div>
                 </div>
             </div>
             <div class="step-list">
@@ -302,7 +303,7 @@
                 <tr><td>Location</td><td>Department Code</td><td>Text</td></tr>
                 <tr><td>Notes</td><td>Additional Information</td><td>Textarea</td></tr>
             </table>
-            <div class="box-red"><strong>&#9888; Read-only in iDash (require full iDash):</strong> Asset Name, RFID Tag, Asset Type, Current Location, Last Observed, Nearest Fixed Reader, all system dates, V-Tag data, parent/child relationships.</div>
+            <div class="box-red"><strong>&#9888; Read-only in iDash (require full AssetWorx):</strong> Asset Name, RFID Tag, Asset Type, Current Location, Last Observed, Nearest Fixed Reader, all system dates, V-Tag data, parent/child relationships.</div>
             <h3>Security &amp; Audit Trail</h3>
             <ul>
                 <li>All updates use <strong>parameterized SQL</strong> &mdash; no SQL injection risk.</li>
@@ -311,7 +312,7 @@
                 <li>Every save sets <code>lastmodified = SYSDATETIMEOFFSET()</code> and <code>lastmodifiedby</code> to the logged-in user.</li>
                 <li><code>UserManager.BuildSiteFilter</code> appended to UPDATE WHERE &mdash; users can only edit assets in their assigned sites.</li>
             </ul>
-            <div class="box-info"><strong>&#128204; Hybrid design:</strong> iDash handles 20+ frequently updated fields. Full lifecycle ops (location assignment via <code>locationid</code>, parent/child, RFID enrollment, V-Tag config) remain in iDash. Use <strong>&ldquo;Open in iDash&rdquo;</strong> for anything not editable here.</div>
+            <div class="box-info"><strong>&#128204; Hybrid design:</strong> iDash handles 20+ frequently updated fields. Full lifecycle ops (location assignment via <code>locationid</code>, parent/child, RFID enrollment, V-Tag config) remain in AssetWorx. Use <strong>&ldquo;Open in AssetWorx&rdquo;</strong> for anything not editable here.</div>
         </div>
 
         <!-- F9 TAGGED VIEW -->
@@ -390,7 +391,7 @@
                 <tr><td><code>HandlePrintRequest()</code></td><td>Grid-checkbox print: reads JSON POST with asset IDs, inserts printjob rows directly (bypasses API RFID logic)</td></tr>
                 <tr><td><code>InjectPrintConfig()</code></td><td>Loads templates + routes + print clients; serializes to <code>window.awPrintConfigAM</code> via <code>LitPrintConfig.Text</code></td></tr>
             </table>
-            <div class="box-red"><strong>&#9888; Direct DB insert vs. API:</strong> Print jobs are inserted directly into <code>printjob</code>, bypassing <code>POST /api/PrintJobs/Print</code>. This avoids the API's RFID auto-generation logic (not needed for reprints). Switch to <code>IdashApiClient</code> if RFID generation is ever required.</div>
+            <div class="box-red"><strong>&#9888; Direct DB insert vs. API:</strong> Print jobs are inserted directly into <code>printjob</code>, bypassing <code>POST /api/PrintJobs/Print</code>. This avoids the API's RFID auto-generation logic (not needed for reprints). Switch to <code>AssetWorxApiClient</code> if RFID generation is ever required.</div>
 
             <h3>Key Frontend JS Functions</h3>
             <table>
@@ -499,7 +500,7 @@
     <footer style="margin-top:40px;padding:20px;border-top:1px solid var(--line-docs);font-size:12px;
         color:var(--muted-docs);display:flex;justify-content:space-between;align-items:center;
         max-width:1000px;margin-left:auto;margin-right:auto;">
-        <span style="font-weight:600;font-size:14px;color:var(--text-docs);">iDash<span style="color:#2ea8ff;">!</span> iDash Documentation</span>
+        <span style="font-weight:600;font-size:14px;color:var(--text-docs);">AssetWorx<span style="color:#2ea8ff;">!</span> iDash Documentation</span>
         <span>&copy; 2026 ID Integration Inc. &mdash; Last revised September 12, 2026</span>
     </footer>
 

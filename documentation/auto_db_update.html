@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>AUTO DB UPDATE &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -15,7 +16,7 @@
 
 <div class="container">
     <h1>Auto Database Update &amp; Cross-Site Merge SOP</h1>
-    <p>This document completely outlines the architecture and proper operating procedures for merging remote iDash database backups and flat-files into the master local system using the automated <code>va_autodbupdate.aspx</code> and corresponding SQL merging engine.</p>
+    <p>This document completely outlines the architecture and proper operating procedures for merging remote AssetWorx database backups and flat-files into the master local system using the automated <code>va_autodbupdate.aspx</code> and corresponding SQL merging engine.</p>
 
     <div class="success">
         <strong>Intelligent Data Sync Active:</strong> The current synchronization framework natively protects all core master data variables (last known locations, last inventoried dates, structural records) during the merge process.
@@ -24,7 +25,7 @@
     <h2>1. Accepted File Formats &amp; Loading Areas</h2>
     <p>The Auto DB update module polls the designated watch folder continuously (Default: <code>C:\VA_RFID\va_dbupdate\autoload</code>).</p>
     <ul>
-        <li><code>cart1.idash_daily_full.bak</code> - Represents a full SQL Backup file exported directly from an off-site master server.</li>
+        <li><code>cart1.assetworx_daily_full.bak</code> - Represents a full SQL Backup file exported directly from an off-site master server.</li>
         <li><code>data.txt</code> / <code>data.xlsx</code> - Represents flat data output files exported via ENNX/legacy table reports into the root.</li>
     </ul>
 
@@ -32,8 +33,8 @@
     <p>When the engine detects a remote SQL backup (<code>.bak</code>), it routes the workload away from the default blind insertion routine to an incredibly secure database reconciliation pipeline (<code>va_bak_merge.sql</code>).</p>
     
     <ol>
-        <li><strong>Temp DB Spin-up:</strong> The backup file is restored strictly to an isolated temporary sandbox database (<code>idash_merge_temp</code>) so no direct interactions occur until verified.</li>
-        <li><strong>Upsert Normalization:</strong> Data flows natively bridging the temp server and the actual iDash system checking explicitly for duplicate RFIDs and Names.</li>
+        <li><strong>Temp DB Spin-up:</strong> The backup file is restored strictly to an isolated temporary sandbox database (<code>assetworx_merge_temp</code>) so no direct interactions occur until verified.</li>
+        <li><strong>Upsert Normalization:</strong> Data flows natively bridging the temp server and the actual AssetWorx system checking explicitly for duplicate RFIDs and Names.</li>
         <li><strong>Master Field Protections:</strong> 
             <ul>
                 <li><code>lastinventoried</code> is updated ONLY if the imported record has a newer/fresher ping.</li>

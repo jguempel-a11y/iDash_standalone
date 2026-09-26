@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>ENNX Live Scan (Mobile RFID Optimized) &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -36,7 +37,7 @@
             <span class="badge badge-db">&#128100; Operator Auth Synchronized</span>
         </div>
         <p style="font-size:16px;margin:0;">
-            The <strong>ENNX Live Scan</strong> module is a high-speed, mobile-optimized asset scanning and inventory reconciliation tool designed for Zebra mobile RFID handhelds and web workstations. It captures location barcodes and asset tags in real time, organizes them into government-ready ENNX structures, and directly <strong>commits the updated inventory locations and timestamps to the iDash database</strong> with an automated audit log.
+            The <strong>ENNX Live Scan</strong> module is a high-speed, mobile-optimized asset scanning and inventory reconciliation tool designed for Zebra mobile RFID handhelds and web workstations. It captures location barcodes and asset tags in real time, organizes them into government-ready ENNX structures, and directly <strong>commits the updated inventory locations and timestamps to the AssetWorx database</strong> with an automated audit log.
         </p>
     </div>
 
@@ -61,7 +62,7 @@
             <tr>
                 <td><strong>Direct Database "Commit Scans"</strong></td>
                 <td>Replaced passive text saving with active database execution: updates <code>dbo.asset.text6</code> (location), <code>lastinventoried = SYSDATETIMEOFFSET()</code>, <code>lastmodifiedby</code>, and inserts an audit record into <code>dbo.EnnxLiveSession</code>.</td>
-                <td>Scanned rooms immediately reflect in iDash master reports and inventory history without manual file re-importing.</td>
+                <td>Scanned rooms immediately reflect in AssetWorx master reports and inventory history without manual file re-importing.</td>
             </tr>
             <tr>
                 <td><strong>Mobile Streamlined Workflow</strong></td>
@@ -83,7 +84,34 @@
                 <td>Manual room or tag input box styled with 8px rounded corners and flush-left alignment.</td>
                 <td>Clean visual alignment with scan trigger card and streamlined mobile usability.</td>
             </tr>
+            <tr>
+                <td><strong>Dynamic Collected EILs Filter</strong></td>
+                <td>Relocated to the top of the Scan Stream &amp; Reconciliation card. Dynamically extracts and presents only the EILs collected during the active scan session with asset counts and interactive pill chips.</td>
+                <td>Eliminates scrolling through 4,300+ hospital station EILs; operators can instantly filter by scanned equipment lines or search via autocomplete.</td>
+            </tr>
         </table>
+    </div>
+
+    <!-- COLLECTED EILS ENGINE (09/17/2026) -->
+    <div class="card">
+        <h2>&#128269; Collected EILs Filter Engine &amp; Quick-Select Chips (09/17/2026)</h2>
+        <p>
+            Previously, filtering by EIL required scrolling through a massive dropdown containing every registered facility EIL (over 4,300+ distinct EILs for Station 517 alone), which was slow and impractical on mobile RFID handhelds.
+        </p>
+        <p>
+            The EIL filter has been moved to the <strong>top of the Scan Stream &amp; Reconciliation card</strong> and upgraded with a responsive dual-mode selector:
+        </p>
+        <ul>
+            <li><strong>Collected in Active Scan:</strong> As assets are scanned or restored from session storage, their EILs (<code>dbo.asset.text8</code>) are resolved and populated into a targeted dropdown and interactive pill chips showing asset counts (e.g., <code>782 (1)</code>, <code>78YM (1)</code>, <code>All (3)</code>).</li>
+            <li><strong>Quick Search / Autocomplete:</strong> A search box with an integrated datalist allows typing or selecting any station EIL directly without endless scrolling.</li>
+            <li><strong>Bi-directional Filtering:</strong>
+                <ul>
+                    <li><strong>Post-Scan Reconciliation:</strong> Tapping an EIL chip instantly filters the Stream Table and the <strong>Live ENNX Preview / Export</strong> to only the assets belonging to that specific EIL.</li>
+                    <li><strong>Pre-Scan Enforcement:</strong> When scanning with an active EIL filter, any incoming asset belonging to a different EIL is automatically flagged as an <code>Ignored</code> mismatch row with an audible/visual notice, preventing accidental mixed-EIL inventory capture.</li>
+                </ul>
+            </li>
+            <li><strong>Live EIL Badges:</strong> Every scanned asset in the reconciliation feed displays an inline blue pill badge with its resolved EIL code for quick visual verification.</li>
+        </ul>
     </div>
 
     <!-- STEP-BY-STEP WORKFLOW -->

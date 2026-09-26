@@ -5,8 +5,9 @@
         <html xmlns="http://www.w3.org/1999/xhtml">
 
         <head runat="server">
-            <title>VA AssetWorx! - Database Restore</title>
-            <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
+            <title>VA iDash - Database Restore</title>
+            <link rel="icon" type="image/png" href="Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="favicon.ico" />
             <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
             <style>

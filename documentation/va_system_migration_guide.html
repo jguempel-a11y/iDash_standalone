@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>iDash Local-to-Remote Migration &amp; Replication Playbook &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -320,14 +321,14 @@
 
         <div class="alert-card alert-card-warning" style="border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.08); margin: 16px 0;">
             <strong style="font-size:14px; color:#f59e0b;">&#9888;&#65039; One-Time Bootstrap Requirement for Older Systems:</strong><br/>
-            Older field laptops or secondary servers that do not yet have <code>va_system_update.aspx</code> and <code>va_system_update.aspx.cs</code> must be seeded with these two files once. You can copy them over via Windows file sharing (<code>\\&lt;target-laptop&gt;\c$\inetpub\wwwroot\iDash.WebClient\iDash\</code>), via USB drive, or by running the initial PowerShell sync script once.<br/>
+            Older field laptops or secondary servers that do not yet have <code>va_system_update.aspx</code> and <code>va_system_update.aspx.cs</code> must be seeded with these two files once. You can copy them over via Windows file sharing (<code>\\&lt;target-laptop&gt;\c$\inetpub\wwwroot\AssetWorx.WebClient\iDash\</code>), via USB drive, or by running the initial PowerShell sync script once.<br/>
             <strong>Once <code>va_system_update.aspx</code> is in place, all future updates and releases can be applied 100% via the web interface with 1-click!</strong>
         </div>
 
         <h3><span class="step-num">1</span> Package the Latest Master Baseline</h3>
         <p>On your master development workstation (<code>localhost</code> / <code>LingCod</code>), run the package builder in Administrator PowerShell:</p>
         <div class="code-box">
-<span class="cmd">&amp;</span> <span class="str">"C:\inetpub\wwwroot\iDash\tools\Build-IdashMigrationPackage.ps1"</span>
+<span class="cmd">&amp;</span> <span class="str">"C:\inetpub\wwwroot\AssetWorx.WebClient\iDash\tools\Build-IdashMigrationPackage.ps1"</span>
         </div>
         <p>This generates the clean, compressed baseline archive (<code>idash_full_site.zip</code>, ~85 MB) and publishes it automatically to <code>/iDash/downloads/idash_full_site.zip</code>.</p>
 
@@ -339,7 +340,7 @@
             </a>
         </div>
         <p style="font-size:12px; color:var(--muted);">
-            <em>Alternative navigation:</em> On the remote machine's dashboard (<a href="https://laptop-e74ckmo5.tail2fc4c5.ts.net/idash/index.aspx" target="_blank">index.aspx</a>), log in under <strong>iDash SQL Administrator</strong>, then click the green <strong>🚀 System Update &amp; Deploy (1-Click OTA)</strong> tile under Admin Tools.
+            <em>Alternative navigation:</em> On the remote machine's dashboard (<a href="https://laptop-e74ckmo5.tail2fc4c5.ts.net/idash/index.aspx" target="_blank">index.aspx</a>), log in under <strong>AssetWorx SQL Administrator</strong>, then click the green <strong>🚀 System Update &amp; Deploy (1-Click OTA)</strong> tile under Admin Tools.
         </p>
 
         <h3><span class="step-num">3</span> Select Your Update Source</h3>
@@ -379,7 +380,7 @@
         </div>
 
         <div class="code-box">
-<span class="cmd">&amp;</span> <span class="str">"C:\inetpub\wwwroot\iDash\tools\Build-IdashMigrationPackage.ps1"</span>
+<span class="cmd">&amp;</span> <span class="str">"C:\inetpub\wwwroot\AssetWorx.WebClient\iDash\tools\Build-IdashMigrationPackage.ps1"</span>
         </div>
 
         <p><strong>Expected Output in PowerShell:</strong></p>
@@ -389,7 +390,7 @@
 ==========================================================
 [1/3] Staging application files (enforcing Safe Migration Boundary)...
       Staged 1229 files successfully.
-[2/3] Compressing into migration archive: C:\inetpub\wwwroot\iDash\downloads\idash_full_site.zip...
+[2/3] Compressing into migration archive: C:\inetpub\wwwroot\AssetWorx.WebClient\iDash\downloads\idash_full_site.zip...
 [3/3] Migration package created successfully: 142.59 MB
         </div>
 
@@ -397,7 +398,7 @@
             <summary style="cursor:pointer; font-weight:600; font-size:13px; color:var(--muted);">Alternative: Run raw PowerShell inline (click to expand)</summary>
             <p style="font-size:12px; color:var(--muted); margin-top:8px;">If you cannot run scripts due to execution policies, paste this single continuous command (semicolon-separated to prevent line-flattening errors):</p>
             <div class="code-box" style="font-size:11px;">
-$zipPath = "C:\inetpub\wwwroot\iDash\downloads\idash_full_site.zip"; $tempStage = "C:\inetpub\wwwroot\iDash\scratch\stage_full_site"; if (Test-Path $zipPath) { Remove-Item $zipPath -Force }; if (Test-Path $tempStage) { Remove-Item $tempStage -Recurse -Force }; New-Item -ItemType Directory -Path $tempStage | Out-Null; robocopy "C:\inetpub\wwwroot\iDash\iDash" $tempStage /E /XD ".git" "scratch" "downloads" "App_Data" "logs" "uploads" "temp" /XF "web.config" "*.log" | Out-Null; Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::CreateFromDirectory($tempStage, $zipPath); Remove-Item $tempStage -Recurse -Force; $mb = [math]::Round((Get-Item $zipPath).Length / 1MB, 2); Write-Host "Migration package ready: $zipPath ($mb MB)" -ForegroundColor Green
+$zipPath = "C:\inetpub\wwwroot\AssetWorx.WebClient\iDash\downloads\idash_full_site.zip"; $tempStage = "C:\inetpub\wwwroot\AssetWorx.WebClient\iDash\scratch\stage_full_site"; if (Test-Path $zipPath) { Remove-Item $zipPath -Force }; if (Test-Path $tempStage) { Remove-Item $tempStage -Recurse -Force }; New-Item -ItemType Directory -Path $tempStage | Out-Null; robocopy "C:\inetpub\wwwroot\AssetWorx.WebClient\iDash" $tempStage /E /XD ".git" "scratch" "downloads" "App_Data" "logs" "uploads" "temp" /XF "web.config" "*.log" | Out-Null; Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::CreateFromDirectory($tempStage, $zipPath); Remove-Item $tempStage -Recurse -Force; $mb = [math]::Round((Get-Item $zipPath).Length / 1MB, 2); Write-Host "Migration package ready: $zipPath ($mb MB)" -ForegroundColor Green
             </div>
         </details>
 
@@ -415,7 +416,7 @@ $zipPath = "C:\inetpub\wwwroot\iDash\downloads\idash_full_site.zip"; $tempStage 
             <strong>&#128073; Two Easy Ways to Run This:</strong>
             <ul style="margin: 6px 0 0 0; padding-left: 20px;">
                 <li><strong>Method 1 (Simplest &mdash; No file needed):</strong> Just copy the script below and paste it directly into the text box on the remote web page.</li>
-                <li><strong>Method 2 (File upload):</strong> Download the ready-to-run script file <a href="../downloads/run_migration.sql" download="run_migration.sql" style="font-weight:bold; color:var(--accent); text-decoration:underline;">run_migration.sql</a> and select it with the &ldquo;Choose File&rdquo; button.</li>
+                <li><strong>Method 2 (File upload):</strong> Download the ready-to-run script file <a href="/iDash/downloads/run_migration.sql" download="run_migration.sql" style="font-weight:bold; color:var(--accent); text-decoration:underline;">run_migration.sql</a> and select it with the &ldquo;Choose File&rdquo; button.</li>
             </ul>
         </div>
 
@@ -477,7 +478,7 @@ $zipPath = "C:\inetpub\wwwroot\iDash\downloads\idash_full_site.zip"; $tempStage 
                     <div style="font-weight: 700; color: var(--text-docs); font-size: 13px; margin-bottom: 6px;">&#128190; Option 2 (File Upload):</div>
                     <p style="font-size: 12px; margin: 0 0 8px 0; color: var(--muted);">
                         If you prefer uploading a file:
-                        <br/>1. <a href="../downloads/run_migration.sql" download="run_migration.sql" style="color:var(--accent); font-weight:bold;">Click here to download run_migration.sql</a> (or locate it already generated on your local PC at <code>C:\inetpub\wwwroot\iDash\downloads\run_migration.sql</code>).
+                        <br/>1. <a href="/iDash/downloads/run_migration.sql" download="run_migration.sql" style="color:var(--accent); font-weight:bold;">Click here to download run_migration.sql</a> (or locate it already generated on your local PC at <code>C:\inetpub\wwwroot\AssetWorx.WebClient\iDash\downloads\run_migration.sql</code>).
                         <br/>2. On the remote page, click the <strong>&ldquo;Choose File&rdquo;</strong> button and select <code>run_migration.sql</code>.
                     </p>
                 </div>
@@ -530,7 +531,7 @@ $zipPath = "C:\inetpub\wwwroot\iDash\downloads\idash_full_site.zip"; $tempStage 
 
 <span class="comment">-- 2. Download, extract, and copy over the web root</span>
 <span class="cmd">CREATE TABLE</span> #p (line <span class="cmd">NVARCHAR</span>(<span class="cmd">MAX</span>));
-<span class="cmd">INSERT INTO</span> #p <span class="cmd">EXEC</span> xp_cmdshell <span class="str">'powershell.exe -ExecutionPolicy Bypass -Command "[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; $z = ''C:/Windows/Temp/idash_full_site.zip''; (New-Object Net.WebClient).DownloadFile(''https://lingcod.tail585c9b.ts.net/iDash/downloads/idash_full_site.zip'', $z); Add-Type -AssemblyName System.IO.Compression.FileSystem; $t = ''C:/Windows/Temp/stage_full_site''; if (Test-Path $t) { Remove-Item $t -Recurse -Force }; [System.IO.Compression.ZipFile]::ExtractToDirectory($z, $t); Copy-Item -Path ''C:/Windows/Temp/stage_full_site/*'' -Destination ''C:/inetpub/wwwroot/iDash.WebClient/iDash'' -Recurse -Force; Copy-Item -Path ''C:/Windows/Temp/stage_full_site/*'' -Destination ''C:/inetpub/wwwroot/idash'' -Recurse -Force; (Get-Item ''C:\inetpub\wwwroot\iDash\web.config'').LastWriteTime = Get-Date; Remove-Item $t -Recurse -Force; Remove-Item $z -Force; Write-Output ''FULL_SITE_MIGRATION_COMPLETE_SUCCESS'';"';</span>
+<span class="cmd">INSERT INTO</span> #p <span class="cmd">EXEC</span> xp_cmdshell <span class="str">'powershell.exe -ExecutionPolicy Bypass -Command "[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; $z = ''C:/Windows/Temp/idash_full_site.zip''; (New-Object Net.WebClient).DownloadFile(''https://lingcod.tail585c9b.ts.net/iDash/downloads/idash_full_site.zip'', $z); Add-Type -AssemblyName System.IO.Compression.FileSystem; $t = ''C:/Windows/Temp/stage_full_site''; if (Test-Path $t) { Remove-Item $t -Recurse -Force }; [System.IO.Compression.ZipFile]::ExtractToDirectory($z, $t); Copy-Item -Path ''C:/Windows/Temp/stage_full_site/*'' -Destination ''C:/inetpub/wwwroot/AssetWorx.WebClient/iDash'' -Recurse -Force; Copy-Item -Path ''C:/Windows/Temp/stage_full_site/*'' -Destination ''C:/inetpub/wwwroot/idash'' -Recurse -Force; (Get-Item ''C:\inetpub\wwwroot\AssetWorx.WebClient\iDash\web.config'').LastWriteTime = Get-Date; Remove-Item $t -Recurse -Force; Remove-Item $z -Force; Write-Output ''FULL_SITE_MIGRATION_COMPLETE_SUCCESS'';"';</span>
 
 <span class="comment">-- 3. Recycle the IIS App Pool to clear ASP.NET VirtualPath cache</span>
 <span class="cmd">INSERT INTO</span> #p <span class="cmd">EXEC</span> xp_cmdshell <span class="str">'%windir%\system32\inetsrv\appcmd.exe recycle apppool "DefaultAppPool"'</span>;
@@ -564,15 +565,15 @@ $zipPath = "C:\inetpub\wwwroot\iDash\downloads\idash_full_site.zip"; $tempStage 
         <h3><span class="step-num">1</span> Package the Local Workstation</h3>
         <p>On your local development machine, run the builder script in Administrator PowerShell to produce the clean baseline ZIP:</p>
         <div class="code-box">
-<span class="cmd">&amp;</span> <span class="str">"C:\inetpub\wwwroot\iDash\tools\Build-IdashMigrationPackage.ps1"</span>
+<span class="cmd">&amp;</span> <span class="str">"C:\inetpub\wwwroot\AssetWorx.WebClient\iDash\tools\Build-IdashMigrationPackage.ps1"</span>
         </div>
-        <p>Copy the resulting file (<code>C:\inetpub\wwwroot\iDash\downloads\idash_full_site.zip</code>) onto your USB thumb drive or network drop folder.</p>
+        <p>Copy the resulting file (<code>C:\inetpub\wwwroot\AssetWorx.WebClient\iDash\downloads\idash_full_site.zip</code>) onto your USB thumb drive or network drop folder.</p>
 
         <h3><span class="step-num">2</span> Copy and Extract on the Remote Target</h3>
         <ol>
             <li>On the target laptop or server, extract <code>idash_full_site.zip</code> into a temporary directory (e.g. <code>C:\temp\stage\</code>).</li>
             <li>Copy all contents from <code>C:\temp\stage\</code> and paste them into:<br/>
-                <code>C:\inetpub\wwwroot\iDash\</code></li>
+                <code>C:\inetpub\wwwroot\AssetWorx.WebClient\iDash\</code></li>
             <li>When prompted by Windows Explorer: <strong>Click &ldquo;Replace the files in the destination&rdquo;</strong>.<br/>
                 <em>Note: Because <code>web.config</code> was excluded from the ZIP, your database credentials remain completely safe.</em></li>
             <li>If a separate virtual directory exists at <code>C:\inetpub\wwwroot\idash\</code>, copy the files there as well.</li>
@@ -581,7 +582,7 @@ $zipPath = "C:\inetpub\wwwroot\iDash\downloads\idash_full_site.zip"; $tempStage 
         <h3><span class="step-num">3</span> Set NTFS Permissions</h3>
         <p>When files are copied from external drives or temporary folders, Windows may assign restrictive access control lists. Open an Administrator PowerShell on the target and run:</p>
         <div class="code-box">
-<span class="cmd">icacls</span> <span class="str">"C:\inetpub\wwwroot\iDash\iDash"</span> /grant <span class="str">"IIS_IUSRS:(OI)(CI)RX"</span> /grant <span class="str">"Users:(OI)(CI)RX"</span> /T
+<span class="cmd">icacls</span> <span class="str">"C:\inetpub\wwwroot\AssetWorx.WebClient\iDash"</span> /grant <span class="str">"IIS_IUSRS:(OI)(CI)RX"</span> /grant <span class="str">"Users:(OI)(CI)RX"</span> /T
         </div>
 
         <h3><span class="step-num">4</span> Recycle the IIS Application Pool</h3>
@@ -630,18 +631,18 @@ $zipPath = "C:\inetpub\wwwroot\iDash\downloads\idash_full_site.zip"; $tempStage 
     <div class="card" id="sec-troubleshooting">
         <h2>7. Troubleshooting &amp; Common Pitfalls</h2>
         
-        <h4>&#9888; Pitfall 1: Virtual Directory Path Mismatch (<code>/idash</code> vs <code>/iDash.WebClient/iDash</code>)</h4>
-        <p>On some field systems, IIS contains two applications or virtual directories: one at <code>/idash</code> and another at <code>/iDash.WebClient/iDash</code>. If <code>/idash</code> was pointed to an empty directory (e.g. <code>C:\inetpub\wwwroot\idash</code>), new pages will return <code>HTTP 404 (The file does not exist)</code> even though they exist on disk.</p>
+        <h4>&#9888; Pitfall 1: Virtual Directory Path Mismatch (<code>/idash</code> vs <code>/AssetWorx.WebClient/iDash</code>)</h4>
+        <p>On some field systems, IIS contains two applications or virtual directories: one at <code>/idash</code> and another at <code>/AssetWorx.WebClient/iDash</code>. If <code>/idash</code> was pointed to an empty directory (e.g. <code>C:\inetpub\wwwroot\idash</code>), new pages will return <code>HTTP 404 (The file does not exist)</code> even though they exist on disk.</p>
         <p><strong>Fix:</strong> Re-align the virtual directory physical path using <code>appcmd</code>:</p>
         <div class="code-box">
-<span class="cmd">&amp;</span> <span class="str">"$env:windir\system32\inetsrv\appcmd.exe"</span> set vdir <span class="str">"Default Web Site/idash"</span> -physicalPath:<span class="str">"C:\inetpub\wwwroot\iDash\iDash"</span>
+<span class="cmd">&amp;</span> <span class="str">"$env:windir\system32\inetsrv\appcmd.exe"</span> set vdir <span class="str">"Default Web Site/idash"</span> -physicalPath:<span class="str">"C:\inetpub\wwwroot\AssetWorx.WebClient\iDash"</span>
         </div>
 
         <h4>&#9888; Pitfall 2: ASP.NET VirtualPath Cache Stale (HTTP 404 on newly added pages)</h4>
         <p>ASP.NET caches its virtual directory structure in temporary compilation files. When new <code>.aspx</code> files are copied in, the runtime might not immediately detect them.</p>
         <p><strong>Fix:</strong> Touch <code>web.config</code> to force an application pool recycle:</p>
         <div class="code-box">
-(Get-Item <span class="str">"C:\inetpub\wwwroot\iDash\web.config"</span>).LastWriteTime = Get-Date
+(Get-Item <span class="str">"C:\inetpub\wwwroot\AssetWorx.WebClient\iDash\web.config"</span>).LastWriteTime = Get-Date
         </div>
 
         <h4>&#9888; Pitfall 3: Missing Code-Behind in Web Site Projects</h4>
@@ -660,7 +661,7 @@ RECONFIGURE;
 
 -- 2. Download, extract, and copy over the web root
 CREATE TABLE #p (line NVARCHAR(MAX));
-INSERT INTO #p EXEC xp_cmdshell 'powershell.exe -ExecutionPolicy Bypass -Command "[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; $z = ''C:/Windows/Temp/idash_full_site.zip''; (New-Object Net.WebClient).DownloadFile(''https://lingcod.tail585c9b.ts.net/iDash/downloads/idash_full_site.zip'', $z); Add-Type -AssemblyName System.IO.Compression.FileSystem; $t = ''C:/Windows/Temp/stage_full_site''; if (Test-Path $t) { Remove-Item $t -Recurse -Force }; [System.IO.Compression.ZipFile]::ExtractToDirectory($z, $t); Copy-Item -Path ''C:/Windows/Temp/stage_full_site/*'' -Destination ''C:/inetpub/wwwroot/iDash.WebClient/iDash'' -Recurse -Force; Copy-Item -Path ''C:/Windows/Temp/stage_full_site/*'' -Destination ''C:/inetpub/wwwroot/idash'' -Recurse -Force; (Get-Item ''C:\\inetpub\\wwwroot\\iDash.WebClient\\iDash\\web.config'').LastWriteTime = Get-Date; Remove-Item $t -Recurse -Force; Remove-Item $z -Force; Write-Output ''FULL_SITE_MIGRATION_COMPLETE_SUCCESS'';"';
+INSERT INTO #p EXEC xp_cmdshell 'powershell.exe -ExecutionPolicy Bypass -Command "[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; $z = ''C:/Windows/Temp/idash_full_site.zip''; (New-Object Net.WebClient).DownloadFile(''https://lingcod.tail585c9b.ts.net/iDash/downloads/idash_full_site.zip'', $z); Add-Type -AssemblyName System.IO.Compression.FileSystem; $t = ''C:/Windows/Temp/stage_full_site''; if (Test-Path $t) { Remove-Item $t -Recurse -Force }; [System.IO.Compression.ZipFile]::ExtractToDirectory($z, $t); Copy-Item -Path ''C:/Windows/Temp/stage_full_site/*'' -Destination ''C:/inetpub/wwwroot/AssetWorx.WebClient/iDash'' -Recurse -Force; Copy-Item -Path ''C:/Windows/Temp/stage_full_site/*'' -Destination ''C:/inetpub/wwwroot/idash'' -Recurse -Force; (Get-Item ''C:\\inetpub\\wwwroot\\AssetWorx.WebClient\\iDash\\web.config'').LastWriteTime = Get-Date; Remove-Item $t -Recurse -Force; Remove-Item $z -Force; Write-Output ''FULL_SITE_MIGRATION_COMPLETE_SUCCESS'';"';
 
 -- 3. Recycle the IIS App Pool to clear ASP.NET VirtualPath cache
 INSERT INTO #p EXEC xp_cmdshell '%windir%\\system32\\inetsrv\\appcmd.exe recycle apppool "DefaultAppPool"';

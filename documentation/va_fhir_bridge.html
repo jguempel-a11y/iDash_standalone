@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <title>FHIR Bridge (Deprecated) &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -64,7 +65,7 @@
     <!-- HEADER                                                  -->
     <!-- ======================================================= -->
     <div class="card" style="background: linear-gradient(135deg, var(--card), rgba(232, 119, 34, 0.08));">
-        <h1 style="opacity: 0.6;"><span aria-hidden="true">&#127973;</span> FHIR Bridge &mdash; iDash &rarr; VistA <span style="color: var(--danger); font-size: 0.6em;">(DEPRECATED)</span></h1>
+        <h1 style="opacity: 0.6;"><span aria-hidden="true">&#127973;</span> FHIR Bridge &mdash; AssetWorx &rarr; VistA <span style="color: var(--danger); font-size: 0.6em;">(DEPRECATED)</span></h1>
         <div style="margin-bottom:12px;">
             <span class="badge badge-fhir">&#x1F525; HL7 FHIR R4</span>
             <span class="badge badge-supply">Supply Chain Only</span>
@@ -73,7 +74,7 @@
             <span class="badge badge-new">Created 07/07/2026</span>
         </div>
         <p style="font-size:16px; margin:0; max-width:900px;">
-            The <strong>FHIR Bridge</strong> maps supply chain data collected by iDash (asset identity, RFID tags,
+            The <strong>FHIR Bridge</strong> maps supply chain data collected by AssetWorx (asset identity, RFID tags,
             location, inventory status) into <strong>HL7 FHIR R4</strong> compliant JSON resources and generates
             transaction Bundles for submission to VA VistA through the
             <a href="https://developer.va.gov" target="_blank">VA Lighthouse FHIR API</a>.
@@ -112,8 +113,8 @@
 
         <h3>The Problem</h3>
         <p>
-            iDash collects detailed asset and location data through RFID scanning, barcode capture,
-            and manual inventory across VA medical centers. This data lives in the local iDash SQL Server
+            AssetWorx collects detailed asset and location data through RFID scanning, barcode capture,
+            and manual inventory across VA medical centers. This data lives in the local AssetWorx SQL Server
             database (<code>dbo.asset</code>, <code>dbo.company</code>) and is highly accurate because it
             represents <em>physically observed</em> equipment states &mdash; not just administrative records.
         </p>
@@ -125,7 +126,7 @@
 
         <h3>The Solution</h3>
         <p>
-            The FHIR Bridge provides a <strong>standards-based, automated pipeline</strong> from iDash to VistA
+            The FHIR Bridge provides a <strong>standards-based, automated pipeline</strong> from AssetWorx to VistA
             using <a href="https://hl7.org/fhir/R4/" target="_blank">HL7 FHIR R4</a> &mdash; the same interoperability
             standard that the VA has adopted through its
             <a href="https://developer.va.gov" target="_blank">Lighthouse API platform</a>.
@@ -147,7 +148,7 @@
             <li><strong>Not patient-facing:</strong> This module never creates, reads, or transmits patient data, clinical records, or any PHI/PII.</li>
             <li><strong>Not a replacement for ENNX:</strong> The ENNX workflow continues to work as-is. The FHIR Bridge is an <em>additional</em> export path using modern standards.</li>
             <li><strong>Not a VistA modification:</strong> No code runs on VistA servers. The FHIR Bridge runs entirely on the iDash web server and communicates through standard HTTPS REST APIs.</li>
-            <li><strong>Not a database migration:</strong> iDash SQL remains the source of truth. The FHIR Bridge reads from it and generates outbound payloads.</li>
+            <li><strong>Not a database migration:</strong> AssetWorx SQL remains the source of truth. The FHIR Bridge reads from it and generates outbound payloads.</li>
         </ul>
     </div>
 
@@ -173,7 +174,7 @@
                 </tr>
                 <tr>
                     <td><strong>&#x1F504; Asset Mapper</strong></td>
-                    <td>Loads assets from iDash SQL, lets users select which to export, builds FHIR <code>Device</code> + <code>Location</code> resources, previews the Bundle JSON, and downloads the file.</td>
+                    <td>Loads assets from AssetWorx SQL, lets users select which to export, builds FHIR <code>Device</code> + <code>Location</code> resources, previews the Bundle JSON, and downloads the file.</td>
                     <td>Gives operators full control over what gets pushed. The preview step lets them validate the FHIR payload before transmission &mdash; critical for auditability.</td>
                 </tr>
                 <tr>
@@ -197,7 +198,7 @@
 │  VA MEDICAL CENTER                                                      │
 │                                                                         │
 │  ┌--------------┐    SQL Read     ┌------------------┐                  │
-│  │  iDash    │--------------->│  FHIR Bridge     │                  │
+│  │  AssetWorx    │--------------->│  FHIR Bridge     │                  │
 │  │  SQL Server   │                │  (va_fhir_bridge  │                  │
 │  │  dbo.asset    │                │   .aspx/.aspx.cs) │                  │
 │  │  dbo.company  │                └--------┬---------┘                  │
@@ -453,7 +454,7 @@ openssl rsa -in private.pem -pubout -out public.pem</pre>
     <div class="card" id="fhir-mapping">
         <h2>FHIR Resource Mapping</h2>
         <p>
-            The following tables document the exact mapping from iDash database fields to FHIR R4 resource properties.
+            The following tables document the exact mapping from AssetWorx database fields to FHIR R4 resource properties.
             This mapping is used by both the client-side preview (JavaScript) and the server-side bundle generator (C#).
             <strong>Both implementations produce identical output for the same input data.</strong>
         </p>
@@ -462,7 +463,7 @@ openssl rsa -in private.pem -pubout -out public.pem</pre>
         <table>
             <thead>
                 <tr>
-                    <th>iDash Field</th>
+                    <th>AssetWorx Field</th>
                     <th>SQL Column</th>
                     <th>FHIR Device Property</th>
                     <th>Notes</th>
@@ -473,8 +474,8 @@ openssl rsa -in private.pem -pubout -out public.pem</pre>
                 <tr><td>Description</td><td><code>description</code></td><td><code>deviceName[0].name</code></td><td>Type: <code>user-friendly-name</code>. Falls back to <code>name</code> if empty.</td></tr>
                 <tr><td>Serial Number</td><td><code>serialnumber</code></td><td><code>serialNumber</code></td><td>Direct mapping.</td></tr>
                 <tr><td>RFID Tag (EPC)</td><td><code>rfidtag</code></td><td><code>identifier[1]</code></td><td>Type coding: <code>v2-0203/RFID</code>. Only added if non-empty.</td></tr>
-                <tr><td>Location</td><td><code>lastobservedlocation</code></td><td><code>location</code> (Reference)</td><td>Reference to the Location resource: <code>Location/idash-loc-{code}</code></td></tr>
-                <tr><td>EIL Code (CMR)</td><td><code>text8</code></td><td>(Extension, future)</td><td>Tracked in iDash as CMR/EIL; will be mapped to a VA-specific extension in Phase 2.</td></tr>
+                <tr><td>Location</td><td><code>lastobservedlocation</code></td><td><code>location</code> (Reference)</td><td>Reference to the Location resource: <code>Location/assetworx-loc-{code}</code></td></tr>
+                <tr><td>EIL Code (CMR)</td><td><code>text8</code></td><td>(Extension, future)</td><td>Tracked in AssetWorx as CMR/EIL; will be mapped to a VA-specific extension in Phase 2.</td></tr>
                 <tr><td>Last Inventoried</td><td><code>lastinventoried</code></td><td><code>meta.lastUpdated</code></td><td>Falls back to current UTC timestamp if null.</td></tr>
                 <tr><td>Disposal Status</td><td><code>disposalstatus</code></td><td><code>status</code></td><td>Maps to: <code>active</code> (if empty or &ldquo;active&rdquo;) or <code>inactive</code> (any other value).</td></tr>
                 <tr><td>Station</td><td><code>company.name</code> (first 3 chars)</td><td><code>owner</code> (future)</td><td>Currently carried as data attribute; will be mapped to Organization reference in Phase 2.</td></tr>
@@ -484,7 +485,7 @@ openssl rsa -in private.pem -pubout -out public.pem</pre>
         <h3>Location &rarr; FHIR <code>Location</code></h3>
         <table>
             <thead>
-                <tr><th>iDash Field</th><th>Source</th><th>FHIR Location Property</th><th>Notes</th></tr>
+                <tr><th>AssetWorx Field</th><th>Source</th><th>FHIR Location Property</th><th>Notes</th></tr>
             </thead>
             <tbody>
                 <tr><td>SP Code (e.g. <code>SP-ROOM-101</code>)</td><td><code>lastobservedlocation</code></td><td><code>identifier[0].value</code></td><td>System: VA OID. Deduplicated across all selected assets.</td></tr>
@@ -502,17 +503,17 @@ openssl rsa -in private.pem -pubout -out public.pem</pre>
   "resourceType": "Bundle",
   "type": "transaction",
   "timestamp": "2026-07-07T18:30:00.000Z",
-  "meta": { "source": "idash-fhir-bridge" },
+  "meta": { "source": "AssetWorx-iDash-FHIR-Bridge" },
   "entry": [
     {
       "fullUrl": "urn:uuid:location-SP-ROOM-101",
       "resource": { /* Location resource */ },
-      "request": { "method": "PUT", "url": "Location/idash-loc-SP-ROOM-101" }
+      "request": { "method": "PUT", "url": "Location/assetworx-loc-SP-ROOM-101" }
     },
     {
       "fullUrl": "urn:uuid:device-12345",
       "resource": { /* Device resource */ },
-      "request": { "method": "PUT", "url": "Device/idash-12345" }
+      "request": { "method": "PUT", "url": "Device/assetworx-12345" }
     }
     // ... more entries
   ]
@@ -524,7 +525,7 @@ openssl rsa -in private.pem -pubout -out public.pem</pre>
         </p>
         <p>
             <strong>Idempotency:</strong> All entries use <code>PUT</code> (not <code>POST</code>),
-            with deterministic IDs (<code>idash-{id}</code>). This means re-sending the same
+            with deterministic IDs (<code>assetworx-{id}</code>). This means re-sending the same
             bundle updates existing resources rather than creating duplicates.
         </p>
     </div>
@@ -646,7 +647,7 @@ openssl rsa -in private.pem -pubout -out public.pem</pre>
    { /* FHIR Bundle */ }
         </pre>
         <p>
-            This flow is identical to the pattern used by <code>IdashApiClient.cs</code> for the
+            This flow is identical to the pattern used by <code>AssetworxApiClient.cs</code> for the
             existing REST API (which also uses OAuth 2.0 with token caching and expiry checks via
             <code>EnsureToken()</code>). The FHIR CCG flow adds JWT signing as the authentication mechanism
             instead of client_secret.
@@ -661,7 +662,7 @@ openssl rsa -in private.pem -pubout -out public.pem</pre>
         <p>
             The ENNX (Electronic Non-Expendable Exchange) workflow is the VA's established standard for
             inventory submissions. <strong>The FHIR Bridge does not replace ENNX.</strong> It provides an
-            additional, standards-based export path. Both systems read from the same iDash SQL database.
+            additional, standards-based export path. Both systems read from the same AssetWorx SQL database.
         </p>
         <table>
             <thead><tr><th>Feature</th><th>ENNX Tools</th><th>FHIR Bridge</th></tr></thead>
@@ -670,7 +671,7 @@ openssl rsa -in private.pem -pubout -out public.pem</pre>
                 <tr><td><strong>Transport</strong></td><td>Email / file download / SQL save</td><td>HTTPS REST API (or JSON download)</td></tr>
                 <tr><td><strong>Standard</strong></td><td>VA-proprietary ENNX format</td><td>HL7 FHIR R4 (international standard)</td></tr>
                 <tr><td><strong>Target System</strong></td><td>VA inventory import process</td><td>VA VistA via Lighthouse FHIR API</td></tr>
-                <tr><td><strong>Data Source</strong></td><td>iDash SQL (<code>dbo.asset</code>)</td><td>iDash SQL (<code>dbo.asset</code>) &mdash; same</td></tr>
+                <tr><td><strong>Data Source</strong></td><td>AssetWorx SQL (<code>dbo.asset</code>)</td><td>AssetWorx SQL (<code>dbo.asset</code>) &mdash; same</td></tr>
                 <tr><td><strong>Validation</strong></td><td>Manual review</td><td>FHIR schema validation + preview</td></tr>
                 <tr><td><strong>Idempotency</strong></td><td>No (each submission is treated as new)</td><td>Yes (PUT with deterministic IDs)</td></tr>
                 <tr><td><strong>Patient Data</strong></td><td>None</td><td>None</td></tr>
@@ -753,7 +754,7 @@ openssl rsa -in private.pem -pubout -out public.pem</pre>
             <div class="decision-icon di-green">6</div>
             <div class="decision-body">
                 <h3>Why PUT Instead of POST for Bundle Entries?</h3>
-                <p><code>PUT</code> with deterministic resource IDs (<code>idash-{id}</code>) makes
+                <p><code>PUT</code> with deterministic resource IDs (<code>assetworx-{id}</code>) makes
                 every bundle submission <strong>idempotent</strong>. Re-sending the same bundle updates
                 existing resources instead of creating duplicates. This is critical for retry scenarios
                 and scheduled automation.</p>
@@ -862,7 +863,7 @@ openssl rsa -in private.pem -pubout -out public.pem</pre>
                 <tr>
                     <td>No assets load when clicking &ldquo;Load Assets&rdquo;</td>
                     <td>Connection string mismatch or empty company</td>
-                    <td>Verify <code>web.config</code> has the <code>iDash</code> connection string. Check that the selected company has assets in <code>dbo.asset</code>.</td>
+                    <td>Verify <code>web.config</code> has the <code>AssetWorx</code> (or <code>Assetworx</code>) connection string. Check that the selected company has assets in <code>dbo.asset</code>.</td>
                 </tr>
                 <tr>
                     <td>JWK shows &ldquo;(No JWK file found)&rdquo;</td>
@@ -889,7 +890,7 @@ openssl rsa -in private.pem -pubout -out public.pem</pre>
 
         <h3>How to Add a New FHIR Resource Type</h3>
         <ol>
-            <li>Define the mapping from iDash SQL columns to FHIR resource properties (document it in the mapping table above).</li>
+            <li>Define the mapping from AssetWorx SQL columns to FHIR resource properties (document it in the mapping table above).</li>
             <li>In <code>va_fhir_bridge.aspx.cs</code>: create a new method like <code>BuildSupplyRequestResource(DataRow row)</code> following the same pattern as <code>BuildFhirBundleJson</code>.</li>
             <li>In <code>va_fhir_bridge.aspx</code> (JavaScript): add the corresponding client-side resource builder in the <code>generatePreview()</code> function.</li>
             <li>Add the new resource entries to the Bundle's <code>entry</code> array in both builders.</li>
@@ -900,7 +901,7 @@ openssl rsa -in private.pem -pubout -out public.pem</pre>
         <h3>How to Implement Phase 2 (Direct API POST)</h3>
         <ol>
             <li>Implement <code>GenerateClientAssertion()</code> in the code-behind: build a JWT with the header/payload described in the OAuth section, sign it with the RSA private key using <code>RSAPKCS1SignatureFormatter</code>.</li>
-            <li>Implement <code>AcquireToken()</code>: POST the JWT to the token URL, parse the response for <code>access_token</code> and <code>expires_in</code>. Cache the token and check expiry (same pattern as <code>IdashApiClient.EnsureToken()</code>).</li>
+            <li>Implement <code>AcquireToken()</code>: POST the JWT to the token URL, parse the response for <code>access_token</code> and <code>expires_in</code>. Cache the token and check expiry (same pattern as <code>AssetworxApiClient.EnsureToken()</code>).</li>
             <li>Implement <code>PushBundle(string bundleJson)</code>: POST the Bundle JSON to the FHIR base URL with <code>Authorization: Bearer {token}</code> and <code>Content-Type: application/fhir+json</code>.</li>
             <li>Add a &ldquo;Push to VistA&rdquo; button handler that calls <code>AcquireToken</code> then <code>PushBundle</code>.</li>
             <li>Log the response (status code, response body) to the transaction log.</li>
@@ -986,14 +987,13 @@ openssl rsa -in private.pem -pubout -out public.pem</pre>
 </div>
 
 <footer style="margin-top:40px;padding:20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted-docs);display:flex;justify-content:space-between;align-items:center;background:var(--bg);max-width:1400px;margin-left:auto;margin-right:auto;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
-        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
-        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    <div style="display:flex;align-items:center;gap:8px;">
+        <img src="/idash/assets/branding/assetworx.jpg" alt="AssetWorx" style="height:16px;">
+        <span style="font-weight:600;font-size:14px;color:var(--text);">AssetWorx<span style="color:#2ea8ff;">!</span></span>
     </div>
     <div style="display:flex;align-items:center;gap:12px;">
         <span>&copy; 2026 ID Integration Inc. &mdash; Last updated 07/07/2026</span>
-        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height:14px;opacity:.9;">
+        <img src="/idash/assets/branding/idintegration.jpg" alt="ID Integration Inc." style="height:14px;opacity:.9;">
     </div>
 </footer>
 </div>

@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>IDI Mobile Connectivity Cookbook &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <script src="theme-init.js"></script>
     <link rel="stylesheet" href="docs_theme.css" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -52,7 +53,7 @@
             letter-spacing: 0.06em;
         }
         .pill-idi   { background: color-mix(in srgb, #2ea8ff 18%, transparent); border: 1px solid #2ea8ff44; color: #2ea8ff; }
-        
+        .pill-impres{ background: color-mix(in srgb, #10b981 18%, transparent); border: 1px solid #10b98144; color: #10b981; }
         .pill-aw    { background: color-mix(in srgb, #a855f7 18%, transparent); border: 1px solid #a855f744; color: #a855f7; }
 
         .cookbook-meta {
@@ -320,8 +321,8 @@
         <div class="cover-band">
             <div class="cover-brand">
                 <span class="cover-brand-pill pill-idi">&#128241; ID Integration Inc.</span>
-                
-                <span class="cover-brand-pill pill-aw">&#9889; iDash</span>
+                <span class="cover-brand-pill pill-impres">&#128279; Impres Technologies</span>
+                <span class="cover-brand-pill pill-aw">&#9889; AssetWorx!</span>
             </div>
 
             <h1 style="margin:0 0 10px; font-size:2.4rem; letter-spacing:-0.02em; line-height:1.15;">
@@ -330,18 +331,18 @@
             <p style="font-size:1.05rem; color:var(--muted-docs); max-width:700px; line-height:1.65; margin:0;">
                 A practical field guide for network engineers, VA OIT teams, and deployment technicians
                 configuring mobile handheld scanners, WiFi infrastructure, and network connectivity
-                to support <strong style="color:var(--text-docs);">iDash</strong> by ID Integration Inc.
+                to support <strong style="color:var(--text-docs);">AssetWorx!</strong> by InfinID Technologies
                 on the VA network.
             </p>
 
             <div class="cookbook-meta">
                 <div class="meta-item">
                     <strong>Vendor</strong>
-                    ID Integration Inc.
+                    ID Integration Inc. &amp; Impres Technologies
                 </div>
                 <div class="meta-item">
                     <strong>Application</strong>
-                    iDash by ID Integration Inc.
+                    AssetWorx! by InfinID Technologies
                 </div>
                 <div class="meta-item">
                     <strong>Platform</strong>
@@ -365,8 +366,8 @@
             <h2 style="margin-top:0;">&#128214; About This Cookbook</h2>
             <p>
                 This document replaces the legacy McKesson Mobile Connectivity Cookbook and is fully
-                rewritten to reflect the <strong>iDash RFID Asset Tracking</strong> deployment by
-                <strong>ID Integration Inc.</strong> within the
+                rewritten to reflect the <strong>AssetWorx! RFID Asset Tracking</strong> deployment by
+                <strong>ID Integration Inc.</strong> and <strong>Impres Technologies</strong> within the
                 VA healthcare network environment.
             </p>
             <p>
@@ -377,16 +378,16 @@
             </p>
             <div class="info-recipe">
                 <strong>&#9432; Who Is This For?</strong><br>
-                VA OIT Network, Server, and Database teams; ID Integration deployment technicians;
-                and on-site biomedical or engineering staff responsible for maintaining iDash mobile
+                VA OIT Network, Server, and Database teams; ID Integration / Impres deployment technicians;
+                and on-site biomedical or engineering staff responsible for maintaining AssetWorx! mobile
                 scanner infrastructure.
             </div>
             <div class="alert-amber" style="margin-top:20px;">
                 <strong>&#128196; ERA Reference</strong><br>
                 All port numbers, protocols, and network requirements in this document align with the approved
                 Enterprise Risk Assessment (ERA):
-                <a href="SPS_OT_RITM9079692_iDash Mod 1.2_POAM Req_Approved.pdf" style="font-size:14px;">
-                    &#128196; SPS_OT_RITM9079692 &mdash; ID Integration Inc. iDash Mod 1.2 (Approved)
+                <a href="SPS_OT_RITM9079692_Infinidtech AssetWorx Mod 1.2_POAM Req_Approved.pdf" style="font-size:14px;">
+                    &#128196; SPS_OT_RITM9079692 &mdash; InfinID Technologies AssetWorx Mod 1.2 (Approved)
                 </a>
             </div>
         </div>
@@ -405,19 +406,19 @@
                 <a class="toc-item" href="#r6"><span class="toc-num">R6</span> Verifying Scanner-to-Server Connectivity</a>
                 <a class="toc-item" href="#r7"><span class="toc-num">R7</span> Label Printer Network Setup</a>
                 <a class="toc-item" href="#r8"><span class="toc-num">R8</span> VLAN Routing &amp; Inter-Segment Traffic</a>
-                <a class="toc-item" href="#r9"><span class="toc-num">R9</span> iDash Web Client URL Configuration</a>
+                <a class="toc-item" href="#r9"><span class="toc-num">R9</span> AssetWorx! Web Client URL Configuration</a>
                 <a class="toc-item" href="#r10"><span class="toc-num">R10</span> SSL Certificate &amp; HTTPS</a>
                 <a class="toc-item" href="#r11"><span class="toc-num">R11</span> Replacing or Adding a Scanner</a>
                 <a class="toc-item" href="#r12"><span class="toc-num">R12</span> Troubleshooting: Scanner Won&rsquo;t Connect</a>
                 <a class="toc-item" href="#r13"><span class="toc-num">R13</span> Troubleshooting: Print Jobs Not Printing</a>
-                <a class="toc-item" href="#r14"><span class="toc-num">R14</span> Troubleshooting: iDash Web Errors</a>
+                <a class="toc-item" href="#r14"><span class="toc-num">R14</span> Troubleshooting: AssetWorx! Web Errors</a>
                 <a class="toc-item" href="#r15"><span class="toc-num">R15</span> Pre-Deployment Checklist</a>
                 <a class="toc-item" href="#r16"><span class="toc-num">R16</span> Contacts &amp; Responsible Parties</a>
             </div>
         </div>
 
         <!-- ================================================
-             R1 � SYSTEM ARCHITECTURE
+             R1 — SYSTEM ARCHITECTURE
              ================================================ -->
         <div class="recipe-card" id="r1">
             <div class="recipe-header">
@@ -428,7 +429,7 @@
                 </div>
             </div>
 
-            <p>The iDash RFID asset tracking system consists of four major physical and logical layers that must all communicate correctly for scanning and printing to work.</p>
+            <p>The AssetWorx! RFID asset tracking system consists of four major physical and logical layers that must all communicate correctly for scanning and printing to work.</p>
 
             <table>
                 <tr><th>Layer</th><th>Component</th><th>Role</th><th>Network</th></tr>
@@ -441,7 +442,7 @@
                 <tr>
                     <td><strong>Application Server</strong></td>
                     <td>VA Windows Server (IIS + ASP.NET)</td>
-                    <td>Hosts iDash web client &amp; iDash management portal</td>
+                    <td>Hosts AssetWorx! web client &amp; iDash management portal</td>
                     <td>VA server VLAN &mdash; static IP</td>
                 </tr>
                 <tr>
@@ -460,10 +461,10 @@
 
             <div class="info-recipe" style="margin-top:18px;">
                 <strong>&#128260; Data Flow Summary</strong><br>
-                <strong>Scan event:</strong> TC53 scanner &rarr; WiFi (mobile1md) &rarr; iDash server (HTTPS 443) &rarr; SQL Server (TCP 1433)<br>
-                <strong>Print event:</strong> TC53 triggers print &rarr; iDash server queues print job in SQL &rarr; PowerShell spooler dequeues job &rarr; BarTender &rarr; label printer (TCP 9100)<br>
-                <strong>Fixed reader:</strong> Zebra FX9600 &rarr; MQTT over TCP 1883 &rarr; iDash MQTT broker &rarr; SQL Server<br>
-                <strong>iDash portal:</strong> Any workstation/browser &rarr; HTTPS 443 &rarr; iDash server
+                <strong>Scan event:</strong> TC53 scanner &rarr; WiFi (mobile1md) &rarr; AssetWorx! server (HTTPS 443) &rarr; SQL Server (TCP 1433)<br>
+                <strong>Print event:</strong> TC53 triggers print &rarr; AssetWorx! server queues print job in SQL &rarr; PowerShell spooler dequeues job &rarr; BarTender &rarr; label printer (TCP 9100)<br>
+                <strong>Fixed reader:</strong> Zebra FX9600 &rarr; MQTT over TCP 1883 &rarr; AssetWorx! MQTT broker &rarr; SQL Server<br>
+                <strong>iDash portal:</strong> Any workstation/browser &rarr; HTTPS 443 &rarr; AssetWorx! server
             </div>
 
             <div class="two-col" style="margin-top:18px;">
@@ -472,7 +473,7 @@
                     <ul>
                         <li>Zebra TC53 handheld (Android)</li>
                         <li>Zebra RFD40 RFID sled (Bluetooth to TC53)</li>
-                        <li>iDash mobile app (browser-based over HTTPS)</li>
+                        <li>AssetWorx! mobile app (browser-based over HTTPS)</li>
                         <li>WiFi: <code>mobile1md</code> SSID</li>
                     </ul>
                 </div>
@@ -480,7 +481,7 @@
                     <h4>&#127968; Server Side</h4>
                     <ul>
                         <li>Windows Server &mdash; VA standard image</li>
-                        <li>IIS hosting iDash.WebClient + iDash</li>
+                        <li>IIS hosting AssetWorx.WebClient + iDash</li>
                         <li>BarTender Enterprise (Seagull Scientific)</li>
                         <li>PowerShell print spooler (always running)</li>
                     </ul>
@@ -489,7 +490,7 @@
         </div>
 
         <!-- ================================================
-             R2 � WiFi CONFIGURATION
+             R2 — WiFi CONFIGURATION
              ================================================ -->
         <div class="recipe-card" id="r2">
             <div class="recipe-header">
@@ -522,7 +523,7 @@
 
             <div class="info-recipe">
                 <strong>&#128246; WiFi Coverage &mdash; Preferred, Not Mandatory</strong><br>
-                Both <strong>iDash mobile</strong> and the <strong>iDash scanning pages</strong> (VA Site Inventory,
+                Both <strong>AssetWorx! mobile</strong> and the <strong>iDash scanning pages</strong> (VA Site Inventory,
                 Tag Team Scan) support <strong>offline and batch mode</strong>. Scan data is queued locally on the device
                 and synced to the server when connectivity is restored &mdash; so RFID tags scanned in a dead zone
                 <em>are not lost</em>. WiFi coverage is still strongly recommended for real-time session status,
@@ -531,17 +532,17 @@
             </div>
 
             <h3>Firewall Rule Required on WLAN Controller</h3>
-            <p>The mobile VLAN must be able to reach the iDash server. Add the following outbound rule from the mobile1md VLAN:</p>
+            <p>The mobile VLAN must be able to reach the AssetWorx! server. Add the following outbound rule from the mobile1md VLAN:</p>
             <table>
                 <tr><th>Source</th><th>Destination</th><th>Port</th><th>Protocol</th><th>Action</th></tr>
-                <tr><td>mobile1md VLAN</td><td>iDash server IP</td><td>443</td><td>TCP</td><td>PERMIT</td></tr>
-                <tr><td>mobile1md VLAN</td><td>iDash server IP</td><td>80</td><td>TCP</td><td>PERMIT (redirects to 443)</td></tr>
+                <tr><td>mobile1md VLAN</td><td>AssetWorx! server IP</td><td>443</td><td>TCP</td><td>PERMIT</td></tr>
+                <tr><td>mobile1md VLAN</td><td>AssetWorx! server IP</td><td>80</td><td>TCP</td><td>PERMIT (redirects to 443)</td></tr>
                 <tr><td>mobile1md VLAN</td><td>VA DNS server</td><td>53</td><td>UDP/TCP</td><td>PERMIT</td></tr>
             </table>
         </div>
 
         <!-- ================================================
-             R3 � TC53 ONBOARDING
+             R3 — TC53 ONBOARDING
              ================================================ -->
         <div class="recipe-card" id="r3">
             <div class="recipe-header">
@@ -558,7 +559,7 @@
                     <li>Zebra TC53 handheld computer (fully charged)</li>
                     <li>Zebra RFD40 RFID sled (paired via Bluetooth)</li>
                     <li>OIT network ticket to register the MAC address on <code>mobile1md</code></li>
-                    <li>iDash server hostname or IP address</li>
+                    <li>AssetWorx! server hostname or IP address</li>
                     <li>Confirmation that MAC has been registered (from OIT)</li>
                 </ul>
             </div>
@@ -587,24 +588,24 @@
                 <div class="step-item">Tap <strong>Connect</strong> &mdash; device should obtain a DHCP address and show &ldquo;Connected&rdquo;</div>
             </div>
 
-            <h3>Step 4 &mdash; Configure the iDash Server URL</h3>
+            <h3>Step 4 &mdash; Configure the AssetWorx! Server URL</h3>
             <div class="step-list">
                 <div class="step-item">Open the TC53 browser (Chrome recommended)</div>
-                <div class="step-item">Navigate to: <code>https://[idashServerHostname]/</code></div>
+                <div class="step-item">Navigate to: <code>https://[AssetWorxServerHostname]/</code></div>
                 <div class="step-item">Accept the VA SSL certificate if prompted (certificate must be VA-issued and trusted)</div>
                 <div class="step-item">Bookmark or set as the browser homepage for the user</div>
             </div>
 
             <div class="result-box">
                 <strong>&#9989; Success Criteria:</strong> The TC53 connects to <code>mobile1md</code> with a valid IP,
-                the iDash login screen loads over HTTPS, and scanning records appear in the iDash dashboard
+                the AssetWorx! login screen loads over HTTPS, and scanning records appear in the iDash dashboard
                 after a test scan. Note: scanning in <strong>offline / batch mode</strong> will queue records locally
                 and sync when WiFi is restored &mdash; test both connected and reconnect scenarios.
             </div>
         </div>
 
         <!-- ================================================
-             R4 � RFD40 SLED
+             R4 — RFD40 SLED
              ================================================ -->
         <div class="recipe-card" id="r4">
             <div class="recipe-header">
@@ -618,7 +619,7 @@
             <div class="info-recipe">
                 <strong>&#8505;&#65039; How it Works</strong><br>
                 The RFD40 is a Bluetooth-connected RFID sled that snaps onto or is held alongside the TC53. The TC53
-                runs the iDash web app in its browser; the RFD40 sends scanned RFID EPC strings to the TC53 as
+                runs the AssetWorx! web app in its browser; the RFD40 sends scanned RFID EPC strings to the TC53 as
                 keyboard/HID input, which the web app captures. <strong>No separate network registration is required
                 for the RFD40</strong> &mdash; only the TC53 needs to be on WiFi.
             </div>
@@ -639,7 +640,7 @@
                 <div class="step-item">Tap the RFD40 to pair &mdash; accept the pairing request on both devices if prompted</div>
                 <div class="step-item">Open the Zebra <strong>123SCAN</strong> app (or <strong>DataWedge</strong>) and confirm the RFD40 shows as connected</div>
                 <div class="step-item">Configure the scan output profile to <strong>Keyboard Wedge / HID</strong> mode so scanned EPCs are sent as keystrokes to the active app</div>
-                <div class="step-item">Open the iDash browser session and tap the scan input field &mdash; trigger a scan; the EPC should populate the field</div>
+                <div class="step-item">Open the AssetWorx! browser session and tap the scan input field &mdash; trigger a scan; the EPC should populate the field</div>
             </div>
 
             <div class="warn-recipe">
@@ -650,13 +651,13 @@
             </div>
 
             <div class="result-box">
-                <strong>&#9989; Success Criteria:</strong> Triggering the RFD40 trigger button while the iDash scan
+                <strong>&#9989; Success Criteria:</strong> Triggering the RFD40 trigger button while the AssetWorx! scan
                 field is active populates the EPC tag value automatically.
             </div>
         </div>
 
         <!-- ================================================
-             R5 � FIREWALL & ACL
+             R5 — FIREWALL & ACL
              ================================================ -->
         <div class="recipe-card" id="r5">
             <div class="recipe-header">
@@ -671,21 +672,21 @@
                 <strong>&#128196; ERA Reference</strong><br>
                 All port requirements below are derived from the approved ERA document.
                 Always cross-reference before submitting a firewall change request:
-                <a href="SPS_OT_RITM9079692_iDash Mod 1.2_POAM Req_Approved.pdf">
-                    SPS_OT_RITM9079692 &mdash; ID Integration Inc. iDash Mod 1.2
+                <a href="SPS_OT_RITM9079692_Infinidtech AssetWorx Mod 1.2_POAM Req_Approved.pdf">
+                    SPS_OT_RITM9079692 &mdash; InfinID Technologies AssetWorx Mod 1.2
                 </a>
             </div>
 
-            <h3>Inbound to iDash Server</h3>
+            <h3>Inbound to AssetWorx! Server</h3>
             <table>
                 <tr><th>Port</th><th>Proto</th><th>Source</th><th>Purpose</th></tr>
-                <tr><td><strong>443</strong></td><td>TCP</td><td>mobile1md VLAN, workstation VLAN</td><td>HTTPS &mdash; iDash web client, iDash portal, scanner web app</td></tr>
+                <tr><td><strong>443</strong></td><td>TCP</td><td>mobile1md VLAN, workstation VLAN</td><td>HTTPS &mdash; AssetWorx! web client, iDash portal, scanner web app</td></tr>
                 <tr><td><strong>80</strong></td><td>TCP</td><td>mobile1md VLAN, workstation VLAN</td><td>HTTP &mdash; redirects to 443 (allow so redirect works)</td></tr>
                 <tr><td><strong>5985</strong></td><td>TCP</td><td>Admin workstation VLAN</td><td>WinRM / PowerShell remoting (server administration only)</td></tr>
                 <tr><td><strong>3389</strong></td><td>TCP</td><td>Admin workstation VLAN (if needed)</td><td>RDP &mdash; remote desktop for IT administration</td></tr>
             </table>
 
-            <h3>Outbound from iDash Server</h3>
+            <h3>Outbound from AssetWorx! Server</h3>
             <table>
                 <tr><th>Port</th><th>Proto</th><th>Destination</th><th>Purpose</th></tr>
                 <tr><td><strong>1433</strong></td><td>TCP</td><td>VA SQL Server instance</td><td>SQL Server database connection</td></tr>
@@ -704,14 +705,14 @@
         </div>
 
         <!-- ================================================
-             R6 � CONNECTIVITY VERIFICATION
+             R6 — CONNECTIVITY VERIFICATION
              ================================================ -->
         <div class="recipe-card" id="r6">
             <div class="recipe-header">
                 <div class="recipe-num rn-blue">R6</div>
                 <div class="recipe-title-block">
                     <h2>&#128270; Verifying Scanner-to-Server Connectivity</h2>
-                    <div class="recipe-subtitle">Use these tests to confirm the TC53 can reach the iDash server before going live.</div>
+                    <div class="recipe-subtitle">Use these tests to confirm the TC53 can reach the AssetWorx! server before going live.</div>
                 </div>
             </div>
 
@@ -725,14 +726,14 @@
             <h3>Test 2 &mdash; HTTPS Connectivity (on TC53)</h3>
             <div class="step-list">
                 <div class="step-item">Open Chrome on the TC53</div>
-                <div class="step-item">Navigate to: <code>https://[idashServerHostname]/</code></div>
-                <div class="step-item">&#9989; Expected: iDash login screen loads without certificate warnings or connection errors</div>
+                <div class="step-item">Navigate to: <code>https://[AssetWorxServerHostname]/</code></div>
+                <div class="step-item">&#9989; Expected: AssetWorx! login screen loads without certificate warnings or connection errors</div>
                 <div class="step-item">&#10060; If it times out: ACL or firewall is blocking port 443 from mobile1md VLAN to server VLAN</div>
                 <div class="step-item">&#10060; If certificate error: VA SSL cert is not trusted on the device, or the cert has expired</div>
             </div>
 
-            <h3>Test 3 &mdash; Server-Side Connectivity Tests (from iDash server)</h3>
-            <p>Run from an elevated PowerShell session on the iDash server:</p>
+            <h3>Test 3 &mdash; Server-Side Connectivity Tests (from AssetWorx! server)</h3>
+            <p>Run from an elevated PowerShell session on the AssetWorx! server:</p>
             <pre># Test SQL Server connectivity
 Test-NetConnection -ComputerName &lt;SQLServerHostname&gt; -Port 1433
 
@@ -743,9 +744,9 @@ Test-NetConnection -ComputerName &lt;PrinterIP&gt; -Port 9100
 netstat -ano | findstr :443
 netstat -ano | findstr :80
 
-# Confirm iDash app pool is running
+# Confirm AssetWorx! app pool is running
 Get-WebConfiguration system.applicationHost/applicationPools/add |
-    Where-Object { $_.name -like '*iDash*' } | Select-Object name, state</pre>
+    Where-Object { $_.name -like '*AssetWorx*' } | Select-Object name, state</pre>
 
             <div class="result-box">
                 <strong>&#9989; All Tests Pass When:</strong> SQL connection returns <code>TcpTestSucceeded: True</code>,
@@ -755,7 +756,7 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
         </div>
 
         <!-- ================================================
-             R7 � PRINTER NETWORK SETUP
+             R7 — PRINTER NETWORK SETUP
              ================================================ -->
         <div class="recipe-card" id="r7">
             <div class="recipe-header">
@@ -770,7 +771,7 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
                 <div class="ib-title">&#9881;&#65039; What You Need</div>
                 <ul>
                     <li>Static IP address reserved by OIT for each printer</li>
-                    <li>Live Ethernet wall jack patched to the correct VLAN (must be routable to the iDash server)</li>
+                    <li>Live Ethernet wall jack patched to the correct VLAN (must be routable to the AssetWorx! server)</li>
                     <li>Subnet mask, default gateway, and DNS addresses from OIT</li>
                     <li>Printer model: IQ350, Large Metal, or Standard Small RFID label printer</li>
                 </ul>
@@ -783,14 +784,14 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
                 <div class="step-item">Enter the static IP, subnet mask, and default gateway provided by OIT</div>
                 <div class="step-item">Enter DNS server addresses</div>
                 <div class="step-item">Save and reboot the printer</div>
-                <div class="step-item">From the iDash server: <code>Test-NetConnection -ComputerName &lt;PrinterIP&gt; -Port 9100</code> &mdash; should return <code>TcpTestSucceeded: True</code></div>
+                <div class="step-item">From the AssetWorx! server: <code>Test-NetConnection -ComputerName &lt;PrinterIP&gt; -Port 9100</code> &mdash; should return <code>TcpTestSucceeded: True</code></div>
             </div>
 
             <h3>Register the Printer in BarTender &amp; printer_routing.json</h3>
             <div class="step-list">
-                <div class="step-item green">Install the BarTender-compatible printer driver on the iDash server for this printer model</div>
+                <div class="step-item green">Install the BarTender-compatible printer driver on the AssetWorx! server for this printer model</div>
                 <div class="step-item green">Run <code>Get-Printer | Select-Object Name</code> and note the exact Windows printer name</div>
-                <div class="step-item green">Edit <code>C:\idash_prints\printer_routing.json</code> &mdash; add or update the entry mapping the <code>.btw</code> template filename to the Windows printer name:</div>
+                <div class="step-item green">Edit <code>C:\assetworx_prints\printer_routing.json</code> &mdash; add or update the entry mapping the <code>.btw</code> template filename to the Windows printer name:</div>
             </div>
 
             <pre>{
@@ -815,7 +816,7 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
         </div>
 
         <!-- ================================================
-             R8 � VLAN ROUTING
+             R8 — VLAN ROUTING
              ================================================ -->
         <div class="recipe-card" id="r8">
             <div class="recipe-header">
@@ -826,7 +827,7 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
                 </div>
             </div>
 
-            <p>The iDash deployment spans three distinct network segments that must be able to communicate. VA OIT Network team must configure inter-VLAN routing (Layer 3 switch or firewall) to permit the following flows:</p>
+            <p>The AssetWorx! deployment spans three distinct network segments that must be able to communicate. VA OIT Network team must configure inter-VLAN routing (Layer 3 switch or firewall) to permit the following flows:</p>
 
             <table>
                 <tr><th>Source VLAN</th><th>Destination VLAN</th><th>Port(s)</th><th>Why Required</th></tr>
@@ -834,7 +835,7 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
                     <td>mobile1md (scanners)</td>
                     <td>Server VLAN</td>
                     <td>443, 80</td>
-                    <td>Scanners access iDash web app</td>
+                    <td>Scanners access AssetWorx! web app</td>
                 </tr>
                 <tr>
                     <td>Workstation VLAN</td>
@@ -846,7 +847,7 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
                     <td>Server VLAN</td>
                     <td>Database VLAN</td>
                     <td>1433</td>
-                    <td>iDash server reads/writes SQL database</td>
+                    <td>AssetWorx! server reads/writes SQL database</td>
                 </tr>
                 <tr>
                     <td>Server VLAN</td>
@@ -871,37 +872,37 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
         </div>
 
         <!-- ================================================
-             R9 � URL CONFIGURATION
+             R9 — URL CONFIGURATION
              ================================================ -->
         <div class="recipe-card" id="r9">
             <div class="recipe-header">
                 <div class="recipe-num rn-blue">R9</div>
                 <div class="recipe-title-block">
-                    <h2>&#128279; iDash Web Client URL Configuration</h2>
-                    <div class="recipe-subtitle">Configure the correct server URL on mobile scanners and in the iDash web.config.</div>
+                    <h2>&#128279; AssetWorx! Web Client URL Configuration</h2>
+                    <div class="recipe-subtitle">Configure the correct server URL on mobile scanners and in the AssetWorx! web.config.</div>
                 </div>
             </div>
 
             <h3>URL Format</h3>
-            <pre>https://[idashServerHostname]/</pre>
-            <pre>https://[idashServerHostname]/iDash/</pre>
+            <pre>https://[AssetWorxServerHostname]/</pre>
+            <pre>https://[AssetWorxServerHostname]/iDash/</pre>
 
             <p>The hostname must match the <strong>CN of the SSL certificate</strong> exactly to avoid certificate errors on mobile devices.</p>
 
             <h3>web.config Key Settings</h3>
             <table>
                 <tr><th>Setting</th><th>Value</th><th>Purpose</th></tr>
-                <tr><td><code>iDash_ApiBase</code></td><td><code>https://[hostname]</code></td><td>REST API base URL used by iDash &mdash; <strong>no trailing /api</strong>; the code appends the path automatically</td></tr>
-                <tr><td><code>iDash_TokenUrl</code></td><td><code>https://[hostname]/connect/token</code></td><td>OAuth token endpoint</td></tr>
-                <tr><td><code>iDash_ClientId</code></td><td>Assigned per site (e.g., <code>idash_512</code>)</td><td>OAuth client ID registered in iDash <code>clientapp</code> table</td></tr>
-                <tr><td><code>iDash_ClientSecret</code></td><td>Matching secret from <code>clientapp</code> table</td><td>OAuth client secret</td></tr>
-                <tr><td>Connection String</td><td><code>Data Source=[SQLHost]; Database=iDash; User ID=idashadmin; Password=[pw];</code></td><td>SQL Server connection (use <code>Data Source=.\sqlexpress</code> for local named instances)</td></tr>
+                <tr><td><code>AssetWorx_ApiBase</code></td><td><code>https://[hostname]</code></td><td>REST API base URL used by iDash &mdash; <strong>no trailing /api</strong>; the code appends the path automatically</td></tr>
+                <tr><td><code>AssetWorx_TokenUrl</code></td><td><code>https://[hostname]/connect/token</code></td><td>OAuth token endpoint</td></tr>
+                <tr><td><code>AssetWorx_ClientId</code></td><td>Assigned per site (e.g., <code>idash_512</code>)</td><td>OAuth client ID registered in AssetWorx <code>clientapp</code> table</td></tr>
+                <tr><td><code>AssetWorx_ClientSecret</code></td><td>Matching secret from <code>clientapp</code> table</td><td>OAuth client secret</td></tr>
+                <tr><td>Connection String</td><td><code>Data Source=[SQLHost]; Database=assetworx; User ID=assetworxadmin; Password=[pw];</code></td><td>SQL Server connection (use <code>Data Source=.\sqlexpress</code> for local named instances)</td></tr>
             </table>
 
             <div class="warn-recipe">
                 <strong>&#9888;&#65039; HTTP vs HTTPS</strong><br>
                 Always use <code>https://</code> on mobile scanners. HTTP connections will fail on modern Android
-                devices when the iDash app performs secure operations. IIS should be configured to redirect
+                devices when the AssetWorx! app performs secure operations. IIS should be configured to redirect
                 port 80 &rarr; 443 automatically.
             </div>
             <div class="info-recipe" style="margin-top:14px;">
@@ -914,7 +915,7 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
         </div>
 
         <!-- ================================================
-             R10 � SSL CERTIFICATE
+             R10 — SSL CERTIFICATE
              ================================================ -->
         <div class="recipe-card" id="r10">
             <div class="recipe-header">
@@ -929,7 +930,7 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
                 <div class="ib-title">&#9881;&#65039; Requirements</div>
                 <ul>
                     <li>VA-issued SSL certificate for the server&rsquo;s <strong>FQDN</strong> (Fully Qualified Domain Name) &mdash; generated via the VA PKI certificate request process</li>
-                    <li>IIS Manager access on the iDash server</li>
+                    <li>IIS Manager access on the AssetWorx! server</li>
                     <li>DNS record for the FQDN pointing to the server&rsquo;s static IP</li>
                     <li>Physical or remote access to each Zebra TC53 scanner</li>
                 </ul>
@@ -938,10 +939,10 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
             <!-- PART A: GENERATE THE CERT -->
             <h3>Part A &mdash; Generate the SSL Certificate via VA Process</h3>
             <div class="step-list">
-                <div class="step-item">Determine the server&rsquo;s <strong>FQDN</strong> (e.g., <code>VHABLTIDASH.v05.med.va.gov</code>). This is the full DNS hostname that scanners will use to reach the server.</div>
+                <div class="step-item">Determine the server&rsquo;s <strong>FQDN</strong> (e.g., <code>VHABLTASSETWORX.v05.med.va.gov</code>). This is the full DNS hostname that scanners will use to reach the server.</div>
                 <div class="step-item">Submit a VA PKI certificate request through the standard VA process (typically via the VA Certificate Authority / PKI team). The <strong>Common Name (CN)</strong> and/or <strong>Subject Alternative Name (SAN)</strong> on the certificate must exactly match the server&rsquo;s FQDN.</div>
                 <div class="step-item">Once issued, download the certificate file (typically <code>.pfx</code> or <code>.cer</code> format) from the VA PKI system.</div>
-                <div class="step-item">Import the certificate into the Windows Certificate Store on the iDash server: open <strong>MMC &rarr; Certificates (Local Computer) &rarr; Personal &rarr; Certificates</strong> &rarr; right-click &rarr; <strong>All Tasks &rarr; Import</strong>.</div>
+                <div class="step-item">Import the certificate into the Windows Certificate Store on the AssetWorx! server: open <strong>MMC &rarr; Certificates (Local Computer) &rarr; Personal &rarr; Certificates</strong> &rarr; right-click &rarr; <strong>All Tasks &rarr; Import</strong>.</div>
             </div>
 
             <div class="info-recipe">
@@ -955,8 +956,8 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
             <!-- PART B: BIND IN IIS & DISABLE TLS 1.3 -->
             <h3 style="margin-top:24px;">Part B &mdash; Bind Certificate in IIS &amp; Disable TLS 1.3</h3>
             <div class="step-list">
-                <div class="step-item">Open <strong>IIS Manager</strong> on the iDash server.</div>
-                <div class="step-item">In the left panel, expand the server name &rarr; <strong>Sites</strong> &rarr; select the <strong>iDash</strong> website.</div>
+                <div class="step-item">Open <strong>IIS Manager</strong> on the AssetWorx! server.</div>
+                <div class="step-item">In the left panel, expand the server name &rarr; <strong>Sites</strong> &rarr; select the <strong>AssetWorx</strong> website.</div>
                 <div class="step-item">Click <strong>Bindings...</strong> in the right-hand Actions panel.</div>
                 <div class="step-item">If an HTTPS binding on port 443 already exists, select it and click <strong>Edit</strong>. Otherwise click <strong>Add</strong> and set Type: <code>https</code>, Port: <code>443</code>.</div>
                 <div class="step-item">In the <strong>SSL certificate</strong> dropdown, select the VA-issued certificate you imported in Part A.</div>
@@ -995,9 +996,9 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
 
             <h4 style="margin-top:16px;">How to Export Both Certificates</h4>
             <div class="step-list">
-                <div class="step-item">On the iDash server, open <strong>MMC</strong> (press <code>Win + R</code>, type <code>mmc</code>, press Enter).</div>
+                <div class="step-item">On the AssetWorx! server, open <strong>MMC</strong> (press <code>Win + R</code>, type <code>mmc</code>, press Enter).</div>
                 <div class="step-item">Go to <strong>File &rarr; Add/Remove Snap-in &rarr; Certificates &rarr; Computer Account &rarr; Local Computer &rarr; Finish &rarr; OK</strong>.</div>
-                <div class="step-item">Navigate to <strong>Personal &rarr; Certificates</strong>. Find and double-click the iDash SSL certificate (the one bound to IIS).</div>
+                <div class="step-item">Navigate to <strong>Personal &rarr; Certificates</strong>. Find and double-click the AssetWorx! SSL certificate (the one bound to IIS).</div>
                 <div class="step-item">Go to the <strong>Certification Path</strong> tab. You will see the full chain, typically 2&ndash;3 levels:
                     <br/>&bull; <strong>Top level</strong> = Root CA (e.g., <em>VA Internal Root CA</em>)
                     <br/>&bull; <strong>Middle level</strong> = Intermediate CA (e.g., <em>VA Internal Issuing CA</em>)
@@ -1010,7 +1011,7 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
 
             <!-- PART D: INSTALL ON TC53 -->
             <h3 style="margin-top:24px;">Part D &mdash; Install Both Certificates on Zebra TC53 Scanners</h3>
-            <p>Both the Root CA and Intermediate CA certificates must be installed on <strong>every TC53 scanner</strong> that will connect to iDash</p>
+            <p>Both the Root CA and Intermediate CA certificates must be installed on <strong>every TC53 scanner</strong> that will connect to AssetWorx!</p>
 
             <div class="step-list">
                 <div class="step-item">Transfer the two <code>.cer</code> files (<code>VA_Root_CA.cer</code> and <code>VA_Intermediate_CA.cer</code>) to the TC53 &mdash; via USB cable, email attachment, or file share download.</div>
@@ -1037,7 +1038,7 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
         </div>
 
         <!-- ================================================
-             R11 � REPLACING / ADDING A SCANNER
+             R11 — REPLACING / ADDING A SCANNER
              ================================================ -->
         <div class="recipe-card" id="r11">
             <div class="recipe-header">
@@ -1053,7 +1054,7 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
                 <div class="step-item">Submit an OIT ticket to register the new MAC on <code>mobile1md</code></div>
                 <div class="step-item">While waiting for OIT, configure the WiFi SSID on the device (it will fail to connect until the MAC is registered &mdash; this is expected)</div>
                 <div class="step-item">Once OIT confirms MAC registration, connect to <code>mobile1md</code> and verify IP is assigned</div>
-                <div class="step-item">Open the iDash URL in Chrome and bookmark it</div>
+                <div class="step-item">Open the AssetWorx! URL in Chrome and bookmark it</div>
                 <div class="step-item">Pair the RFD40 sled if applicable (see Recipe R4)</div>
                 <div class="step-item">Update the device inventory spreadsheet with the new serial number, MAC, and assigned user</div>
                 <div class="step-item">If replacing a failed unit: deregister the old MAC from OIT&rsquo;s network access list to prevent orphaned registrations</div>
@@ -1061,13 +1062,13 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
 
             <div class="info-recipe">
                 <strong>&#8505;&#65039; No Software Installation Required</strong><br>
-                iDash runs as a web application in the Chrome browser. No software is installed on the scanner.
+                AssetWorx! runs as a web application in the Chrome browser. No software is installed on the scanner.
                 A replacement unit is fully operational as soon as it has WiFi access and the URL is bookmarked.
             </div>
         </div>
 
         <!-- ================================================
-             R12 � SCANNER WON'T CONNECT
+             R12 — SCANNER WON'T CONNECT
              ================================================ -->
         <div class="recipe-card" id="r12">
             <div class="recipe-header">
@@ -1079,9 +1080,9 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
             </div>
 
             <div class="troubleshoot-row">
-                <div class="symptom">&#10060; TC53 connects to WiFi but can&rsquo;t reach the iDash URL</div>
+                <div class="symptom">&#10060; TC53 connects to WiFi but can&rsquo;t reach the AssetWorx! URL</div>
                 <div class="cause"><strong>Likely Cause:</strong> ACL blocking port 443 from mobile1md VLAN to server VLAN.</div>
-                <div class="fix"><strong>Fix:</strong> Contact OIT Network team. Verify ACL permits TCP 443 from the mobile1md VLAN range to the iDash server IP. Test: <code>Test-NetConnection -ComputerName [ServerIP] -Port 443</code> from a device on the same VLAN.</div>
+                <div class="fix"><strong>Fix:</strong> Contact OIT Network team. Verify ACL permits TCP 443 from the mobile1md VLAN range to the AssetWorx! server IP. Test: <code>Test-NetConnection -ComputerName [ServerIP] -Port 443</code> from a device on the same VLAN.</div>
             </div>
 
             <div class="troubleshoot-row">
@@ -1098,19 +1099,19 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
 
             <div class="troubleshoot-row">
                 <div class="symptom">&#10060; Scanner loses WiFi mid-scan / enters a dead zone</div>
-                <div class="cause"><strong>Note:</strong> iDash mobile and iDash scanning pages (VA Site Inventory, Tag Team Scan) support <strong>offline / batch mode</strong>. Scan data queues locally and syncs when WiFi reconnects &mdash; records are not lost.</div>
+                <div class="cause"><strong>Note:</strong> AssetWorx! mobile and iDash scanning pages (VA Site Inventory, Tag Team Scan) support <strong>offline / batch mode</strong>. Scan data queues locally and syncs when WiFi reconnects &mdash; records are not lost.</div>
                 <div class="fix"><strong>Best Practice:</strong> Let the scan complete, return to a coverage area, and pull down to sync. For persistent coverage gaps: run a site survey, enable 802.11r fast roaming, and set DHCP lease to 8+ hours. Print jobs require connectivity at time of print trigger (not buffered offline).</div>
             </div>
 
             <div class="troubleshoot-row">
-                <div class="symptom">&#10060; iDash page loads but scan data doesn&rsquo;t save</div>
+                <div class="symptom">&#10060; AssetWorx! page loads but scan data doesn&rsquo;t save</div>
                 <div class="cause"><strong>Likely Cause:</strong> SQL Server connectivity failure on the server side (port 1433 blocked, SQL service down, or wrong credentials).</div>
                 <div class="fix"><strong>Fix (on server):</strong> <code>Test-NetConnection -ComputerName [SQLHost] -Port 1433</code>. Check Windows Event Viewer for SQL connection errors. Verify <code>web.config</code> connection string credentials.</div>
             </div>
         </div>
 
         <!-- ================================================
-             R13 � PRINT JOBS NOT PRINTING
+             R13 — PRINT JOBS NOT PRINTING
              ================================================ -->
         <div class="recipe-card" id="r13">
             <div class="recipe-header">
@@ -1124,7 +1125,7 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
             <div class="troubleshoot-row">
                 <div class="symptom">&#10060; Print triggered on scanner but nothing comes out of the printer</div>
                 <div class="cause"><strong>Likely Cause:</strong> Print spooler PowerShell script is not running on the server.</div>
-                <div class="fix"><strong>Fix:</strong> On the iDash server, open Task Manager or check Task Scheduler. Confirm <code>Run_Bypass_Spooler.ps1</code> is running. If not, start it in an elevated PowerShell window: <code>C:\idash_prints\Run_Bypass_Spooler.ps1</code> or restart the scheduled task.</div>
+                <div class="fix"><strong>Fix:</strong> On the AssetWorx! server, open Task Manager or check Task Scheduler. Confirm <code>Run_Bypass_Spooler.ps1</code> is running. If not, start it in an elevated PowerShell window: <code>C:\assetworx_prints\Run_Bypass_Spooler.ps1</code> or restart the scheduled task.</div>
             </div>
 
             <div class="troubleshoot-row">
@@ -1138,8 +1139,8 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
                 <div class="cause"><strong>Likely Cause:</strong> The <code>template.filename</code> in the SQL database has an incorrect path, missing extension, or points to a file that doesn&rsquo;t exist.</div>
                 <div class="fix"><strong>Fix:</strong> Run in SQL:
                     <code>SELECT id, name, filename, printmethod FROM template ORDER BY id;</code><br>
-                    Ensure <code>filename</code> is a full path with <code>.btw</code> extension (e.g., <code>C:\idash_prints\AW_Std_Small.btw</code>) and <code>printmethod = Bartender</code>.<br>
-                    Fix: <code>UPDATE template SET filename = 'C:\idash_prints\AW_Std_Small.btw', printmethod = 'Bartender' WHERE id = 1;</code>
+                    Ensure <code>filename</code> is a full path with <code>.btw</code> extension (e.g., <code>C:\assetworx_prints\AW_Std_Small.btw</code>) and <code>printmethod = Bartender</code>.<br>
+                    Fix: <code>UPDATE template SET filename = 'C:\assetworx_prints\AW_Std_Small.btw', printmethod = 'Bartender' WHERE id = 1;</code>
                 </div>
             </div>
 
@@ -1157,13 +1158,13 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
         </div>
 
         <!-- ================================================
-             R14 � IDASH! WEB ERRORS
+             R14 — ASSETWORX! WEB ERRORS
              ================================================ -->
         <div class="recipe-card" id="r14">
             <div class="recipe-header">
                 <div class="recipe-num rn-red">R14</div>
                 <div class="recipe-title-block">
-                    <h2>&#128683; Troubleshooting: iDash Web Errors</h2>
+                    <h2>&#128683; Troubleshooting: AssetWorx! Web Errors</h2>
                     <div class="recipe-subtitle">Resolve IIS and ASP.NET configuration errors on the server.</div>
                 </div>
             </div>
@@ -1177,31 +1178,31 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
             <div class="troubleshoot-row">
                 <div class="symptom">&#10060; HTTP Error 500.19 &mdash; 32-bit / 64-bit mismatch</div>
                 <div class="cause"><strong>Cause:</strong> Application Pool set to 32-bit while handler uses Framework64.</div>
-                <div class="fix"><strong>Fix:</strong> IIS Manager &rarr; Application Pools &rarr; select the iDash pool &rarr; Advanced Settings &rarr; set <strong>Enable 32-bit Applications = False</strong>.</div>
+                <div class="fix"><strong>Fix:</strong> IIS Manager &rarr; Application Pools &rarr; select the AssetWorx! pool &rarr; Advanced Settings &rarr; set <strong>Enable 32-bit Applications = False</strong>.</div>
             </div>
 
             <div class="troubleshoot-row">
                 <div class="symptom">&#10060; Raw <code>web.config</code> XML shown in browser instead of the app</div>
                 <div class="cause"><strong>Cause:</strong> The iDash folder has not been converted to an IIS Application.</div>
-                <div class="fix"><strong>Fix:</strong> IIS Manager &rarr; expand the site &rarr; right-click <code>iDash</code> folder &rarr; <strong>Convert to Application</strong>. Assign the iDash App Pool.</div>
+                <div class="fix"><strong>Fix:</strong> IIS Manager &rarr; expand the site &rarr; right-click <code>iDash</code> folder &rarr; <strong>Convert to Application</strong>. Assign the AssetWorx! App Pool.</div>
             </div>
 
             <div class="troubleshoot-row">
                 <div class="symptom">&#10060; &ldquo;Cannot connect to the database&rdquo; / iDash shows no data</div>
                 <div class="cause"><strong>Cause:</strong> SQL Server connectivity failure &mdash; wrong connection string, port 1433 blocked, or service account credentials.</div>
-                <div class="fix"><strong>Fix:</strong> From the server: <code>sqlcmd -S [SQLHost] -U idashadmin -P [password] -d idash -Q "SELECT TOP 1 * FROM asset"</code>. If it fails, check port 1433 ACL and credentials in <code>web.config</code>.</div>
+                <div class="fix"><strong>Fix:</strong> From the server: <code>sqlcmd -S [SQLHost] -U assetworxadmin -P [password] -d assetworx -Q "SELECT TOP 1 * FROM asset"</code>. If it fails, check port 1433 ACL and credentials in <code>web.config</code>.</div>
             </div>
         </div>
 
         <!-- ================================================
-             R15 � PRE-DEPLOYMENT CHECKLIST
+             R15 — PRE-DEPLOYMENT CHECKLIST
              ================================================ -->
         <div class="recipe-card" id="r15">
             <div class="recipe-header">
                 <div class="recipe-num rn-green">R15</div>
                 <div class="recipe-title-block">
                     <h2>&#9989; Pre-Deployment Checklist</h2>
-                    <div class="recipe-subtitle">Complete every item before scheduling the on-site installation with ID Integration.</div>
+                    <div class="recipe-subtitle">Complete every item before scheduling the on-site installation with ID Integration / Impres Technologies.</div>
                 </div>
             </div>
 
@@ -1226,7 +1227,7 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
                 </div>
                 <div class="checklist-item">
                     <div class="ci-box"></div>
-                    <div><div class="ci-label"><strong>SQL database created</strong>: database <code>idash</code>, login <code>idashadmin</code> with <code>db_owner</code> + <code>sysadmin</code> + <code>bulkadmin</code></div><div class="ci-team">&#128100; DBA Team</div></div>
+                    <div><div class="ci-label"><strong>SQL database created</strong>: database <code>assetworx</code>, login <code>assetworxadmin</code> with <code>db_owner</code> + <code>sysadmin</code> + <code>bulkadmin</code></div><div class="ci-team">&#128100; DBA Team</div></div>
                 </div>
                 <div class="checklist-item">
                     <div class="ci-box"></div>
@@ -1250,7 +1251,7 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
                 </div>
                 <div class="checklist-item">
                     <div class="ci-box"></div>
-                    <div><div class="ci-label"><strong>SQL connectivity verified</strong> from server: <code>sqlcmd -S [SQLHost] -U idashadmin -P [pw] -d idash</code> connects successfully</div><div class="ci-team">&#128100; DBA / Server Team</div></div>
+                    <div><div class="ci-label"><strong>SQL connectivity verified</strong> from server: <code>sqlcmd -S [SQLHost] -U assetworxadmin -P [pw] -d assetworx</code> connects successfully</div><div class="ci-team">&#128100; DBA / Server Team</div></div>
                 </div>
                 <div class="checklist-item">
                     <div class="ci-box"></div>
@@ -1258,7 +1259,7 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
                 </div>
                 <div class="checklist-item">
                     <div class="ci-box"></div>
-                    <div><div class="ci-label"><strong>Credentials provided to ID Integration</strong>: server hostname/IP, SQL host, idashadmin password, local admin credentials</div><div class="ci-team">&#128100; Project Lead / COR</div></div>
+                    <div><div class="ci-label"><strong>Credentials provided to IDI/Impres</strong>: server hostname/IP, SQL host, assetworxadmin password, local admin credentials</div><div class="ci-team">&#128100; Project Lead / COR</div></div>
                 </div>
                 <div class="checklist-item">
                     <div class="ci-box"></div>
@@ -1272,7 +1273,7 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
         </div>
 
         <!-- ================================================
-             R16 � CONTACTS
+             R16 — CONTACTS
              ================================================ -->
         <div class="recipe-card" id="r16">
             <div class="recipe-header">
@@ -1287,8 +1288,15 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
                 <div class="mini-card" style="border-left: 3px solid #2ea8ff;">
                     <h4 style="color:#2ea8ff;">&#128241; ID Integration Inc.</h4>
                     <p>
-                        <strong>Role:</strong> iDash software and hardware solutions, system configuration, mobile scanner &amp; sled provisioning, BarTender integration, iDash portal, print pipeline, RFID label stock, and comprehensive technical support.<br><br>
-                        <strong>Contact for:</strong> iDash application issues, scanner hardware &amp; RFD40 sled configuration, print pipeline errors, RFID label supply, and template/tag-type mapping.
+                        <strong>Role:</strong> AssetWorx! software installation, configuration, mobile scanner setup, BarTender configuration, iDash portal, print pipeline, and ongoing technical support.<br><br>
+                        <strong>Contact for:</strong> AssetWorx! application issues, print pipeline errors, iDash configuration, template and tag-type mapping problems.
+                    </p>
+                </div>
+                <div class="mini-card" style="border-left: 3px solid #10b981;">
+                    <h4 style="color:#10b981;">&#128279; Impres Technologies</h4>
+                    <p>
+                        <strong>Role:</strong> Hardware supply, Zebra TC53 and RFD40 provisioning, RFID label supply (IQ350, Standard Small, Large Metal), and hardware support.<br><br>
+                        <strong>Contact for:</strong> Scanner hardware issues, RFD40 sled problems, RFID label stock, replacement device procurement.
                     </p>
                 </div>
                 <div class="mini-card" style="border-left: 3px solid #f59e0b;">
@@ -1300,7 +1308,7 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
                 <div class="mini-card" style="border-left: 3px solid #a855f7;">
                     <h4 style="color:#a855f7;">&#128190; VA OIT &mdash; DBA / Server Team</h4>
                     <p>
-                        <strong>Responsible for:</strong> SQL Server database creation (<code>idash</code>), login provisioning (<code>idashadmin</code>), IIS configuration, SSL certificate binding, server provisioning.
+                        <strong>Responsible for:</strong> SQL Server database creation (<code>assetworx</code>), login provisioning (<code>assetworxadmin</code>), IIS configuration, SSL certificate binding, server provisioning.
                     </p>
                 </div>
             </div>
@@ -1308,8 +1316,8 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
             <div class="info-recipe" style="margin-top:18px;">
                 <strong>&#8505;&#65039; ERA Document</strong><br>
                 All network decisions must align with the current signed ERA. Download from iDash:
-                <a href="SPS_OT_RITM9079692_iDash Mod 1.2_POAM Req_Approved.pdf">
-                    &#128196; SPS_OT_RITM9079692 &mdash; ID Integration Inc. iDash Mod 1.2 (Approved)
+                <a href="SPS_OT_RITM9079692_Infinidtech AssetWorx Mod 1.2_POAM Req_Approved.pdf">
+                    &#128196; SPS_OT_RITM9079692 &mdash; InfinID Technologies AssetWorx Mod 1.2 (Approved)
                 </a>
             </div>
         </div>
@@ -1326,14 +1334,15 @@ Get-WebConfiguration system.applicationHost/applicationPools/add |
     <footer style="margin-top:40px; padding:20px; border-top:1px solid var(--line-docs); font-size:12px;
         color:var(--muted-docs); display:flex; justify-content:space-between; align-items:center;
         max-width:1000px; margin-left:auto; margin-right:auto;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
-        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
-        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
-    </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <img src="/idash/assets/branding/assetworx.jpg" alt="AssetWorx" style="height:16px;">
+            <span style="font-weight:600; font-size:14px; color:var(--text-docs);">
+                AssetWorx<span style="color:#2ea8ff;">!</span>
+            </span>
+        </div>
         <div style="display:flex; align-items:center; gap:12px;">
-            <span>&copy; 2026 ID Integration Inc.</span>
-            <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height:14px; opacity:0.9;">
+            <span>&copy; 2026 ID Integration Inc. &amp; Impres Technologies</span>
+            <img src="/idash/assets/branding/idintegration.jpg" alt="ID Integration Inc." style="height:14px; opacity:0.9;">
         </div>
     </footer>
 

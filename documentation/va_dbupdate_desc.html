@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>VA DBUPDATE DESC &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -16,7 +17,7 @@
         <h1><code>va_dbupdate.sql</code> - Security and Operations Documentation</h1>
         
         <h2>Overview</h2>
-        <p>The <code>va_dbupdate.sql</code> script is designed to securely and efficiently import VA asset data from a flat-file extract into the iDash SQL database.</p>
+        <p>The <code>va_dbupdate.sql</code> script is designed to securely and efficiently import VA asset data from a flat-file extract into the AssetWorx SQL Database.</p>
         
         <div class="alert alert-important">
             <strong>&#9888; Idempotent Execution (Safe for Multiple Runs)</strong>
@@ -27,7 +28,7 @@
 
         <h3>Phase 1: Environment & Security Setup</h3>
         <ul>
-            <li><strong>1. Permissions Adjustment:</strong> Grants the <code>idashadmin</code> service account <code>sysadmin</code> server-level privileges. This ensures the automated account has the elevated permissions required to perform bulk imports and database modifications.</li>
+            <li><strong>1. Permissions Adjustment:</strong> Grants the <code>assetworxadmin</code> service account <code>sysadmin</code> server-level privileges. This ensures the automated account has the elevated permissions required to perform bulk imports and database modifications.</li>
             <li><strong>2. Global Session Settings:</strong> Configures execution settings (such as <code>XACT_ABORT</code> and <code>NOCOUNT</code>) to ensure that if any severe error occurs during execution, the entire transaction is rolled back safely without leaving partial data.</li>
             <li><strong>3. Metrics Storage:</strong> Creates a temporary in-memory table (<code>#ImportStats</code>) to accurately track the number of new insertions, skipped records, and any errors encountered during the import run.</li>
         </ul>

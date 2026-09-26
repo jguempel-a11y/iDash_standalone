@@ -2,6 +2,8 @@
 <!DOCTYPE html>
 <html>
 <head runat="server">
+    <link rel="icon" type="image/png" href="Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="favicon.ico" />
     <title>Redirecting to iDash User Management</title>
     <meta http-equiv="refresh" content="0;url=va_user_management.aspx" />
 </head>

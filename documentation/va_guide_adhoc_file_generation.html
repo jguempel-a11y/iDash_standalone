@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>iDash Docs — Guide: VA ADHOC File Generation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <style>
@@ -21,7 +22,7 @@
     <div class="doc-container">
         <h1>&#128225; Guide: Running ADHOC File Generation</h1>
         <p class="doc-subtitle">How to run AdHoc in Above PAR report to create the EQUIPMENT.xlsx excel sheet template.</p>
-        <p class="step-desc"><strong>Source:</strong> <em>VISN5 Use and Configuration Guide for iDash ver.004</em></p>
+        <p class="step-desc"><strong>Source:</strong> <em>VISN5 Use and Configuration Guide for AssetWorx ver.004</em></p>
         
         <!-- STEP 1 -->
         <div class="step-card">
@@ -30,19 +31,19 @@
                 Run AdHoc in the Above PAR report to create the <strong>EQUIPMENT.xlsx</strong> excel sheet template with desired EE tag information.<br/><br/>
                 Below are examples of the precise AdHoc Field Selections and Order numbers needed to pull this Report.
             </div>
-            <img src="images/visn5_v4/word/media/image2.png" class="step-img" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
+            <img src="/iDash/documentation/images/visn5_v4/word/media/image2.png" class="step-img" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
             
             <div class="info-box">
                 <strong>Example A (Specific EE numbers):</strong><br/>
                 By putting in First Condition with an EE number you will only pull that EE number. If you put in a Second Condition with an EE number, it will pull Two EE numbers. If you do not put any conditions, it will pull every EE number in the system.
             </div>
-            <img src="images/visn5_v4/word/media/image3.png" class="step-img" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
+            <img src="/iDash/documentation/images/visn5_v4/word/media/image3.png" class="step-img" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
 
             <div class="info-box">
                 <strong>Example B (Range of EE numbers):</strong><br/>
                 First condition as Greater Than, and the EE number before the EE number you want through to the last created EE number. (if you want to start at EE46795, put in EE46794)
             </div>
-            <img src="images/visn5_v4/word/media/image4.png" class="step-img" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
+            <img src="/iDash/documentation/images/visn5_v4/word/media/image4.png" class="step-img" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
 
             <div class="info-box">
                 <strong>Example C (By Date Entered):</strong><br/>
@@ -51,7 +52,7 @@
             <div class="warn-box">
                 <strong>&#9888; CRITICAL:</strong> If you use Example C to pull by Date Entered, after you pull the report in Excel you MUST <strong>Delete the Date Entered Column</strong> before emailing it to visn5martinsburg@id-integration.com!
             </div>
-            <img src="images/visn5_v4/word/media/image5.png" class="step-img" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
+            <img src="/iDash/documentation/images/visn5_v4/word/media/image5.png" class="step-img" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
         </div>
 
         <!-- STEP 2 -->
@@ -59,10 +60,10 @@
             <div class="step-title"><span class="step-num">2</span> Preview and Export to Excel</div>
             <div class="step-desc">
                 After running the AdHoc report Click on <strong>Excel</strong>, this will be the excel you will e-mail.
-                <img src="images/visn5_v4/word/media/image6.png" class="step-img" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
+                <img src="/iDash/documentation/images/visn5_v4/word/media/image6.png" class="step-img" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
                 <br/><br/>
                 Or Click on <strong>Preview</strong> to check what was pulled first, then click on Excel.
-                <img src="images/visn5_v4/word/media/image7.png" class="step-img" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
+                <img src="/iDash/documentation/images/visn5_v4/word/media/image7.png" class="step-img" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
             </div>
         </div>
 
@@ -72,7 +73,7 @@
             <div class="step-desc">
                 On the Excel, change tab name to exactly <strong>SHEET1</strong>, Change and save file name exactly as <strong>EQUIPMENT.XLSX</strong>.
             </div>
-            <img src="images/visn5_v4/word/media/image8.png" class="step-img" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
+            <img src="/iDash/documentation/images/visn5_v4/word/media/image8.png" class="step-img" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
         </div>
 
         <!-- STEP 4 -->

@@ -3,7 +3,8 @@
 <html>
 <head>
     <title>Convert Maps Pipeline</title>
-            <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
+            <link rel="icon" type="image/png" href="Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="favicon.ico" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';</script>
 </head>

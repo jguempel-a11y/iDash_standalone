@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <title>IDI DEPLOYMENT GUIDE &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -19,16 +20,16 @@
             <span class='badge badge-none'>System Admin / Infrastructure</span>
         </div>
         
-        <p><strong>Applies To:</strong> iDash Web Portal (ASP.NET WebForms, .NET Framework 4.8, IIS)</p>
+        <p><strong>Applies To:</strong> AssetWorx WebClient (ASP.NET WebForms, .NET Framework 4.8, IIS)</p>
 
         <h2>1. Overview</h2>
-        <p>This document describes the steps required to deploy the Tagging Team iDash Web Portal application to a new Windows machine (server or workstation) using IIS and SQL Server. It is designed to prevent common configuration errors such as HTTP Error 500.19 (0x80070021) caused by missing IIS/ASP.NET features.</p>
+        <p>This document describes the steps required to deploy the Tagging Team AssetWorx WebClient application to a new Windows machine (server or workstation) using IIS and SQL Server. It is designed to prevent common configuration errors such as HTTP Error 500.19 (0x80070021) caused by missing IIS/ASP.NET features.</p>
 
         <ul>
             <li><strong>Framework:</strong> ASP.NET WebForms</li>
             <li><strong>Runtime:</strong> .NET Framework 4.8</li>
             <li><strong>Pipeline:</strong> Uses Classic pipeline with an ISAPI handler</li>
-            <li><strong>Database:</strong> Connects to a SQL Server (typically SQL Express) database named <code>idash</code></li>
+            <li><strong>Database:</strong> Connects to a SQL Server (typically SQL Express) database named <code>assetworx</code></li>
         </ul>
 
         <h2>2. Prerequisites</h2>
@@ -40,8 +41,8 @@
             <li>Internet Information Services (IIS)</li>
             <li>.NET Framework 4.8 (included with modern Windows versions)</li>
             <li>SQL Server or SQL Server Express</li>
-            <li>iDash Web Portal files (site folder)</li>
-            <li>iDash database backup or copy</li>
+            <li>AssetWorx WebClient files (site folder)</li>
+            <li>AssetWorx database backup or copy</li>
         </ul>
 
         <h2>3. Enable Required Windows Features</h2>
@@ -74,16 +75,16 @@
         <pre>iisreset</pre>
 
         <h2>4. Deploy the Web Application</h2>
-        <p>Copy the iDash Web Portal folder to:</p>
-        <pre>C:\inetpub\wwwroot\iDash.WebClient</pre>
+        <p>Copy the AssetWorx WebClient folder to:</p>
+        <pre>C:\inetpub\wwwroot\AssetWorx.WebClient</pre>
         <p>Ensure the <code>iDash</code> subfolder and <code>web.config</code> are present at:</p>
-        <pre>C:\inetpub\wwwroot\iDash\web.config</pre>
+        <pre>C:\inetpub\wwwroot\AssetWorx.WebClient\iDash\web.config</pre>
 
         <h2>5. Configure IIS Site and Application</h2>
         <ol>
             <li>Open IIS Manager.</li>
             <li>Expand the server node and Sites.</li>
-            <li>Either use Default Web Site, or create a new site pointing to <code>C:\inetpub\wwwroot\iDash.WebClient</code>.</li>
+            <li>Either use Default Web Site, or create a new site pointing to <code>C:\inetpub\wwwroot\AssetWorx.WebClient</code>.</li>
             <li>Right-click the <code>iDash</code> folder under the site and select <strong>Convert to Application</strong>.</li>
             <li>Assign an Application Pool (see next section).</li>
         </ol>
@@ -92,7 +93,7 @@
         <p>The application uses a classic ISAPI handler and .NET Framework 4.x.</p>
         <ol>
             <li>In IIS Manager, go to Application Pools.</li>
-            <li>Create a new Application Pool, for example: <strong>idashapppool</strong>.</li>
+            <li>Create a new Application Pool, for example: <strong>AssetWorxAppPool</strong>.</li>
             <li>Set:
                 <ul>
                     <li><strong>.NET CLR Version:</strong> v4.0</li>
@@ -124,35 +125,35 @@
 
         <h2>8. Database Configuration</h2>
         <p>The <code>web.config</code> connection string expects default routing configurations mappings like this:</p>
-        <pre>Server=localhost\sqlexpress; Database=iDash; User ID=idashadmin; Password=idashadmin;
+        <pre>Server=localhost\sqlexpress; Database=assetworx; User ID=assetworxadmin; Password=assetworxadmin;
 Encrypt=True; TrustServerCertificate=True; Connect Timeout=10;</pre>
         <p style="color:var(--muted-docs);">Note: SQL Server Express is the most common installation. The instance name is typically <code>localhost\sqlexpress</code>. On a full SQL Server installation it is just <code>localhost</code>. Always verify with <code>sqlcmd -S localhost\sqlexpress -E -Q "SELECT @@VERSION"</code>.</p>
         <ol>
             <li>Install SQL Server or SQL Server Express.</li>
-            <li>Create or restore the <code>idash</code> database.</li>
+            <li>Create or restore the <code>assetworx</code> database.</li>
             <li>Create a SQL login with:
                 <ul>
-                    <li><strong>Login name:</strong> idashadmin</li>
-                    <li><strong>Password:</strong> idashadmin</li>
+                    <li><strong>Login name:</strong> assetworxadmin</li>
+                    <li><strong>Password:</strong> assetworxadmin</li>
                 </ul>
             </li>
-            <li>Map the login to the <code>idash</code> database and grant appropriate permissions (e.g., <code>db_owner</code>).</li>
+            <li>Map the login to the <code>assetworx</code> database and grant appropriate permissions (e.g., <code>db_owner</code>).</li>
         </ol>
 
         <h2>9. Application Settings (API and OAuth)</h2>
         <p>In <code>web.config</code>, verify and adjust the following configurations as needed for the environment:</p>
         <ul>
-            <li><code>iDash_ApiBase</code> (e.g., http://localhost/api)</li>
-            <li><code>iDash_TokenUrl</code> (e.g., http://localhost/connect/token)</li>
-            <li><code>iDash_ClientId</code> and <code>iDash_ClientSecret</code></li>
+            <li><code>AssetWorx_ApiBase</code> (e.g., http://localhost/api)</li>
+            <li><code>AssetWorx_TokenUrl</code> (e.g., http://localhost/connect/token)</li>
+            <li><code>AssetWorx_ClientId</code> and <code>AssetWorx_ClientSecret</code></li>
             <li><code>EmailRecipients</code> list</li>
         </ul>
 
         <h2>10. Print Spooler Deployment</h2>
-        <p>The iDash print pipeline uses a PowerShell-based spooler (<code>Run_Bypass_Spooler.ps1</code>) instead of the iDash .NET Print Server service. This section is required on every server that will physically print labels.</p>
+        <p>The iDash print pipeline uses a PowerShell-based spooler (<code>Run_Bypass_Spooler.ps1</code>) instead of the AssetWorx .NET Print Server service. This section is required on every server that will physically print labels.</p>
 
         <h3>10.1 Install BarTender</h3>
-        <p>BarTender must be installed on the print server. The spooler uses the BarTender .NET SDK (<code>Seagull.BarTender.Print.dll</code>) which is placed in <code>C:\Program Files (x86)\ID Integration Inc.\iDash Print Server\</code> by the iDash Print Server installer.</p>
+        <p>BarTender must be installed on the print server. The spooler uses the BarTender .NET SDK (<code>Seagull.BarTender.Print.dll</code>) which is placed in <code>C:\Program Files (x86)\InfinID Technologies\AssetWorx Print Server\</code> by the AssetWorx Print Server installer.</p>
         <div class="box" style="border-left:4px solid #f59e0b; background:#fffbeb; padding:12px 16px; margin:12px 0; border-radius:4px;">
             <strong style="color:#b45309;">&#9888; Note &mdash; BarTender DLLs &amp; Reboot Requirement:</strong>
             <p style="margin:6px 0 0 0; color:#1e293b;">
@@ -160,17 +161,17 @@ Encrypt=True; TrustServerCertificate=True; Connect Timeout=10;</pre>
             </p>
             <ol style="margin:6px 0 0 0; padding-left:20px; color:#1e293b; line-height:1.6;">
                 <li><strong>BarTender is installed</strong> (use 64-bit edition).</li>
-                <li><strong>iDash Print Server is installed</strong> (places the Seagull DLLs into <code>C:\Program Files (x86)\ID Integration Inc.\iDash Print Server\</code>).</li>
+                <li><strong>AssetWorx Print Server is installed</strong> (places the Seagull DLLs into <code>C:\Program Files (x86)\InfinID Technologies\AssetWorx Print Server\</code>).</li>
                 <li><strong>The system is restarted (rebooted)</strong> to initialize BarTender system services, register native COM objects, and update system environment variables.</li>
             </ol>
         </div>
         <ul>
-            <li>Run the iDash Print Server installer &mdash; even if you will not use the .NET service, the installer registers the BarTender SDK DLL the PS spooler depends on.</li>
+            <li>Run the AssetWorx Print Server installer &mdash; even if you will not use the .NET service, the installer registers the BarTender SDK DLL the PS spooler depends on.</li>
             <li>Verify BarTender can open the <code>.btw</code> template files manually before running the spooler.</li>
         </ul>
 
         <h3>10.2 Create the Print Directory and Copy Template Files</h3>
-        <pre>C:\idash_prints\</pre>
+        <pre>C:\assetworx_prints\</pre>
         <p>Copy the following into that directory:</p>
         <ul>
             <li>All <code>*.btw</code> BarTender label template files</li>
@@ -205,17 +206,17 @@ Encrypt=True; TrustServerCertificate=True; Connect Timeout=10;</pre>
         <p>The file is read fresh on every print job &mdash; no restart is required after changes.</p>
 
         <h3>10.5 Configure the Template Table (SQL)</h3>
-        <p>After restoring the database, verify the <code>template</code> table is correctly configured. The <code>name</code> column must exactly match the RFID tag type strings used in the iDash mobile app. This is what enables the mobile app&rsquo;s &ldquo;auto-map&rdquo; feature to select the correct template for each tag type.</p>
+        <p>After restoring the database, verify the <code>template</code> table is correctly configured. The <code>name</code> column must exactly match the RFID tag type strings used in the AssetWorx mobile app. This is what enables the mobile app&rsquo;s &ldquo;auto-map&rdquo; feature to select the correct template for each tag type.</p>
         <pre>SELECT id, name, templatetype, filename, printclientid FROM template ORDER BY id;</pre>
         <p>Expected configuration:</p>
         <ul>
             <li><strong>name</strong> &mdash; must match the mobile app tag type exactly (e.g., <code>IQ350</code>, <code>Small_Standard</code>, <code>Large_Metal</code>). If this doesn&rsquo;t match, auto-map always falls back to template id=1.</li>
             <li><strong>templatetype</strong> &mdash; set to match name for future compatibility.</li>
-            <li><strong>filename</strong> &mdash; full path including <code>.btw</code> extension (e.g., <code>C:\idash_prints\AW_IQ350.btw</code>).</li>
+            <li><strong>filename</strong> &mdash; full path including <code>.btw</code> extension (e.g., <code>C:\assetworx_prints\AW_IQ350.btw</code>).</li>
             <li><strong>printclientid</strong> &mdash; set to <code>NULL</code> to allow all clients, or to a specific print client ID to restrict.</li>
         </ul>
         <p>Fix the default template (id=1) broken filename if needed:</p>
-        <pre>UPDATE template SET filename = 'C:\idash_prints\AW_IQ350.btw' WHERE id = 1;</pre>
+        <pre>UPDATE template SET filename = 'C:\assetworx_prints\AW_IQ350.btw' WHERE id = 1;</pre>
         <p>Rename templates to match tag types for auto-map:</p>
         <pre>UPDATE template SET name = 'IQ350',          templatetype = 'IQ350'          WHERE id = 3;
 UPDATE template SET name = 'Small_Standard',  templatetype = 'Small_Standard'  WHERE id = 4;
@@ -246,7 +247,7 @@ UPDATE template SET name = 'Large_Metal',     templatetype = 'Large_Metal'     W
 
         <h3>10.7 Run / Schedule the Spooler</h3>
         <ul>
-            <li>Open an elevated PowerShell window and run: <code>C:\idash_prints\Run_Bypass_Spooler.ps1</code></li>
+            <li>Open an elevated PowerShell window and run: <code>C:\assetworx_prints\Run_Bypass_Spooler.ps1</code></li>
             <li>Or configure as a Windows Task Scheduler task set to run at startup under a local admin account.</li>
             <li>The spooler polls the <code>printjob</code> SQL table every 3 seconds for <code>completed=0</code> rows and processes them automatically.</li>
             <li>Editing <code>printer_routing.json</code> takes effect immediately on the next job &mdash; no restart required.</li>
@@ -289,8 +290,8 @@ UPDATE template SET name = 'Large_Metal',     templatetype = 'Large_Metal'     W
 
         <div class="box">
             <strong style="color: #fca5a5;">BarTender document could not be opened</strong>
-            <p><strong>Cause:</strong> The <code>template.filename</code> column stores a bare name without extension or path (e.g., <code>asset</code> instead of <code>C:\idash_prints\AW_IQ350.btw</code>).</p>
-            <p><strong>Fix:</strong> <code>UPDATE template SET filename = 'C:\idash_prints\AW_IQ350.btw' WHERE id = 1;</code></p>
+            <p><strong>Cause:</strong> The <code>template.filename</code> column stores a bare name without extension or path (e.g., <code>asset</code> instead of <code>C:\assetworx_prints\AW_IQ350.btw</code>).</p>
+            <p><strong>Fix:</strong> <code>UPDATE template SET filename = 'C:\assetworx_prints\AW_IQ350.btw' WHERE id = 1;</code></p>
         </div>
 
         <h2>12. Final Verification</h2>
@@ -301,9 +302,9 @@ UPDATE template SET name = 'Large_Metal',     templatetype = 'Large_Metal'     W
             <li>Confirm the application loads without HTTP 500.19 errors.</li>
             <li>Verify print pipeline:
                 <ul>
-                    <li>Confirm <code>C:\idash_prints\</code> exists and contains <code>*.btw</code> files.</li>
+                    <li>Confirm <code>C:\assetworx_prints\</code> exists and contains <code>*.btw</code> files.</li>
                     <li>Confirm <code>printer_routing.json</code> is in the same folder as the running spooler script.</li>
-                    <li>Submit a test print from the iDash mobile app using each tag type and confirm correct printer routing in the PS console output.</li>
+                    <li>Submit a test print from the AssetWorx mobile app using each tag type and confirm correct printer routing in the PS console output.</li>
                     <li>Verify routing messages: <code>-&gt; Dynamically Re-Routing Label to Hardware Printer: [PrinterName]</code></li>
                     <li>Confirm <code>template.name</code> matches tag type strings by checking recent print jobs: <code>SELECT TOP 5 id, recordid, templateid FROM printjob ORDER BY id DESC</code> &mdash; different tag types should produce different templateid values.</li>
                 </ul>
@@ -316,14 +317,13 @@ UPDATE template SET name = 'Large_Metal',     templatetype = 'Large_Metal'     W
     </div>
     
     <footer style="margin-top: 40px; padding: 20px; border-top:1px solid var(--line); font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 12px; color:var(--muted-docs); display: flex; justify-content: space-between; align-items: center; background:var(--bg); max-width: 1400px; margin-left: auto; margin-right: auto;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
-        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
-        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
-    </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <img src="/idash/assets/branding/assetworx.jpg" alt="AssetWorx" style="height: 16px;">
+            <span style="font-weight: 600; font-size: 14px; color:var(--text);">AssetWorx<span style="color: #2ea8ff;">!</span></span>
+        </div>
         <div style="display: flex; align-items: center; gap: 12px;">
             <span>&copy; 2026 ID Integration Inc.</span>
-            <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 14px; opacity: 0.9;">
+            <img src="/idash/assets/branding/idintegration.jpg" alt="ID Integration Inc." style="height: 14px; opacity: 0.9;">
         </div>
     </footer>
 </body>

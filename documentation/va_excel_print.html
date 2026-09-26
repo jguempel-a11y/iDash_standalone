@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <title>EXCEL EQUIPMENT IMPORT &amp; PRINT &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -30,14 +31,11 @@
             <ol style="margin:8px 0 0 0; padding-left:18px; font-size:14px;">
                 <li><a href="#overview" style="color:var(--accent);">Overview</a></li>
                 <li><a href="#source" style="color:var(--accent);">Source Files</a></li>
-                <li><a href="#file-source" style="color:var(--accent);">File Source Selection</a></li>
                 <li><a href="#excel-mapping" style="color:var(--accent);">Excel Column Mapping</a></li>
                 <li><a href="#ui-controls" style="color:var(--accent);">UI Controls &amp; Toolbar</a></li>
                 <li><a href="#name-format" style="color:var(--accent);">Asset Name Format</a></li>
-                <li><a href="#rfid-tag" style="color:var(--accent);">RFID Tag Generation</a></li>
                 <li><a href="#merge-logic" style="color:var(--accent);">MERGE / Upsert Logic</a></li>
                 <li><a href="#preview-tab" style="color:var(--accent);">Preview Names Tab</a></li>
-                <li><a href="#label-preview" style="color:var(--accent);">BarTender Label Preview</a></li>
                 <li><a href="#print-flow" style="color:var(--accent);">Print Flow</a></li>
                 <li><a href="#performance" style="color:var(--accent);">Performance &amp; Limits</a></li>
                 <li><a href="#access-control" style="color:var(--accent);">Access Control</a></li>
@@ -47,29 +45,17 @@
         </div>
 
         <h2 id="overview">1. Overview</h2>
-        <p><code>va_excel_print.aspx</code> reads an Excel equipment spreadsheet, displays all equipment rows in a selectable grid, and lets the user Import Only or Import &amp; Print selected rows into iDash (<code>dbo.asset</code>).</p>
-        <p>The page auto-detects the default file at <code>C:\va_rfid\excel_data\equipment.xlsx</code>, but also supports browsing to any <code>.xlsx</code> or <code>.xls</code> file via a file upload control. Uploaded files are stored in <code>App_Data/uploads</code> and persist for the user&rsquo;s session.</p>
+        <p><code>va_excel_print.aspx</code> reads <code>C:\va_rfid\excel_data\equipment.xlsx</code>, displays all equipment rows in a selectable grid, and lets the user Import Only or Import &amp; Print selected rows into AssetWorx (<code>dbo.asset</code>).</p>
 
         <h2 id="source">2. Source Files</h2>
         <table style="width:100%; border-collapse:collapse; margin:12px 0;">
             <tr style="border-bottom:2px solid var(--line);"><th style="text-align:left;padding:8px 12px;color:var(--muted);">File</th><th style="text-align:left;padding:8px 12px;color:var(--muted);">Purpose</th></tr>
             <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;"><code>va_excel_print.aspx</code></td><td style="padding:8px 12px;">Page markup - toolbar, tab bar, equipment grid, preview tab, JS</td></tr>
             <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;"><code>va_excel_print.aspx.cs</code></td><td style="padding:8px 12px;">Code-behind - Excel parsing, company resolution, MERGE SQL, print dispatch</td></tr>
-            <tr><td style="padding:8px 12px;"><code>C:\va_rfid\excel_data\equipment.xlsx</code></td><td style="padding:8px 12px;">Default input workbook (auto-detected). Drop updated file here to refresh data.</td></tr>
-            <tr><td style="padding:8px 12px;"><code>App_Data/uploads/</code></td><td style="padding:8px 12px;">Server-side storage for user-uploaded Excel files (session-scoped, auto-cleaned).</td></tr>
-            <tr><td style="padding:8px 12px;"><code>api/BarTenderHandler.ashx</code></td><td style="padding:8px 12px;">REST endpoint for live BarTender label preview rendering (POST with template + fields).</td></tr>
+            <tr><td style="padding:8px 12px;"><code>C:\va_rfid\excel_data\equipment.xlsx</code></td><td style="padding:8px 12px;">Input workbook. Drop updated file here to refresh data.</td></tr>
         </table>
 
-        <h2 id="file-source">3. File Source Selection</h2>
-        <p>The page presents two side-by-side source options in a card layout:</p>
-        <table style="width:100%; border-collapse:collapse; margin:12px 0; font-size:13px;">
-            <tr style="border-bottom:2px solid var(--line);"><th style="text-align:left;padding:8px 12px;color:var(--muted);">Source</th><th style="text-align:left;padding:8px 12px;color:var(--muted);">Behaviour</th></tr>
-            <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;"><strong>Auto-Detect (Default)</strong></td><td style="padding:8px 12px;">Reads <code>C:\va_rfid\excel_data\equipment.xlsx</code>. Shows a green/red status indicator for file presence.</td></tr>
-            <tr><td style="padding:8px 12px;"><strong>Browse File</strong></td><td style="padding:8px 12px;">User picks any <code>.xlsx</code> or <code>.xls</code> file. Uploaded to <code>App_Data/uploads</code> with timestamped filename. Previous uploads are auto-deleted. Session variable <code>ExcelPrint_UploadedFilePath</code> tracks the active file.</td></tr>
-        </table>
-        <p>The active source is highlighted with an accent border. When a file is uploaded, it takes priority over the default path for the duration of the session.</p>
-
-        <h2 id="excel-mapping">4. Excel Column Mapping</h2>
+        <h2 id="excel-mapping">3. Excel Column Mapping</h2>
         <table style="width:100%; border-collapse:collapse; margin:12px 0; font-size:13px;">
             <tr style="border-bottom:2px solid var(--line);"><th style="text-align:left;padding:8px 12px;color:var(--muted);">Col</th><th style="text-align:left;padding:8px 12px;color:var(--muted);">Excel Header</th><th style="text-align:left;padding:8px 12px;color:var(--muted);">dbo.asset Field</th><th style="text-align:left;padding:8px 12px;color:var(--muted);">Notes</th></tr>
             <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;">1</td><td style="padding:8px 12px;">ENTRY NUMBER</td><td style="padding:8px 12px;"><code>name</code> (derived)</td><td style="padding:8px 12px;">Combined with Site + Name Prefix to form the computed asset name</td></tr>
@@ -89,18 +75,17 @@
             <tr><td style="padding:8px 12px;">15</td><td style="padding:8px 12px;">PURCHASE ORDER #</td><td style="padding:8px 12px;"><code>text9</code></td><td style="padding:8px 12px;"></td></tr>
         </table>
 
-        <h2 id="ui-controls">5. UI Controls &amp; Toolbar</h2>
+        <h2 id="ui-controls">4. UI Controls &amp; Toolbar</h2>
         <table style="width:100%; border-collapse:collapse; margin:12px 0; font-size:13px;">
             <tr style="border-bottom:2px solid var(--line);"><th style="text-align:left;padding:8px 12px;color:var(--muted);">Control</th><th style="text-align:left;padding:8px 12px;color:var(--muted);">Behaviour</th></tr>
             <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;"><strong>Template</strong> (DdlTemplate)</td><td style="padding:8px 12px;">From dbo.template where templatetype=Asset. Required for Import &amp; Print.</td></tr>
             <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;"><strong>Site Override</strong> (DdlSiteOverride)</td><td style="padding:8px 12px;">Auto = resolve companyid from Col 12 Station# prefix. Selecting a company forces all rows to that companyid and uses the company name as the site prefix. Live JS preview update.</td></tr>
             <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;"><strong>Name Prefix</strong> (TxtNamePrefix)</td><td style="padding:8px 12px;">Short string inserted between site prefix and entry# with NO space. Defaults to "EE". e.g. "EE" + "81294" = "EE81294". Full name: "613 EE81294". Live JS preview update.</td></tr>
-            <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;"><strong>Preview Label</strong></td><td style="padding:8px 12px;">Opens a BarTender label preview modal for the first checked row (or first row in grid). Calls <code>api/BarTenderHandler.ashx?action=preview</code> with template path and field data. See <a href="#label-preview" style="color:var(--accent);">Label Preview</a>.</td></tr>
             <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;"><strong>Import Only</strong></td><td style="padding:8px 12px;">Upserts selected rows. No print job.</td></tr>
-            <tr><td style="padding:8px 12px;"><strong>Import &amp; Print</strong></td><td style="padding:8px 12px;">Upserts then calls <code>PrintApiHelper.SubmitPrintJobsBatch()</code> to send all labels in a single batch. Template must be selected.</td></tr>
+            <tr><td style="padding:8px 12px;"><strong>Import &amp; Print</strong></td><td style="padding:8px 12px;">Upserts then calls AssetWorxApiHelper.SubmitPrintJob() for each row. Template must be selected.</td></tr>
         </table>
 
-        <h2 id="name-format">6. Asset Name Format</h2>
+        <h2 id="name-format">5. Asset Name Format</h2>
         <p>Built by <code>BuildAssetName(EquipRow r, string overrideName, string namePrefix)</code>:</p>
         <pre style="background:#0d1117; color:#c9d1d9; font-family:monospace; font-size:13px; padding:16px; border-radius:10px; margin:16px 0; overflow-x:auto;">
 SITE_PREFIX + " " + NAME_PREFIX + ENTRY_NUMBER
@@ -116,7 +101,7 @@ Examples:
   Auto(Station="613-8") Prefix="EE" Entry="81294"  =>  "613-8 EE81294"</pre>
         <p><strong>Important:</strong> Name is the MERGE key. Changing Site/Prefix/Entry will INSERT a new asset, not update the old one. Always verify via the Preview tab first.</p>
 
-        <h2 id="rfid-tag">7. RFID Tag Generation</h2>
+        <h2 id="rfid-tag">6. RFID Tag Generation</h2>
         <p>During import, the <code>rfidtag</code> column is generated identically to <code>va_dbupdate.sql</code>:</p>
         <ul>
             <li><code>baseTag</code> = <code>SITE_PREFIX</code> + <code>NAME_PREFIX</code> + <code>ENTRY_NUMBER</code></li>
@@ -124,7 +109,7 @@ Examples:
             <li>Example: <code>"613" + "EE" + "81294"</code> = <code>"613EE81294"</code> (Length 10). It will be padded with <code>FF</code> to become <code>"613EE81294FF"</code>.</li>
         </ul>
 
-        <h2 id="merge-logic">8. MERGE / Upsert Logic</h2>
+        <h2 id="merge-logic">7. MERGE / Upsert Logic</h2>
         <p>Every row uses a SQL MERGE keyed on <strong>name + companyid</strong> (matches unique index <code>index_asset_name_companyid</code> on <code>dbo.asset</code>):</p>
         <pre style="background:#0d1117; color:#c9d1d9; font-family:monospace; font-size:12px; padding:16px; border-radius:10px; margin:16px 0; overflow-x:auto;">
 MERGE dbo.asset AS tgt
@@ -140,7 +125,7 @@ OUTPUT inserted.id;</pre>
             <strong>&#9888; Why not Serial# as the key?</strong> Serial numbers from VISTA/AEMS are sometimes missing, duplicated, or not yet assigned. The asset name is unique per company per the DB unique index and is the most reliable upsert key. Serial# (text3) is still written on every UPDATE.
         </div>
 
-        <h2 id="preview-tab">9. Preview Names Tab</h2>
+        <h2 id="preview-tab">8. Preview Names Tab</h2>
         <p>Two tabs in the equipment card:</p>
         <ul>
             <li><strong>Equipment Data</strong> - 19-column full grid with a highlighted "Name" column showing computed name.</li>
@@ -148,32 +133,16 @@ OUTPUT inserted.id;</pre>
         </ul>
         <p>Both update in real time (no postback) when Site Override or Name Prefix changes via <code>updatePreviewNames()</code> JS function. The function reads <code>data-entry</code> and <code>data-station</code> attributes on each TR and rebuilds the name using the embedded <code>companyNames</code> JS object (emitted server-side from <code>_companyIdToName</code> dict).</p>
 
-        <h2 id="label-preview">10. BarTender Label Preview</h2>
-        <p>Clicking <strong>Preview Label</strong> in the toolbar opens a glassmorphism modal that renders a live BarTender label image for the first selected row (or first row if none checked).</p>
-        <ol>
-            <li>JS function <code>previewSelectedExcelRow()</code> extracts cell data from the grid row.</li>
-            <li>Calls <code>openExcelPreviewModal()</code> which POSTs to <code>api/BarTenderHandler.ashx?action=preview</code> with:
-                <ul>
-                    <li><code>template</code> &mdash; the selected BarTender <code>.btw</code> path</li>
-                    <li><code>fields</code> &mdash; <code>lblname</code>, <code>lbldescription</code>, <code>lblsn</code>, <code>lbleil</code> (CMR), <code>lblrfidtag</code></li>
-                </ul>
-            </li>
-            <li>The handler renders the label via the BarTender engine and returns a base64 PNG.</li>
-            <li>The modal displays the rendered image plus metadata (template path, discovered fields).</li>
-        </ol>
-        <p>If the BarTender engine is unavailable, the modal displays the error message inline with a warning icon.</p>
-
-        <h2 id="print-flow">11. Print Flow</h2>
+        <h2 id="print-flow">9. Print Flow</h2>
         <ol>
             <li>Selected rows are upserted (same MERGE as Import Only).</li>
-            <li>All upserted asset IDs are collected into a single batch.</li>
-            <li><code>PrintApiHelper.SubmitPrintJobsBatch(assetIds, templateId, companyId)</code> sends the entire batch in one call &mdash; this prevents the N&times;N duplicate label bug that occurred with per-row API calls.</li>
-            <li>iDash API publishes MQTT print job to site print server.</li>
-            <li>BarTender prints the labels.</li>
+            <li><code>AssetWorxApiHelper.SubmitPrintJob(assetId, templateId, companyId)</code> called per row.</li>
+            <li>AssetWorx API publishes MQTT print job to site print server.</li>
+            <li>BarTender prints the label.</li>
         </ol>
-        <p>Print errors are collected separately; a print failure does not roll back the import. See <a href="va_print_admin.html" style="color:var(--accent);">Print Administration</a> and <a href="va_bartender_print_architecture.html" style="color:var(--accent);">BarTender Print Architecture</a>.</p>
+        <p>Print errors are collected separately; a print failure does not roll back the import. See <a href="va_print_admin.html" style="color:var(--accent);">Print Administration</a>.</p>
 
-        <h2 id="performance">12. Performance &amp; Limits</h2>
+        <h2 id="performance">10. Performance &amp; Limits</h2>
         <p>Because the web server processes the entire batch synchronously in a single request, there are strict batch size limits to prevent IIS connection timeouts:</p>
         <ul>
             <li><strong>Import Only:</strong> Safe up to ~500 rows.</li>
@@ -181,24 +150,23 @@ OUTPUT inserted.id;</pre>
         </ul>
         <p>To prevent users from clicking repeatedly during long operations and flooding the server, a glassmorphism loading overlay with a CSS spinner is injected into the DOM the moment the user clicks OK on the confirmation prompt.</p>
 
-        <h2 id="access-control">13. Access Control</h2>
+        <h2 id="access-control">11. Access Control</h2>
         <p>Access granted if tile list contains any of: <code>excel_print</code>, <code>admin_print</code>, <code>admin_users</code>. Checked via <code>UserManager.CanAccessTile()</code>. Unauthorized redirected to <code>index.aspx?err=access</code>.</p>
 
-        <h2 id="troubleshooting">14. Troubleshooting</h2>
+        <h2 id="troubleshooting">12. Troubleshooting</h2>
         <table style="width:100%; border-collapse:collapse; margin:12px 0; font-size:13px;">
             <tr style="border-bottom:2px solid var(--line);"><th style="text-align:left;padding:8px 12px;color:var(--muted);">Symptom</th><th style="text-align:left;padding:8px 12px;color:var(--muted);">Fix</th></tr>
             <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;">FILE MISSING error</td><td style="padding:8px 12px;">Drop equipment.xlsx into C:\va_rfid\excel_data\ and refresh.</td></tr>
-            <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;">Duplicate key error on import</td><td style="padding:8px 12px;">Asset with same computed name exists under a different serial. Use iDash UI to rename or delete the conflicting asset, then re-import.</td></tr>
+            <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;">Duplicate key error on import</td><td style="padding:8px 12px;">Asset with same computed name exists under a different serial. Use AssetWorx UI to rename or delete the conflicting asset, then re-import.</td></tr>
             <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;">Assets imported without site prefix</td><td style="padding:8px 12px;">Site Override was Auto but Col 12 was blank. Select correct company in Site Override and re-import (MERGE will UPDATE existing assets with correct name).</td></tr>
             <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;">Old dash-format names (613-81294)</td><td style="padding:8px 12px;">These assets will NOT be updated by re-import (different name = new record). Run UPDATE dbo.asset SET name = ... to rename them first, then re-import.</td></tr>
             <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;">Grid doesn't show Location name after import</td><td style="padding:8px 12px;">The import maps location text to locationid. If the location string is corrupt or DB schema out of sync, the locationid mapping might silently fail. The script attempts to auto-create missing locations.</td></tr>
             <tr><td style="padding:8px 12px;">Print jobs not firing</td><td style="padding:8px 12px;">Check template selected, print server service running, MQTT reachable. See Print Administration doc.</td></tr>
         </table>
 
-        <h2 id="changelog">15. Changelog</h2>
+        <h2 id="changelog">13. Changelog</h2>
         <table style="width:100%; border-collapse:collapse; margin:12px 0; font-size:13px;">
             <tr style="border-bottom:2px solid var(--line);"><th style="text-align:left;padding:8px 12px;color:var(--muted);">Date</th><th style="text-align:left;padding:8px 12px;color:var(--muted);">Change</th></tr>
-            <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;white-space:nowrap;">2026-09-19</td><td style="padding:8px 12px;"><strong>Documentation Update</strong> - Added File Source Selection, Label Preview, and batch print sections. Updated section numbering and TOC. Added <code>api/BarTenderHandler.ashx</code> and <code>App_Data/uploads/</code> to source files table.</td></tr>
             <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;white-space:nowrap;">2026-08-15</td><td style="padding:8px 12px;"><strong>UX Improvements</strong> - Added a modern glassmorphism loading overlay and spinner to prevent user clicks during long syncs. Added explicit UI warnings regarding batch size limits to prevent IIS timeouts. Removed confusing technical jargon from confirmation dialogs.</td></tr>
             <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;white-space:nowrap;">2026-08-14</td><td style="padding:8px 12px;"><strong>Full Data Normalization Sync</strong> - Added `rfidtag` auto-generation, `locationid` lookup/linking, parsed inventory dates, `assettype` mapping, and `IN USE` defaults to mirror standard DB import scripts.</td></tr>
             <tr style="border-bottom:1px solid var(--line);"><td style="padding:8px 12px;white-space:nowrap;">2026-08-14</td><td style="padding:8px 12px;"><strong>MERGE Company ID Fix</strong> - Modified MERGE ON clause to handle `NULL` company IDs properly using `ISNULL` to prevent duplicate assets when company mapping fails. Default name prefix set to `EE`.</td></tr>
@@ -215,14 +183,13 @@ OUTPUT inserted.id;</pre>
         </div>
     </div>
     <footer style="margin-top:40px; padding:20px; border-top:1px solid var(--line); font-size:12px; color:var(--muted-docs); display:flex; justify-content:space-between; align-items:center; background:var(--bg); max-width:1400px; margin-left:auto; margin-right:auto;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
-        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
-        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
-    </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <img src="/idash/assets/branding/assetworx.jpg" alt="AssetWorx" style="height:16px;">
+            <span style="font-weight:600; font-size:14px; color:var(--text);">AssetWorx<span style="color:#2ea8ff;">!</span></span>
+        </div>
         <div style="display:flex; align-items:center; gap:12px;">
             <span>&copy; 2026 ID Integration Inc.</span>
-            <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height:14px; opacity:0.9;">
+            <img src="/idash/assets/branding/idintegration.jpg" alt="ID Integration Inc." style="height:14px; opacity:0.9;">
         </div>
     </footer>
 </body>

@@ -1,6 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Data File Import — iDash Documentation</title>
@@ -42,14 +44,14 @@
     </div>
 
     <h1>&#128229; Data File Import</h1>
-    <div class="doc-sub">Upload tab-delimited VA data files and import directly into iDash — no SSMS, no file shares, no copy-paste.</div>
+    <div class="doc-sub">Upload tab-delimited VA data files and import directly into AssetWorx — no SSMS, no file shares, no copy-paste.</div>
 
     <h2>Overview</h2>
     <p>The Data File Import tool replaces the manual process of running SQL scripts in SSMS to import asset data from VA data extracts. It handles everything automatically:</p>
     <ol>
         <li>Parses the tab-delimited file</li>
         <li>Streams rows to SQL Server using high-speed bulk copy</li>
-        <li>Maps raw data to the iDash schema (EPC tags, SP locations, company IDs)</li>
+        <li>Maps raw data to the AssetWorx schema (EPC tags, SP locations, company IDs)</li>
         <li>Inserts new locations and assets</li>
         <li>Normalizes legacy data (SP prefixes, status values, location links)</li>
     </ol>

@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>IDASH ARCHITECTURE RATIONALE &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -40,10 +41,10 @@
             It provides live RFID scanning, RFID asset location hunting, executive reporting dashboards,
             automated ENNX generation, fixed reader management, RFID print routing, database administration,
             dual-layer cryptographic licensing with air-gapped activation, mobile cart fleet registry,
-            unified user access control (both iDash portal and scanner and system users), multi-site field server data sync,
+            unified user access control (both iDash portal and AssetWorx/RFID users), multi-site field server data sync,
             login audit trail, secure file exchange, and automated email delivery
             &mdash; all from a single IIS deployment with zero external build dependencies.
-            It deliberately layers direct SQL analytics <em>on top of</em> (not instead of) the iDash
+            It deliberately layers direct SQL analytics <em>on top of</em> (not instead of) the AssetWorx
             REST API, because the API was never designed to serve pre-aggregated dashboard data.
         </div>
 
@@ -66,7 +67,7 @@
         <p style="font-size:15px;">
             iDash was built because no off-the-shelf product addresses the VA's unique combination of
             barcode/RFID scanning, real-time ENNX government reporting, and multi-site inventory management.
-            It fills the operational gap between the iDash inventory database and the VA's daily
+            It fills the operational gap between the AssetWorx inventory database and the VA's daily
             compliance and reporting requirements.
         </p>
 
@@ -113,7 +114,7 @@
 
         <div class="alert-green" style="margin-top:16px;">
             <strong>Deployment simplicity is a feature, not a limitation.</strong>
-            iDash runs on the same Windows Server and IIS instance as iDash &mdash; no additional
+            iDash runs on the same Windows Server and IIS instance as AssetWorx &mdash; no additional
             infrastructure, no cloud subscriptions, no CI/CD pipeline, no Node.js. Copy the folder,
             update <code>web.config</code>, and it's live. This is deliberate for VA environments where
             server provisioning requires months of ATO approvals.
@@ -126,7 +127,7 @@
     <div class="card">
         <h2>Addressing the "Not Fully on API" Concern</h2>
         <p>
-            The concern raised is that iDash should be routing all data access through the iDash REST API
+            The concern raised is that iDash should be routing all data access through the AssetWorx REST API
             rather than talking to SQL Server directly. Here is why that concern, while understandable, does not
             apply to what iDash is doing:
         </p>
@@ -136,7 +137,7 @@
                 <h3>&#128308; What &quot;fully API&quot; would require</h3>
                 <ul>
                     <li>A dedicated API endpoint for every aggregate query (inventory aging buckets, CMR lifecycle stats, tagging completion %, ENNX session rollups, etc.)</li>
-                    <li>The iDash backend team adding 20+ custom report endpoints that don't exist today and aren't on the roadmap</li>
+                    <li>The AssetWorx backend team adding 20+ custom report endpoints that don't exist today and aren't on the roadmap</li>
                     <li>Turning every dashboard page into an async JavaScript SPA making multiple API calls just to render a single KPI card</li>
                     <li>Losing the ability to write ad-hoc SQL optimization without touching the backend codebase</li>
                 </ul>
@@ -146,8 +147,8 @@
                 <ul>
                     <li>Uses the REST API for all <strong>entity-level write operations</strong>: print jobs, live scan commits, EIL reconciliation</li>
                     <li>Uses direct SQL only for <strong>read-only multi-row analytics</strong> that the API doesn't expose&mdash;aggregations, bucket counts, joins across tables</li>
-                    <li>The API client (<code>IdashApiClient.cs</code>) is fully wired and used; it is not decoration</li>
-                    <li>A feature flag (<code>UseRestApi</code> in <code>web.config</code>) controls which path is active</li>
+                    <li>The API client (<code>AssetworxApiClient.cs</code>) is fully wired and used; it is not decoration</li>
+                    <li>A feature flag (<code>UseAssetWorxApi</code> in <code>web.config</code>) controls which path is active</li>
                 </ul>
             </div>
         </div>
@@ -179,7 +180,7 @@
                         Used by reporting and dashboard pages: <code>va_asset_stats.aspx</code>, <code>va_cmr_stats.aspx</code>,
                         <code>va_tag_stats.aspx</code>, <code>va_data_quality.aspx</code>, and others.
                         These pages run server-side C# code (<code>.aspx.cs</code>) with parameterized SQL queries
-                        against the local <code>iDash</code> SQL Server database. Dashboard/report pages typically query
+                        against the local <code>AssetWorx</code> SQL Server database. Dashboard/report pages typically query
                         <code>dbo.v_asset</code> (a view with INNER JOINs), while scanning and ENNX pages query
                         <code>dbo.asset</code> directly (the base table) to ensure visibility of all scanned records
                         including those missing foreign-key relationships.
@@ -195,7 +196,7 @@
                     <span class="chip chip-api">API Driven</span>
                     <p style="margin:4px 0 0;">
                         Used for all write operations and entity-level lookups: printing, scan commits, live scan
-                        payloads, and asset explorer queries. The <code>IdashApiClient.cs</code> class handles
+                        payloads, and asset explorer queries. The <code>AssetworxApiClient.cs</code> class handles
                         OAuth 2.0 client-credentials token management and is called from code-behind on pages like
                         <code>va_tagteam_scan.aspx</code>, <code>va_eil_live_scan.aspx</code>, and others.
                         The JavaScript frontend also calls <code>/api/printjobs/print</code> directly with a Bearer token.
@@ -210,7 +211,7 @@
                     <span class="chip chip-hybrid">Hybrid</span>
                     <p style="margin:4px 0 0;">
                         Pages like <code>va_tagteam_scan.aspx</code> and <code>va_ennx_live_scan.aspx</code> use
-                        direct SQL to load and filter asset data efficiently, then use the iDash REST API to
+                        direct SQL to load and filter asset data efficiently, then use the AssetWorx REST API to
                         commit changes. This is by design &mdash; reads are fast SQL, writes go through the authoritative
                         API layer to ensure business logic rules are enforced at the API level.
                     </p>
@@ -249,10 +250,10 @@
                     <td><span class="chip chip-db">Config</span></td>
                 </tr>
                 <tr>
-                    <td><code>IdashApiClient.cs</code></td>
+                    <td><code>AssetworxApiClient.cs</code></td>
                     <td>
-                        The shared static HTTP client for the iDash REST API. Handles OAuth 2.0 token acquisition,
-                        caching, expiry, and refresh automatically. Call <code>IdashApiClient.GetToken()</code>
+                        The shared static HTTP client for the AssetWorx REST API. Handles OAuth 2.0 token acquisition,
+                        caching, expiry, and refresh automatically. Call <code>AssetWorxApiClient.GetToken()</code>
                         from any page to get a valid Bearer token without re-authenticating.
                     </td>
                     <td><span class="chip chip-api">API Client</span></td>
@@ -376,7 +377,7 @@
                     <td><code>va_field_sync_merge.sql</code></td>
                     <td>
                         The SQL script that merges field server data into the central database.
-                        Performs cross-database asset sync from <code>idash_staging</code> to <code>idash</code>:
+                        Performs cross-database asset sync from <code>assetworx_staging</code> to <code>assetworx</code>:
                         company matching (by station number prefix), location insertion, asset UPDATE with
                         field-level change detection, new asset INSERT, and <code>locationid</code> re-linking.
                         Uses <code>CASE/ISNULL</code> guards to never overwrite existing data with blanks.
@@ -474,20 +475,20 @@
         </p>
         <ul>
             <li><strong>iDash Portal Users</strong> &mdash; JSON-backed authentication for the iDash web portal. Create/edit/delete users with role, site, and tile-level permissions.</li>
-            <li><strong>Scanner &amp; System Users</strong> &mdash; SQL-backed (<code>dbo.sysuser</code>) authentication for RFID scanners and the RFID mobile scanner. Managed via an embedded iframe (<code>va_aw_user_management.aspx?embed=1</code>) to preserve ASP.NET ViewState isolation.</li>
+            <li><strong>AssetWorx &amp; RFID Users</strong> &mdash; SQL-backed (<code>dbo.sysuser</code>) authentication for RFID scanners and the AssetWorx thick client. Managed via an embedded iframe (<code>va_aw_user_management.aspx?embed=1</code>) to preserve ASP.NET ViewState isolation.</li>
         </ul>
         <div class="alert-amber">
-            <strong>Why the iframe?</strong> The scanner user management page uses ASP.NET postbacks
+            <strong>Why the iframe?</strong> The AssetWorx user management page uses ASP.NET postbacks
             and ViewState. Embedding it inline would cause ViewState corruption when the parent page's form
             also posts back. The iframe pattern isolates the two form contexts completely.
         </div>
 
         <h3>Storage &amp; Portability</h3>
         <ul>
-            <li>iDash users are stored locally in <code>App_Data/idash_users.json</code>, fully decoupled from the iDash SQL database.</li>
-            <li>scanner users are stored in <code>dbo.sysuser</code> in the SQL database and managed through the legacy ASPX forms.</li>
-            <li>Passwords are secured via <strong>SHA-256</strong> hashing (iDash) or the iDash native hash scheme (iDash).</li>
-            <li>In the event of an authentication lockout, deleting the JSON file forces <code>UserManager</code> to auto-seed the default <code>idashadmin</code> account on the next load.</li>
+            <li>iDash users are stored locally in <code>App_Data/idash_users.json</code>, fully decoupled from the AssetWorx SQL Database.</li>
+            <li>AssetWorx users are stored in <code>dbo.sysuser</code> in the SQL database and managed through the legacy ASPX forms.</li>
+            <li>Passwords are secured via <strong>SHA-256</strong> hashing (iDash) or the AssetWorx native hash scheme (AssetWorx).</li>
+            <li>In the event of an authentication lockout, deleting the JSON file forces <code>UserManager</code> to auto-seed the default <code>assetworxadmin</code> account on the next load.</li>
         </ul>
 
         <h3>Login Audit Trail</h3>
@@ -539,9 +540,9 @@
             </div>
 
             <div class="box">
-                <h3>&#128225; Layer 2: iDash core &amp; Fixed Reader License</h3>
+                <h3>&#128225; Layer 2: AssetWorx Core &amp; Fixed Reader License</h3>
                 <p>
-                    The underlying iDash RFID tracking engine maintains its own hardware license layer:
+                    The underlying AssetWorx RFID tracking engine maintains its own hardware license layer:
                 </p>
                 <ul>
                     <li><strong>Database-Backed:</strong> Stored as a Base64-encoded JSON payload directly inside <code>dbo.applicationsetting</code> under <code>licensekey</code>.</li>
@@ -577,7 +578,7 @@
         <ul>
             <li>
                 <strong>iDash is a department-internal ops tool, not a product.</strong>
-                It lives on a single IIS server already running the iDash application pool. WebForms deploys
+                It lives on a single IIS server already running the AssetWorx application pool. WebForms deploys
                 in seconds &mdash; no build pipeline, no Node, no CI/CD. Any developer with a text editor can open
                 a <code>.aspx</code> file and immediately understand the HTML structure.
             </li>
@@ -602,7 +603,7 @@
         </ul>
         <div class="alert-amber">
             <strong>Note on the decompiled files:</strong> <code>DecompiledPrintServer.cs</code> and related files
-            in the root are reverse-engineered reference copies of the iDash Print Server binary &mdash;
+            in the root are reverse-engineered reference copies of the AssetWorx Print Server binary &mdash;
             they are for study only and are not compiled into iDash. They exist so the team can understand
             the print server's internal behavior without access to the vendor's source code.
         </div>
@@ -669,7 +670,7 @@
                     <td>Fixed Reader Configuration</td>
                     <td><code>va_reader_config.aspx</code></td>
                     <td>N/A &mdash; management UI only</td>
-                    <td>Connects to iDash REST API with OAuth2 to manage fixed reader registrations. WebSerial not applicable (fixed readers communicate server-to-reader, not browser-to-reader).</td>
+                    <td>Connects to AssetWorx REST API with OAuth2 to manage fixed reader registrations. WebSerial not applicable (fixed readers communicate server-to-reader, not browser-to-reader).</td>
                 </tr>
             </tbody>
         </table>
@@ -701,7 +702,7 @@
 
         <h3>Reading data from the database</h3>
         <pre>// 1. Get the connection string from web.config &mdash; always
-string connStr = WebConfigurationManager.ConnectionStrings["iDash"].ConnectionString;
+string connStr = WebConfigurationManager.ConnectionStrings["AssetWorx"].ConnectionString;
 
 // 2. Open a connection, write a parameterized query
 using (SqlConnection conn = new SqlConnection(connStr))
@@ -728,9 +729,9 @@ using (SqlConnection conn = new SqlConnection(connStr))
             Use <code>dbo.v_asset</code> only for reports where you want fully-resolved, clean data.
         </div>
 
-        <h3>Calling the iDash API from code-behind</h3>
+        <h3>Calling the AssetWorx API from code-behind</h3>
         <pre>// Get a valid Bearer token (cached automatically, refreshed when expired)
-string token = IdashApiClient.GetToken();
+string token = AssetWorxApiClient.GetToken();
 
 // Inject the token into the page so JavaScript can use it for print calls
 LitToken.Text = "&lt;script&gt;var AW_TOKEN = '" + token + "';&lt;/script&gt;";</pre>
@@ -781,12 +782,12 @@ LitToken.Text = "&lt;script&gt;var AW_TOKEN = '" + token + "';&lt;/script&gt;";<
             <tbody>
                 <tr>
                     <td><strong>Write operations</strong> (scan commit, create asset, print job)</td>
-                    <td><span class="chip chip-api">iDash API</span></td>
+                    <td><span class="chip chip-api">AssetWorx API</span></td>
                     <td>API enforces business rules, audit logs, and data integrity constraints</td>
                 </tr>
                 <tr>
                     <td><strong>Entity lookups</strong> (single asset by ID, user by name)</td>
-                    <td><span class="chip chip-api">iDash API</span></td>
+                    <td><span class="chip chip-api">AssetWorx API</span></td>
                     <td>API is authoritative for individual entity reads</td>
                 </tr>
                 <tr>
@@ -808,9 +809,9 @@ LitToken.Text = "&lt;script&gt;var AW_TOKEN = '" + token + "';&lt;/script&gt;";<
         </table>
 
         <div class="alert-green" style="margin-top:16px;">
-            <strong>The migration path is clear:</strong> As the iDash API team adds aggregate endpoints
+            <strong>The migration path is clear:</strong> As the AssetWorx API team adds aggregate endpoints
             or reporting capabilities, the corresponding iDash pages can be updated to use them &mdash; one page at a time,
-            controlled by the <code>UseRestApi</code> toggle in <code>web.config</code>. No big-bang rewrite required.
+            controlled by the <code>UseAssetWorxApi</code> toggle in <code>web.config</code>. No big-bang rewrite required.
         </div>
     </div>
 
@@ -820,7 +821,7 @@ LitToken.Text = "&lt;script&gt;var AW_TOKEN = '" + token + "';&lt;/script&gt;";<
     <div class="card">
         <h2>&#128640; Deployment &amp; Regional Server Setup</h2>
         <p>
-            When deploying iDash to a new VA regional server, moving the iDash SQL database (<code>.mdf</code>) and IIS web files is <strong>not enough</strong>. You must also migrate the external state.
+            When deploying iDash to a new VA regional server, moving the AssetWorx SQL Database (<code>.mdf</code>) and IIS web files is <strong>not enough</strong>. You must also migrate the external state.
         </p>
         <ul>
             <li><strong>User Accounts:</strong> You must copy <code>App_Data/idash_users.json</code>, otherwise all portal users and their site-level permissions will be lost.</li>
@@ -861,19 +862,19 @@ LitToken.Text = "&lt;script&gt;var AW_TOKEN = '" + token + "';&lt;/script&gt;";<
                 in SQL Server Management Studio to see the difference in shape and row count.
             </li>
             <li>
-                <strong>Know about the iDash API.</strong>
-                It runs at <code>http://localhost/api</code> (configurable in <code>web.config</code> via <code>iDash_ApiBase</code>).
+                <strong>Know about the AssetWorx API.</strong>
+                It runs at <code>http://localhost/api</code> (configurable in <code>web.config</code> via <code>AssetWorx_ApiBase</code>).
                 It uses OAuth 2.0 client credentials &mdash; the client ID and secret are in <code>web.config</code>.
-                Token management is entirely handled by <code>IdashApiClient.cs</code>.
+                Token management is entirely handled by <code>AssetworxApiClient.cs</code>.
             </li>
             <li>
                 <strong>Know about the Print Pipeline.</strong>
                 The iDash print stack has three layers: (1) the mobile app selects a template via
                 <code>template.name</code> matching in SQL, (2) the iDash web UI uses
                 <code>print_mapping_config.json</code> to resolve template IDs when printing from
-                Tag Team Scan, Asset Master, and Excel Print, and (3) <code>IdashApiHelper</code>
+                Tag Team Scan, Asset Master, and Excel Print, and (3) <code>AssetWorxApiHelper</code>
                 dispatches the print request natively via <code>POST /api/printjob/print</code> using site OAuth credentials.
-                The API publishes the MQTT trigger on port 8883 to the native <code>iDash.PrintServer</code> Windows service,
+                The API publishes the MQTT trigger on port 8883 to the native <code>AssetWorx.PrintServer</code> Windows service,
                 which executes BarTender and routes the label to the hardware printer.
                 The system operates 100% independently without requiring any external PowerShell scripts on VA production servers.
             </li>
@@ -903,7 +904,7 @@ LitToken.Text = "&lt;script&gt;var AW_TOKEN = '" + token + "';&lt;/script&gt;";<
                 <tr><td><code>va_eil_live_scan.aspx</code></td><td>EIL reconciliation scanner. Cross-references scanned barcodes against location records to identify discrepancies.</td><td><span class="chip chip-hybrid">Hybrid</span></td></tr>
                 <tr><td><code>va_universal_ennx.aspx</code></td><td>Scanner-agnostic ENNX builder for any VA facility. No site selection or database required &mdash; works offline from any browser.</td><td><span class="chip chip-api">Standalone</span></td></tr>
                 <tr><td><code>va_rfid_locator.aspx</code></td><td><strong>RFID Asset Locator (07/24/2026).</strong> Dedicated missing-asset hunting tool. Pre-load specific targets (by EE number, barcode, serial, or rfidtag), then walk with a Zebra reader to find them using geiger counter-style proximity metering, audio feedback, and proximity-scaled beeps. Uses a 3-tier tag matching strategy: exact match, substring match, and EE-number fuzzy match after stripping F-padding. Includes raw read debug log for diagnosing format mismatches. WebMethod <code>LookupAssets</code> queries SQL with space-agnostic normalization. DataWedge keystroke + WebSerial USB supported.</td><td><span class="chip chip-api">API Driven (JSON)</span></td></tr>
-                <tr><td><code>va_reader_config.aspx</code></td><td><strong>Fixed Reader Configuration (07/24/2026).</strong> Manages fixed infrastructure RFID reader registrations. Add/edit/delete readers; configure antenna ports, power levels, and location mappings; discover unregistered hardware on the network; view live online/offline status. Connects to iDash REST API with OAuth2. Per-site location filtering enforced via <code>UserManager.BuildSiteFilter()</code>.</td><td><span class="chip chip-api">API Driven</span></td></tr>
+                <tr><td><code>va_reader_config.aspx</code></td><td><strong>Fixed Reader Configuration (07/24/2026).</strong> Manages fixed infrastructure RFID reader registrations. Add/edit/delete readers; configure antenna ports, power levels, and location mappings; discover unregistered hardware on the network; view live online/offline status. Connects to AssetWorx REST API with OAuth2. Per-site location filtering enforced via <code>UserManager.BuildSiteFilter()</code>.</td><td><span class="chip chip-api">API Driven</span></td></tr>
                 <tr><td><code>va_site_maps.aspx</code></td><td>Visual facility map dashboard. Tracks tagging progress floor-by-floor with color-coded completion status, ENNX file import overlay, per-asset note editing, sortable/filterable column data, column chooser, XLSX export, and version history tracking.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
             </tbody>
         </table>
@@ -950,12 +951,12 @@ LitToken.Text = "&lt;script&gt;var AW_TOKEN = '" + token + "';&lt;/script&gt;";<
         <table class="tbl">
             <thead><tr><th>Module</th><th>Function</th><th>Layer</th></tr></thead>
             <tbody>
-                <tr><td><code>va_dbupdate.aspx</code></td><td>Standard and enrichment database update workflows. Processes CDW extract files into the local iDash database.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+                <tr><td><code>va_dbupdate.aspx</code></td><td>Standard and enrichment database update workflows. Processes CDW extract files into the local AssetWorx database.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
                 <tr><td><code>va_autodbupdate.aspx</code></td><td>Automated DB update with autoload folder polling. Monitors a directory for <code>.bak</code> files and processes them unattended via Windows Task Scheduler.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
                 <tr><td><code>va_sql_upload.aspx</code></td><td>Direct SQL script upload and execution tool for administrative bulk operations.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
                 <tr><td><code>va_db_restore.aspx</code></td><td>Database backup restore utility with danger-zone safety controls and log output.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
                 <tr><td><code>va_excel.aspx</code></td><td>Excel file merge tool for combining multiple CDW extract workbooks into a single importable dataset.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
-                <tr><td><code>va_field_sync.aspx</code></td><td>Multi-facility field server sync pipeline. Restores remote <code>.bak</code> files into <code>idash_staging</code>, then executes <code>va_field_sync_merge.sql</code> for cross-database merge with field-level change detection, company matching by station number prefix, and <code>locationid</code> re-linking. Supports national multi-site deployment.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+                <tr><td><code>va_field_sync.aspx</code></td><td>Multi-facility field server sync pipeline. Restores remote <code>.bak</code> files into <code>assetworx_staging</code>, then executes <code>va_field_sync_merge.sql</code> for cross-database merge with field-level change detection, company matching by station number prefix, and <code>locationid</code> re-linking. Supports national multi-site deployment.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
             </tbody>
         </table>
 
@@ -974,8 +975,8 @@ LitToken.Text = "&lt;script&gt;var AW_TOKEN = '" + token + "';&lt;/script&gt;";<
         <table class="tbl">
             <thead><tr><th>Module</th><th>Function</th><th>Layer</th></tr></thead>
             <tbody>
-                <tr><td><code>va_user_management.aspx</code></td><td>Unified user management console with system toggle. <strong>iDash tab:</strong> JSON-backed portal users with three-dimensional authorization (Role &times; Site &times; Tile). <strong>iDash tab:</strong> SQL-backed RFID scanner/thick-client users via embedded iframe. Includes login history card with KPI stats and audit trail. Both systems managed from a single hub tile.</td><td><span class="chip chip-db">Config</span></td></tr>
-                <tr><td><code>va_aw_user_management.aspx</code></td><td>iDash/RFID user administration. CRUD operations against <code>dbo.sysuser</code>. Supports standalone mode and <code>?embed=1</code> mode (hides chrome for iframe embedding in unified page).</td><td><span class="chip chip-db">DB Driven</span></td></tr>
+                <tr><td><code>va_user_management.aspx</code></td><td>Unified user management console with system toggle. <strong>iDash tab:</strong> JSON-backed portal users with three-dimensional authorization (Role &times; Site &times; Tile). <strong>AssetWorx tab:</strong> SQL-backed RFID scanner/thick-client users via embedded iframe. Includes login history card with KPI stats and audit trail. Both systems managed from a single hub tile.</td><td><span class="chip chip-db">Config</span></td></tr>
+                <tr><td><code>va_aw_user_management.aspx</code></td><td>AssetWorx/RFID user administration. CRUD operations against <code>dbo.sysuser</code>. Supports standalone mode and <code>?embed=1</code> mode (hides chrome for iframe embedding in unified page).</td><td><span class="chip chip-db">DB Driven</span></td></tr>
                 <tr><td><code>UserManager.cs</code></td><td>Backend authentication engine. SHA-256 password hashing, JSON-backed user store, three-dimensional authorization (Role &times; Site &times; Tile), deny-by-default tile access. Auto-seeds default admin on empty user store.</td><td><span class="chip chip-db">Config</span></td></tr>
             </tbody>
         </table>
@@ -1006,7 +1007,7 @@ LitToken.Text = "&lt;script&gt;var AW_TOKEN = '" + token + "';&lt;/script&gt;";<
     <!--  FOOTER                                                        -->
     <!-- ============================================================ -->
     <div style="text-align:center; color:var(--muted-docs); font-size:12px; margin-top:40px;">
-        iDash iDash &mdash; Architecture Rationale &amp; Developer Handoff Guide &copy; 2026<br/>
+        AssetWorx iDash &mdash; Architecture Rationale &amp; Developer Handoff Guide &copy; 2026<br/>
         Last revised: September 10, 2026 &bull; ID Integration Inc.<br/>
         For questions, start with the <a href="index.aspx">Documentation Hub</a> &mdash; 117 dedicated module pages cover every detail.
     </div>

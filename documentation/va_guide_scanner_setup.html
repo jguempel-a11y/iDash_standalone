@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>iDash Docs &mdash; Guide: Zebra TC53 Scanner Setup</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <style>
@@ -31,13 +32,13 @@
 
     <div class="doc-container">
         <h1>&#128241; Guide: Zebra TC53 Scanner Setup</h1>
-        <p class="doc-subtitle">How to connect the Zebra TC53 reader to your MiFi network, pair the RF40 RFID sled via Bluetooth, install the iDash app, and configure it to connect to your print server.</p>
+        <p class="doc-subtitle">How to connect the Zebra TC53 reader to your MiFi network, pair the RF40 RFID sled via Bluetooth, install the AssetWorx! app, and configure it to connect to your print server.</p>
 
         <div class="callout callout-info">
             <strong>When to use this guide:</strong> Follow these steps when setting up a new Zebra TC53 scanner for the first time, or when you need to reconfigure an existing scanner (new server, new sled, or app reinstall).
         </div>
 
-        <p class="step-desc"><strong>Source:</strong> <em>VISN 5 Use and Configuration Guide for iDash 4.0.8.7</em>, Sections III&ndash;IV (pages 14&ndash;25)</p>
+        <p class="step-desc"><strong>Source:</strong> <em>VISN 5 Use and Configuration Guide for AssetWorx! 4.0.8.7</em>, Sections III&ndash;IV (pages 14&ndash;25)</p>
 
         <!-- ════════ PHASE 1: WIFI ════════ -->
         <div class="phase-header wifi">&#128225; Phase 1: Connect to WiFi</div>
@@ -57,13 +58,13 @@
             <div class="step-title"><span class="step-num">2</span> Connect to the Network</div>
             <div class="step-desc">
                 Tap <strong>Network &amp; internet</strong>, then tap <strong>Internet</strong>.
-                Find and connect to the <strong>same Wi-Fi network</strong> as your iDash system.
+                Find and connect to the <strong>same Wi-Fi network</strong> as your AssetWorx System.
             </div>
             <div class="img-row">
                 <img src="images/visn5_v4/word/media/image23_new.png?v=1" alt="Internet Settings" class="step-img" />
             </div>
             <div class="warn-box">
-                <strong>&#9888; Important:</strong> Both the printing laptop and the TC53 RFID reader must be connected to the <strong>same Wi-Fi network</strong> for iDash to work correctly.
+                <strong>&#9888; Important:</strong> Both the printing laptop and the TC53 RFID reader must be connected to the <strong>same Wi-Fi network</strong> for AssetWorx! to work correctly.
             </div>
         </div>
 
@@ -117,7 +118,7 @@
         <div class="step-card">
             <div class="step-title"><span class="step-num">6</span> Reconnecting After a Dropout</div>
             <div class="step-desc">
-                If the scanner disconnects when iDash is opened:
+                If the scanner disconnects when AssetWorx! is opened:
             </div>
             <ol style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
                 <li><strong>Remove</strong> the TC53 from the sled &mdash; the scanner will auto-reconnect</li>
@@ -131,7 +132,7 @@
 
         <!-- ════════ PHASE 3: INSTALL ════════ -->
         <hr class="section-divider" />
-        <div class="phase-header install">&#128230; Phase 3: Install iDash App</div>
+        <div class="phase-header install">&#128230; Phase 3: Install AssetWorx! App</div>
 
         <div class="step-card">
             <div class="step-title"><span class="step-num blue">7</span> Install from Google Play Store</div>
@@ -140,16 +141,16 @@
             </div>
             <ol style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
                 <li>Open the <strong>Google Play Store</strong></li>
-                <li>Search for <strong>"iDash"</strong></li>
-                <li>Select <strong>iDash VA</strong> and tap <strong>Install</strong></li>
+                <li>Search for <strong>"AssetWorx"</strong></li>
+                <li>Select <strong>AssetWorx VA</strong> and tap <strong>Install</strong></li>
             </ol>
             <div class="img-row">
                 <img src="images/visn5_v4/word/media/image35.jpeg?v=3" alt="Play Store" class="step-img" />
-                <img src="images/visn5_v4/word/media/image36.jpeg?v=3" alt="Install iDash" class="step-img" />
+                <img src="images/visn5_v4/word/media/image36.jpeg?v=3" alt="Install AssetWorx" class="step-img" />
             </div>
             <div class="step-desc">Once installed, close the Play Store.</div>
             <div class="info-box">
-                <strong>&#128225; Already installed?</strong> If iDash VA is already on your reader, skip this step and proceed directly to Phase 4 (Configuration). Follow this same process if you need to update the app in the future.
+                <strong>&#128225; Already installed?</strong> If AssetWorx! VA is already on your reader, skip this step and proceed directly to Phase 4 (Configuration). Follow this same process if you need to update the app in the future.
             </div>
         </div>
 
@@ -178,9 +179,9 @@
         </div>
 
         <div class="step-card">
-            <div class="step-title"><span class="step-num" style="background:#10b981;">9</span> Configure iDash Server Address</div>
+            <div class="step-title"><span class="step-num" style="background:#10b981;">9</span> Configure AssetWorx! Server Address</div>
             <div class="step-desc">
-                On the TC53, open the <strong>iDash VA</strong> app:
+                On the TC53, open the <strong>AssetWorx! VA</strong> app:
             </div>
             <ol style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
                 <li>Tap <strong>"GET STARTED"</strong></li>
@@ -274,11 +275,11 @@
             <tbody>
                 <tr><td>TC53 won't connect to MiFi</td><td>Verify the MiFi device is powered on and broadcasting. Check the network name matches <code>M3000-xxxx</code>. Try forgetting the network and reconnecting.</td></tr>
                 <tr><td>RF40 sled not appearing in Bluetooth</td><td>Press the sled trigger to re-enter discovery mode (flashing blue light). Make sure the sled battery is charged.</td></tr>
-                <tr><td>Sled disconnects when opening iDash</td><td>Remove TC53 from sled, wait for reconnect, then reattach. If persistent, remove sled battery, reinsert, and re-pair.</td></tr>
-                <tr><td>iDash not in Play Store</td><td>Verify the TC53 has internet access through the MiFi. Check that your Google account is signed in.</td></tr>
+                <tr><td>Sled disconnects when opening AssetWorx!</td><td>Remove TC53 from sled, wait for reconnect, then reattach. If persistent, remove sled battery, reinsert, and re-pair.</td></tr>
+                <tr><td>AssetWorx! not in Play Store</td><td>Verify the TC53 has internet access through the MiFi. Check that your Google account is signed in.</td></tr>
                 <tr><td>"Server unreachable" after entering IP</td><td>Verify the laptop and TC53 are on the <strong>same</strong> MiFi network. Re-run <code>ipconfig /all</code> to confirm the IP hasn't changed.</td></tr>
                 <tr><td>Login fails with Site #</td><td>Verify you're using the correct site number. Username and password should be identical (e.g., both <code>512</code>).</td></tr>
-                <tr><td>No location permission prompt</td><td>Go to TC53 Settings &rarr; Apps &rarr; iDash &rarr; Permissions and manually enable Location access.</td></tr>
+                <tr><td>No location permission prompt</td><td>Go to TC53 Settings &rarr; Apps &rarr; AssetWorx &rarr; Permissions and manually enable Location access.</td></tr>
             </tbody>
         </table>
 

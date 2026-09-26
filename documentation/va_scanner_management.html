@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>iDash Docs &mdash; Scanner &amp; Device Registration Management</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
 </head>
@@ -12,10 +13,10 @@
 
     <div class="doc-container">
         <h1>&#128225; Scanner &amp; Device Registration Management</h1>
-        <p class="doc-subtitle">Understanding, auditing, and managing RFID scanner registrations in the iDash <code>dbo.scanner</code> table. Includes compliance tracking, safe cleanup procedures, and impact analysis.</p>
+        <p class="doc-subtitle">Understanding, auditing, and managing RFID scanner registrations in the AssetWorx <code>dbo.scanner</code> table. Includes compliance tracking, safe cleanup procedures, and impact analysis.</p>
 
         <div class="callout callout-info">
-            <strong>What is this?</strong> iDash automatically registers RFID handheld scanners (Android app) when they connect and sync. Each device gets a unique <code>deviceid</code> fingerprint. The compliance page in iDash counts these registrations to ensure you stay within your license limits.
+            <strong>What is this?</strong> AssetWorx automatically registers RFID handheld scanners (Android app) when they connect and sync. Each device gets a unique <code>deviceid</code> fingerprint. The compliance page in AssetWorx counts these registrations to ensure you stay within your license limits.
         </div>
 
         <!-- ═══════ SECTION 1 ═══════ -->
@@ -208,9 +209,9 @@ WHERE deviceid = '73ad1b8535d2fb54';  -- change to target device ID</pre>
         <h2 id="s5"><span class="section-num">5</span> How Scanner Registration Works</h2>
 
         <ol>
-            <li>User opens the <strong>iDash Handheld</strong> Android app on an RFID scanner</li>
-            <li>App authenticates via the iDash API using the <code>clientapp</code> credentials</li>
-            <li>On first sync, iDash generates a unique <code>deviceid</code> from the device hardware</li>
+            <li>User opens the <strong>AssetWorx Handheld</strong> Android app on an RFID scanner</li>
+            <li>App authenticates via the AssetWorx API using the <code>clientapp</code> credentials</li>
+            <li>On first sync, AssetWorx generates a unique <code>deviceid</code> from the device hardware</li>
             <li>A row is inserted into <code>dbo.scanner</code> with the company name and current timestamp</li>
             <li>On subsequent syncs, the <code>lastseen</code> timestamp is updated</li>
             <li>The compliance page reads <code>COUNT(*) WHERE inactive = 0</code> to show active device count</li>
@@ -224,7 +225,7 @@ WHERE deviceid = '73ad1b8535d2fb54';  -- change to target device ID</pre>
         <h2 id="s6"><span class="section-num">6</span> Compliance Notes</h2>
 
         <ul>
-            <li>The scanner compliance page in iDash shows how many active devices are registered vs. your license limit</li>
+            <li>The scanner compliance page in AssetWorx shows how many active devices are registered vs. your license limit</li>
             <li>Deleting stale/unused scanner records is a valid way to bring the count back into compliance</li>
             <li>If a scanner hasn't synced in 90+ days, it's likely no longer in active use and safe to remove</li>
             <li>The <code>inactive</code> flag provides a soft-delete alternative &mdash; the device stays in the table but doesn't count toward the license</li>

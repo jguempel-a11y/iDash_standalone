@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>VA INVENTORY (LEGACY / ARCHIVED) &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -628,7 +629,7 @@ WHERE UPPER(LTRIM(RTRIM(name))) = @Loc</pre>
             <ul>
                 <li><strong>What it does:</strong> Re-queries the SQL database for the latest Operator usernames (<code>v_sysuser</code>) and Site names (<code>dbo.company</code>), updating both dropdowns.</li>
                 <li><strong>Preserves Workflow:</strong> Unlike a browser refresh (which wipes session variables and the scan grid), this button refreshes the dropdowns in the background without clearing the active scan list.</li>
-                <li><strong>Use Case:</strong> If a new operator account is added in iDash while a sweep is in progress, click this to load the new account without losing any scanned data.</li>
+                <li><strong>Use Case:</strong> If a new operator account is added in AssetWorx while a sweep is in progress, click this to load the new account without losing any scanned data.</li>
             </ul>
         </div>
 

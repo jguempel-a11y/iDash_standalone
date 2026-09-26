@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>VA LOG VIEWER &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -32,7 +33,7 @@
 
     <h2>Module Purpose</h2>
     <p>
-        When something goes wrong with the iDash portal or the iDash backend service, this page is where you start your investigation.
+        When something goes wrong with the iDash portal or the AssetWorx backend service, this page is where you start your investigation.
         It reads two types of logs:
     </p>
     <ul>
@@ -41,7 +42,7 @@
             Think of it like a security camera log for your web site &mdash; every page visit, every API call, every error response is recorded here.
         </li>
         <li>
-            <strong>Application Service Logs (Tab 2):</strong> The structured log written by the iDash .NET background service using the <em>Serilog</em> logging library.
+            <strong>Application Service Logs (Tab 2):</strong> The structured log written by the AssetWorx .NET background service using the <em>Serilog</em> logging library.
             This is where authentication failures, database connection errors, and application startup problems are recorded.
         </li>
         <li>
@@ -52,7 +53,7 @@
     </ul>
 
     <div class="warn-box">
-        <strong>&#9888; Login Required:</strong> This page requires an administrator login using the iDash admin account (<code>idashadmin</code>).
+        <strong>&#9888; Login Required:</strong> This page requires an administrator login using the AssetWorx admin account (<code>assetworxadmin</code>).
         The login gate appears automatically when you open the page. Once authenticated, your session is remembered for the browser session.
     </div>
 
@@ -102,7 +103,7 @@
 
     <h2>Tab 2 &mdash; Application Service Logs</h2>
     <p>
-        Application logs are written by the iDash .NET background service using <em>Serilog</em> structured logging.
+        Application logs are written by the AssetWorx .NET background service using <em>Serilog</em> structured logging.
         Files are stored in <code>C:\logs\</code> with <code>.txt</code> or <code>.log</code> extensions.
         Each line in the file represents one log entry, formatted like:
     </p>
@@ -156,7 +157,7 @@
     <ul>
         <li>
             <strong>Authentication token failures</strong> &mdash; detected when errors mention <code>GetTokenEndpoint</code>, <code>openid-configuration</code>, or <code>Unable to acquire authentication token</code>.
-            Root cause: the iDash API / IdentityServer process at <code>http://localhost/</code> is not running. Fix: start it in IIS.
+            Root cause: the AssetWorx API / IdentityServer process at <code>http://localhost/</code> is not running. Fix: start it in IIS.
         </li>
         <li>
             <strong>High-frequency error spam</strong> &mdash; when the same error appears 5 or more times, the banner calls it out with the repeat count. This indicates a crash loop that is flooding the log file and should be fixed urgently.
@@ -173,18 +174,18 @@
         <tr><td><code>va_log_viewer.aspx</code></td><td>Frontend markup &mdash; tabbed interface with IIS log panel and App log panel, KPI cards, filter bar, and log table</td></tr>
         <tr><td><code>va_log_viewer.aspx.cs</code></td><td>Backend logic &mdash; IIS W3C parser, Serilog parser, KPI rendering, chart rendering, CSV export, auto-diagnosis engine, admin login session guard</td></tr>
         <tr><td><code>C:\inetpub\logs\LogFiles\W3SVC1\</code></td><td>IIS log source directory &mdash; <code>u_ex*.log</code> files</td></tr>
-        <tr><td><code>C:\logs\</code></td><td>iDash .NET application log directory &mdash; <code>*.txt</code> / <code>*.log</code> Serilog files</td></tr>
+        <tr><td><code>C:\logs\</code></td><td>AssetWorx .NET application log directory &mdash; <code>*.txt</code> / <code>*.log</code> Serilog files</td></tr>
     </table>
 
 
     <h2>Access Control</h2>
     <p>
-        The page uses a simple session-based admin guard. The login credentials are the iDash SQL administrator account.
+        The page uses a simple session-based admin guard. The login credentials are the AssetWorx SQL administrator account.
         Upon a successful login, <code>Session["IsAdminAuthenticated"]</code> is set to <code>true</code>, unlocking the main dashboard panels.
         Clicking <strong>Logout</strong> clears the session flag and returns to the login screen.
     </p>
     <div class="err-box">
-        <strong>&#128274; Security Note:</strong> The admin credentials for this page are the same as the iDash SQL admin account configured in <code>web.config</code>.
+        <strong>&#128274; Security Note:</strong> The admin credentials for this page are the same as the AssetWorx SQL admin account configured in <code>web.config</code>.
         Do not share this password with non-administrative staff. The credential is stored in the application's session &mdash; it is not transmitted on each request after login.
     </div>
 
@@ -199,11 +200,11 @@
         <li>
             <strong>Q: The App Logs dropdown is empty. What happened?</strong><br/>
             A: No <code>.txt</code> or <code>.log</code> files were found in <code>C:\logs\</code>.
-            The iDash service may not have written any logs yet, or the Serilog output path may be configured differently.
+            The AssetWorx service may not have written any logs yet, or the Serilog output path may be configured differently.
         </li>
         <li>
             <strong>Q: I see hundreds of "Unable to acquire authentication token" errors. What should I do?</strong><br/>
-            A: The iDash API (IdentityServer) is not running. Open IIS Manager, find the iDash API site, and start it.
+            A: The AssetWorx API (IdentityServer) is not running. Open IIS Manager, find the AssetWorx API site, and start it.
             Then wait 1&ndash;2 minutes &mdash; the errors should stop appearing in new log files.
         </li>
         <li>
@@ -236,13 +237,12 @@
 
 <footer>
     <div class="logo-row">
-        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height:16px; border-radius:3px;">
-        <span style="font-weight:700; font-size:14px; color:var(--text); letter-spacing:0.5px;">iDash<span style="color:#2ea8ff;">.</span></span>
-        <span style="color:var(--muted-docs); font-size:11px; margin-left:2px;">by ID Integration Inc.</span>
+        <img src="/idash/assets/branding/assetworx.jpg" alt="AssetWorx" style="height:16px;">
+        <span style="font-weight:600; font-size:14px; color:var(--text);">AssetWorx<span style="color:#2ea8ff;">!</span></span>
     </div>
     <div class="logo-row">
         <span>&copy; 2026 ID Integration Inc.</span>
-        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height:14px; opacity:0.9;">
+        <img src="/idash/assets/branding/idintegration.jpg" alt="ID Integration Inc." style="height:14px; opacity:0.9;">
     </div>
 </footer>
 </body>

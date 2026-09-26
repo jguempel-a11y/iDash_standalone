@@ -9,7 +9,8 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>Downloads &amp; Uploads | iDash</title>
-    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="favicon.ico" />
     <link rel="stylesheet" href="theme.css" />
             <script src="theme-init.js"></script>
     <style>

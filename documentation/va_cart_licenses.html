@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>iDash License and Setup &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -81,7 +82,7 @@
     <div class="wrap" style="padding-top:30px;">
         <h1>&#128722; iDash License and Setup</h1>
         <p style="color:var(--muted-docs); font-size:1.05rem; margin-bottom:24px;">
-            Central tracking directory for all standalone iDash mobile inventory carts across enterprise healthcare facilities.
+            Central tracking directory for all standalone AssetWorx mobile inventory carts across enterprise healthcare facilities.
             Because mobile carts operate on independent local SQL Express instances without a central database server,
             each cart requires its own signed license tied directly to its physical Ethernet MAC address.
         </p>
@@ -174,7 +175,7 @@
             <p style="margin-bottom:8px;"><strong>1-Click PowerShell Deployment Script:</strong></p>
             <div class="code-box" id="psBox1">$lic = "ew0KICAiTGljZW5zZUtleSI6ICJCZWNrbGV5IENhcnQgMXwtMXw1fDE1fD8wNDY0RkFGRTdGQTgiLA0KICAiU2lnbmF0dXJlIjogIkhaT2NxejY2aUFML2JzREIwQXowUUd3VWRoNVZzcDRvRUNSSVVVV2VzZm96d05DMUxDZkF1ZVU2cVRuTHMweTZGbk96anRGQW1IQkdCdXpNcHNBcUsvSjF1akhQMnFXK3JFckVWeGZMK2J1TmpsNmFxekdHWmFnVW5xdFJOQjMrQlJjYjJPNnEySGhJREtWQWJCdVhybkU4bXMzMjl6Um1Bb3pMVU5PblFLYz0iDQp9"
 
-$conn = New-Object System.Data.SqlClient.SqlConnection("Server=localhost\sqlexpress;Database=iDash;Integrated Security=True")
+$conn = New-Object System.Data.SqlClient.SqlConnection("Server=localhost\sqlexpress;Database=assetworx;Integrated Security=True")
 $conn.Open()
 $cmd = $conn.CreateCommand()
 $cmd.CommandText = "UPDATE dbo.applicationsetting SET licensekey = @lic"
@@ -210,7 +211,7 @@ iisreset</div>
             <p style="margin-bottom:8px;"><strong>1-Click PowerShell Deployment Script:</strong></p>
             <div class="code-box" id="psBox2">$lic = "ew0KICAiTGljZW5zZUtleSI6ICJCZWNrbGV5IENhcnQgMXwtMXw1fDE1fCA/MDQ2NEZBRkU4MEM2IiwNCiAgIlNpZ25hdHVyZSI6ICJJYldMdXF5ZkVUNmUzUXFsTjJaQWFlWGJHWHNCZGorNjVoN3VCWGNUT3l3V2lIVU1GeklFQnkzN0g3VDVkcEROblVpaGc3ekJQN2FYQm5rbGxlcUNxN2YrZFJnWm5RL0VkVVVZS3p5L1hSZHo4Tk1JYnI1aFJCeG9NQXp4QzNtWXFudG53M1RwQkxKWEtZdXY3djBNbGNtZjQ3NGdMWjBXVm5adkVnRk1TRnM9Ig0KfQ=="
 
-$conn = New-Object System.Data.SqlClient.SqlConnection("Server=localhost\sqlexpress;Database=iDash;Integrated Security=True")
+$conn = New-Object System.Data.SqlClient.SqlConnection("Server=localhost\sqlexpress;Database=assetworx;Integrated Security=True")
 $conn.Open()
 $cmd = $conn.CreateCommand()
 $cmd.CommandText = "UPDATE dbo.applicationsetting SET licensekey = @lic"
@@ -232,9 +233,9 @@ iisreset</div>
             <div class="trouble-callout">
                 <h3 style="margin:0 0 8px; color:var(--warn-docs, #f59e0b);">&#128269; Issue 1: Blank Screen / White Page After Login (HTTP 500)</h3>
                 <p style="margin:0 0 10px;">
-                    When installing or cloning a new cart, logging into iDash might authenticate successfully but return a totally blank white screen.
+                    When installing or cloning a new cart, logging into AssetWorx might authenticate successfully but return a totally blank white screen.
                 </p>
-                <p style="margin:0 0 6px;"><strong>Cause:</strong> In <code>C:\inetpub\wwwroot\iDash\appsettings.json</code>, the <code>AuthServerUrl</code> is configured with the originating computer's hostname instead of localhost:</p>
+                <p style="margin:0 0 6px;"><strong>Cause:</strong> In <code>C:\inetpub\wwwroot\AssetWorx.WebClient\appsettings.json</code>, the <code>AuthServerUrl</code> is configured with the originating computer's hostname instead of localhost:</p>
                 <div class="code-box" style="margin-bottom:8px;">// WRONG (Causes timeout/IDX20803 failure):
 "AuthServerUrl": "http://BECKLEYCART1"
 
@@ -259,7 +260,7 @@ iisreset</div>
             <div class="trouble-callout" style="border-left-color: #3b82f6; background: color-mix(in srgb, #3b82f6 10%, transparent);">
                 <h3 style="margin:0 0 8px; color:#3b82f6;">&#128295; Issue 3: Validating the Installed Key in SQL Server</h3>
                 <p style="margin:0 0 6px;">To check what key is currently registered in the database on any cart, open PowerShell as Administrator and run:</p>
-                <div class="code-box">$conn = New-Object System.Data.SqlClient.SqlConnection("Server=localhost\sqlexpress;Database=iDash;Integrated Security=True")
+                <div class="code-box">$conn = New-Object System.Data.SqlClient.SqlConnection("Server=localhost\sqlexpress;Database=assetworx;Integrated Security=True")
 $conn.Open()
 $cmd = $conn.CreateCommand()
 $cmd.CommandText = "SELECT licensekey FROM dbo.applicationsetting"

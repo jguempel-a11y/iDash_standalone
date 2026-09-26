@@ -4,7 +4,8 @@
 <head runat="server">
     <meta charset="utf-8" />
     <title>RFID Asset Locator &mdash; iDash</title>
-    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="favicon.ico" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />

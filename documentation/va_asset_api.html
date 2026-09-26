@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>VA ASSET API &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -117,7 +118,7 @@ ORDER BY lastmodified DESC</pre>
         <table>
             <tr><th>Column</th><th>Label / Meaning</th><th>Notes</th></tr>
             <tr><td><code>name</code></td><td>EE Barcode</td><td>Primary asset identifier; format: <code>512 EE12345</code></td></tr>
-            <tr><td><code>description</code></td><td>Asset Description</td><td>Human-readable equipment name from iDash</td></tr>
+            <tr><td><code>description</code></td><td>Asset Description</td><td>Human-readable equipment name from AssetWorx</td></tr>
             <tr><td><code>rfidtag</code></td><td>RFID EPC</td><td>24-character hex string for RFID-tagged assets</td></tr>
             <tr><td><code>text6</code></td><td>Current Location</td><td>SP barcode of last known physical location</td></tr>
             <tr><td><code>text8</code></td><td>CMR Number</td><td>Government accountability grouping identifier</td></tr>
@@ -126,7 +127,7 @@ ORDER BY lastmodified DESC</pre>
             <tr><td><code>text18</code></td><td>Tagged Flag</td><td><code>1</code> = physically tagged; <code>0</code> = not yet tagged</td></tr>
             <tr><td><code>text19</code></td><td>Tag Type</td><td>IQ350, Large_Metal, Small_Metal, Small_Standard</td></tr>
             <tr><td><code>text13</code></td><td>Employee ID</td><td>Technician who last tagged or modified the record</td></tr>
-            <tr><td><code>lastmodified</code></td><td>Last Modified (UTC)</td><td>Timestamp of last any-field change in iDash</td></tr>
+            <tr><td><code>lastmodified</code></td><td>Last Modified (UTC)</td><td>Timestamp of last any-field change in AssetWorx</td></tr>
             <tr><td><code>lastobservedtime</code></td><td>Last RFID Read</td><td>Timestamp of most recent RFID reader detection</td></tr>
             <tr><td><code>companyid</code></td><td>Site ID</td><td>Foreign key to <code>dbo.company</code>; identifies facility</td></tr>
             <tr><td><code>locationname</code></td><td>Location Name</td><td>Human-readable room/area name from <code>dbo.location</code></td></tr>
@@ -147,7 +148,7 @@ ORDER BY lastmodified DESC</pre>
         </p>
         <div class="warn">
             <strong>&#9888; Read-Only:</strong> The Asset Explorer is a <em>display-only</em> tool. It does not allow editing,
-            deleting, or creating asset records. For record modifications use the iDash desktop application or
+            deleting, or creating asset records. For record modifications use the AssetWorx desktop application or
             the appropriate iDash scanning workflow.
         </div>
     </div>
@@ -155,7 +156,7 @@ ORDER BY lastmodified DESC</pre>
     <div style="margin-top:20px;"><a href="index.aspx">&larr; Back to Documentation Hub</a></div>
     <footer>
         <span>&copy; 2026 ID Integration Inc. &mdash; iDash Documentation</span>
-        <span>iDash VA Asset Explorer</span>
+        <span>AssetWorx VA Asset Explorer</span>
     </footer>
 </div>
 </body>

@@ -1,10 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>iDash Notifications &amp; Asset Watch List &mdash; Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="../theme.css" />
     <script src="../theme-init.js"></script>
     <style>
@@ -67,7 +68,7 @@
     <ul>
         <li><strong>Watch List Tracking:</strong> Monitor specific high-priority, overdue, or sensitive assets by entering their asset numbers.</li>
         <li><strong>Automated Detection Levels:</strong> Real-time categorization of assets based on fixed RFID observation recency (High, Moderate, Low, Undetected).</li>
-        <li><strong>Location Mismatch Detection:</strong> Automated warning when an asset is observed at a location different from its official assigned location in iDash.</li>
+        <li><strong>Location Mismatch Detection:</strong> Automated warning when an asset is observed at a location different from its official assigned location in AssetWorx.</li>
         <li><strong>Direct Asset Master Integration:</strong> Inspect any detected asset with automatic site and search filtering with a single click.</li>
         <li><strong>Seamless Two-Way Sync:</strong> Shared storage with the <a href="../va_fixed_reader_live.aspx" target="_blank" style="color:var(--accent);">Fixed Reader Live Feed</a> (<code>idash-watch-list</code>) and server-side profile backups.</li>
     </ul>
@@ -140,7 +141,7 @@
                 <td><span class="badge-pill b-mismatch">⚠️ Location Mismatch</span></td>
                 <td><strong>Any Time</strong></td>
                 <td>
-                    <strong>Observed &ne; Assigned:</strong> Tag's last observed reader location (e.g. <code>SP1-219</code>) does not match its official assigned location in iDash (e.g. <code>SP1-Warehouse</code>). Indicates unauthorized or unrecorded asset transit.
+                    <strong>Observed &ne; Assigned:</strong> Tag's last observed reader location (e.g. <code>SP1-219</code>) does not match its official assigned location in AssetWorx (e.g. <code>SP1-Warehouse</code>). Indicates unauthorized or unrecorded asset transit.
                 </td>
             </tr>
         </tbody>

@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Daily Scanner Workflow &mdash; Intelligent Distributed Asset Scanning Hub</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <title>Daily Scanner Workflow &mdash; VA Asset Intelligence Hub</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <style>
@@ -42,7 +43,7 @@
 <a href="index.aspx" class="back-link">&larr; Documentation Hub</a>
 <div class="doc-container">
     <h1>&#128241; Daily Scanner Workflow</h1>
-    <p class="doc-subtitle">Complete end-to-end procedure for using the <strong>Zebra TC53 + RF40 sled</strong> to perform room inventory scans with iDash.</p>
+    <p class="doc-subtitle">Complete end-to-end procedure for using the <strong>Zebra TC53 + RF40 sled</strong> to perform room inventory scans with AssetWorx.</p>
 
     <div class="callout callout-info">
         <strong>Scope of this guide.</strong> Covers the full daily scanning procedure: unlocking the scanner, syncing the app at the Scanning PC, logging in, scanning room locations and RFID assets, reviewing color-coded results, taking action on unexpected items, and syncing data back when finished.
@@ -58,7 +59,7 @@
             <tbody>
                 <tr><td>1</td><td>Take scanner + sled to Scanning PC</td><td>Scanning PC</td></tr>
                 <tr><td>2</td><td>Enter PIN on scanner</td><td>Scanner</td></tr>
-                <tr><td>3</td><td>Open iDash &amp; sync app</td><td>Scanning PC (must be on network)</td></tr>
+                <tr><td>3</td><td>Open AssetWorx &amp; sync app</td><td>Scanning PC (must be on network)</td></tr>
                 <tr><td>4</td><td>Log in, wait for full sync</td><td>Scanner</td></tr>
                 <tr><td>5</td><td>Scan location barcode tag</td><td>Field &mdash; <em>bottom trigger</em></td></tr>
                 <tr><td>6</td><td>Scan RFID assets in room</td><td>Field &mdash; <em>top trigger</em></td></tr>
@@ -91,12 +92,12 @@
     </div>
 
     <div class="step-card">
-        <div class="step-title"><span class="step-num">3</span> Open iDash and Sync</div>
-        <div class="step-desc">From the home screen, tap the <strong>iDash</strong> icon to launch the app. When prompted, select <strong>YES</strong> to sync with the master database.</div>
+        <div class="step-title"><span class="step-num">3</span> Open AssetWorx and Sync</div>
+        <div class="step-desc">From the home screen, tap the <strong>AssetWorx</strong> icon to launch the app. When prompted, select <strong>YES</strong> to sync with the master database.</div>
         <div class="ss-row">
             <div class="ss-col">
-                <img class="ss-port" src="img/batch_scan/image1.jpeg" alt="TC53 home screen showing iDash app icon alongside Settings icon" />
-                <p class="ss-cap">TC53 home screen &mdash; tap the <strong>iDash</strong> icon to launch.</p>
+                <img class="ss-port" src="img/batch_scan/image1.jpeg" alt="TC53 home screen showing AssetWorx app icon alongside Settings icon" />
+                <p class="ss-cap">TC53 home screen &mdash; tap the <strong>AssetWorx</strong> icon to launch.</p>
             </div>
             <div class="ss-col">
                 <img class="ss-port" src="img/batch_scan/image2.png" alt="Sync dialog asking Do you want to Sync with the master database with NO and YES buttons" />
@@ -111,7 +112,7 @@
         <div class="step-desc">Enter your <strong>username and password</strong>, then tap <strong>Login</strong>. A progress spinner will appear while the app downloads the latest asset data. <strong>Do not leave the Scanning PC until sync is 100% complete.</strong></div>
         <div class="ss-row">
             <div class="ss-col">
-                <img class="ss-port" src="img/batch_scan/image3.png" alt="iDash login screen showing Username and Password fields and Login button" />
+                <img class="ss-port" src="img/batch_scan/image3.png" alt="AssetWorx login screen showing Username and Password fields and Login button" />
                 <p class="ss-cap">Login screen &mdash; enter your VA credentials and tap <strong>Login</strong>.</p>
             </div>
             <div class="ss-col">
@@ -152,7 +153,7 @@
         <div class="step-desc">With the room loaded, use the <strong>top trigger</strong> to sweep the sled around the room and read all RFID tags on equipment. The asset list will populate as tags are detected.</div>
         <div class="ss-row">
             <div class="ss-col">
-                <img class="ss-port" src="img/batch_scan/image6.png" alt="iDash room SPGA103-5 showing Inventory Done header and all items highlighted in orange with magnifying glass icons indicating unread assets" />
+                <img class="ss-port" src="img/batch_scan/image6.png" alt="AssetWorx room SPGA103-5 showing Inventory Done header and all items highlighted in orange with magnifying glass icons indicating unread assets" />
                 <p class="ss-cap"><strong>Orange items</strong> = assets expected in this room that have <em>not yet been read</em> by the RFID sled. Sweep around the room until all orange items turn another color.</p>
             </div>
             <div class="ss-col">
@@ -225,7 +226,7 @@
         <tbody>
             <tr><td>1</td><td>Bring scanner + sled to Scanning PC</td><td>Must be on VA network for sync</td></tr>
             <tr><td>2</td><td>Enter PIN</td><td><strong>5613</strong></td></tr>
-            <tr><td>3</td><td>Open iDash &rarr; tap YES to sync</td><td>Must be at Scanning PC</td></tr>
+            <tr><td>3</td><td>Open AssetWorx &rarr; tap YES to sync</td><td>Must be at Scanning PC</td></tr>
             <tr><td>4</td><td>Log in &rarr; wait for &ldquo;Sync Completed&rdquo;</td><td>Do not leave PC until complete</td></tr>
             <tr><td>5</td><td>Scan location barcode</td><td><strong>Bottom trigger</strong> on sled</td></tr>
             <tr><td>6</td><td>Scan RFID assets</td><td><strong>Top trigger</strong> on sled, sweep entire room</td></tr>

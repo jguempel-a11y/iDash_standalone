@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <title>VA UNIVERSAL ENNX (v2.0) &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -70,6 +71,14 @@
                 <tr>
                     <td><strong>Stream Reconciliation</strong></td>
                     <td>4-color status rows: <strong>Green</strong> (Found Assets), <strong>Blue</strong> (Room Locations), <strong>Orange</strong> (Duplicate Reads), and <strong>Pink</strong> (Ignored EPC reads).</td>
+                </tr>
+                <tr>
+                    <td><strong>Tag Prefix Filter Engine</strong></td>
+                    <td>Added real-time prefix filtering (e.g., <code>517</code>, <code>512</code>, <code>ABC</code>, or comma-separated lists). Any stray shipping labels, packing slips, or foreign RFID tags that do not match the prefix are automatically marked as <strong>Ignored</strong> and excluded from ENNX output. State is persisted in <code>localStorage</code>.</td>
+                </tr>
+                <tr>
+                    <td><strong>Mobile Screen Stability &amp; Soft-Keyboard Protection</strong></td>
+                    <td>Optimized row item removal (<code>X</code>) so that clicking remove preserves vertical scroll position and suppresses focus stealing, completely preventing unwanted mobile software keyboard popups and screen jumping on handhelds.</td>
                 </tr>
                 <tr>
                     <td><strong>Mobile Form Ergonomics</strong></td>
@@ -139,10 +148,28 @@
                     <td><strong>Ignored</strong></td>
                     <td><span class="badge" style="background:#db2777;color:#fff;">Ignored</span></td>
                     <td>4px Pink Left Border</td>
-                    <td>Pure EPC hex reads or malformed strings; discarded to prevent data corruption.</td>
+                    <td>Pure EPC hex reads, malformed strings, or tags not matching the active <strong>Prefix Filter</strong>; discarded from ENNX output.</td>
                 </tr>
             </tbody>
         </table>
+    </div>
+
+    <!-- TAG PREFIX FILTERING SECTION -->
+    <div class="card" style="background:var(--card-docs);border:1px solid var(--line-docs);border-radius:16px;padding:32px;margin-bottom:30px;">
+        <h2>&#128269; Tag Prefix Filtering &amp; Stray Barcode Suppression</h2>
+        <p>
+            During physical inventory sweeps, handheld readers often capture stray RFID tags or barcodes from shipping packages, vendor boxes, or foreign site equipment in shared work areas. 
+        </p>
+        <p>
+            The <strong>Prefix Filter</strong> allows field operators to enforce strict prefix validation in real time:
+        </p>
+        <ul>
+            <li><strong>Single or Multi-Prefix Support:</strong> Enter a facility prefix such as <code>517</code> or <code>512</code>, an alphanumeric sequence like <code>ABC</code>, or multiple comma/space-delimited prefixes (e.g. <code>512, 517</code>).</li>
+            <li><strong>Automatic Rejection:</strong> Any scanned label or RFID tag that does not begin with an approved prefix is immediately categorized as <span class="badge" style="background:#db2777;color:#fff;">Ignored</span> in the reconciliation stream and is <strong>never added</strong> to room assets or the ENNX export file.</li>
+            <li><strong>Location Independence:</strong> Room location barcodes (starting with <code>SP</code>) are recognized separately by the location engine and remain unaffected by prefix filters.</li>
+            <li><strong>Session Persistence:</strong> Filter settings are saved in local browser storage (<code>localStorage</code>) so operators do not need to retype prefixes after refreshing or reopening the tool.</li>
+            <li><strong>Touch-Optimized Cleanup:</strong> Tapping the red <code>X</code> remove button preserves the table's scroll position and suppresses focus displacement, keeping the mobile on-screen keyboard closed for frictionless session editing.</li>
+        </ul>
     </div>
 
     <!-- ENNX FORMAT -->
@@ -167,14 +194,13 @@ SP015-BD. 8A
 </div>
 
 <footer style="margin-top:40px;padding:20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted-docs);display:flex;justify-content:space-between;align-items:center;background:var(--bg);max-width:1400px;margin-left:auto;margin-right:auto;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
-        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
-        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    <div style="display:flex;align-items:center;gap:8px;">
+        <img src="/idash/assets/branding/assetworx.jpg" alt="AssetWorx" style="height:16px;">
+        <span style="font-weight:600;font-size:14px;color:var(--text);">AssetWorx<span style="color:#2ea8ff;">!</span></span>
     </div>
     <div style="display:flex;align-items:center;gap:12px;">
         <span>&copy; 2026 ID Integration Inc. &mdash; Updated September 2026</span>
-        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height:14px;opacity:.9;">
+        <img src="/idash/assets/branding/idintegration.jpg" alt="ID Integration Inc." style="height:14px;opacity:.9;">
     </div>
 </footer>
 </body>

@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
     <title>ENNX BATCH &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -13,7 +14,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>iDash ENNX Batch Diagnostics</h1>
+        <h1>AssetWorx ENNX Batch Diagnostics</h1>
         <div style="margin-bottom: 30px; display: flex; align-items: center;">
             <div style="margin-right: 15px; color:var(--muted-docs); font-size: 14px;">Integrations:</div>
             
@@ -24,7 +25,7 @@
         <p>Generates, reviews, or filters dedicated ENNX export report logic for government system synchronization.</p>
 
         <h2>Technical Operation</h2>
-        <p>The system primarily renders the user interface through the web endpoint <code>ennx_batch.aspx</code>. It securely queries the iDash SQL database using inline ADO.NET connections (<code>SqlConnection</code>), leveraging configured network credentials to safely retrieve or update asset tracking records. </p>
+        <p>The system primarily renders the user interface through the web endpoint <code>ennx_batch.aspx</code>. It securely queries the AssetWorx SQL database using inline ADO.NET connections (<code>SqlConnection</code>), leveraging configured network credentials to safely retrieve or update asset tracking records. </p>
         
         <h2>Source Architecture</h2>
         <p>
@@ -46,14 +47,13 @@
         </div>
     </div>
     <footer style="margin-top: 40px; padding: 20px; border-top:1px solid var(--line); font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 12px; color:var(--muted-docs); display: flex; justify-content: space-between; align-items: center; background:var(--bg); max-width: 1400px; margin-left: auto; margin-right: auto;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
-        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
-        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="/idash/assets/branding/assetworx.jpg" alt="AssetWorx" style="height: 16px;">
+        <span style="font-weight: 600; font-size: 14px; color:var(--text);">AssetWorx<span style="color: #2ea8ff;">!</span></span>
     </div>
     <div style="display: flex; align-items: center; gap: 12px;">
         <span>&copy; 2026 ID Integration Inc.</span>
-        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 14px; opacity: 0.9;">
+        <img src="/idash/assets/branding/idintegration.jpg" alt="ID Integration Inc." style="height: 14px; opacity: 0.9;">
     </div>
 </footer>
 </body>

@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <title>BarTender Print Architecture &amp; Troubleshooting &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -26,9 +27,9 @@
 
     <a href="index.aspx">&#8592; Back to Documentation Hub</a>
 
-    <!-- -----------------------------------------------------------
+    <!-- ═══════════════════════════════════════════════════════════
          HEADER
-         ----------------------------------------------------------- -->
+         ═══════════════════════════════════════════════════════════ -->
     <div class="card" style="border-top:4px solid #06B6D4;">
         <h1>&#128424; BarTender Print Architecture &amp; Troubleshooting</h1>
         <div style="margin-bottom:16px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
@@ -40,7 +41,7 @@
             <span class='badge' style="background:color-mix(in srgb, #ef4444 15%, transparent); color:#ef4444; border:1px solid #ef4444;">Legacy Batch Fix</span>
         </div>
         <p style="color:var(--muted-docs); font-size:14px; margin-bottom:8px;">
-            Documents the label printing pipeline across iDash, iDash, BarTender Enterprise, and Zebra RFID printers.
+            Documents the label printing pipeline across iDash, AssetWorx, BarTender Enterprise, and Zebra RFID printers.
             Explains the legacy MQTT Print Server architecture (and its N&times;N duplicate bug fix) alongside the
             modern <strong>Stateless BarTender API Engine</strong> that requires zero BarTender SQL Database.
         </p>
@@ -63,9 +64,9 @@
         </div>
     </div>
 
-    <!-- -----------------------------------------------------------
+    <!-- ═══════════════════════════════════════════════════════════
          TABLE OF CONTENTS
-         ----------------------------------------------------------- -->
+         ═══════════════════════════════════════════════════════════ -->
     <div class="card">
         <h2>&#128218; Table of Contents</h2>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px 32px; font-size:14px;">
@@ -84,19 +85,19 @@
         </div>
     </div>
 
-    <!-- -----------------------------------------------------------
+    <!-- ═══════════════════════════════════════════════════════════
          1. ARCHITECTURE
-         ----------------------------------------------------------- -->
+         ═══════════════════════════════════════════════════════════ -->
     <div class="card" id="architecture">
         <h2>&#127959;&#65039; 1. Print Pipeline Architecture</h2>
-        <p>The iDash label printing system spans four components. Understanding this pipeline is essential for diagnosing print issues.</p>
+        <p>The AssetWorx label printing system spans four components. Understanding this pipeline is essential for diagnosing print issues.</p>
 
         <div class="arch-flow">
-            <div class="arch-box" style="background:color-mix(in srgb, #3b82f6 15%, transparent); border:2px solid #3b82f6; color:#3b82f6;">iDash / iDash UI<br><small style="font-weight:400;">User selects assets</small></div>
+            <div class="arch-box" style="background:color-mix(in srgb, #3b82f6 15%, transparent); border:2px solid #3b82f6; color:#3b82f6;">iDash / AssetWorx UI<br><small style="font-weight:400;">User selects assets</small></div>
             <div class="arch-arrow">&rarr;</div>
-            <div class="arch-box" style="background:color-mix(in srgb, #8B5CF6 15%, transparent); border:2px solid #8B5CF6; color:#8B5CF6;">iDash core API<br><small style="font-weight:400;">/printjob/print</small></div>
+            <div class="arch-box" style="background:color-mix(in srgb, #8B5CF6 15%, transparent); border:2px solid #8B5CF6; color:#8B5CF6;">AssetWorx Core API<br><small style="font-weight:400;">/printjob/print</small></div>
             <div class="arch-arrow">&rarr;</div>
-            <div class="arch-box" style="background:color-mix(in srgb, #06B6D4 15%, transparent); border:2px solid #06B6D4; color:#06B6D4;">iDash Print Server<br><small style="font-weight:400;">MQTT subscriber</small></div>
+            <div class="arch-box" style="background:color-mix(in srgb, #06B6D4 15%, transparent); border:2px solid #06B6D4; color:#06B6D4;">AssetWorx Print Server<br><small style="font-weight:400;">MQTT subscriber</small></div>
             <div class="arch-arrow">&rarr;</div>
             <div class="arch-box" style="background:color-mix(in srgb, #10b981 15%, transparent); border:2px solid #10b981; color:#10b981;">BarTender<br><small style="font-weight:400;">Seagull SDK</small></div>
             <div class="arch-arrow">&rarr;</div>
@@ -108,23 +109,23 @@
             <thead><tr><th>Component</th><th>Location</th><th>Role</th></tr></thead>
             <tbody>
                 <tr>
-                    <td><strong>iDash / iDash UI</strong></td>
-                    <td><code>va_excel_print.aspx</code>, <code>va_asset_master.aspx</code>, iDash Angular</td>
+                    <td><strong>iDash / AssetWorx UI</strong></td>
+                    <td><code>va_excel_print.aspx</code>, <code>va_asset_master.aspx</code>, AssetWorx Angular</td>
                     <td>User selects assets, chooses a label template, clicks "Print"</td>
                 </tr>
                 <tr>
-                    <td><strong>iDash core API</strong></td>
+                    <td><strong>AssetWorx Core API</strong></td>
                     <td><code>POST /api/printjob/print</code></td>
                     <td>Receives the print request, <strong>inserts a row into <code>dbo.printjob</code></strong>, and <strong>publishes an MQTT message</strong> to the Print Server</td>
                 </tr>
                 <tr>
-                    <td><strong>iDash Print Server</strong></td>
-                    <td><code>C:\Program Files (x86)\ID Integration Inc.\iDash Print Server\</code></td>
+                    <td><strong>AssetWorx Print Server</strong></td>
+                    <td><code>C:\Program Files (x86)\InfinID Technologies\AssetWorx Print Server\</code></td>
                     <td>Subscribes to MQTT, receives print commands, opens the <code>.btw</code> template via the Seagull BarTender Print SDK, and calls <code>format.Print()</code></td>
                 </tr>
                 <tr>
                     <td><strong>BarTender</strong></td>
-                    <td><code>C:\idash_prints\AW_Std_Small.btw</code> (template)</td>
+                    <td><code>C:\assetworx_prints\AW_Std_Small.btw</code> (template)</td>
                     <td>Renders the label. If configured with a database connection, queries the <code>printjob</code> + <code>asset</code> tables for dynamic data</td>
                 </tr>
             </tbody>
@@ -141,10 +142,10 @@
             </tbody>
         </table>
         <h3>Two Architectural Implementations</h3>
-        <p>iDash supports two distinct label printing pathways. Depending on your environment and database restrictions, you can use the legacy MQTT spooler or the modern stateless REST API engine:</p>
+        <p>AssetWorx supports two distinct label printing pathways. Depending on your environment and database restrictions, you can use the legacy MQTT spooler or the modern stateless REST API engine:</p>
 
         <table>
-            <thead><tr><th>Feature</th><th>Legacy: ID Integration Print Server (MQTT)</th><th>Modern: Native iDash BarTender Engine</th></tr></thead>
+            <thead><tr><th>Feature</th><th>Legacy: InfinID Print Server (MQTT)</th><th>Modern: Native iDash BarTender Engine</th></tr></thead>
             <tbody>
                 <tr>
                     <td><strong>Execution Path</strong></td>
@@ -180,9 +181,9 @@
         </table>
     </div>
 
-    <!-- -----------------------------------------------------------
+    <!-- ═══════════════════════════════════════════════════════════
          2. DATA FLOW
-         ----------------------------------------------------------- -->
+         ═══════════════════════════════════════════════════════════ -->
     <div class="card" id="data-flow">
         <h2>&#128260; 2. Data Flow: How Label Data Gets to BarTender</h2>
 
@@ -203,8 +204,8 @@ doc.Print("Std_Small");           // Spools directly to Zebra printer</pre>
             <strong>&#9989; Recommended for VA Sites:</strong> 100% stateless, zero SQL database footprint in BarTender, and supports interactive visual previews before printing.
         </div>
 
-        <h3>&#10060; Method 2: SubStrings with Legacy iDash Print Server (Does NOT Work)</h3>
-        <p>In theory, the legacy Windows service (<code>iDash.PrintServer.exe</code>) could open the <code>.btw</code> template and call <code>format.SubStrings.SetSubString()</code>. In practice, <strong>the legacy iDash Print Server does NOT inject SubStrings</strong>. It opens the template and prints it, but the SubString values remain as whatever "Embedded Data" was saved in the template.</p>
+        <h3>&#10060; Method 2: SubStrings with Legacy AssetWorx Print Server (Does NOT Work)</h3>
+        <p>In theory, the legacy Windows service (<code>AssetWorx.PrintServer.exe</code>) could open the <code>.btw</code> template and call <code>format.SubStrings.SetSubString()</code>. In practice, <strong>the legacy AssetWorx Print Server does NOT inject SubStrings</strong>. It opens the template and prints it, but the SubString values remain as whatever "Embedded Data" was saved in the template.</p>
 
         <div class="alert-red">
             <strong>&#9888; Confirmed 08/25/2026:</strong> When using the legacy MQTT Print Server with Embedded Data fields (any name &mdash; <code>lblsn</code>, <code>Serial Number</code>, etc.), every label prints with the same static sample data baked into the template. The legacy Print Server does not call <code>SetSubString()</code>.
@@ -218,9 +219,9 @@ doc.Print("Std_Small");           // Spools directly to Zebra printer</pre>
         </div>
     </div>
 
-    <!-- -----------------------------------------------------------
+    <!-- ═══════════════════════════════════════════════════════════
          3. THE BUG
-         ----------------------------------------------------------- -->
+         ═══════════════════════════════════════════════════════════ -->
     <div class="card" id="the-bug">
         <h2>&#128027; 3. The N&times;N Duplicate Label Bug</h2>
 
@@ -245,9 +246,9 @@ doc.Print("Std_Small");           // Spools directly to Zebra printer</pre>
         <p>The <code>/printjob/print</code> API endpoint performs two actions atomically (DB insert + MQTT publish) and <strong>there is no way to separate them</strong>. Calling it N times triggers N prints. Combined with BarTender's "All Records" query, each trigger prints ALL pending records, causing exponential duplication.</p>
     </div>
 
-    <!-- -----------------------------------------------------------
+    <!-- ═══════════════════════════════════════════════════════════
          4. THE FIX
-         ----------------------------------------------------------- -->
+         ═══════════════════════════════════════════════════════════ -->
     <div class="card" id="the-fix">
         <h2>&#9989; 4. The Fix: Native API Sequential Batch Trigger</h2>
 
@@ -258,9 +259,9 @@ doc.Print("Std_Small");           // Spools directly to Zebra printer</pre>
         <h3>How It Works</h3>
         <ol style="line-height:2;">
             <li>User selects N assets and clicks "Send to Printer" in Asset Master or Excel Print</li>
-            <li>iDash calls <code>IdashApiHelper.SubmitPrintJobsBatch()</code></li>
+            <li>iDash calls <code>AssetWorxApiHelper.SubmitPrintJobsBatch()</code></li>
             <li>The helper requests a site-scoped OAuth token and calls <code>POST /api/printjob/print</code> for the first asset</li>
-            <li>The API inserts the job, generates the RFID hex tag, and publishes the MQTT trigger to <code>iDash.PrintServer</code> on port 8883</li>
+            <li>The API inserts the job, generates the RFID hex tag, and publishes the MQTT trigger to <code>AssetWorx.PrintServer</code> on port 8883</li>
             <li>The Print Server executes BarTender, prints the physical label, and marks <code>completed = 1</code> in SQL</li>
             <li><code>WaitForPendingJobsComplete()</code> confirms the job is finished, then immediately dispatches the next asset in the queue</li>
         </ol>
@@ -268,15 +269,15 @@ doc.Print("Std_Small");           // Spools directly to Zebra printer</pre>
         <p><strong>Result:</strong> Every selected asset prints exactly once. Zero duplicates, zero orphaned jobs, and zero external PowerShell scripts needed on production VA servers.</p>
 
         <h3>Code Location</h3>
-        <pre class="code-block">// File: App_Code/IdashApiHelper.cs
+        <pre class="code-block">// File: App_Code/AssetWorxApiHelper.cs
 // Method: SubmitPrintJobsBatch(List&lt;long&gt; assetIds, long templateId, int companyId, out List&lt;string&gt; errors)
 
 // Submits each asset natively via /api/printjob/print, then awaits completion before dispatching the next.</pre>
     </div>
 
-    <!-- -----------------------------------------------------------
+    <!-- ═══════════════════════════════════════════════════════════
          5. BARTENDER TEMPLATE SETUP
-         ----------------------------------------------------------- -->
+         ═══════════════════════════════════════════════════════════ -->
     <div class="card" id="bartender-setup">
         <h2>&#128736;&#65039; 5. BarTender Template Setup</h2>
 
@@ -288,7 +289,7 @@ doc.Print("Std_Small");           // Spools directly to Zebra printer</pre>
         </div>
 
         <div class="alert-amber">
-            <strong>&#9888;&#65039; Legacy MQTT Print Server Only:</strong> If relying on the legacy <code>iDash.PrintServer.exe</code> Windows service, the BarTender template must be configured with a database connection. Follow these steps exactly:
+            <strong>&#9888;&#65039; Legacy MQTT Print Server Only:</strong> If relying on the legacy <code>AssetWorx.PrintServer.exe</code> Windows service, the BarTender template must be configured with a database connection. Follow these steps exactly:
         </div>
 
         <h3>Step 1: Database Connection Setup</h3>
@@ -300,8 +301,8 @@ doc.Print("Std_Small");           // Spools directly to Zebra printer</pre>
             <li>Configure the connection:
                 <ul>
                     <li><strong>Server:</strong> <code>.\sqlexpress</code> (or <code>localhost\sqlexpress</code>)</li>
-                    <li><strong>Database:</strong> <code>iDash</code></li>
-                    <li><strong>Authentication:</strong> SQL Server &rarr; <code>idashadmin</code> / <code>idashadmin</code></li>
+                    <li><strong>Database:</strong> <code>AssetWorx</code></li>
+                    <li><strong>Authentication:</strong> SQL Server &rarr; <code>assetworxadmin</code> / <code>assetworxadmin</code></li>
                 </ul>
             </li>
         </ol>
@@ -347,12 +348,12 @@ ORDER BY p.id ASC</pre>
         <p>Save the template (<code>Ctrl+S</code>) and close BarTender. The Print Server will use this template for all future print jobs.</p>
     </div>
 
-    <!-- -----------------------------------------------------------
+    <!-- ═══════════════════════════════════════════════════════════
          6. FIELD MAPPING REFERENCE
-         ----------------------------------------------------------- -->
+         ═══════════════════════════════════════════════════════════ -->
     <div class="card" id="field-mapping">
         <h2>&#128209; 6. Complete Field Mapping Reference</h2>
-        <p>The <code>dbo.customfield</code> table defines the display names for each asset field. These are the names the iDash Print Server <em>should</em> use as SubString names (though it currently doesn't inject them).</p>
+        <p>The <code>dbo.customfield</code> table defines the display names for each asset field. These are the names the AssetWorx Print Server <em>should</em> use as SubString names (though it currently doesn't inject them).</p>
 
         <table>
             <thead><tr><th>DB Column</th><th>Custom Field Name (SubString)</th><th>iDash Display</th><th>Handheld Display</th></tr></thead>
@@ -378,9 +379,9 @@ ORDER BY p.id ASC</pre>
         </table>
     </div>
 
-    <!-- -----------------------------------------------------------
+    <!-- ═══════════════════════════════════════════════════════════
          7. SUBSTRINGS VS DATABASE FIELDS
-         ----------------------------------------------------------- -->
+         ═══════════════════════════════════════════════════════════ -->
     <div class="card" id="substring-vs-db">
         <h2>&#128260; 7. SubStrings vs Database Fields</h2>
 
@@ -389,9 +390,9 @@ ORDER BY p.id ASC</pre>
         <pre class="code-block">format.SubStrings.SetSubString("lblsn", "12345");  // Set serial number
 format.SubStrings.SetSubString("lbleil", "ABC-123"); // Set CMR</pre>
 
-        <h3>Why SubStrings Didn't Work with Legacy iDash Print Server</h3>
+        <h3>Why SubStrings Didn't Work with Legacy AssetWorx Print Server</h3>
         <div class="alert-red">
-            <p><strong>The legacy iDash Print Server does NOT call <code>SetSubString()</code></strong>. Despite having the <code>Seagull.BarTender.Print.dll</code> in its directory, the legacy Windows service simply opens the template and prints it without injecting any SubString values. All labels print with whatever "Embedded Data" was last saved in the template.</p>
+            <p><strong>The legacy AssetWorx Print Server does NOT call <code>SetSubString()</code></strong>. Despite having the <code>Seagull.BarTender.Print.dll</code> in its directory, the legacy Windows service simply opens the template and prints it without injecting any SubString values. All labels print with whatever "Embedded Data" was last saved in the template.</p>
             <p style="margin-top:8px;"><strong>Tested with the following SubString names:</strong> <code>lblsn</code>, <code>lbleil</code>, <code>lblname</code>, <code>lbldescription</code>, <code>Serial Number</code>, <code>CMR</code>, <code>Name</code>, <code>Description</code> &mdash; none worked with the legacy service.</p>
         </div>
 
@@ -422,14 +423,14 @@ format.SubStrings.SetSubString("lbleil", "ABC-123"); // Set CMR</pre>
         </table>
     </div>
 
-    <!-- -----------------------------------------------------------
+    <!-- ═══════════════════════════════════════════════════════════
          8. CODE CHANGES REFERENCE
-         ----------------------------------------------------------- -->
+         ═══════════════════════════════════════════════════════════ -->
     <div class="card" id="code-changes">
         <h2>&#128187; 8. Code Changes Reference</h2>
         <p><strong>Date:</strong> 08/25/2026 &nbsp; <strong>Author:</strong> Antigravity AI + John Guempel</p>
 
-        <h3>File 1: <code>App_Code/IdashApiHelper.cs</code></h3>
+        <h3>File 1: <code>App_Code/AssetWorxApiHelper.cs</code></h3>
         <p><strong>Change:</strong> Added <code>SubmitPrintJobsBatch()</code> method</p>
         <pre class="code-block">/// Batch print: Inserts all print jobs into the DB directly via SQL,
 /// then triggers the Print Server only ONCE (for the last job) via the API.
@@ -451,9 +452,9 @@ public static int SubmitPrintJobsBatch(
         <p><strong>Change:</strong> <code>SubmitPrintJobs</code> WebMethod now collects all asset IDs first, then calls <code>SubmitPrintJobsBatch()</code> instead of per-asset API calls.</p>
     </div>
 
-    <!-- -----------------------------------------------------------
+    <!-- ═══════════════════════════════════════════════════════════
          9. TROUBLESHOOTING GUIDE
-         ----------------------------------------------------------- -->
+         ═══════════════════════════════════════════════════════════ -->
     <div class="card" id="troubleshooting">
         <h2>&#128269; 9. Troubleshooting Guide</h2>
 
@@ -489,7 +490,7 @@ public static int SubmitPrintJobsBatch(
 
         <h3>Symptom: "Print Client not currently connected" message in printjob</h3>
         <div class="alert-blue">
-            <strong>Cause:</strong> The iDash Print Server is not running or cannot connect to the MQTT broker.<br>
+            <strong>Cause:</strong> The AssetWorx Print Server is not running or cannot connect to the MQTT broker.<br>
             <strong>Fix:</strong> Start the Print Server service. Check <code>appsettings.json</code>:
             <ul style="margin:8px 0 0 0;">
                 <li><code>MqttServer</code>: <code>localhost</code></li>
@@ -499,9 +500,9 @@ public static int SubmitPrintJobsBatch(
         </div>
     </div>
 
-    <!-- -----------------------------------------------------------
+    <!-- ═══════════════════════════════════════════════════════════
          10. DEPLOYMENT CHECKLIST
-         ----------------------------------------------------------- -->
+         ═══════════════════════════════════════════════════════════ -->
     <div class="card" id="deployment">
         <h2>&#128640; 10. Deployment Checklist</h2>
 
@@ -509,21 +510,21 @@ public static int SubmitPrintJobsBatch(
             <strong>&#9888;&#65039; BarTender SDK DLLs &amp; Reboot Requirement:</strong> The BarTender DLLs (<code>Seagull.BarTender.Print.dll</code>, <code>Seagull.Interop.dll</code>, etc.) required for printing from iDash will <strong>not</strong> be present or accessible until:
             <ol style="margin:8px 0 0 0; padding-left:20px; line-height:1.6;">
                 <li><strong>BarTender is installed</strong> (use 64-bit edition).</li>
-                <li><strong>iDash Print Server is installed</strong> (places the SDK assemblies into <code>C:\Program Files (x86)\ID Integration Inc.\iDash Print Server\</code>).</li>
+                <li><strong>AssetWorx Print Server is installed</strong> (places the SDK assemblies into <code>C:\Program Files (x86)\InfinID Technologies\AssetWorx Print Server\</code>).</li>
                 <li><strong>The system is restarted (rebooted)</strong> to initialize BarTender background services, register native COM objects, and refresh system environment variables.</li>
             </ol>
         </div>
 
-        <h3>For each iDash server:</h3>
+        <h3>For each AssetWorx server:</h3>
         <table>
             <thead><tr><th style="width:40px;">&#10003;</th><th>Step</th><th>Details</th></tr></thead>
             <tbody>
-                <tr><td>&#9744;</td><td>Deploy <code>IdashApiHelper.cs</code></td><td>Copy to <code>iDash\App_Code\</code> &mdash; contains <code>SubmitPrintJobsBatch()</code></td></tr>
+                <tr><td>&#9744;</td><td>Deploy <code>AssetWorxApiHelper.cs</code></td><td>Copy to <code>iDash\App_Code\</code> &mdash; contains <code>SubmitPrintJobsBatch()</code></td></tr>
                 <tr><td>&#9744;</td><td>Deploy <code>va_excel_print.aspx.cs</code></td><td>Copy to <code>iDash\</code> &mdash; uses batch method for Import &amp; Print</td></tr>
                 <tr><td>&#9744;</td><td>Deploy <code>va_asset_master.aspx.cs</code></td><td>Copy to <code>iDash\</code> &mdash; uses batch method for Asset Master print</td></tr>
                 <tr><td>&#9744;</td><td>Run <code>iisreset</code></td><td>As Administrator &mdash; forces recompilation of App_Code</td></tr>
                 <tr><td>&#9744;</td><td>Configure BarTender template</td><td>Database connection + "Database Field" types + "All Records" &mdash; See <a href="#bartender-setup">Section 5</a></td></tr>
-                <tr><td>&#9744;</td><td>Verify Print Server running</td><td><code>iDash.PrintServer.exe</code> must be running and MQTT connected</td></tr>
+                <tr><td>&#9744;</td><td>Verify Print Server running</td><td><code>AssetWorx.PrintServer.exe</code> must be running and MQTT connected</td></tr>
                 <tr><td>&#9744;</td><td>Test: Print 1 label</td><td>Should print 1 label with correct data</td></tr>
                 <tr><td>&#9744;</td><td>Test: Print 3 labels</td><td>Should print exactly 3 labels, each with unique data</td></tr>
                 <tr><td>&#9744;</td><td>Test: Print from Asset Master</td><td>Same behavior &mdash; 1 trigger, N labels</td></tr>
@@ -531,15 +532,15 @@ public static int SubmitPrintJobsBatch(
         </table>
     </div>
 
-    <!-- -----------------------------------------------------------
+    <!-- ═══════════════════════════════════════════════════════════
          11. LESSONS LEARNED
-         ----------------------------------------------------------- -->
+         ═══════════════════════════════════════════════════════════ -->
     <div class="card" id="lessons">
         <h2>&#128218; 11. Lessons Learned</h2>
 
         <div class="timeline">
             <div class="timeline-item">
-                <h4>1. The iDash Print Server does NOT inject SubStrings</h4>
+                <h4>1. The AssetWorx Print Server does NOT inject SubStrings</h4>
                 <p>Despite having the Seagull SDK, the Print Server only opens the template and prints it. It does not call <code>SetSubString()</code>. Do not rely on SubStrings for dynamic data when using the Print Server.</p>
             </div>
             <div class="timeline-item">
@@ -552,7 +553,7 @@ public static int SubmitPrintJobsBatch(
             </div>
             <div class="timeline-item">
                 <h4>4. /printjob/print API = DB Insert + MQTT Trigger (inseparable)</h4>
-                <p>The iDash core API endpoint <code>/printjob/print</code> always inserts a row AND publishes an MQTT message. There is no way to insert a row without triggering the Print Server.</p>
+                <p>The AssetWorx Core API endpoint <code>/printjob/print</code> always inserts a row AND publishes an MQTT message. There is no way to insert a row without triggering the Print Server.</p>
             </div>
             <div class="timeline-item">
                 <h4>5. Multiple MQTT triggers + "All Records" = N&times;N duplicate labels</h4>
@@ -564,7 +565,7 @@ public static int SubmitPrintJobsBatch(
             </div>
             <div class="timeline-item">
                 <h4>7. The Bypass Spooler and Native iDash Engine Inject SubStrings Correctly</h4>
-                <p>While the legacy ID Integration Windows service failed to call <code>SetSubString()</code>, both <code>Run_Bypass_Spooler.ps1</code> and the new native <code>BarTenderApiHelper.cs</code> directly call the BarTender SDK and inject Named Data Sources in memory. This eliminates database dependencies in label templates.</p>
+                <p>While the legacy InfinID Windows service failed to call <code>SetSubString()</code>, both <code>Run_Bypass_Spooler.ps1</code> and the new native <code>BarTenderApiHelper.cs</code> directly call the BarTender SDK and inject Named Data Sources in memory. This eliminates database dependencies in label templates.</p>
             </div>
             <div class="timeline-item">
                 <h4>8. Always verify on the actual print system</h4>
@@ -572,7 +573,7 @@ public static int SubmitPrintJobsBatch(
             </div>
             <div class="timeline-item">
                 <h4>9. BarTender DLLs Require Install Order + System Reboot</h4>
-                <p>The BarTender SDK DLLs (including <code>Seagull.BarTender.Print.dll</code> and <code>Seagull.Interop.dll</code>) required by the Print Server and Bypass Spooler will not be present or operational until BarTender is installed, the iDash Print Server installer has run, and the system is rebooted. Attempting to print before a reboot causes <em>Could not load file or assembly 'Seagull.Interop.dll'</em>.</p>
+                <p>The BarTender SDK DLLs (including <code>Seagull.BarTender.Print.dll</code> and <code>Seagull.Interop.dll</code>) required by the Print Server and Bypass Spooler will not be present or operational until BarTender is installed, the AssetWorx Print Server installer has run, and the system is rebooted. Attempting to print before a reboot causes <em>Could not load file or assembly 'Seagull.Interop.dll'</em>.</p>
             </div>
             <div class="timeline-item">
                 <h4>10. Modern Native REST API &amp; Print Engine Resolves VA Database Constraints</h4>
@@ -581,9 +582,9 @@ public static int SubmitPrintJobsBatch(
         </div>
     </div>
 
-    <!-- -----------------------------------------------------------
+    <!-- ═══════════════════════════════════════════════════════════
          REVISION HISTORY
-         ----------------------------------------------------------- -->
+         ═══════════════════════════════════════════════════════════ -->
     <div class="card">
         <h2>&#128221; Revision History</h2>
         <table>
@@ -597,7 +598,7 @@ public static int SubmitPrintJobsBatch(
                 <tr>
                     <td>2026-09-04</td>
                     <td>2.1</td>
-                    <td><strong>Added BarTender DLL &amp; Reboot Prerequisites.</strong> Added explicit note to Section 10 Checklist and Lesson 9 documenting that BarTender SDK DLLs require BarTender installation, iDash Print Server installation, and a system reboot before printing can succeed.</td>
+                    <td><strong>Added BarTender DLL &amp; Reboot Prerequisites.</strong> Added explicit note to Section 10 Checklist and Lesson 9 documenting that BarTender SDK DLLs require BarTender installation, AssetWorx Print Server installation, and a system reboot before printing can succeed.</td>
                 </tr>
                 <tr>
                     <td>2026-08-31</td>
@@ -621,14 +622,13 @@ public static int SubmitPrintJobsBatch(
 </div>
 
 <footer style="margin-top:40px;padding:20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted-docs);display:flex;justify-content:space-between;align-items:center;max-width:1100px;margin-left:auto;margin-right:auto;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
-        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
-        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    <div style="display:flex;align-items:center;gap:8px;">
+        <img src="/idash/assets/branding/assetworx.jpg" alt="AssetWorx" style="height:16px;">
+        <span style="font-weight:600;font-size:14px;color:var(--text);"><span>AssetWorx</span><span style="color:#2ea8ff;">!</span></span>
     </div>
     <div style="display:flex;align-items:center;gap:12px;">
         <span>&copy; 2026 ID Integration Inc.</span>
-        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height:14px;opacity:0.9;">
+        <img src="/idash/assets/branding/idintegration.jpg" alt="ID Integration Inc." style="height:14px;opacity:0.9;">
     </div>
 </footer>
 </body>

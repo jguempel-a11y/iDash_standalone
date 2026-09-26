@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>iDash Docs &mdash; Guide: ADHOC Scanning &amp; Inventory</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <style>
@@ -23,19 +24,19 @@
 
     <div class="doc-container">
         <h1>&#128225; Guide: ADHOC Scanning &amp; Inventory</h1>
-        <p class="doc-subtitle">How to perform ad-hoc asset scans using the handheld RFID reader, review scan results, and sync data back to iDash.</p>
+        <p class="doc-subtitle">How to perform ad-hoc asset scans using the handheld RFID reader, review scan results, and sync data back to AssetWorx.</p>
 
         <div class="callout callout-info">
-            <strong>What is ADHOC Scanning?</strong> Ad-hoc scanning lets you perform quick inventory audits of any location without a pre-defined work order. Walk into a room, scan all tags, and iDash automatically updates asset locations and flags misplaced items.
+            <strong>What is ADHOC Scanning?</strong> Ad-hoc scanning lets you perform quick inventory audits of any location without a pre-defined work order. Walk into a room, scan all tags, and AssetWorx automatically updates asset locations and flags misplaced items.
         </div>
 
-        <p class="step-desc"><strong>Source:</strong> <em>VISN 5 Use and Configuration Guide for iDash 4.0.8.7</em>, Section I (pages 4&ndash;6)</p>
+        <p class="step-desc"><strong>Source:</strong> <em>VISN 5 Use and Configuration Guide for AssetWorx! 4.0.8.7</em>, Section I (pages 4&ndash;6)</p>
 
         <!-- STEP 1 -->
         <div class="step-card">
             <div class="step-title"><span class="step-num">1</span> Open ADHOC Mode</div>
             <div class="step-desc">
-                On the handheld scanner (Zebra TC53 with RFID sled), open the <strong>iDash</strong> app from the home screen. From the main menu, tap <strong>"Adhoc"</strong> to enter ad-hoc scanning mode.
+                On the handheld scanner (Zebra TC53 with RFID sled), open the <strong>AssetWorx!</strong> app from the home screen. From the main menu, tap <strong>"Adhoc"</strong> to enter ad-hoc scanning mode.
             </div>
             <div class="tip-box">
                 <strong>&#128161; Tip:</strong> ADHOC mode is different from "Inventory" mode. ADHOC is for quick spot-checks; Inventory mode is for comprehensive, work-order-based sweeps.
@@ -94,13 +95,13 @@
                 </tbody>
             </table>
         </div>
-        <img src="images/visn5/word/media/image5.png" class="step-img" alt="Step 4 – Stop Scanning & Review Results" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
+        <img src="/iDash/documentation/images/visn5/word/media/image5.png" class="step-img" alt="Step 4 – Stop Scanning & Review Results" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
 
         <!-- STEP 5 -->
         <div class="step-card">
-            <div class="step-title"><span class="step-num">5</span> Sync to iDash</div>
+            <div class="step-title"><span class="step-num">5</span> Sync to AssetWorx</div>
             <div class="step-desc">
-                Tap <strong>"Sync"</strong> to upload your scan data to the iDash database. This will:
+                Tap <strong>"Sync"</strong> to upload your scan data to the AssetWorx database. This will:
             </div>
             <ul style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
                 <li><strong>Update locations</strong> &mdash; Misplaced assets are moved to their new scanned location</li>
@@ -114,7 +115,7 @@
                 <strong>&#9888; WiFi Required:</strong> The scanner must be connected to WiFi to sync. If you're offline, see the <a href="va_guide_batch_scanning.html">Batch Mode Scanning Guide</a> for how to scan offline and sync later.
             </div>
         </div>
-        <img src="images/visn5/word/media/image6.png" class="step-img" alt="Step 5 – Sync to iDash" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
+        <img src="/iDash/documentation/images/visn5/word/media/image6.png" class="step-img" alt="Step 5 – Sync to AssetWorx" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
 
         <!-- STEP 6 -->
         <div class="step-card">
@@ -128,7 +129,7 @@
                 <li><strong>ENNX Reports</strong> &mdash; Generate Equipment Not in Expected location reports</li>
             </ul>
         </div>
-        <img src="images/visn5/word/media/image7.png" class="step-img" alt="Step 6 – Verify in iDash" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
+        <img src="/iDash/documentation/images/visn5/word/media/image7.png" class="step-img" alt="Step 6 – Verify in iDash" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
 
         <!-- TROUBLESHOOTING -->
         <h2><span class="section-num">&#128295;</span> Troubleshooting</h2>
@@ -136,7 +137,7 @@
             <thead><tr><th style="width:35%">Issue</th><th>Solution</th></tr></thead>
             <tbody>
                 <tr><td>Scanner not reading any tags</td><td>Check that the RFID sled is powered on and paired. Try adjusting antenna power (see <a href="va_guide_locate_and_reader.html#power">Adjusting Reader Power</a>)</td></tr>
-                <tr><td>Location tag not recognized</td><td>The location tag may not be registered in iDash. See <a href="va_guide_locate_and_reader.html#missing-tag">Missing Location Tag</a></td></tr>
+                <tr><td>Location tag not recognized</td><td>The location tag may not be registered in AssetWorx. See <a href="va_guide_locate_and_reader.html#missing-tag">Missing Location Tag</a></td></tr>
                 <tr><td>Sync fails with error</td><td>Verify WiFi connection. Move closer to the access point. If persistent, switch to <a href="va_guide_batch_scanning.html">Batch Mode</a></td></tr>
                 <tr><td>All assets show as "Misplaced"</td><td>You may have selected the wrong location. Verify the location name matches the room you're in.</td></tr>
                 <tr><td>Expected tab shows assets I scanned</td><td>Some assets may have weak tags. Try rescanning from closer range with higher antenna power.</td></tr>
@@ -154,4 +155,4 @@
 </body>
 </html>
 <!-- Extra image for reference -->
-<img src="images/visn5/word/media/image8.png" class="step-img" alt="Additional ADHOC reference image" style="max-width:100%; margin-top:12px; border-radius:8px;"/>
+<img src="/iDash/documentation/images/visn5/word/media/image8.png" class="step-img" alt="Additional ADHOC reference image" style="max-width:100%; margin-top:12px; border-radius:8px;"/>

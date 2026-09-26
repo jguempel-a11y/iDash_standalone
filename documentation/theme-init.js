@@ -1,11 +1,9 @@
-﻿/* iDash Theme Initializer - must load BEFORE first paint.
+/* iDash Theme Initializer — must load BEFORE first paint.
    Reads the saved theme preference from localStorage and applies
-   the data-theme attribute to <html> immediately. Default is light mode. */
+   the data-theme attribute to <html> immediately. */
 (function() {
     var saved = localStorage.getItem('idash_theme');
-    if (saved === 'dark') {
-        document.documentElement.removeAttribute('data-theme');
-    } else {
-        document.documentElement.setAttribute('data-theme', 'light');
+    if (saved) {
+        document.documentElement.setAttribute('data-theme', saved);
     }
 })();

@@ -28,7 +28,8 @@
 <head>
     <meta charset="utf-8" />
     <title>iDash Documentation Hub</title>
-    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />

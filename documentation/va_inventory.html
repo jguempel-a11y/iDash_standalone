@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>VA Site Inventory — iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -47,7 +48,7 @@
                 This document describes the modern client-side real-time sweeping engine, designed specifically for rapid RFID sweeps (30–50 tags/sec) on <strong>Zebra TC53 / RFD40</strong> handhelds and enterprise web clients.
             </div>
 
-            <p><strong>Database Interaction:</strong> Read / Write (via High-Performance AJAX WebMethods to iDash SQL database)</p>
+            <p><strong>Database Interaction:</strong> Read / Write (via High-Performance AJAX WebMethods to AssetWorx SQL database)</p>
             <p><strong>Primary Workflow:</strong> Technicians walk into a room, scan the room barcode (e.g. <code>SP008-BD. 8A</code>), pull the RFID trigger to sweep the physical space, visually confirm confirmed vs misplaced equipment, and commit the reconciled inventory back to the database in one tap.</p>
 
             <div class="toc">
@@ -178,7 +179,7 @@
             <div style="margin-bottom:16px;">
                 <p><span class="step-num">1</span><strong>Scan or Enter Room Location Barcode:</strong><br/>
                 Scan the room barcode (starts with <code>SP</code>) or type the room name (e.g. <code>SP008-BD. 8A</code>) and press Enter or tap <strong>Load Room</strong>. 
-                The system fetches all assets assigned to that room in iDash.</p>
+                The system fetches all assets assigned to that room in AssetWorx.</p>
             </div>
 
             <div style="margin-bottom:16px;">
@@ -273,7 +274,7 @@
                         <span class="badge-code">#ec4899 / #db2777</span>
                     </td>
                     <td>
-                        <strong>Unregistered RFID Tag:</strong> Tag is not found in iDash database (e.g. cardboard shipping tag, vendor RFID label, or decommissioned item).
+                        <strong>Unregistered RFID Tag:</strong> Tag is not found in AssetWorx database (e.g. cardboard shipping tag, vendor RFID label, or decommissioned item).
                     </td>
                 </tr>
             </table>

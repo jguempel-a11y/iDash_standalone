@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>SCAN SECURITY NOTES &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -54,7 +55,7 @@
                     <td>The internal REST-like endpoint. It receives the raw EPC or Barcode string from the frontend, validates the payload, executes the database query, and returns a formatted JSON response.</td>
                 </tr>
                 <tr>
-                    <td><strong>Database Layer</strong><br/><code>iDash SQL</code></td>
+                    <td><strong>Database Layer</strong><br/><code>AssetWorx SQL</code></td>
                     <td><span class="badge badge-green">T-SQL</span></td>
                     <td>The central database holding the <code>dbo.v_asset</code> and <code>dbo.asset</code> tables. It processes the read-only lookup and returns the asset metadata.</td>
                 </tr>
@@ -65,7 +66,7 @@
     <!-- &&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;-&&bull;- -->
     <div class="card">
         <h2>&#128274; 3. Security &amp; Threat Mitigation</h2>
-        <p>Because these devices operate wirelessly on the floor, the scanning architecture implements several defensive layers to protect the central iDash database.</p>
+        <p>Because these devices operate wirelessly on the floor, the scanning architecture implements several defensive layers to protect the central AssetWorx database.</p>
 
         <h3>SQL Injection Defense</h3>
         <ul>

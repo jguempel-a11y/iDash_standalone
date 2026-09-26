@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>VA SYSTEM ARCHITECTURE &mdash; iDash Master Architecture</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -64,7 +65,7 @@
                 <span class="arch-badge ab-tier1" style="margin-bottom:8px;">Enterprise Architecture Specification</span>
                 <h1 style="margin:6px 0 10px 0;">&#128451; iDash System &amp; Integration Architecture</h1>
                 <p style="font-size:15px; color:var(--muted-docs); margin:0; max-width:820px; line-height:1.6;">
-                    Comprehensive architectural blueprint mapping all persistent state, multi-tier boundaries, integration services, database dependencies, hardware pipelines, and external configurations powering the <strong>iDash iDash Intelligence Hub</strong>.
+                    Comprehensive architectural blueprint mapping all persistent state, multi-tier boundaries, integration services, database dependencies, hardware pipelines, and external configurations powering the <strong>AssetWorx iDash Intelligence Hub</strong>.
                 </p>
             </div>
             <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
@@ -107,7 +108,7 @@
 +================================+ +==================================+ +=============================+
 |   TIER 3: SERVICES & PRINTING   | |     TIER 4: DATA & STATE         | | TIER 4: NOTIFICATIONS & DISK|
 +================================+ +==================================+ +=============================+
-| * iDash core REST API      | | * Microsoft SQL Server           | | * Windows File System       |
+| * AssetWorx Core REST API      | | * Microsoft SQL Server           | | * Windows File System       |
 |   /api/PrintJobs &amp; OAuth2     | |   - dbo.v_asset (Reporting View) | |   - C:\VA_RFID\ (ENNX drop) |
 | * BarTender Preview Microservice| |   - dbo.asset (Master Entity)    | |   - C:\Logs\Serilog\        |
 |   Port 5180 (Node/PS Runner)   | |   - dbo.printjob (Print Queue)   | |   - App_Data/idash_users.json|
@@ -122,7 +123,7 @@
     <div class="card">
         <h2>1. User Management, RBAC &amp; Zero-Trust Authentication</h2>
         <p style="color:var(--muted-docs); font-size:14px;">
-            iDash employs an independent, zero-trust authentication boundary that protects the application without requiring domain join or Active Directory schema modifications. It also provides bi-directional user account provisioning into the underlying iDash database.
+            iDash employs an independent, zero-trust authentication boundary that protects the application without requiring domain join or Active Directory schema modifications. It also provides bi-directional user account provisioning into the underlying AssetWorx database.
         </p>
         <table class="spec-table">
             <thead>
@@ -147,9 +148,9 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><strong>scanner user Sync Engine</strong><br><code>va_user_management.aspx.cs</code> &rarr; <code>CreateAwUserInternal()</code></td>
+                    <td><strong>AssetWorx User Sync Engine</strong><br><code>va_user_management.aspx.cs</code> &rarr; <code>CreateAwUserInternal()</code></td>
                     <td>
-                        When creating or updating accounts in iDash, selecting <em>"Also create scanner account"</em> performs a direct cryptographic insert into <code>dbo.sysuser</code> using .NET Identity V3 SHA256 password hashing (<code>PRF=1</code>, 10,000 iterations). This allows administrators to provision handheld scanner logins and web portal logins from a single interface.
+                        When creating or updating accounts in iDash, selecting <em>"Also create AssetWorx account"</em> performs a direct cryptographic insert into <code>dbo.sysuser</code> using .NET Identity V3 SHA256 password hashing (<code>PRF=1</code>, 10,000 iterations). This allows administrators to provision handheld scanner logins and web portal logins from a single interface.
                     </td>
                 </tr>
                 <tr>
@@ -166,7 +167,7 @@
     <div class="card">
         <h2>2. Dual-Engine Printing &amp; RFID Encoding Architecture</h2>
         <p style="color:var(--muted-docs); font-size:14px;">
-            The iDash printing subsystem integrates native iDash Print Server automation with direct BarTender REST capabilities. This dual-path architecture provides automated failover, label preview, and high-speed batch encoding.
+            The iDash printing subsystem integrates native AssetWorx Print Server automation with direct BarTender REST capabilities. This dual-path architecture provides automated failover, label preview, and high-speed batch encoding.
         </p>
         <table class="spec-table">
             <thead>
@@ -174,9 +175,9 @@
             </thead>
             <tbody>
                 <tr>
-                    <td><strong>iDash Print Server API</strong><br><code>App_Code/IdashApiHelper.cs</code></td>
+                    <td><strong>AssetWorx Print Server API</strong><br><code>App_Code/AssetWorxApiHelper.cs</code></td>
                     <td>
-                        Communicates with the local iDash core Print Server via authenticated REST endpoints (<code>GetApiBase()</code> &rarr; <code>/api/PrintJobs</code>, <code>/api/PrintTemplates</code>).<br>
+                        Communicates with the local AssetWorx Core Print Server via authenticated REST endpoints (<code>GetApiBase()</code> &rarr; <code>/api/PrintJobs</code>, <code>/api/PrintTemplates</code>).<br>
                         <strong>Auto-Site Resolution:</strong> Resolves company ID to matching print templates (e.g. template ID 19 for Beckley 517) and enqueues print jobs directly into the native print engine pipeline.
                     </td>
                 </tr>
@@ -251,12 +252,12 @@
     <div class="card">
         <h2>4. Database Concurrency: Non-Blocking Read Isolation</h2>
         <p style="color:var(--muted-docs); font-size:14px;">
-            A core engineering priority of iDash is preventing contention on the primary iDash SQL Server transaction log.
+            A core engineering priority of iDash is preventing contention on the primary AssetWorx SQL Server transaction log.
         </p>
         <div class="info-box" style="margin-bottom:18px;">
             <strong>Read-Uncommitted Isolation Policy:</strong> All heavy analytical and reporting queries executed by iDash explicitly declare:<br>
             <code>SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;</code><br>
-            This guarantees that massive location summaries, CMR age-bucket aggregates, and catalog searches execute with zero shared-read locks, completely preventing table deadlocks with handheld scanner syncs or iDash core transactions.
+            This guarantees that massive location summaries, CMR age-bucket aggregates, and catalog searches execute with zero shared-read locks, completely preventing table deadlocks with handheld scanner syncs or AssetWorx Core transactions.
         </div>
         <table class="spec-table">
             <thead>

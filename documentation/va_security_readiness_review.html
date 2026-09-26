@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <title>Security Readiness Review &amp; Production Certification &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -336,7 +337,7 @@
         <div class="meta-grid">
             <div class="meta-item">
                 <div class="meta-label">System / Application</div>
-                <div class="meta-val">iDash / Intelligent Distributed Asset Scanning Hub</div>
+                <div class="meta-val">iDash / VA Asset Intelligence Hub</div>
             </div>
             <div class="meta-item">
                 <div class="meta-label">Review Date</div>
@@ -442,7 +443,7 @@
 <span class="code-diff-del">- if (!string.IsNullOrEmpty(configKey)) {</span>
 <span class="code-diff-del">-     if (context.Request.Headers["X-Api-Key"] != configKey) { ... return 401; }</span>
 <span class="code-diff-del">- }</span>
-<span class="code-diff-add">+ // -- Auth check (Fail-Closed Enforcement) --</span>
+<span class="code-diff-add">+ // ── Auth check (Fail-Closed Enforcement) ──</span>
 <span class="code-diff-add">+ string configKey = ConfigurationManager.AppSettings["RemoteImportKey"];</span>
 <span class="code-diff-add">+ if (string.IsNullOrWhiteSpace(configKey)) {</span>
 <span class="code-diff-add">+     context.Response.StatusCode = 503;</span>
@@ -482,7 +483,7 @@
                 </div>
                 <div class="code-box-header"><span>C# Code Diff</span><span>va_sql_upload.aspx.cs</span></div>
                 <div class="code-box">
-<span class="code-diff-add">+ // -- Authentication and Role Authorization Guard --</span>
+<span class="code-diff-add">+ // ── Authentication and Role Authorization Guard ──</span>
 <span class="code-diff-add">+ bool isLoggedIn = Session["IsAdminAuthenticated"] != null && (bool)Session["IsAdminAuthenticated"];</span>
 <span class="code-diff-add">+ if (!isLoggedIn) { Response.Redirect("index.aspx?err=auth"); return; }</span>
 <span class="code-diff-add">+ var tiles = Session["IdashTileAccess"] as List&lt;string&gt;;</span>
@@ -524,7 +525,7 @@
                 </div>
                 <div class="code-box-header"><span>C# Code Diff</span><span>va_site_config.aspx.cs</span></div>
                 <div class="code-box">
-<span class="code-diff-add">+ // -- Authentication & RBAC Guard --</span>
+<span class="code-diff-add">+ // ── Authentication & RBAC Guard ──</span>
 <span class="code-diff-add">+ if (!isLoggedIn) { Response.StatusCode = 401; Response.Write("{\"error\":\"Authentication required.\"}"); Response.End(); return; }</span>
 <span class="code-diff-add">+ if (!hasAccess) { Response.StatusCode = 403; Response.Write("{\"error\":\"Access denied: Administrator privileges required.\"}"); Response.End(); return; }</span>
 <span class="code-diff-add">+ if (cmd == "restartAll" || cmd == "restart") {</span>
@@ -751,7 +752,7 @@
             <p style="margin: 0 0 16px 0; font-size: 0.95rem; color: var(--text-docs); line-height: 1.6;">
                 Having conducted a comprehensive review and completed technical remediation of all five security observations 
                 identified in the September 11, 2026 review, supplemented by the continuous security hardening controls verified 
-                on September 17, 2026, the <strong>iDash / Intelligent Distributed Asset Scanning Hub</strong> software baseline 
+                on September 17, 2026, the <strong>iDash / VA Asset Intelligence Hub</strong> software baseline 
                 meets all production authorization standards, fail-closed configuration requirements, and auditability criteria 
                 stipulated for commercial enterprise and Department of Veterans Affairs production release.
             </p>
@@ -759,7 +760,7 @@
                 <div class="sig-block">
                     <strong>Software Engineering &amp; Architecture Lead:</strong><br />
                     John Guempel, Chief Systems Architect<br />
-                    ID-Integration, Inc. / iDash Development Team<br />
+                    ID-Integration, Inc. / AssetWorx Development Team<br />
                     <em>Certified: September 12, 2026 &bull; Reaffirmed: September 17, 2026</em>
                 </div>
                 <div class="sig-block">
@@ -770,7 +771,7 @@
                 </div>
                 <div class="sig-block">
                     <strong>Document Authority:</strong><br />
-                    iDash Web Portal iDash Technical Documentation<br />
+                    AssetWorx WebClient iDash Technical Documentation<br />
                     Ref: <code>SEC-REV-2026-0911-V1PROD / REV-2</code><br />
                     <em>Confidential &mdash; Customer, Legal &amp; Executive Distribution</em>
                 </div>

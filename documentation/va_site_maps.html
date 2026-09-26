@@ -1,10 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VA Site Maps &mdash; Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="../theme.css" />
     <script src="../theme-init.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -59,7 +60,7 @@
     <p>
         The <strong>Site Maps</strong> page is the central hub for tracking RFID tagging progress across VA medical centers.
         It displays architectural floor plan maps for each building at a site, overlays real-time tagging statistics from the
-        iDash database, and lets you drill into room-level asset data.
+        AssetWorx database, and lets you drill into room-level asset data.
     </p>
     <div class="callout">
         <strong>Why does this exist?</strong>
@@ -75,7 +76,7 @@
     </p>
     <ol>
         <li><strong>Map Files:</strong> Physical floor plan images (PNG/PDF) stored in <code>iDash/site_maps/VISN##/### SiteName/</code>. File names start with the building number (e.g., <code>500-1st Floor Arch.pdf</code>).</li>
-        <li><strong>Database:</strong> Asset tagging data from <code>dbo.v_asset</code> in the iDash database. Key fields: <code>text18</code> (tagged flag = '1'), <code>text6</code> (location code like <code>SP4C141-500</code> where 500 = building), <code>text20</code> (notes).</li>
+        <li><strong>Database:</strong> Asset tagging data from <code>dbo.v_asset</code> in the AssetWorx database. Key fields: <code>text18</code> (tagged flag = '1'), <code>text6</code> (location code like <code>SP4C141-500</code> where 500 = building), <code>text20</code> (notes).</li>
         <li><strong>Building Stats API:</strong> The page calls <code>buildingstats</code> API which groups assets by building number (extracted from <code>text6</code>) and returns tagged/remaining counts per building.</li>
     </ol>
 

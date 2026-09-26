@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>RabbitMQ MQTT Broker Setup &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -53,13 +54,13 @@
         <h1>&#128007; RabbitMQ MQTT Broker &mdash; Installation &amp; Configuration Guide</h1>
         <p style="font-size:16px;">
             Complete setup guide for deploying RabbitMQ as the enterprise MQTT broker for iDash fixed reader
-            tag observation routing. This replaces the defective iDash internal broker for fixed reader data
+            tag observation routing. This replaces the defective AssetWorx internal broker for fixed reader data
             while preserving the existing print notification system.
         </p>
 
         <div class="rationale-box">
             <div class="rationale-title">&#128161; Rationale</div>
-            <div>The vendor-embedded iDash MQTT broker does not currently route published messages to subscribers
+            <div>The vendor-embedded AssetWorx MQTT broker does not currently route published messages to subscribers
             (see Problem Statement below). Rather than incur an additional expense to have the vendor address
             what is a defect in their shipped product, RabbitMQ &mdash; an industry-standard, VA-approved,
             open-source message broker &mdash; was deployed as a reliable, well-supported alternative for
@@ -75,7 +76,7 @@
                 <tr><td><strong>RabbitMQ Version</strong></td><td>4.3.5 <span class="version-badge">LATEST</span></td></tr>
                 <tr><td><strong>Erlang/OTP Version</strong></td><td>27.3.4</td></tr>
                 <tr><td><strong>Purpose</strong></td><td>MQTT broker for FX9600 fixed reader &rarr; iDash tag observation routing</td></tr>
-                <tr><td><strong>Scope</strong></td><td>Fixed readers only. Print system remains on iDash broker (port 8883).</td></tr>
+                <tr><td><strong>Scope</strong></td><td>Fixed readers only. Print system remains on AssetWorx broker (port 8883).</td></tr>
             </tbody>
         </table>
     </div>
@@ -84,9 +85,9 @@
     <!-- SECTION 2: PROBLEM STATEMENT                                  -->
     <!-- ============================================================ -->
     <div class="card">
-        <h2>&#128680; Problem Statement: The iDash Broker Defect</h2>
+        <h2>&#128680; Problem Statement: The AssetWorx Broker Defect</h2>
         <p>
-            The iDash web application (<code>iDash.Web.exe</code>) includes an internal MQTTnet-based broker
+            The AssetWorx Web application (<code>AssetWorx.Web.exe</code>) includes an internal MQTTnet-based broker
             that was sold as the MQTT infrastructure for both label printing and fixed reader tag observation routing.
             Extensive diagnostic testing confirmed:
         </p>
@@ -99,7 +100,7 @@
         <p>
             This was tested with 4+ credential sets, self-publish tests (publisher = subscriber on same client),
             and TCP packet analysis. The broker accepts everything but routes nothing. The <code>dbo.mqttclient</code>
-            table in the iDash database contains explicit ACL columns (<code>publishtopic</code>,
+            table in the AssetWorx database contains explicit ACL columns (<code>publishtopic</code>,
             <code>subscribetopic</code>) proving this feature was designed and sold &mdash; it simply doesn't work.
         </p>
         <div class="alert-yellow">
@@ -115,13 +116,13 @@
     <!-- ============================================================ -->
     <div class="card">
         <h2>&#127959; Solution Architecture</h2>
-        <p>Deploy RabbitMQ alongside the existing iDash broker. Each handles its own traffic:</p>
+        <p>Deploy RabbitMQ alongside the existing AssetWorx broker. Each handles its own traffic:</p>
 
         <h3>Before (Broken)</h3>
         <div style="text-align:center;margin:16px 0;">
             <span class="arch-box">FX9600 Reader</span>
             <span class="arch-arrow">&rarr; MQTT &rarr;</span>
-            <span class="arch-box" style="border-color:var(--danger);">iDash Broker<br/>:8883 (TLS)<br/><em style="color:var(--danger);">&#10006; No routing</em></span>
+            <span class="arch-box" style="border-color:var(--danger);">AssetWorx Broker<br/>:8883 (TLS)<br/><em style="color:var(--danger);">&#10006; No routing</em></span>
             <span class="arch-arrow" style="color:var(--danger);">&#10006;</span>
             <span class="arch-box" style="opacity:0.5;">iDash Subscriber</span>
         </div>
@@ -138,7 +139,7 @@
         <table class="config-table">
             <thead><tr><th>Service</th><th>Broker</th><th>Port</th><th>Status</th></tr></thead>
             <tbody>
-                <tr><td>Label Printing (<code>awrx/print/*</code>)</td><td>iDash (MQTTnet)</td><td>8883 (TLS)</td><td>&#9989; Unchanged</td></tr>
+                <tr><td>Label Printing (<code>awrx/print/*</code>)</td><td>AssetWorx (MQTTnet)</td><td>8883 (TLS)</td><td>&#9989; Unchanged</td></tr>
                 <tr><td>Fixed Reader Tags (<code>reader/#</code>)</td><td><strong>RabbitMQ</strong></td><td><strong>1883 (TCP)</strong></td><td>&#9989; New &mdash; Working</td></tr>
             </tbody>
         </table>
@@ -158,7 +159,7 @@
                 <tr><td>Port 5672</td><td>Available (AMQP)</td><td>&#9989; Available</td></tr>
                 <tr><td>Port 15672</td><td>Available (Management UI)</td><td>&#9989; Available</td></tr>
                 <tr><td>Port 25672</td><td>Available (Erlang clustering)</td><td>&#9989; Available</td></tr>
-                <tr><td>Port 8883</td><td>In use by iDash &mdash; do NOT touch</td><td>&#9989; Left alone</td></tr>
+                <tr><td>Port 8883</td><td>In use by AssetWorx &mdash; do NOT touch</td><td>&#9989; Left alone</td></tr>
                 <tr><td>Internet access</td><td>For downloading installers from GitHub (see Offline Deployment below if unavailable)</td><td>&#9989; Available (or use sneakernet)</td></tr>
             </tbody>
         </table>
@@ -232,7 +233,7 @@
                     <td><code>8883</code></td>
                     <td>TCP</td>
                     <td>N/A</td>
-                    <td colspan="2" style="text-align:center;"><em>No change &mdash; existing iDash broker</em></td>
+                    <td colspan="2" style="text-align:center;"><em>No change &mdash; existing AssetWorx broker</em></td>
                     <td>TLS MQTT for label printing. Already open. Do NOT modify.</td>
                     <td>Existing</td>
                 </tr>
@@ -746,7 +747,7 @@ $sbin = "C:\Program Files\RabbitMQ Server\rabbitmq_server-4.3.5\sbin"
             <li><strong>Log location:</strong> <code>%APPDATA%\RabbitMQ\log\rabbit@LingCod.log</code></li>
             <li><strong>iDash log:</strong> <code>C:\Logs\iDash_AntennaService.log</code></li>
             <li><strong>Restart RabbitMQ:</strong> <code>net stop RabbitMQ && net start RabbitMQ</code> (Admin PS)</li>
-            <li><strong>The iDash broker on port 8883 is completely untouched.</strong> Print notifications continue to use it.</li>
+            <li><strong>The AssetWorx broker on port 8883 is completely untouched.</strong> Print notifications continue to use it.</li>
         </ul>
 
         <div class="alert-green">

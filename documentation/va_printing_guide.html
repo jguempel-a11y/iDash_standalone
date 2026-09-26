@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>PRINTING ASSET LABELS &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -22,7 +23,7 @@
         </div>
 
         <h2>Overview</h2>
-        <p>The <strong>Asset Master</strong> page (<code>va_asset_master.aspx</code>) includes a built-in print feature that lets you submit RFID label print jobs for one or more assets. You select assets by entering EE numbers &mdash; the site prefix (e.g. <code>613 EE</code>) is automatically detected from the selected site. Print jobs are routed through the iDash core API, which publishes to the Print Server via MQTT for automatic printing via BarTender.</p>
+        <p>The <strong>Asset Master</strong> page (<code>va_asset_master.aspx</code>) includes a built-in print feature that lets you submit RFID label print jobs for one or more assets. You select assets by entering EE numbers &mdash; the site prefix (e.g. <code>613 EE</code>) is automatically detected from the selected site. Print jobs are routed through the AssetWorx Core API, which publishes to the Print Server via MQTT for automatic printing via BarTender.</p>
 
         <div style="background:color-mix(in srgb, var(--accent-docs, var(--accent)), transparent 90%); border:1px solid color-mix(in srgb, var(--accent-docs, var(--accent)), transparent 60%); border-radius:8px; padding:12px 16px; margin:16px 0; font-size:13px; color:var(--text);">
             <strong>&#128736; Admin Setup:</strong> For template, printer, and multi-site configuration, see <a href="va_print_admin.html" style="color:var(--accent-docs, var(--accent));">Print Administration</a>.
@@ -94,7 +95,7 @@
             <li>Confirm the dialog ("Send X asset(s) to the printer?").</li>
             <li>A green success banner confirms how many jobs were created.</li>
         </ol>
-        <p>The print jobs are now queued. The Print Server picks them up via MQTT within seconds and routes them to the configured printer via BarTender. Check the <a href="../va_print_admin.aspx" style="color:var(--accent-docs, var(--accent));">Print Admin</a> Status tab to monitor job progress.</p>
+        <p>The print jobs are now queued. The AssetWorx Print Server picks them up via MQTT within seconds and routes them to the configured printer via BarTender. Check the <a href="/iDash/va_print_admin.aspx" style="color:var(--accent-docs, var(--accent));">Print Admin</a> Status tab to monitor job progress.</p>
 
         <!-- ═══════════════════════════════════════════════ -->
         <!-- SERVER CONFIGURATION                            -->
@@ -111,28 +112,28 @@
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:10px 12px; font-weight:700;"><code>web.config</code></td>
-                <td style="padding:10px 12px;"><code>C:\inetpub\wwwroot\iDash\web.config</code></td>
+                <td style="padding:10px 12px;"><code>C:\inetpub\wwwroot\AssetWorx.WebClient\iDash\web.config</code></td>
                 <td style="padding:10px 12px;">API credentials (Client ID &amp; Secret), API base URL, token URL</td>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:10px 12px; font-weight:700;"><code>appsettings.json</code></td>
-                <td style="padding:10px 12px;"><code>C:\inetpub\wwwroot\iDash\appsettings.json</code></td>
-                <td style="padding:10px 12px;">iDash API server settings: <code>WebClientId</code>, <code>WebClientSecret</code>, <code>AuthenticationServer</code></td>
+                <td style="padding:10px 12px;"><code>C:\inetpub\wwwroot\AssetWorx.WebClient\appsettings.json</code></td>
+                <td style="padding:10px 12px;">AssetWorx API server settings: <code>WebClientId</code>, <code>WebClientSecret</code>, <code>AuthenticationServer</code></td>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:10px 12px; font-weight:700;"><code>printer_routing.json</code></td>
-                <td style="padding:10px 12px;"><code>C:\idash_prints\printer_routing.json</code></td>
+                <td style="padding:10px 12px;"><code>C:\assetworx_prints\printer_routing.json</code></td>
                 <td style="padding:10px 12px;">Maps BarTender template filenames to Windows printer names</td>
             </tr>
             <tr>
                 <td style="padding:10px 12px; font-weight:700;"><code>.btw templates</code></td>
-                <td style="padding:10px 12px;"><code>C:\idash_prints\*.btw</code></td>
+                <td style="padding:10px 12px;"><code>C:\assetworx_prints\*.btw</code></td>
                 <td style="padding:10px 12px;">BarTender label layouts referenced by the <code>template</code> table</td>
             </tr>
         </table>
 
         <h3>API Credentials &mdash; iDash Side (<code>web.config</code>)</h3>
-        <p>The iDash portal authenticates to the iDash API using OAuth 2.0 client credentials. These are stored in <code>web.config</code> under <code>&lt;appSettings&gt;</code>:</p>
+        <p>The iDash portal authenticates to the AssetWorx API using OAuth 2.0 client credentials. These are stored in <code>web.config</code> under <code>&lt;appSettings&gt;</code>:</p>
         <table style="width:100%; border-collapse:collapse; margin:12px 0;">
             <tr style="border-bottom:2px solid var(--line);">
                 <th style="text-align:left; padding:10px 12px; color:var(--muted-docs);">Key</th>
@@ -140,37 +141,37 @@
                 <th style="text-align:left; padding:10px 12px; color:var(--muted-docs);">Example</th>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
-                <td style="padding:10px 12px;"><code>UseRestApi</code></td>
+                <td style="padding:10px 12px;"><code>UseAssetWorxApi</code></td>
                 <td style="padding:10px 12px;">Master switch to enable API integration</td>
                 <td style="padding:10px 12px;"><code>true</code></td>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
-                <td style="padding:10px 12px;"><code>iDash_ApiBase</code></td>
-                <td style="padding:10px 12px;">Base URL of the iDash REST API</td>
+                <td style="padding:10px 12px;"><code>AssetWorx_ApiBase</code></td>
+                <td style="padding:10px 12px;">Base URL of the AssetWorx REST API</td>
                 <td style="padding:10px 12px;"><code>http://localhost/api</code></td>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
-                <td style="padding:10px 12px;"><code>iDash_TokenUrl</code></td>
+                <td style="padding:10px 12px;"><code>AssetWorx_TokenUrl</code></td>
                 <td style="padding:10px 12px;">OAuth token endpoint</td>
                 <td style="padding:10px 12px;"><code>http://localhost/connect/token</code></td>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
-                <td style="padding:10px 12px;"><code>iDash_ClientId</code></td>
-                <td style="padding:10px 12px;">OAuth Client ID (must match iDash server config)</td>
+                <td style="padding:10px 12px;"><code>AssetWorx_ClientId</code></td>
+                <td style="padding:10px 12px;">OAuth Client ID (must match AssetWorx server config)</td>
                 <td style="padding:10px 12px;"><code>v512</code></td>
             </tr>
             <tr>
-                <td style="padding:10px 12px;"><code>iDash_ClientSecret</code></td>
-                <td style="padding:10px 12px;">OAuth Client Secret (must match iDash server config)</td>
+                <td style="padding:10px 12px;"><code>AssetWorx_ClientSecret</code></td>
+                <td style="padding:10px 12px;">OAuth Client Secret (must match AssetWorx server config)</td>
                 <td style="padding:10px 12px;"><code>&lt;generated-secret&gt;</code></td>
             </tr>
         </table>
         <div style="background:color-mix(in srgb, #f59e0b, transparent 90%); border:1px solid color-mix(in srgb, #f59e0b, transparent 60%); border-radius:8px; padding:12px 16px; margin:16px 0; font-size:13px; color:var(--text);">
-            <strong>&#9888; Important:</strong> The <code>iDash_ClientId</code> and <code>iDash_ClientSecret</code> must match the values configured in the iDash API application. These are used for machine-to-machine authentication &mdash; the iDash server authenticates to the iDash API using the OAuth <code>client_credentials</code> grant type. If these don't match, all API-driven features will fail.
+            <strong>&#9888; Important:</strong> The <code>AssetWorx_ClientId</code> and <code>AssetWorx_ClientSecret</code> must match the values configured in the AssetWorx API application. These are used for machine-to-machine authentication &mdash; the iDash server authenticates to the AssetWorx API using the OAuth <code>client_credentials</code> grant type. If these don't match, all API-driven features will fail.
         </div>
 
-        <h3>API Credentials &mdash; iDash server Side</h3>
-        <p>On the iDash API server, the corresponding credentials are configured in <strong>two places</strong>:</p>
+        <h3>API Credentials &mdash; AssetWorx Server Side</h3>
+        <p>On the AssetWorx API server, the corresponding credentials are configured in <strong>two places</strong>:</p>
 
         <h4 style="color:var(--accent-docs, var(--accent));">1. Database: <code>applicationsetting</code> table</h4>
         <p>The <code>applicationsetting</code> table (single-row) has two columns that define the web client credentials that the API server accepts:</p>
@@ -183,7 +184,7 @@
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:8px;"><code>webclientid</code></td>
                 <td style="padding:8px;">The client ID the API expects for introspection/auth</td>
-                <td style="padding:8px;"><code>idash.web</code></td>
+                <td style="padding:8px;"><code>assetworx.web</code></td>
             </tr>
             <tr>
                 <td style="padding:8px;"><code>webclientsecret</code></td>
@@ -197,27 +198,27 @@ SET webclientid = 'your_client_id',
     webclientsecret = 'your_client_secret';</pre>
 
         <h4 style="color:var(--accent-docs, var(--accent));">2. Config File: <code>appsettings.json</code></h4>
-        <p>The iDash Web API application reads its config from <code>appsettings.json</code> (or overrides from the DB). The relevant keys under <code>ConfigSettings</code> are:</p>
+        <p>The AssetWorx Web API application reads its config from <code>appsettings.json</code> (or overrides from the DB). The relevant keys under <code>ConfigSettings</code> are:</p>
         <ul>
             <li><code>"WebClientId"</code> &mdash; must match the <code>webclientid</code> in the database</li>
             <li><code>"WebClientSecret"</code> &mdash; must match the <code>webclientsecret</code> in the database</li>
             <li><code>"AuthenticationServer"</code> &mdash; the OAuth authority URL (e.g. <code>http://localhost</code>)</li>
         </ul>
-        <p>If values are not set in the config file, the API defaults to <code>idash.web</code> / <code>901564A5-E7FE-42CB-B10D-61EF6A8F3654</code>.</p>
+        <p>If values are not set in the config file, the API defaults to <code>assetworx.web</code> / <code>901564A5-E7FE-42CB-B10D-61EF6A8F3654</code>.</p>
 
         <h3>Credential Flow Diagram</h3>
         <pre style="padding:14px 18px; border-radius:8px; background:var(--chip); border:1px solid var(--line); font-size:13px; color:var(--text); line-height:1.8;">
-  iDash web.config                     iDash API
+  iDash web.config                     AssetWorx API
   ┌─────────────────────┐              ┌─────────────────────────────┐
-  │ iDash_ClientId  │─── must ────▶│ webclientid (DB)            │
-  │ iDash_ClientSec │    match     │ webclientsecret (DB)        │
-  │ iDash_TokenUrl  │─── calls ───▶│ /connect/token endpoint     │
-  │ iDash_ApiBase   │─── calls ───▶│ /api/* endpoints            │
+  │ AssetWorx_ClientId  │─── must ────▶│ webclientid (DB)            │
+  │ AssetWorx_ClientSec │    match     │ webclientsecret (DB)        │
+  │ AssetWorx_TokenUrl  │─── calls ───▶│ /connect/token endpoint     │
+  │ AssetWorx_ApiBase   │─── calls ───▶│ /api/* endpoints            │
   └─────────────────────┘              └─────────────────────────────┘
 
   OAuth Flow:
   1. iDash sends POST to TokenUrl with client_credentials grant
-  2. iDash validates against webclientid/webclientsecret
+  2. AssetWorx validates against webclientid/webclientsecret
   3. Returns Bearer token (cached until expiry)
   4. iDash includes Bearer token in all API requests</pre>
 
@@ -251,7 +252,7 @@ SET webclientid = 'your_client_id',
             <li><strong>BarTender</strong> must be installed on the print server.</li>
             <li><strong>Run_Bypass_Spooler.ps1</strong> must be running (polls the <code>printjob</code> table every 3 seconds).</li>
             <li><strong>printer_routing.json</strong> must map the template's <code>.btw</code> filename to the correct Windows printer name.</li>
-            <li><strong>.btw template files</strong> must exist in <code>C:\idash_prints\</code> matching the <code>template.filename</code> values in the database.</li>
+            <li><strong>.btw template files</strong> must exist in <code>C:\assetworx_prints\</code> matching the <code>template.filename</code> values in the database.</li>
         </ol>
         <p>For detailed print server setup, see <a href="print_server_setup.html" style="font-weight:600;">&#128424; Print Server Setup &amp; Troubleshooting</a>.</p>
 
@@ -282,8 +283,8 @@ SET webclientid = 'your_client_id',
             </tr>
             <tr>
                 <td style="padding:10px 12px;">API features failing (401/403)</td>
-                <td style="padding:10px 12px;">Client ID/Secret mismatch between <code>web.config</code> and iDash server</td>
-                <td style="padding:10px 12px;">Verify <code>iDash_ClientId</code> and <code>iDash_ClientSecret</code> match the values in the <code>applicationsetting</code> table</td>
+                <td style="padding:10px 12px;">Client ID/Secret mismatch between <code>web.config</code> and AssetWorx server</td>
+                <td style="padding:10px 12px;">Verify <code>AssetWorx_ClientId</code> and <code>AssetWorx_ClientSecret</code> match the values in the <code>applicationsetting</code> table</td>
             </tr>
         </table>
 
@@ -298,7 +299,7 @@ SET webclientid = 'your_client_id',
         </div>
     </div>
     <footer style="margin-top: 40px; padding: 20px; border-top:1px solid var(--line); font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 12px; color:var(--muted-docs); display: flex; justify-content: space-between; align-items: center; background:var(--bg); max-width: 1400px; margin-left: auto; margin-right: auto;">
-        <div>iDash iDash Documentation</div>
+        <div>AssetWorx iDash Documentation</div>
         <div>Created 2026-07-24</div>
     </footer>
 </body>

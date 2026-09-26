@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>iDash Docs &mdash; Guide: Batch Mode Scanning &amp; Sync</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <style>
@@ -26,21 +27,21 @@
 
     <div class="doc-container">
         <h1>&#128225; Guide: Batch Mode Scanning &amp; Sync</h1>
-        <p class="doc-subtitle">How to use Batch Mode for offline RFID scanning when WiFi is unavailable, and how to sync stored scan data back to iDash when connected.</p>
+        <p class="doc-subtitle">How to use Batch Mode for offline RFID scanning when WiFi is unavailable, and how to sync stored scan data back to AssetWorx when connected.</p>
 
         <div class="callout callout-info">
             <strong>When to use Batch Mode:</strong> Use batch scanning when you're in a location without reliable WiFi. Scans are stored locally on the device and uploaded when you return to a connected area.
         </div>
 
-        <p class="step-desc"><strong>Source:</strong> <em>VISN 5 Use and Configuration Guide for iDash 4.0.8.7</em>, Section V (pages 26&ndash;31)</p>
+        <p class="step-desc"><strong>Source:</strong> <em>VISN 5 Use and Configuration Guide for AssetWorx! 4.0.8.7</em>, Section V (pages 26&ndash;31)</p>
 
         <!-- ════════ PHASE 1: SETUP ════════ -->
         <div class="phase-header setup">&#9881; Phase 1: Enable Batch Mode</div>
 
         <div class="step-card">
-            <div class="step-title"><span class="step-num">1</span> Open iDash Settings</div>
+            <div class="step-title"><span class="step-num">1</span> Open AssetWorx! Settings</div>
             <div class="step-desc">
-                On the Zebra handheld scanner, open the <strong>iDash</strong> app. From the main menu, tap <strong>Settings</strong> (gear icon) in the top-right corner.
+                On the Zebra handheld scanner, open the <strong>AssetWorx!</strong> app. From the main menu, tap <strong>Settings</strong> (gear icon) in the top-right corner.
             </div>
         </div>
 
@@ -102,10 +103,10 @@
         <div class="step-card">
             <div class="step-title"><span class="step-num">6</span> Sync Batch Data</div>
             <div class="step-desc">
-                Open the iDash app and tap <strong>"Sync"</strong> or <strong>"Upload Batch"</strong>. The app will:
+                Open the AssetWorx! app and tap <strong>"Sync"</strong> or <strong>"Upload Batch"</strong>. The app will:
             </div>
             <ol style="color: var(--muted-docs); font-size: 14px; line-height: 2;">
-                <li>Connect to the iDash server</li>
+                <li>Connect to the AssetWorx server</li>
                 <li>Upload all stored scan sessions one at a time</li>
                 <li>Show a progress bar for each session</li>
                 <li>Display a <strong>"Sync Complete"</strong> message with the total count of uploaded records</li>
@@ -126,7 +127,7 @@
                 <li>If any sessions failed to upload, they'll remain in the queue &mdash; tap <strong>"Retry"</strong> to re-attempt</li>
             </ul>
             <div class="danger-box">
-                <strong>&#9888; Critical:</strong> Do NOT uninstall or reset the iDash app before syncing. Unsent batch data is stored on the device only and will be <strong>permanently lost</strong> if the app is cleared.
+                <strong>&#9888; Critical:</strong> Do NOT uninstall or reset the AssetWorx app before syncing. Unsent batch data is stored on the device only and will be <strong>permanently lost</strong> if the app is cleared.
             </div>
         </div>
 
@@ -135,11 +136,11 @@
         <table class="doc-table">
             <thead><tr><th style="width:35%">Issue</th><th>Solution</th></tr></thead>
             <tbody>
-                <tr><td>Sync fails with "Server unreachable"</td><td>Confirm WiFi is connected and iDash server is reachable. Try pinging the server IP from device settings.</td></tr>
+                <tr><td>Sync fails with "Server unreachable"</td><td>Confirm WiFi is connected and AssetWorx server is reachable. Try pinging the server IP from device settings.</td></tr>
                 <tr><td>Batch icon doesn't appear</td><td>Batch Mode may not be enabled. Go to Settings and verify the toggle is ON.</td></tr>
-                <tr><td>Some sessions fail to upload</td><td>The server may reject sessions with invalid locations. Check the error message and verify the location exists in iDash.</td></tr>
-                <tr><td>Battery dies before sync</td><td>Batch data persists across restarts. Charge the device, reopen iDash, and sync again.</td></tr>
-                <tr><td>"Duplicate session" warning</td><td>This session was already uploaded. Safe to dismiss &mdash; iDash prevents duplicate processing.</td></tr>
+                <tr><td>Some sessions fail to upload</td><td>The server may reject sessions with invalid locations. Check the error message and verify the location exists in AssetWorx.</td></tr>
+                <tr><td>Battery dies before sync</td><td>Batch data persists across restarts. Charge the device, reopen AssetWorx, and sync again.</td></tr>
+                <tr><td>"Duplicate session" warning</td><td>This session was already uploaded. Safe to dismiss &mdash; AssetWorx prevents duplicate processing.</td></tr>
                 <tr><td>Slow sync with many sessions</td><td>Normal. Each session is processed server-side. Large batches (50+ rooms) may take several minutes.</td></tr>
             </tbody>
         </table>

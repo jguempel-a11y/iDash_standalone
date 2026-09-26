@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>RFID Asset Locator &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -26,19 +27,45 @@
         <div style="margin-bottom:12px;">
             <span class="badge badge-db">Database Connected</span>
             <span class="badge badge-fix">Mobile RFID Optimized</span>
-            <span class="badge badge-new">Active v2.0 (09/2026)</span>
+            <span class="badge badge-new">Active v2.1 (09/2026)</span>
         </div>
         <p style="font-size:16px;margin:0;">
             The <strong>RFID Asset Locator</strong> is a dedicated tool for locating specific missing assets using an
             RFID handheld reader. Unlike the VA Site Inventory (which sweeps an entire room), this tool
             helps you hunt for specific targets that are <em>not where they should be</em>. It features a high-speed
             scanner engine (30&ndash;50 tags/sec), a Geiger counter-style proximity radar meter, dynamic Web Audio pitch feedback,
-            and a responsive mobile-optimized UI.
+            front-of-grid zero-scroll mobile status indicators, and a responsive mobile-optimized UI.
         </p>
     </div>
 
     <div class="card">
         <h2>Changelog</h2>
+        <h3>09/17/2026 &mdash; Mobile Ergonomics &amp; Front-of-Grid Zero-Scroll Indicators (v2.1)</h3>
+        <p>Refined grid ergonomics and visual feedback specifically for mobile and handheld RFID readers (Zebra TC53/TC58/RFD40, MC3300R):</p>
+        <table>
+            <tr><th>Change</th><th>Detail</th></tr>
+            <tr>
+                <td><strong>Front-of-Grid Status Column (Column 2)</strong></td>
+                <td>Moved the <code>Status</code> badge column from the far right (column 7) to column 2, immediately adjacent to <code>#</code> and <code>Asset Tag</code>. Solves the mobile horizontal scrolling issue where technicians had to swipe across 6 columns to see if an asset has been found.</td>
+            </tr>
+            <tr>
+                <td><strong>Inline Found Checkmark</strong></td>
+                <td>Added an inline emerald checkmark badge (<code>&#10004;</code>) and green text highlight directly inside the <strong>Asset Tag</strong> cell upon discovery, allowing positive verification from the asset number alone.</td>
+            </tr>
+            <tr>
+                <td><strong>High-Contrast Left Accent &amp; Row Glow</strong></td>
+                <td>Strengthened <code>.grid tr.row-found</code> with a solid 6px emerald border (<code>#10b981</code>) on the left margin and emerald background tint, providing immediate peripheral recognition without horizontal scrolling.</td>
+            </tr>
+            <tr>
+                <td><strong>Streamlined Mobile Viewport</strong></td>
+                <td>Eliminated unnecessary banner popups, maximizing vertical screen real estate so multiple target rows remain fully visible on handheld screens.</td>
+            </tr>
+            <tr>
+                <td><strong>Actionable Column Order</strong></td>
+                <td>Updated column sequence: <code>#</code> &rarr; <code>Status</code> &rarr; <code>Asset Tag</code> &rarr; <code>Description / Model</code> &rarr; <code>Location</code> &rarr; <code>RFID Tag</code> &rarr; <code>EIL / CMR</code>, prioritizing room location ahead of long hexadecimal RFID tags.</td>
+            </tr>
+        </table>
+
         <h3>09/12/2026 &mdash; Mobile RFID Optimization &amp; Visual Alignment (v2.0)</h3>
         <p>Overhauled the RFID Asset Locator interface to align with the visual and architectural standards of <code>va_inventory.aspx</code> and <code>va_universal_ennx.aspx</code>:</p>
         <table>
@@ -71,7 +98,7 @@
 
         <h3>07/25/2026 &mdash; Tag Matching Bug Fixes &amp; Raw Read Debug Log</h3>
         <p>Resolved a silent failure where RFID reads were received correctly but no assets were matched. Root cause:
-        iDash stores <code>rfidtag</code> values with F-padding appended for word alignment (e.g., <code>512EE17360FFF</code>),
+        AssetWorx stores <code>rfidtag</code> values with F-padding appended for word alignment (e.g., <code>512EE17360FFF</code>),
         and the comparison was not stripping this padding before comparing. Additionally, the SQL lookup did not handle the
         space/no-space variant of EE numbers (e.g., <code>512 EE17360</code> vs <code>512EE17360</code>).</p>
         <table>
@@ -113,7 +140,7 @@
             <li><strong>Inventory = verification:</strong> &ldquo;Walk this room and confirm what is here.&rdquo;</li>
             <li><strong>Locator = hunting:</strong> &ldquo;I have a list of missing items &mdash; help me find them.&rdquo;</li>
         </ul>
-        <p>Inspired by the RFID WayFinder feature in the iDash Data Dashboard, this iDash version adds proximity metering,
+        <p>Inspired by the RFID WayFinder feature in the AssetWorx Data Dashboard, this iDash version adds proximity metering,
         audio feedback, WebSerial USB support, and pre-loading from other pages.</p>
     </div>
 
@@ -125,57 +152,45 @@
         or rfidtag value. Both space and no-space EE formats are recognized.</p>
 
         <h3>Step 2: Load &amp; Resolve</h3>
-        <p>Click <strong>&#128269; Load &amp; Resolve</strong>. The database returns:</p>
+        <p>Click <strong>&#128269; Load &amp; Resolve</strong>. On mobile devices, the target drawer automatically collapses into a slim badge (e.g. <code>2 loaded</code>) to grant maximum screen height to the Geiger radar and target grid. The database populates the target grid with the following columns:</p>
         <table>
-            <tr><th>Field</th><th>Source Column</th><th>Purpose</th></tr>
-            <tr><td>Asset Name</td><td><code>name</code></td><td>EE number / display name</td></tr>
-            <tr><td>RFID Tag</td><td><code>rfidtag</code></td><td>Tag ID used for matching (may include F-padding)</td></tr>
-            <tr><td>Serial Number</td><td><code>text3</code></td><td>Equipment serial</td></tr>
-            <tr><td>EIL / CMR</td><td><code>text8</code></td><td>Accountability grouping</td></tr>
-            <tr><td>Barcode</td><td><code>text12</code></td><td>Original barcode</td></tr>
-            <tr><td>Location</td><td><code>location.name</code></td><td>Last known location in iDash</td></tr>
-            <tr><td>Site</td><td><code>company.name</code></td><td>Facility / site</td></tr>
+            <tr><th>#</th><th>Column</th><th>Purpose</th><th>Mobile Visibility</th></tr>
+            <tr><td>1</td><td><strong>#</strong></td><td>Row sequence index</td><td>Fixed left column</td></tr>
+            <tr><td>2</td><td><strong>Status</strong></td><td>Real-time status badge (<code>&#10004; FOUND</code>, <code>&#9711; SEARCHING</code>, <code>&#9888; NO RFID</code>)</td><td><strong>Column 2: Instant zero-scroll visibility on mobile</strong></td></tr>
+            <tr><td>3</td><td><strong>Asset Tag</strong></td><td>EE number with inline discovery checkmark (<code>&#10004;</code>) and green highlight</td><td>Visible without scrolling</td></tr>
+            <tr><td>4</td><td><strong>Description / Model</strong></td><td>Equipment name and model description</td><td>Visible on swipe / wider screens</td></tr>
+            <tr><td>5</td><td><strong>Location</strong></td><td>Last recorded facility room / location in AssetWorx</td><td>Prioritized ahead of RFID tag</td></tr>
+            <tr><td>6</td><td><strong>RFID Tag</strong></td><td>Stored RFID tag hex string (with F-padding)</td><td>Secondary technical identifier</td></tr>
+            <tr><td>7</td><td><strong>EIL / CMR</strong></td><td>Accountability grouping code</td><td>Reference data</td></tr>
         </table>
-        <p>If the RFID Tag column shows <code>-</code>, that asset has no rfidtag and will show
-        <span style="color:#ef4444;font-weight:700;">&#10060; No RFID tag</span>.</p>
+        <p>If an asset has no recorded tag in AssetWorx, it displays <span style="color:#ef4444;font-weight:700;">&#9888; NO RFID</span>.</p>
 
-        <h3>Step 3: Start Scanning</h3>
-        <p>Click <strong>&#9654; Start Scanning</strong>. A hidden textarea auto-focuses for DataWedge keystroke input, or use
-        the WebSerial <strong>&#128268; Connect</strong> button. The scan banner pulses while active.</p>
+        <h3>Step 3: Pull Trigger or Focus</h3>
+        <p>The visible high-speed scanner card (<code>#raw</code>) is permanently active and auto-focuses on trigger pull. On a Zebra TC53/TC58 or MC3300R handheld, simply pull the RFID sled trigger to start sweeping.</p>
 
-        <h3>Step 4: Walk and Locate</h3>
-        <p>Walk the area. Matching rows flash bright green then fade to soft green. The proximity meter and KPIs update in real time.</p>
+        <h3>Step 4: Walk, Sweep &amp; Locate</h3>
+        <p>Walk the facility area while holding the trigger. As target tags enter antenna range:</p>
+        <ul>
+            <li><strong>Zero Horizontal Scrolling:</strong> The <strong>Status</strong> column in <strong>Column 2</strong> immediately turns emerald green showing <code>&#10004; FOUND (just now)</code> &mdash; fully visible on narrow 360px&ndash;412px handheld screens.</li>
+            <li><strong>Inline Asset Tag Checkmark:</strong> An inline green <code>&#10004;</code> checkmark badge lights up directly next to the asset identifier with bright green text.</li>
+            <li><strong>High-Contrast Left Accent:</strong> The row highlights with a solid 6px emerald green left margin (<code>#10b981</code>) for instant peripheral confirmation.</li>
+            <li><strong>Geiger Proximity Radar:</strong> The proximity bar climbs from red &rarr; yellow &rarr; green &rarr; blue as you approach the physical asset.</li>
+            <li><strong>Synthesizer Audio Feedback:</strong> Variable pitch Geiger clicks accelerate as signal strength peaks, concluding with a celebratory discovery chime on first detection.</li>
+        </ul>
 
-        <h3>Step 5: Stop</h3>
-        <p>Click <strong>&#9632; Stop</strong>. Found assets remain highlighted.</p>
-
-        <div class="alert alert-info">
-            <strong>&#8505; Tip:</strong> If reads happen but nothing matches, enable <strong>Show Raw Read Log</strong> and scan
-            again. Compare the <em>Norm:</em> value in the log to the RFID Tag column in the grid.
-        </div>
+        <h3>Step 5: Review &amp; Reset</h3>
+        <p>Counts in the top filter bar update automatically (<code>All Targets</code>, <code>Found</code>, <code>Remaining</code>, <code>Unresolved</code>). Click <strong>&#8634; Reset Found</strong> to begin a new search sweep on the same targets, or <strong>&#128465; Clear All</strong> to load new assets.</p>
     </div>
 
     <div class="card">
-        <h2>Raw Read Debug Log</h2>
-        <p>Enable with the <em>Show Raw Read Log (debug)</em> checkbox. Each read shows:</p>
+        <h2>Dashboard Status Tabs &amp; Counters</h2>
         <table>
-            <tr><th>Column</th><th>What It Shows</th></tr>
-            <tr><td><strong>Time</strong></td><td>HH:MM:SS timestamp</td></tr>
-            <tr><td>&#9989; / &#10060;</td><td>Green = matched a target; Red = no match</td></tr>
-            <tr><td><strong>Raw:</strong></td><td>Exact string the reader sent, before normalization</td></tr>
-            <tr><td><strong>Norm:</strong></td><td>After stripping trailing F-padding and uppercasing</td></tr>
-        </table>
-        <p>Last 20 reads kept. Only records while scanning is active (after clicking Start Scanning).</p>
-    </div>
-
-    <div class="card">
-        <h2>Dashboard KPIs</h2>
-        <table>
-            <tr><th>KPI</th><th>Description</th></tr>
-            <tr><td><strong>Targets</strong></td><td>Total assets in your hunt list.</td></tr>
-            <tr><td><strong>Found</strong></td><td>Assets matched by the reader so far.</td></tr>
-            <tr><td><strong>Remaining</strong></td><td>Targets &minus; Found.</td></tr>
-            <tr><td><strong>Total Reads</strong></td><td>All reads including non-targets.</td></tr>
+            <tr><th>Tab / Metric</th><th>Description</th></tr>
+            <tr><td><strong>All Targets</strong></td><td>Total asset records resolved in the current locator session.</td></tr>
+            <tr><td><strong>Found</strong></td><td>Filter grid to show only targets confirmed detected by the RFID reader.</td></tr>
+            <tr><td><strong>Remaining</strong></td><td>Filter grid to show targets still waiting to be located.</td></tr>
+            <tr><td><strong>Unresolved</strong></td><td>Filter grid to targets without recorded RFID tags in the database.</td></tr>
+            <tr><td><strong>Total Reads</strong></td><td>Real-time counter of every raw tag read received from the RFID reader.</td></tr>
         </table>
     </div>
 
@@ -183,27 +198,26 @@
         <h2>Proximity Meter (Geiger Counter Mode)</h2>
         <table>
             <tr><th>Bar Level</th><th>Color</th><th>Meaning</th></tr>
-            <tr><td>0 &ndash; 30%</td><td style="color:#ef4444;font-weight:700;">Red</td><td>Far &mdash; tag in range but distant</td></tr>
-            <tr><td>30 &ndash; 60%</td><td style="color:#f59e0b;font-weight:700;">Yellow</td><td>Getting closer</td></tr>
-            <tr><td>60 &ndash; 85%</td><td style="color:#10b981;font-weight:700;">Green</td><td>Close!</td></tr>
-            <tr><td>85 &ndash; 100%</td><td style="color:#2ea8ff;font-weight:700;">Blue/Green</td><td>Very close &mdash; within arm&rsquo;s reach</td></tr>
+            <tr><td>0 &ndash; 30%</td><td style="color:#ef4444;font-weight:700;">Red</td><td>Far &mdash; tag in range but distant (&lt; 3 reads/sec)</td></tr>
+            <tr><td>30 &ndash; 60%</td><td style="color:#f59e0b;font-weight:700;">Yellow</td><td>Getting closer (3&ndash;6 reads/sec)</td></tr>
+            <tr><td>60 &ndash; 85%</td><td style="color:#10b981;font-weight:700;">Green</td><td>Close! High signal (6&ndash;10 reads/sec)</td></tr>
+            <tr><td>85 &ndash; 100%</td><td style="color:#2ea8ff;font-weight:700;">Blue/Green</td><td>Target Acquired! Right here (&gt; 10 reads/sec)</td></tr>
         </table>
         <div class="alert alert-info">
-            Counts RFID reads in the last 3 seconds. 10 reads/second = 100%. Bar decays by 5% every 300ms when no reads arrive.
+            Calculates reads per second over a 2.5-second sliding window. Bar automatically decays back to idle when reader moves out of range.
         </div>
     </div>
 
     <div class="card">
-        <h2>Audio Feedback</h2>
-        <p>Toggle the &#128266; Audio Feedback switch. Off by default.</p>
+        <h2>Audio Feedback Engine</h2>
+        <p>Toggle via the <strong>&#128266; Audio ON / OFF</strong> button in the scanner header. Uses client-side Web Audio synthesis (zero external sound files):</p>
         <table>
-            <tr><th>Sound</th><th>When</th><th>Description</th></tr>
-            <tr><td><strong>Proximity beeps</strong></td><td>Scanning unfound targets</td><td>Frequency and speed increase as you approach (300&ndash;1100 Hz).</td></tr>
-            <tr><td><strong>Found chime</strong></td><td>First match</td><td>Two-tone ascending beep (880 Hz &rarr; 1100 Hz).</td></tr>
-            <tr><td><strong>All-found chime</strong></td><td>All targets located</td><td>Three-tone victory chime (660 &rarr; 880 &rarr; 1100 Hz).</td></tr>
-            <tr><td><strong>Background tick</strong></td><td>Non-target reads</td><td>Faint low beep (200 Hz, 100ms) &mdash; confirms reader is active.</td></tr>
+            <tr><th>Sound</th><th>Trigger</th><th>Audio Tone</th></tr>
+            <tr><td><strong>Geiger Proximity Beeps</strong></td><td>Scanning target in range</td><td>Frequency ramps dynamically from 320 Hz (far) &rarr; 1,180 Hz (immediate proximity).</td></tr>
+            <tr><td><strong>Found Chime</strong></td><td>First detection of a target</td><td>Two-tone ascending chord (880 Hz A5 &rarr; 1,175 Hz D6).</td></tr>
+            <tr><td><strong>All-Found Fanfare</strong></td><td>All hunt list targets located</td><td>Four-note victory fanfare (E5 &rarr; G#5 &rarr; B5 &rarr; E6).</td></tr>
+            <tr><td><strong>Background Tick</strong></td><td>Non-target tag reads</td><td>Low click (180 Hz, 30ms) confirming scanner trigger activity.</td></tr>
         </table>
-        <div class="alert alert-warn">Audio requires a user gesture. Click &ldquo;Start Scanning&rdquo; first to unlock it.</div>
     </div>
 
     <div class="card">
@@ -211,19 +225,19 @@
         <table>
             <tr><th>Method</th><th>How It Works</th><th>Requirements</th></tr>
             <tr>
-                <td><strong>DataWedge Keystroke</strong></td>
-                <td>Reads injected as keystrokes into hidden textarea. ENTER triggers matching.</td>
-                <td>Zebra TC53/RFD40 or similar. DataWedge profile: keystroke output + ENTER suffix.</td>
+                <td><strong>Zebra DataWedge (RFID Keystroke)</strong></td>
+                <td>High-speed burst reads injected into the visible trigger card (<code>#raw</code>) with ENTER suffix.</td>
+                <td>Zebra TC53/TC58 paired with RFD40 sled, or MC3300R. Profile configured for RFID keystroke output.</td>
             </tr>
             <tr>
-                <td><strong>WebSerial USB</strong></td>
-                <td>Click &#128268; Connect. Reads come from the serial stream (115200 baud, 8N1, hardware flow).</td>
-                <td>Chrome or Edge. HTTPS or localhost required.</td>
+                <td><strong>1D/2D Barcode Scan</strong></td>
+                <td>Laser/imager barcode scans of asset labels injected into the trigger card.</td>
+                <td>Any handheld barcode scanner or Zebra imager.</td>
             </tr>
             <tr>
                 <td><strong>Manual / Keyboard</strong></td>
-                <td>Click Start Scanning, type or paste a tag value, press ENTER. For testing only.</td>
-                <td>Any browser.</td>
+                <td>Type or paste tag identifiers directly into <code>#raw</code> and press Enter.</td>
+                <td>Any browser or workstation.</td>
             </tr>
         </table>
     </div>
@@ -233,9 +247,6 @@
         <p>Pass asset identifiers via query string:</p>
         <pre>va_rfid_locator.aspx?assets=512 EE17360,512 EE17361,512 EE17362</pre>
         <p>The textarea is auto-filled and assets resolved on page load.</p>
-        <div class="alert alert-info">
-            Future: VA Site Inventory will have a &ldquo;Locate Missing&rdquo; button that links here pre-loaded with unscanned assets.
-        </div>
     </div>
 
     <div class="card">
@@ -244,8 +255,9 @@
         <h3>Architecture</h3>
         <table>
             <tr><th>File</th><th>Purpose</th></tr>
-            <tr><td><code>va_rfid_locator.aspx</code></td><td>Frontend: HTML + vanilla JS. Target entry, scan capture, grid, proximity, audio, WebSerial, debug log.</td></tr>
+            <tr><td><code>va_rfid_locator.aspx</code></td><td>Frontend: HTML5 + vanilla CSS + JavaScript. Collapsible target drawer, high-speed trigger card, 7-column mobile-optimized grid with front-of-table status, Geiger proximity radar, Web Audio synthesizer.</td></tr>
             <tr><td><code>va_rfid_locator.aspx.cs</code></td><td>Code-behind: session auth + <code>LookupAssets</code> WebMethod.</td></tr>
+            <tr><td><code>va_rfid_locator_legacy.aspx</code></td><td>Archived legacy implementation with WebSerial USB support.</td></tr>
         </table>
 
         <h3>LookupAssets WebMethod</h3>

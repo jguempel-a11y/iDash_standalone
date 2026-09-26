@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>VA TAGTEAM SCAN &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -391,7 +392,7 @@
                     </tr>
                     <tr style="border-bottom:1px solid var(--line-docs);">
                         <td style="padding:8px;"><strong>5. Service Worker v11</strong></td>
-                        <td style="padding:8px;"><code>sw.js</code> (<code>idash-scanners-v11</code>)</td>
+                        <td style="padding:8px;"><code>sw.js</code> (<code>assetworx-scanners-v11</code>)</td>
                         <td style="padding:8px;">Intercepts failed POSTs and returns the cached page shell so the browser never shows "This site can't be reached." Caches ASPX shells (network-first, 7s timeout) and static assets (cache-first) for instant offline load.</td>
                     </tr>
                     <tr style="border-bottom:1px solid var(--line-docs);">
@@ -655,12 +656,12 @@
                 <br/><br/>
                 This JavaScript:
                 <ul>
-                    <li>Fetches a Bearer Token from the iDash API using client-credentials logic injected into the page via C#.</li>
+                    <li>Fetches a Bearer Token from the AssetWorx API using client-credentials logic injected into the page via C#.</li>
                     <li>Compiles a JSON payload of the selected Asset IDs.</li>
                     <li>Resolves routing logic. It checks your manual dropdown overrides, defaults to <code>print_mapping_config.json</code>, and queries SQL for template default targets (Service vs Client).</li>
                     <li>Calls <code>/api/printjobs/print</code>.</li>
                 </ul>
-                The backend ASP.NET Web API inserts the record into the <code>printjob</code> SQL table, which is instantly picked up by the <code>iDash.PrintServer</code> Windows Service listening internally via Mosquitto MQTT on Port 8883. The Web Application automatically operates a lightweight Mosquitto MQTT Broker attached to <code>w3wp.exe</code>!
+                The backend ASP.NET Web API inserts the record into the <code>printjob</code> SQL table, which is instantly picked up by the <code>AssetWorx.PrintServer</code> Windows Service listening internally via Mosquitto MQTT on Port 8883. The Web Application automatically operates a lightweight Mosquitto MQTT Broker attached to <code>w3wp.exe</code>!
             </p>
 
             <div class="alert alert-warn">
@@ -686,7 +687,7 @@
                                 <li><strong>Offline Operator &amp; Site Persistence</strong> &mdash; <code>DdlCompany</code> (Site) and <code>DdlEmpl</code> (Operator) now persist to <code>localStorage</code> alongside Location and restore automatically upon page load, even when disconnected from Wi-Fi.</li>
                                 <li><strong>Scanner Enter-Key Safety &amp; Interception</strong> &mdash; Direct <code>keydown</code> capture prevents premature form submit on handheld barcode scanners when offline, and pre-stashes barcodes in <code>localStorage</code> before online submits. Added offline queue deduplication.</li>
                                 <li><strong>Fallback Company ID Resolution</strong> &mdash; In <code>SaveScanToDb</code>, if location lookup cannot resolve company ID, it derives the facility ID from the barcode's 3-digit station prefix (e.g. <code>512</code> &rarr; 6, <code>517</code> &rarr; 4, <code>540</code> &rarr; 3, <code>581</code> &rarr; 5, <code>613</code> &rarr; 7) to satisfy database constraints.</li>
-                                <li><strong>Service Worker Bumped to v11</strong> &mdash; Updated cache to <code>idash-scanners-v11</code> and <code>idash-static-v11</code>. Replaced destructive service worker unregister loop with standard registration.</li>
+                                <li><strong>Service Worker Bumped to v11</strong> &mdash; Updated cache to <code>assetworx-scanners-v11</code> and <code>assetworx-static-v11</code>. Replaced destructive service worker unregister loop with standard registration.</li>
                                 <li><strong>OIT Terminology &amp; Scope Correction</strong> &mdash; Updated all documentation and UI messaging to clarify that OIT represents the <strong>VA Office of Information Technology</strong> (equipment we do not tag; tracked purely to notify OIT that their equipment was scanned during sweeps).</li>
                             </ul>
                         </td>

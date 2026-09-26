@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <title>Downloads &amp; Uploads &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -27,7 +28,7 @@
         </ul>
 
         <h2>Authentication</h2>
-        <p>Users must sign in with iDash credentials to access the page. Once authenticated:</p>
+        <p>Users must sign in with AssetWorx credentials to access the page. Once authenticated:</p>
         <ul>
             <li><strong>All users</strong> can browse downloads and upload files via the "Send Files to iDash" section.</li>
             <li><strong>Admin users</strong> can also use the "+ Add Files" button to upload files directly into download category folders (requires secondary authentication).</li>
@@ -46,8 +47,8 @@
         <p>Each file tile shows the filename, file size, and last modified date. Files are served securely with directory traversal prevention and <code>FileShare.ReadWrite</code> to avoid locking conflicts.</p>
 
         <div style="background:var(--card-docs, rgba(255,255,255,0.04)); border:1px solid var(--line, #334155); border-left:4px solid #10b981; border-radius:10px; padding:16px; margin:20px 0;">
-            <strong style="color:#10b981;">&#128225; Zebra Readers, Enterprise Browser &amp; DataWedge Deployment:</strong>
-            <p style="margin:6px 0 0 0; font-size:13px; line-height:1.5;">The <code>Software/</code> directory contains <code>datawedge.db</code>, <code>Zebra_DataWedge_RFD40_Profile.zip</code>, and <code>Config.xml</code> for Zebra TC53/TC53E/TC58 mobile computers. For full instructions on configuring Zebra Enterprise Browser and locked-down kiosk mode, see the <a href="va_guide_enterprise_browser.html" style="color:var(--accent, #38bdf8); font-weight:600;">Zebra Enterprise Browser &amp; Config.xml Setup Guide &rarr;</a>, or the <a href="va_guide_mobile_shortcuts.html#section4" style="color:var(--accent, #38bdf8); font-weight:600;">DataWedge Profile Setup Guide &rarr;</a></p>
+            <strong style="color:#10b981;">&#128225; Zebra Readers &amp; DataWedge Profile Deployment:</strong>
+            <p style="margin:6px 0 0 0; font-size:13px; line-height:1.5;">The <code>Software/</code> directory contains <code>datawedge.db</code> and <code>Zebra_DataWedge_RFD40_Profile.zip</code> for Zebra TC53/TC53E/TC58 mobile computers. For full step-by-step instructions on installing Zebra Enterprise Browser from Google Play and importing the profile via USB or direct download, see the <a href="va_guide_mobile_shortcuts.html#section4" style="color:var(--accent, #38bdf8); font-weight:600;">Mobile Reader Shortcuts, Web Scanning, and Datawedge Setup Guide &rarr;</a></p>
         </div>
 
         <h2>Customer / Employee Upload Section</h2>
@@ -101,7 +102,7 @@ Note: Updated Q3 asset reconciliation data for VISN 5</code></pre>
         </ul>
 
         <h2>Admin File Upload (+ Add Files)</h2>
-        <p>Admins can toggle the "+ Add Files" panel to upload files directly into download category folders. This requires a separate authentication step (iDash credentials or pre-existing session). Uploaded files appear immediately in the download grid after a page refresh.</p>
+        <p>Admins can toggle the "+ Add Files" panel to upload files directly into download category folders. This requires a separate authentication step (AssetWorx credentials or pre-existing session). Uploaded files appear immediately in the download grid after a page refresh.</p>
 
         <h2>Source Architecture</h2>
         <p>
@@ -119,14 +120,13 @@ Note: Updated Q3 asset reconciliation data for VISN 5</code></pre>
         </div>
     </div>
     <footer style="margin-top: 40px; padding: 20px; border-top:1px solid var(--line); font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 12px; color:var(--muted-docs); display: flex; justify-content: space-between; align-items: center; background:var(--bg); max-width: 1400px; margin-left: auto; margin-right: auto;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
-        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
-        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="/idash/assets/branding/assetworx.jpg" alt="AssetWorx" style="height: 16px;">
+        <span style="font-weight: 600; font-size: 14px; color:var(--text);">AssetWorx<span style="color: #2ea8ff;">!</span></span>
     </div>
     <div style="display: flex; align-items: center; gap: 12px;">
         <span>&copy; 2026 ID Integration Inc.</span>
-        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 14px; opacity: 0.9;">
+        <img src="/idash/assets/branding/idintegration.jpg" alt="ID Integration Inc." style="height: 14px; opacity: 0.9;">
     </div>
 </footer>
 </body>

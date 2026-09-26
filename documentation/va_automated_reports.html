@@ -1,10 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>Automated Reports &amp; Alert System &mdash; iDash Documentation</title>
     <meta name="description" content="Complete reference for the iDash System Automations page: SMTP configuration, alert triggers, daily ENNX report automation, and Windows Task Scheduler setup." />
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <script src="theme-init.js"></script>
     <link rel="stylesheet" href="docs_theme.css" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -181,7 +182,7 @@
             <h3>From Address &amp; Presentation</h3>
             <table>
                 <tr><th>Field</th><th>Storage</th><th>Applies To &amp; Behavior</th></tr>
-                <tr><td>"From" Email Address</td><td><code>web.config SMTP_FromEmail</code></td><td>All outgoing iDash email. Sets the sender mailbox and envelope address. Default: <code>no-reply@idash.com</code>.</td></tr>
+                <tr><td>"From" Email Address</td><td><code>web.config SMTP_FromEmail</code></td><td>All outgoing iDash email. Sets the sender mailbox and envelope address. Default: <code>no-reply@assetworx.com</code>.</td></tr>
                 <tr><td>"From" Display Name</td><td><code>web.config SMTP_FromName</code></td><td>Retained in <code>web.config</code> for legacy on-prem fallback. (Omitted from UI because Microsoft 365 / modern Exchange relays enforce the display identity of the authenticated user account).</td></tr>
                 <tr><td>ENNX Report Subject Template</td><td><code>report_automation.json SubjectTitle</code></td><td>Subject line template for daily ENNX report emails. Replaces static defaults with dynamic token replacement: <code>{Site}</code> (station number) and <code>{Date}</code> (report date MM-dd-yyyy). Features real-time client-side preview in the UI.</td></tr>
             </table>
@@ -377,7 +378,7 @@ ID
             <div class="key-row"><div class="key-name"><code>SMTP_SSL</code></div><div>Enable TLS. true / false.</div></div>
             <div class="key-row"><div class="key-name"><code>SMTP_User</code></div><div>SMTP username. Central account for all outgoing emails.</div></div>
             <div class="key-row"><div class="key-name"><code>SMTP_Password</code></div><div>SMTP password. Plain text. Only updated from UI when non-blank value typed.</div></div>
-            <div class="key-row"><div class="key-name"><code>SMTP_FromEmail</code></div><div>From address on all iDash email. Default: no-reply@idash.com.</div></div>
+            <div class="key-row"><div class="key-name"><code>SMTP_FromEmail</code></div><div>From address on all iDash email. Default: no-reply@assetworx.com.</div></div>
             <div class="key-row"><div class="key-name"><code>SMTP_FromName</code></div><div>Legacy from display name. Retained for on-prem fallback.</div></div>
             <div class="key-row"><div class="key-name"><code>Default_EmailSubject</code></div><div>Keep blank so that report-specific dynamic subject templates are utilized.</div></div>
             <div class="key-row"><div class="key-name"><code>Alert_DbFolderMissing</code></div><div>Enable DB folder missing alert.</div></div>
@@ -398,7 +399,7 @@ ID
     <footer style="margin-top:40px;padding:20px;border-top:1px solid var(--line-docs);font-size:12px;
         color:var(--muted-docs);display:flex;justify-content:space-between;align-items:center;
         max-width:1000px;margin-left:auto;margin-right:auto;">
-        <span style="font-weight:600;font-size:14px;color:var(--text-docs);">iDash<span style="color:#2ea8ff;">!</span> iDash Documentation</span>
+        <span style="font-weight:600;font-size:14px;color:var(--text-docs);">AssetWorx<span style="color:#2ea8ff;">!</span> iDash Documentation</span>
         <span>&copy; 2026 ID Integration Inc. &mdash; September 11, 2026</span>
     </footer>
     <script>

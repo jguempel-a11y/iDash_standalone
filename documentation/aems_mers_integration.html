@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>AEMS MERS INTEGRATION &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -19,7 +20,7 @@
         <div class="card">
             <h1>&#128257; AEMS-MERS &amp; VistA Integration Strategy</h1>
             <p style="color:var(--muted-docs); font-size:16px;">
-                This document outlines the <strong>ID Integration Inc.</strong> approach to bridging the gap between iDash/Dashboard and the VA's primary systems of record: <strong>AEMS-MERS</strong> and <strong>VistA</strong>.
+                This document outlines the <strong>ID Integration Inc.</strong> approach to bridging the gap between AssetWorx/Dashboard and the VA's primary systems of record: <strong>AEMS-MERS</strong> and <strong>VistA</strong>.
             </p>
             <div class="alert alert-info">
                 <strong>Strategic Context:</strong> Modern VA logistics require a bi-directional flow of data. Dashboard serves as the "Live Edge" of inventory scanning and RTLS tracking, while AEMS-MERS serves as the "Financial Core" and compliance record.
@@ -31,7 +32,7 @@
             <p>Our approach utilizes a RESTful middleware architecture to facilitate secure, authenticated communication between the Dashboard SQL environment and the VistA MUMPS database. This follows the <strong>Enterprise Systems Engineering (ESE)</strong> pattern for VA system interactions.</p>
             
             <div class="diagram">
-                <code style="color:var(--accent2-docs); font-weight:bold;">[ iDash / Dashboard ] <--> [ Dashboard Integration Service ] <--> [ VistA Service API ] <--> [ VistA / AEMS-MERS ]</code>
+                <code style="color:var(--accent2-docs); font-weight:bold;">[ AssetWorx / Dashboard ] <--> [ Dashboard Integration Service ] <--> [ VistA Service API ] <--> [ VistA / AEMS-MERS ]</code>
             </div>
 
             <h3>Key Integration Components</h3>
@@ -49,7 +50,7 @@
             <h3>1. Inbound to Dashboard (AEMS &rarr; Dashboard)</h3>
             <p>Asset details are imported into Dashboard to ensure users see up-to-date descriptions, serial numbers, and ownership data.</p>
             <table>
-                <tr><th>VistA Field</th><th>Dashboard/iDash Field</th><th>Description</th></tr>
+                <tr><th>VistA Field</th><th>Dashboard/AssetWorx Field</th><th>Description</th></tr>
                 <tr><td><code>ENTRY NUMBER (6914, .01)</code></td><td><code>Barcode / EE Number</code></td><td>Unique Primary Key</td></tr>
                 <tr><td><code>MANUFACTURER (6914, 1)</code></td><td><code>Manufacturer</code></td><td>Equipment OEM</td></tr>
                 <tr><td><code>MODEL (6914, 4)</code></td><td><code>Model</code></td><td>OEM Model Name/Number</td></tr>
@@ -100,7 +101,7 @@ RTLS Location: 506-A101-ZoneC  --> VistA: 506 1A101|3
             
             <div style="margin-top:20px;">
                 <h3>Phase 1: Database Baseline</h3>
-                <p>Perform an initial bulk export of AEMS-MERS assets via <code>SQLCMD</code> or <code>BCP</code> extraction. Import this into the iDash SQL database to seed the system.</p>
+                <p>Perform an initial bulk export of AEMS-MERS assets via <code>SQLCMD</code> or <code>BCP</code> extraction. Import this into the AssetWorx SQL database to seed the system.</p>
                 
                 <h3>Phase 2: API Integration</h3>
                 <p>Configure the <code>Dashboard Integration Service</code> with appropriate OIT-provided credentials and firewall ACLs. Verify connectivity to the <code>VistaService</code> REST endpoints.</p>

@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>ASSET DATA RECOVERY &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -27,7 +28,7 @@
         <h2>Background: What Happened</h2>
         <div style="background:color-mix(in srgb, #ef4444, transparent 90%); border:1px solid #ef4444; border-radius:10px; padding:16px; margin:16px 0;">
             <strong style="color:#ef4444;">&#9888; Root Cause</strong>
-            <p style="margin:6px 0 0; font-size:13px;">The System Diagnostics page (<code>va_system_diagnostics.aspx</code>) previously included a <strong>"Batch Update Simulation"</strong> test that used <code>PUT /api/asset</code> to simulate mobile scanner syncs. However, the PUT payload only included 6 fields (<code>id, name, companyid, description, text1, text3</code>). The iDash API interpreted all omitted fields as NULL, <strong>wiping out</strong> rfidtag, serial numbers, text fields, location data, and other asset information on every record the test touched.</p>
+            <p style="margin:6px 0 0; font-size:13px;">The System Diagnostics page (<code>va_system_diagnostics.aspx</code>) previously included a <strong>"Batch Update Simulation"</strong> test that used <code>PUT /api/asset</code> to simulate mobile scanner syncs. However, the PUT payload only included 6 fields (<code>id, name, companyid, description, text1, text3</code>). The AssetWorx API interpreted all omitted fields as NULL, <strong>wiping out</strong> rfidtag, serial numbers, text fields, location data, and other asset information on every record the test touched.</p>
         </div>
         <div style="background:color-mix(in srgb, #10b981, transparent 90%); border:1px solid #10b981; border-radius:10px; padding:16px; margin:16px 0;">
             <strong style="color:#10b981;">&#9989; Fix Applied</strong>

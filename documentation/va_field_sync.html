@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <title>VA FIELD SYNC &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -22,7 +23,7 @@
         <p style="font-size:16px;">
             The Field Server Sync pipeline pulls live asset data from a field VISN server
             into a central executive reporting database &mdash; automatically, nightly.
-            A <code>.bak</code> file from the field server's iDash database is restored to a local
+            A <code>.bak</code> file from the field server's AssetWorx database is restored to a local
             <strong>staging-only</strong> database, and a cross-database merge then applies all changed
             and new asset <em>rows</em> to the live reporting database using the existing table structure.
         </p>
@@ -36,12 +37,12 @@
         </div>
 
         <div class="alert-green">
-            <strong>&#9989; iDash database &mdash; Zero Schema Changes</strong><br/>
-            This process <strong>never modifies the iDash database schema</strong> in any way.
+            <strong>&#9989; AssetWorx Database &mdash; Zero Schema Changes</strong><br/>
+            This process <strong>never modifies the AssetWorx database schema</strong> in any way.
             No tables are created or dropped. No columns are added. No stored procedures, views, or indexes
             are altered. The merge reads and writes only <em>data rows</em> into the existing
             <code>dbo.asset</code>, <code>dbo.location</code>, and <code>dbo.company</code> tables
-            that iDash already owns and manages. The iDash application continues to function
+            that AssetWorx already owns and manages. The AssetWorx application continues to function
             identically before and after any sync.
         </div>
 
@@ -59,19 +60,19 @@
     <div class="card">
         <h2>Why This Exists</h2>
         <p>
-            The VA RFID asset tracking project deploys iDash field servers at individual VISN medical centers
-            (e.g., Baltimore 512, Martinsburg 613, Beckley 517). Each field server has its own local iDash database
+            The VA RFID asset tracking project deploys AssetWorx field servers at individual VISN medical centers
+            (e.g., Baltimore 512, Martinsburg 613, Beckley 517). Each field server has its own local AssetWorx database
             with asset and location data specific to that site.
         </p>
         <p>
             <strong>The problem:</strong> Executive leadership needs a single consolidated view of all assets across all
             VISN sites for reporting, KPI tracking, and tagging progress. But each field server is isolated &mdash;
-            there's no built-in multi-site aggregation in iDash.
+            there's no built-in multi-site aggregation in AssetWorx.
         </p>
         <p>
             <strong>The solution:</strong> This sync pipeline pulls nightly backups from each field server into a
             central reporting database. The merge is non-destructive, additive, and fully automated. The result is
-            a single <code>idash</code> database that contains assets from all VISN sites, enabling cross-site
+            a single <code>assetworx</code> database that contains assets from all VISN sites, enabling cross-site
             dashboards like <a href="../va_site_maps.aspx">Site Maps</a>, <a href="../va_asset_stats.aspx">Asset Statistics</a>,
             and the executive KPI tiles on the iDash hub.
         </p>
@@ -89,9 +90,9 @@
             <div class="flow-arrow">&#8594;</div>
             <div class="flow-box" style="border-color:#a855f7;">&#128193;<br/>Watch Folder<br/><small style="color:var(--muted-docs);">va_sync\incoming</small></div>
             <div class="flow-arrow">&#8594;</div>
-            <div class="flow-box" style="border-color:#f59e0b;">&#128257;<br/>Restore<br/><small style="color:var(--muted-docs);">idash_staging</small></div>
+            <div class="flow-box" style="border-color:#f59e0b;">&#128257;<br/>Restore<br/><small style="color:var(--muted-docs);">assetworx_staging</small></div>
             <div class="flow-arrow">&#8594;</div>
-            <div class="flow-box" style="border-color:#10b981;">&#128202;<br/>Merge<br/><small style="color:var(--muted-docs);">idash (live)</small></div>
+            <div class="flow-box" style="border-color:#10b981;">&#128202;<br/>Merge<br/><small style="color:var(--muted-docs);">assetworx (live)</small></div>
             <div class="flow-arrow">&#8594;</div>
             <div class="flow-box" style="border-color:#2ea8ff;">&#128084;<br/>Executive<br/><small style="color:var(--muted-docs);">Reports &amp; KPIs</small></div>
         </div>
@@ -100,14 +101,14 @@
         <table>
             <tr><th>Stage</th><th>What happens</th><th>Database target</th></tr>
             <tr><td><strong>Stage 1 &mdash; Restore</strong></td>
-                <td>The <code>.bak</code> is restored to <code>idash_staging</code> using <code>RESTORE DATABASE ... WITH REPLACE, MOVE</code>.
+                <td>The <code>.bak</code> is restored to <code>assetworx_staging</code> using <code>RESTORE DATABASE ... WITH REPLACE, MOVE</code>.
                     The staging database is completely overwritten each run &mdash; it is a scratch database and holds no permanent data.</td>
-                <td><code>idash_staging</code></td></tr>
+                <td><code>assetworx_staging</code></td></tr>
             <tr><td><strong>Stage 2 &mdash; Merge</strong></td>
                 <td><code>va_field_sync_merge.sql</code> runs cross-database queries against
-                    <code>idash_staging.dbo.asset</code> and <code>idash.dbo.asset</code>.
+                    <code>assetworx_staging.dbo.asset</code> and <code>assetworx.dbo.asset</code>.
                     It syncs companies, locations, updates changed assets, and inserts new ones.</td>
-                <td><code>idash</code> (live)</td></tr>
+                <td><code>assetworx</code> (live)</td></tr>
         </table>
     </div>
 
@@ -202,8 +203,8 @@
             <strong>The one-click option for daily syncs.</strong><br/><br/>
             Does both stages in sequence:
             <ol>
-                <li>Restores the selected <code>.bak</code> file to <code>idash_staging</code> (overwrites any existing staging data)</li>
-                <li>Runs the full merge SQL (<code>va_field_sync_merge.sql</code>) to push changes into the live <code>idash</code> database</li>
+                <li>Restores the selected <code>.bak</code> file to <code>assetworx_staging</code> (overwrites any existing staging data)</li>
+                <li>Runs the full merge SQL (<code>va_field_sync_merge.sql</code>) to push changes into the live <code>assetworx</code> database</li>
                 <li>Moves the processed <code>.bak</code> to <code>va_sync\processed\</code> with a timestamp suffix</li>
             </ol>
             <strong>Duration:</strong> 1&ndash;5 minutes depending on database size (176K+ assets takes ~2 minutes).<br/>
@@ -213,15 +214,15 @@
         <h3>&#128196; Restore BAK Only</h3>
         <div class="step-box">
             <strong>Loads the .bak into staging without touching the live database.</strong><br/><br/>
-            Restores the selected <code>.bak</code> file to <code>idash_staging</code> using
+            Restores the selected <code>.bak</code> file to <code>assetworx_staging</code> using
             <code>RESTORE DATABASE ... WITH REPLACE, MOVE</code>. The staging database is completely
-            overwritten. The live <code>idash</code> database is not touched at all.
+            overwritten. The live <code>assetworx</code> database is not touched at all.
             <br/><br/>
             <strong>When to use:</strong> When you want to inspect the field server's data before merging.
             After restoring, you can:
             <ul>
                 <li>Run <strong>Preview</strong> to see what would change</li>
-                <li>Query <code>idash_staging</code> directly in SSMS to inspect data</li>
+                <li>Query <code>assetworx_staging</code> directly in SSMS to inspect data</li>
                 <li>Run <strong>Merge Only</strong> when you're satisfied</li>
             </ul>
         </div>
@@ -229,7 +230,7 @@
         <h3 style="color:#a855f7;">&#128256; Merge Only</h3>
         <div class="step-box" style="border-color:#a855f7;">
             <strong>Merges from the currently loaded staging database without re-restoring.</strong><br/><br/>
-            Runs <code>va_field_sync_merge.sql</code> against the existing <code>idash_staging</code>
+            Runs <code>va_field_sync_merge.sql</code> against the existing <code>assetworx_staging</code>
             database. Skips the restore step entirely.
             <br/><br/>
             <strong>Requires:</strong> A staging database must already be loaded (via Restore BAK Only or a previous Full Sync).<br/>
@@ -317,12 +318,12 @@
         <h2>5. Folder Structure &amp; File Locations</h2>
         <table>
             <tr><th>Folder / Path</th><th>Machine</th><th>Purpose</th></tr>
-            <tr><td><code>C:\VA_RFID\AW_DB_BACKUP\backup\</code></td><td>visn5baltimore</td><td>Source &mdash; <code>.bak</code> files generated by iDash reside here.</td></tr>
+            <tr><td><code>C:\VA_RFID\AW_DB_BACKUP\backup\</code></td><td>visn5baltimore</td><td>Source &mdash; <code>.bak</code> files generated by AssetWorx reside here.</td></tr>
             <tr><td><code>C:\Users\visn5\OneDrive - ID Integration Inc\AW_Backups\</code></td><td>visn5baltimore</td><td>OneDrive upload destination &mdash; shared folder visible to central server.</td></tr>
             <tr><td><code>C:\Users\john\OneDrive - ID Integration Inc\VISN5 Baltimore (512)'s files - AW_Backups\</code></td><td>Central (LINGCOD)</td><td>OneDrive sync path on central server &mdash; source for the pull script.</td></tr>
             <tr><td><code>C:\VA_RFID\va_sync\incoming\</code></td><td>Central (LINGCOD)</td><td>Watch folder &mdash; iDash picks up the latest <code>.bak</code> automatically.</td></tr>
             <tr><td><code>C:\VA_RFID\va_sync\processed\</code></td><td>Central (LINGCOD)</td><td>After a successful Full Sync, the processed <code>.bak</code> is moved here with a timestamp suffix.</td></tr>
-            <tr><td><code>C:\VA_RFID\va_sync\staging_db\</code></td><td>Central (LINGCOD)</td><td>SQL Server physical files for <code>idash_staging</code> (.mdf / .ldf). Created automatically.</td></tr>
+            <tr><td><code>C:\VA_RFID\va_sync\staging_db\</code></td><td>Central (LINGCOD)</td><td>SQL Server physical files for <code>assetworx_staging</code> (.mdf / .ldf). Created automatically.</td></tr>
             <tr><td><code>C:\VA_RFID\va_sync\va_field_sync.log</code></td><td>Central (LINGCOD)</td><td>Append-only log of all sync runs, timestamps, and record counts.</td></tr>
             <tr><td><code>C:\VA_RFID\va_sync\autosync_error.log</code></td><td>Central (LINGCOD)</td><td>Error log from the scheduled task &mdash; captures any failures from the nightly automation.</td></tr>
             <tr><td><code>C:\VA_RFID\va_sync\run_field_sync.ps1</code></td><td>Central (LINGCOD)</td><td>PowerShell script called by the scheduled task &mdash; auto-generated by the Create Task button.</td></tr>
@@ -378,11 +379,11 @@
         <div class="alert-green">
             <strong>&#9989; Only One Permission Change Required &mdash; Ever</strong><br/>
             The <strong>only</strong> setup action needed on the SQL Server is granting
-            <code>idashadmin</code> the ability to create a database so it can restore the
+            <code>assetworxadmin</code> the ability to create a database so it can restore the
             <code>.bak</code> to a local staging DB. Run this <strong>once</strong> as SA:
-            <pre style="margin-top:10px;">ALTER SERVER ROLE [dbcreator] ADD MEMBER [idashadmin];</pre>
+            <pre style="margin-top:10px;">ALTER SERVER ROLE [dbcreator] ADD MEMBER [assetworxadmin];</pre>
             That is the complete list of permission changes. Nothing else is granted, altered, or elevated.
-            The <code>idashadmin</code> login already has read/write access to <code>idash</code>
+            The <code>assetworxadmin</code> login already has read/write access to <code>assetworx</code>
             as part of the standard iDash installation &mdash; no change needed there.
         </div>
 
@@ -404,7 +405,7 @@
 
         <div class="alert-amber">
             <strong>&#9888; OneDrive / Network Paths and IIS</strong><br/>
-            The IIS worker process (<code>IIS AppPool\iDash</code> or <code>IIS_IUSRS</code>) runs under
+            The IIS worker process (<code>IIS AppPool\AssetWorx</code> or <code>IIS_IUSRS</code>) runs under
             a restricted service account that <strong>cannot access user-profile folders</strong> like
             <code>C:\Users\john\OneDrive</code> or network shares (<code>\\server\share</code>).
             <br/><br/>
@@ -421,12 +422,12 @@
             <tr><th>Permission</th><th>What it enables</th><th>Risk</th></tr>
             <tr>
                 <td><code>dbcreator</code> server role</td>
-                <td>Allows <code>RESTORE DATABASE</code> to create the <code>idash_staging</code>
+                <td>Allows <code>RESTORE DATABASE</code> to create the <code>assetworx_staging</code>
                     scratch database on this server only</td>
                 <td><strong style="color:#10b981;">Low</strong> &mdash; local server only</td>
             </tr>
             <tr>
-                <td>Existing <code>idash</code> db_owner</td>
+                <td>Existing <code>assetworx</code> db_owner</td>
                 <td>Already in place from iDash install &mdash; allows INSERT/UPDATE rows in
                     <code>dbo.asset</code>, <code>dbo.location</code>, <code>dbo.company</code></td>
                 <td><strong style="color:#10b981;">No change</strong></td>
@@ -464,7 +465,7 @@
             <div class="step-num">1</div>
             <div class="step-body">
                 <strong>Grant dbcreator role to the SQL login</strong>
-                <p>Run on the central SQL Server as SA: <code>ALTER SERVER ROLE [dbcreator] ADD MEMBER [idashadmin];</code></p>
+                <p>Run on the central SQL Server as SA: <code>ALTER SERVER ROLE [dbcreator] ADD MEMBER [assetworxadmin];</code></p>
             </div>
         </div>
         <div class="step">
@@ -534,7 +535,7 @@
                 <td>Preview shows 0 / 0 / 0 / 0</td>
                 <td>Either the staging DB doesn't exist, or the data is already in sync, or the
                     wrong .bak was loaded (e.g., 512 Baltimore when you expected 613 Martinsburg)</td>
-                <td>Check the staging DB company name: <code>SELECT name FROM idash_staging.dbo.company</code>.
+                <td>Check the staging DB company name: <code>SELECT name FROM assetworx_staging.dbo.company</code>.
                     Make sure you loaded the right field server's backup.</td>
             </tr>
             <tr>
@@ -773,7 +774,7 @@ EXEC sp_configure 'xp_cmdshell', 0; RECONFIGURE;</code></pre>
     </div>
 
     <div style="text-align:center;color:var(--muted-docs);font-size:12px;margin-top:40px;">
-        Intelligent Distributed Asset Scanning Hub Documentation &copy; 2026<br/>
+        VA Asset Intelligence Hub Documentation &copy; 2026<br/>
         Last updated: July 21, 2026 &mdash; Added Section 10: SQL Server Service Account &amp; Network Share Permissions guide.
         and corrected merge logic documentation (field comparison vs. timestamp).
     </div>

@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>DATABASE RESTORE &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -43,13 +44,13 @@
         </div>
         <p style="font-size:15px;">
             The Database Restore page (<code>va_db_restore.aspx</code>) provides a one-click interface for replacing
-            the <code>iDash</code> database with a <code>.bak</code> backup file. It handles the full restore
+            the <code>AssetWorx</code> database with a <code>.bak</code> backup file. It handles the full restore
             lifecycle: killing active connections, restoring the backup, fixing orphaned SQL users, running schema
             migrations, and normalizing data (companies, companyid mappings, SP location prefixes, and listvalue1
             dropdown options).
         </p>
         <div class="warn-box">
-            <strong>&#9888; DANGER ZONE:</strong> This tool <strong>completely overwrites</strong> the iDash
+            <strong>&#9888; DANGER ZONE:</strong> This tool <strong>completely overwrites</strong> the AssetWorx
             database. All existing data is replaced with the backup contents. This action cannot be undone.
         </div>
     </div>
@@ -58,18 +59,18 @@
     <div class="card">
         <h2>Prerequisites</h2>
         <ul>
-            <li><strong>SQL Server Express</strong> (or full edition) with the <code>iDash</code> database</li>
-            <li>The <code>idashadmin</code> SQL login with <strong>sysadmin</strong>, <strong>bulkadmin</strong>, and <strong>db_owner</strong> roles</li>
+            <li><strong>SQL Server Express</strong> (or full edition) with the <code>AssetWorx</code> database</li>
+            <li>The <code>assetworxadmin</code> SQL login with <strong>sysadmin</strong>, <strong>bulkadmin</strong>, and <strong>db_owner</strong> roles</li>
             <li>A <code>.bak</code> backup file accessible from the server's file system</li>
         </ul>
         <div class="warn-box">
-            <strong>&#9888; Critical:</strong> The <code>idashadmin</code> login <strong>must have sysadmin</strong>
+            <strong>&#9888; Critical:</strong> The <code>assetworxadmin</code> login <strong>must have sysadmin</strong>
             for the post-restore orphaned user fix and data normalization to work. Without it, the restore will complete
             but companies, user mappings, and asset data will not be configured.<br/><br/>
             <strong>One-time setup (SQL Express):</strong> Open a command prompt on the server and run:
-            <pre style="margin:8px 0 0 0;border:none;padding:10px;background:rgba(0,0,0,0.3);"><span class="fn">sqlcmd</span> -S .\sqlexpress -E -Q <span class="str">"ALTER SERVER ROLE [sysadmin] ADD MEMBER [idashadmin]"</span></pre>
+            <pre style="margin:8px 0 0 0;border:none;padding:10px;background:rgba(0,0,0,0.3);"><span class="fn">sqlcmd</span> -S .\sqlexpress -E -Q <span class="str">"ALTER SERVER ROLE [sysadmin] ADD MEMBER [assetworxadmin]"</span></pre>
             This uses your Windows login (which has sysadmin from the SQL Express installation) to grant sysadmin
-            to the <code>idashadmin</code> account. Only needs to be run once per system.
+            to the <code>assetworxadmin</code> account. Only needs to be run once per system.
         </div>
     </div>
 
@@ -92,7 +93,7 @@
                 <span class="step-num">2</span>
                 <h3>Restore Database</h3>
             </div>
-            <p>Executes <code>RESTORE DATABASE [iDash] FROM DISK = '...' WITH REPLACE</code> using the selected
+            <p>Executes <code>RESTORE DATABASE [AssetWorx] FROM DISK = '...' WITH REPLACE</code> using the selected
             <code>.bak</code> file. The <code>WITH REPLACE</code> flag allows overwriting the existing database.</p>
         </div>
 
@@ -110,16 +111,16 @@
                 <h3>Fix Orphaned User</h3>
             </div>
             <p>When a <code>.bak</code> file comes from a different server (e.g., a tagging cart), the
-            <code>idashadmin</code> database user has a SID that doesn't match this server's login.
+            <code>assetworxadmin</code> database user has a SID that doesn't match this server's login.
             The restore page attempts three methods to fix this:</p>
             <table>
                 <tr><th>Method</th><th>Technique</th><th>Requirement</th></tr>
-                <tr><td><strong>A</strong></td><td><code>ALTER AUTHORIZATION ON DATABASE::[iDash] TO [idashadmin]</code></td><td><code>sysadmin</code> server role</td></tr>
+                <tr><td><strong>A</strong></td><td><code>ALTER AUTHORIZATION ON DATABASE::[AssetWorx] TO [assetworxadmin]</code></td><td><code>sysadmin</code> server role</td></tr>
                 <tr><td><strong>B</strong></td><td>Windows auth connection &rarr; <code>ALTER USER ... WITH LOGIN</code></td><td>IIS app pool identity with SQL access</td></tr>
                 <tr><td><strong>C</strong></td><td><code>sp_change_users_login 'Auto_Fix'</code></td><td><code>sysadmin</code> server role</td></tr>
             </table>
             <p><strong>Method A</strong> is the most reliable and is the one that works on SQL Express tagging systems
-            when <code>idashadmin</code> has <code>sysadmin</code>.</p>
+            when <code>assetworxadmin</code> has <code>sysadmin</code>.</p>
         </div>
 
         <div class="step-card">
@@ -127,7 +128,7 @@
                 <span class="step-num">5</span>
                 <h3>Verify Server Roles</h3>
             </div>
-            <p>Ensures <code>idashadmin</code> is a member of the <code>bulkadmin</code> server role
+            <p>Ensures <code>assetworxadmin</code> is a member of the <code>bulkadmin</code> server role
             (required for BCP/bulk data import operations).</p>
         </div>
 
@@ -136,7 +137,7 @@
                 <span class="step-num">6</span>
                 <h3>Schema Migration &amp; Data Normalization</h3>
             </div>
-            <p>Once the orphaned user is fixed and the connection can <code>USE [iDash]</code>, the restore
+            <p>Once the orphaned user is fixed and the connection can <code>USE [AssetWorx]</code>, the restore
             page runs two sets of patches:</p>
 
             <h4>6a. Schema Migration</h4>
@@ -153,7 +154,7 @@
                 <tr><th>Patch</th><th>Description</th></tr>
                 <tr><td><strong>Create Companies</strong></td><td>Inserts VISN 5 companies if missing: 512 Baltimore, 517 Beckley, 540 Clarksburg, 581 Huntington, 613 Martinsburg, 688 Washington DC</td></tr>
                 <tr><td><strong>Fix companyid</strong></td><td>Maps <code>asset.companyid</code> to the correct company based on station number (<code>text7</code>) where companyid is 0, NULL, or orphaned</td></tr>
-                <tr><td><strong>SP Location Prefixes</strong></td><td>Ensures <code>text6</code>, <code>text11</code>, and <code>lastobservedlocation</code> have the required <code>SP</code> prefix for iDash location matching</td></tr>
+                <tr><td><strong>SP Location Prefixes</strong></td><td>Ensures <code>text6</code>, <code>text11</code>, and <code>lastobservedlocation</code> have the required <code>SP</code> prefix for AssetWorx location matching</td></tr>
                 <tr><td><strong>Seed listvalue1</strong></td><td>Creates USE STATUS dropdown options: IN USE, LOST OR STOLEN, LOANED OUT, TURNED IN, OUT OF SERVICE</td></tr>
             </table>
 
@@ -186,13 +187,13 @@
         <h2>Troubleshooting</h2>
 
         <h3>"Skipping schema migration and normalization &mdash; orphaned user not fixed"</h3>
-        <p><strong>Cause:</strong> <code>idashadmin</code> does not have <code>sysadmin</code>.</p>
+        <p><strong>Cause:</strong> <code>assetworxadmin</code> does not have <code>sysadmin</code>.</p>
         <p><strong>Fix:</strong> Run this once from a command prompt on the server:</p>
-        <pre><span class="fn">sqlcmd</span> -S .\sqlexpress -E -Q <span class="str">"ALTER SERVER ROLE [sysadmin] ADD MEMBER [idashadmin]"</span></pre>
+        <pre><span class="fn">sqlcmd</span> -S .\sqlexpress -E -Q <span class="str">"ALTER SERVER ROLE [sysadmin] ADD MEMBER [assetworxadmin]"</span></pre>
         <p>Then re-run the restore.</p>
 
         <h3>"Method A (ALTER AUTHORIZATION) failed: does not exist or you do not have permission"</h3>
-        <p><strong>Cause:</strong> Same as above &mdash; <code>idashadmin</code> needs <code>sysadmin</code>.</p>
+        <p><strong>Cause:</strong> Same as above &mdash; <code>assetworxadmin</code> needs <code>sysadmin</code>.</p>
 
         <h3>User Management shows empty Company dropdown after restore</h3>
         <p><strong>Cause:</strong> The normalization step didn't run (orphaned user wasn't fixed), so the
@@ -200,11 +201,11 @@
         <p><strong>Fix:</strong> Grant sysadmin and re-run restore, or run the VISTA data import which also
         creates companies.</p>
 
-        <h3>Restore succeeds but can't login to iDash</h3>
+        <h3>Restore succeeds but can't login to AssetWorx</h3>
         <p><strong>Cause:</strong> The backup came from a server with different <code>sysuser</code> records.
-        The <code>idashadmin</code> user in the application's user table may have a different password hash.</p>
+        The <code>assetworxadmin</code> user in the application's user table may have a different password hash.</p>
         <p><strong>Fix:</strong> Use the User Management page to reset the password, or sign in with
-        <code>superadmin/demo</code> via the iDash desktop client to reset credentials.</p>
+        <code>superadmin/demo</code> via the AssetWorx desktop client to reset credentials.</p>
     </div>
 
     <!-- SOURCE FILES -->
@@ -222,14 +223,13 @@
     </div>
 </div>
     <footer style="margin-top: 40px; padding: 20px; border-top:1px solid var(--line); font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 12px; color:var(--muted-docs); display: flex; justify-content: space-between; align-items: center; background:var(--bg); max-width: 1400px; margin-left: auto; margin-right: auto;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
-        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
-        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="/idash/assets/branding/assetworx.jpg" alt="AssetWorx" style="height: 16px;">
+        <span style="font-weight: 600; font-size: 14px; color:var(--text);">AssetWorx<span style="color: #2ea8ff;">!</span></span>
     </div>
     <div style="display: flex; align-items: center; gap: 12px;">
         <span>&copy; 2026 ID Integration Inc.</span>
-        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 14px; opacity: 0.9;">
+        <img src="/idash/assets/branding/idintegration.jpg" alt="ID Integration Inc." style="height: 14px; opacity: 0.9;">
     </div>
 </footer>
 </body>

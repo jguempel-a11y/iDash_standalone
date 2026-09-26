@@ -3,8 +3,10 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
+    <link rel="icon" type="image/png" href="Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="favicon.ico" />
     <meta charset="utf-8" />
-    <title>Data File Import - AssetWorx</title>
+    <title>Data File Import - iDash</title>
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <style>

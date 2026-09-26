@@ -4,8 +4,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 
 <head runat="server">
-    <title>Supply Chain Bridge &mdash; AssetWorx &rarr; VistA</title>
-    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
+    <title>Supply Chain Bridge &mdash; iDash &rarr; VistA</title>
+    <link rel="icon" type="image/png" href="Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="favicon.ico" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />

@@ -1,10 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8" />
     <title>VA BCP AW PUSH &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <script src="theme-init.js"></script>
     <link rel="stylesheet" href="docs_theme.css" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -139,12 +140,12 @@
         </a>
 
         <!-- Header -->
-        <h1>VA BCP Push &mdash; iDash to VA SQL Export</h1>
+        <h1>VA BCP AW Push &mdash; AssetWorx to VA SQL Export</h1>
         <div class="section-badge green">&#128228; Push (AW &rarr; VA SQL)</div>
         <p style="color:var(--muted-docs); font-size:15px; margin-top:0; margin-bottom:30px; line-height:1.6;">
             This tool is the <strong>reverse</strong> of the VA On Network Queries page.
-            Instead of pulling data <em>from</em> a CDW/VistA server into iDash, this tool generates
-            <strong>BCP out</strong> commands to extract data from the local iDash SQL database, plus
+            Instead of pulling data <em>from</em> a CDW/VistA server into AssetWorx, this tool generates
+            <strong>BCP out</strong> commands to extract data from the local AssetWorx SQL database, plus
             a <strong>SQLCMD</strong> insert script to push that extracted file into a remote VA SQL server (e.g.&nbsp;an
             AEMS-MERS or reporting endpoint). All fields are editable and are persisted in your browser.
         </p>
@@ -152,17 +153,17 @@
         <!-- How it works -->
         <div class="alert alert-info" style="margin-bottom:30px;">
             <strong>&#8505;&#65039; How this works</strong><br>
-            1. <strong>BCP OUT</strong> &mdash; runs <code>bcp … queryout</code> against your local iDash SQL
+            1. <strong>BCP OUT</strong> &mdash; runs <code>bcp … queryout</code> against your local AssetWorx SQL
             instance to dump asset records into a tab-delimited flat file on a shared path.<br>
             2. <strong>SQLCMD PUSH</strong> &mdash; creates a staging table on the remote VA server and bulk-inserts the
             flat file, then maps/updates rows to the target table.<br>
             Run both scripts in order from a Windows command prompt on a machine that has network access to
-            <em>both</em> the iDash SQL Server and the destination VA SQL server.
+            <em>both</em> the AssetWorx SQL server and the destination VA SQL server.
         </div>
 
         <!-- Data-flow diagram -->
         <div class="flow-arrow">
-            <div class="flow-node"><span class="icon">&#129518;</span>iDash<br>SQL Server</div>
+            <div class="flow-node"><span class="icon">&#129518;</span>AssetWorx<br>SQL Server</div>
             <div class="flow-sep">&rarr;</div>
             <div class="flow-node"><span class="icon">&#128196;</span>BCP OUT<br>(flat file)</div>
             <div class="flow-sep">&rarr;</div>
@@ -176,26 +177,26 @@
         <hr>
 
         <!-- ========== SECTION 1: BCP OUT (AW Source) ========== -->
-        <h2 style="margin-top:36px;">Step 1 &mdash; BCP OUT from iDash</h2>
+        <h2 style="margin-top:36px;">Step 1 &mdash; BCP OUT from AssetWorx</h2>
         <p style="color:var(--muted-docs); font-size:14px; margin-top:-8px; margin-bottom:24px;">
-            Configure the source iDash SQL Server and what data to extract. The generated <code>bcp … queryout</code>
+            Configure the source AssetWorx SQL server and what data to extract. The generated <code>bcp … queryout</code>
             command will dump a tab-delimited file to the shared path below.
         </p>
 
         <!-- AW SQL Server (source) -->
         <div class="row-fields">
             <div class="form-group">
-                <label for="awServer">iDash SQL Server (-S)</label>
+                <label for="awServer">AssetWorx SQL Server (-S)</label>
                 <input type="text" id="awServer" class="form-control" value="LingCod\SQLEXPRESS"
                     oninput="updateScript()">
                 <small style="color:var(--muted-docs); margin-top:5px; font-size:12px; display:block;">
-                    The SQL Server hosting the iDash database (source). Use <code>hostname\instance</code> for named
+                    The SQL Server hosting the AssetWorx database (source). Use <code>hostname\instance</code> for named
                     instances.
                 </small>
             </div>
             <div class="form-group">
-                <label for="awDb">iDash database</label>
-                <input type="text" id="awDb" class="form-control" value="iDash" oninput="updateScript()">
+                <label for="awDb">AssetWorx Database</label>
+                <input type="text" id="awDb" class="form-control" value="AssetWorx" oninput="updateScript()">
             </div>
         </div>
 
@@ -218,7 +219,7 @@
             <div class="row-fields">
                 <div class="form-group">
                     <label for="awUser">AW SQL Username (-U)</label>
-                    <input type="text" id="awUser" class="form-control" value="scannerUser" oninput="updateScript()">
+                    <input type="text" id="awUser" class="form-control" value="assetworxuser" oninput="updateScript()">
                 </div>
                 <div class="form-group">
                     <label for="awPass">AW SQL Password (-P)</label>
@@ -261,14 +262,14 @@
         <div class="form-group">
             <label for="outputPath">Output File Path (shared network path or local path)</label>
             <input type="text" id="outputPath" class="form-control"
-                value="\\vhavanapprfidp\idashsqlcmd\AW_Push\AWExport.txt" oninput="updateScript()">
+                value="\\vhavanapprfidp\AssetworxSQLCMD\AW_Push\AWExport.txt" oninput="updateScript()">
         </div>
 
         <!-- BCP OUT Script -->
         <h3 style="margin-top:28px;">Generated BCP OUT Script</h3>
         <div class="alert alert-ok" style="margin-bottom:14px; font-size:13px;">
-            Run this on a machine with network access to the iDash SQL Server. Requires the BCP utility
-            (included with SQL Server tools). <strong>This reads from iDash &mdash; it does not modify any data.</strong>
+            Run this on a machine with network access to the AssetWorx SQL server. Requires the BCP utility
+            (included with SQL Server tools). <strong>This reads from AssetWorx &mdash; it does not modify any data.</strong>
         </div>
         <div class="script-container">
             <button class="btn-copy" onclick="copyScript('bcpOutScript', 'btnCopyBcpOut')" id="btnCopyBcpOut">
@@ -320,7 +321,7 @@
         <div class="form-group">
             <label for="importFile">Flat File Path on Destination Server</label>
             <input type="text" id="importFile" class="form-control"
-                value="\\vhavanapprfidp\idashsqlcmd\AW_Push\AWExport.txt" oninput="updateScript()">
+                value="\\vhavanapprfidp\AssetworxSQLCMD\AW_Push\AWExport.txt" oninput="updateScript()">
             <small style="color:var(--muted-docs); margin-top:5px; font-size:12px; display:block;">
                 The path as seen from the <em>destination</em> SQL Server. Must match or be the same UNC path used in Step 1.
             </small>
@@ -364,14 +365,14 @@
         <div class="tip-row">
             <div class="tip-card">
                 <div class="tc-title">&#128221; What is this tool?</div>
-                <p>This page generates ready-to-run command-line scripts that extract iDash asset data and push it
+                <p>This page generates ready-to-run command-line scripts that extract AssetWorx asset data and push it
                     to a remote VA SQL Server endpoint. No manual SQL writing required &mdash; just fill in the fields
                     and copy the scripts.</p>
             </div>
             <div class="tip-card">
                 <div class="tc-title">&#128260; Direction of data flow</div>
-                <p><strong>BCP PULL</strong> (va_bcp_query.html) reads from CDW/VistA &rarr; into iDash.<br>
-                    <strong>BCP PUSH</strong> (this page) reads from iDash &rarr; pushes to a remote VA SQL server.
+                <p><strong>BCP PULL</strong> (va_bcp_query.html) reads from CDW/VistA &rarr; into AssetWorx.<br>
+                    <strong>BCP PUSH</strong> (this page) reads from AssetWorx &rarr; pushes to a remote VA SQL server.
                 </p>
             </div>
             <div class="tip-card">
@@ -386,7 +387,7 @@
         <div class="step">
             <div class="step-num sn-blue">1</div>
             <div>
-                <strong>Fill in the Source fields</strong> (Section 1) with your iDash SQL Server name, database,
+                <strong>Fill in the Source fields</strong> (Section 1) with your AssetWorx SQL server name, database,
                 and authentication. Adjust the column list and company ID filter to match what the destination server
                 expects.
             </div>
@@ -402,7 +403,7 @@
             <div class="step-num sn-blue">3</div>
             <div>
                 <strong>Copy and run the BCP OUT script</strong> from a Windows command prompt. This creates a
-                tab-delimited flat file at the output path containing your iDash asset records.
+                tab-delimited flat file at the output path containing your AssetWorx asset records.
             </div>
         </div>
         <div class="step">
@@ -424,7 +425,7 @@
             <div class="step-num sn-warn">6</div>
             <div>
                 <strong>Verify</strong> the row count on the destination server:
-                <code>SELECT COUNT(*) FROM [destination_table]</code>. Compare against your iDash company filter.
+                <code>SELECT COUNT(*) FROM [destination_table]</code>. Compare against your AssetWorx company filter.
             </div>
         </div>
 
@@ -433,14 +434,14 @@
         <div class="info-box" style="margin-bottom:16px;">
             <strong>Q: What is the difference between this page and va_bcp_query.html?</strong><br>
             va_bcp_query.html generates a BCP command that <em>pulls</em> data out of a remote CDW/VistA server into
-            iDash (the input pipeline). <strong>This page</strong> generates a BCP command that <em>pushes</em> data
-            out of iDash to a remote VA SQL server (the output/reporting pipeline).
+            AssetWorx (the input pipeline). <strong>This page</strong> generates a BCP command that <em>pushes</em> data
+            out of AssetWorx to a remote VA SQL server (the output/reporting pipeline).
         </div>
 
         <div class="info-box" style="margin-bottom:16px;">
             <strong>Q: Which columns should I include?</strong><br>
             Include only the columns that the destination table is designed to receive. If sending to an AEMS-MERS endpoint,
-            align your column list with that schema. The defaults cover the most commonly transferred iDash fields.
+            align your column list with that schema. The defaults cover the most commonly transferred AssetWorx fields.
         </div>
 
         <div class="info-box" style="margin-bottom:16px;">
@@ -458,7 +459,7 @@
         <div class="warn-box" style="margin-bottom:16px;">
             <strong>&#9888;&#65039; Security reminder:</strong> These scripts contain database credentials in plaintext.
             Do not save or share generated scripts via email or untrusted channels. Use Windows Auth (<code>-T</code>)
-            wherever possible for the iDash source to avoid embedding passwords.
+            wherever possible for the AssetWorx source to avoid embedding passwords.
         </div>
 
         <!-- Save defaults -->
@@ -600,7 +601,7 @@
             // ---- T-SQL Monolithic ----
             const tsql = `/* ================================================
    VA AW PUSH MERGE SCRIPT  (Run in SSMS on destination server)
-   Source: iDash database
+   Source: AssetWorx database
    Destination: ${destTable} on [${destDb}]
    Generated: ${new Date().toLocaleDateString()}
    ================================================ */

@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>ENNX to VistA Push &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -80,7 +81,7 @@
             &darr;<br/>
             &#x1F4C4; <strong>Supply Chain Bridge</strong> (loads session, parses ENNX)<br/>
             &darr;<br/>
-            &#x1F5C4; <strong>Local iDash DB</strong> (updates <code>text6</code>, <code>lastobservedlocation</code>, <code>lastinventoried</code>)<br/>
+            &#x1F5C4; <strong>Local AssetWorx DB</strong> (updates <code>text6</code>, <code>lastobservedlocation</code>, <code>lastinventoried</code>)<br/>
             &darr;<br/>
             &#x1F680; <strong>VA SQL Server</strong> (<code>OITPORSQL016</code> &rarr; <code>AWAssetSync</code> via MERGE)
         </div>
@@ -88,8 +89,8 @@
         <h3>Key Database Tables</h3>
         <table class="field-table">
             <tr><th>Table</th><th>Server</th><th>Purpose</th></tr>
-            <tr><td><code>dbo.EnnxLiveSession</code></td><td>Local iDash</td><td>Stores completed ENNX scan sessions (raw text + metadata)</td></tr>
-            <tr><td><code>dbo.asset</code></td><td>Local iDash</td><td>Master asset table. Updated with new locations from ENNX scan</td></tr>
+            <tr><td><code>dbo.EnnxLiveSession</code></td><td>Local AssetWorx</td><td>Stores completed ENNX scan sessions (raw text + metadata)</td></tr>
+            <tr><td><code>dbo.asset</code></td><td>Local AssetWorx</td><td>Master asset table. Updated with new locations from ENNX scan</td></tr>
             <tr><td><code>dbo.AWPushStaging</code></td><td>VA SQL (OITPORSQL016)</td><td>Temporary staging table for MERGE. Created then dropped each push</td></tr>
             <tr><td><code>dbo.AWAssetSync</code></td><td>VA SQL (OITPORSQL016)</td><td>Persistent VA sync table. MERGE upserts on <code>rfidtag</code></td></tr>
         </table>
@@ -167,7 +168,7 @@ SP 2-224                 &larr; Next location
             <table class="field-table">
                 <tr><th>Step</th><th>Action</th><th>Details</th></tr>
                 <tr><td>1</td><td>Parse ENNX</td><td>Extracts asset&rarr;location mappings from ENNX text</td></tr>
-                <tr><td>2</td><td>Match in iDash</td><td>Finds each asset by EE number in local <code>dbo.asset</code></td></tr>
+                <tr><td>2</td><td>Match in AssetWorx</td><td>Finds each asset by EE number in local <code>dbo.asset</code></td></tr>
                 <tr><td>3</td><td>Update local DB</td><td>Sets <code>text6</code>, <code>lastobservedlocation</code>, <code>text17</code>, <code>lastinventoried</code></td></tr>
                 <tr><td>4</td><td>Connect to VA SQL</td><td>Opens connection to VA server using configured credentials</td></tr>
                 <tr><td>5</td><td>Stage data</td><td>INSERTs matched assets into <code>dbo.AWPushStaging</code></td></tr>
@@ -182,7 +183,7 @@ SP 2-224                 &larr; Next location
     <!-- LOCAL ASSET UPDATE FIELDS                               -->
     <!-- ======================================================= -->
     <div class="card">
-        <h2>&#x1F5C4; Fields Updated in Local iDash DB</h2>
+        <h2>&#x1F5C4; Fields Updated in Local AssetWorx DB</h2>
         <p>When the push runs, these fields are updated on each matched asset in <code>dbo.asset</code>:</p>
         <table class="field-table">
             <tr><th>Column</th><th>Value</th><th>Purpose</th></tr>
@@ -223,7 +224,7 @@ SP 2-224                 &larr; Next location
     <div class="card">
         <h2>&#x2705; Prerequisites</h2>
         <ul>
-            <li><strong>EnnxLiveSession table:</strong> Must exist in the local iDash database. Created automatically the first time an ENNX Live Scan session is saved via <a href="va_ennx_live_scan.html">ENNX Live Scan</a>.</li>
+            <li><strong>EnnxLiveSession table:</strong> Must exist in the local AssetWorx database. Created automatically the first time an ENNX Live Scan session is saved via <a href="va_ennx_live_scan.html">ENNX Live Scan</a>.</li>
             <li><strong>Network access:</strong> The web server must be able to reach <code>OITPORSQL016.R01.MED.VA.GOV</code> on port 1433 (SQL Server). VPN or internal network required.</li>
             <li><strong>VA SQL credentials:</strong> Valid <code>vadbuser</code> account with INSERT/UPDATE/CREATE/DROP permissions on the <code>VAAssetSync</code> database.</li>
             <li><strong>Completed ENNX scans:</strong> At least one ENNX Live Scan session must have been saved to SQL for the session picker to have data.</li>

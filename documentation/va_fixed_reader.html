@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>Fixed Reader Dashboard &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -77,23 +78,23 @@
             <tbody>
                 <tr>
                     <td><strong>Total Readers</strong></td>
-                    <td>All readers registered in iDash for the selected site. Sub-label shows total antenna count across all readers.</td>
-                    <td>iDash REST API &rarr; reader list</td>
+                    <td>All readers registered in AssetWorx for the selected site. Sub-label shows total antenna count across all readers.</td>
+                    <td>AssetWorx REST API &rarr; reader list</td>
                 </tr>
                 <tr>
                     <td><strong>Online</strong></td>
                     <td>Readers currently reporting <code>status = "Up"</code>. Sub-label shows percentage of total.</td>
-                    <td>iDash REST API &rarr; reader status</td>
+                    <td>AssetWorx REST API &rarr; reader status</td>
                 </tr>
                 <tr>
                     <td><strong>Offline</strong></td>
                     <td>Readers reporting any status other than <code>"Up"</code>. Sub-label shows percentage of total.</td>
-                    <td>iDash REST API &rarr; reader status</td>
+                    <td>AssetWorx REST API &rarr; reader status</td>
                 </tr>
                 <tr>
                     <td><strong>Antennas</strong></td>
                     <td>Total physical antenna ports connected across all readers. A single reader may have 2&ndash;8 antennas depending on model.</td>
-                    <td>iDash REST API &rarr; reader list</td>
+                    <td>AssetWorx REST API &rarr; reader list</td>
                 </tr>
             </tbody>
         </table>
@@ -105,7 +106,7 @@
         </p>
         <div class="alert-blue">
             <strong>&#9432; What "Offline" means operationally</strong><br/>
-            A reader shown as Offline has not successfully communicated with the iDash server during its last
+            A reader shown as Offline has not successfully communicated with the AssetWorx server during its last
             expected check-in interval. This can mean a network failure, power loss, IP conflict, or firmware hang.
             Biomedical should investigate any reader offline for more than one check-in cycle. See
             <a href="va_reader_config.html">Reader Configuration docs</a> for IP address correction steps.
@@ -162,14 +163,14 @@
         <table>
             <thead><tr><th>Column</th><th>Description</th></tr></thead>
             <tbody>
-                <tr><td><strong>Reader Name</strong></td><td>Friendly name as registered in iDash. Click column header to sort A&rarr;Z / Z&rarr;A. Filter box in row beneath header.</td></tr>
+                <tr><td><strong>Reader Name</strong></td><td>Friendly name as registered in AssetWorx. Click column header to sort A&rarr;Z / Z&rarr;A. Filter box in row beneath header.</td></tr>
                 <tr><td><strong>Location</strong></td><td>Physical install location from <code>dbo.location</code>. Sortable and filterable.</td></tr>
                 <tr><td><strong>IP Address</strong></td><td>Network address in monospace font. Sortable and filterable. Use to access the reader's web UI or SSH console directly.</td></tr>
                 <tr><td><strong>Status</strong></td><td><span style="color:#10B981;">&#9679; Online</span> or <span style="color:#EF4444;">&#9679; Offline</span> badge. Derived from <code>status = "Up"</code> in the API response.</td></tr>
-                <tr><td><strong>Model</strong></td><td>Hardware model string from iDash (e.g., "Zebra FX9600"). Sortable.</td></tr>
+                <tr><td><strong>Model</strong></td><td>Hardware model string from AssetWorx (e.g., "Zebra FX9600"). Sortable.</td></tr>
                 <tr><td><strong>Last Seen</strong></td><td>Timestamp of the last successful reader-to-server communication. A stale timestamp with an Online status may indicate a reporting lag.</td></tr>
                 <tr><td><strong>Batch</strong></td><td>&#10003; if the reader accumulates reads and uploads them in bulk rather than streaming continuously.</td></tr>
-                <tr><td><strong>Update Loc</strong></td><td>&#10003; if the reader writes location updates to asset records when it observes a tag. When unchecked, observations are counted but asset location is not changed in iDash.</td></tr>
+                <tr><td><strong>Update Loc</strong></td><td>&#10003; if the reader writes location updates to asset records when it observes a tag. When unchecked, observations are counted but asset location is not changed in AssetWorx.</td></tr>
             </tbody>
         </table>
         <p style="margin-top:12px;">
@@ -184,7 +185,7 @@
             The dropdown in the page header filters the <strong>Tag Observations</strong>,
             <strong>Device Type Breakdown</strong>, and <strong>Top Locations</strong> panels by facility
             (<code>dbo.company</code>). The <strong>KPI Row</strong> and <strong>Reader Inventory Table</strong>
-            are populated from the iDash REST API, which is scoped to the credentials in Site Config &mdash;
+            are populated from the AssetWorx REST API, which is scoped to the credentials in Site Config &mdash;
             the dropdown does not re-filter those panels.
         </p>
         <div class="alert-blue">
@@ -215,8 +216,8 @@
                     <td><code>HandleReadersApi()</code></td>
                     <td>
                         JSON: <code>{ summary: { totalReaders, online, offline, pctOnline, pctOffline, totalAntennas }, readers: [...] }</code><br/>
-                        Proxies to the iDash REST API using credentials stored in <code>va_site_config</code>.
-                        Server-side proxy is required &mdash; iDash API has no CORS headers.
+                        Proxies to the AssetWorx REST API using credentials stored in <code>va_site_config</code>.
+                        Server-side proxy is required &mdash; AssetWorx API has no CORS headers.
                     </td>
                 </tr>
                 <tr>
@@ -230,7 +231,7 @@
             </tbody>
         </table>
 
-        <h3>iDash API Dependency</h3>
+        <h3>AssetWorx API Dependency</h3>
         <p>
             <code>?api=readers</code> requires a valid API base URL and credentials in Site Config
             (<code>va_site_config.aspx</code>). If missing, the KPI row, status bar, and reader table show
@@ -272,14 +273,14 @@
         <h3>Known Limitations</h3>
         <ul>
             <li>The reader table is not paginated. Sites with more than ~200 readers should add client-side pagination to <code>renderReaderTable()</code>.</li>
-            <li><code>?api=readers</code> adds server-side latency equal to the iDash API round-trip. If iDash is unreachable, reader panels fail while SQL panels succeed.</li>
+            <li><code>?api=readers</code> adds server-side latency equal to the AssetWorx API round-trip. If AssetWorx is unreachable, reader panels fail while SQL panels succeed.</li>
             <li><code>lastSeen</code> is an ISO-8601 UTC string. <code>formatDate()</code> converts it using the browser's local timezone, not the server's.</li>
         </ul>
 
         <h3>Related Pages &amp; Docs</h3>
         <ul>
             <li><a href="va_fixed_reader_setup.html"><strong>&#128225; Fixed Reader Setup &amp; Configuration Guide</strong></a> &mdash; complete end-to-end deployment guide with hardware config, MQTT setup, database alignment, and troubleshooting</li>
-            <li><a href="../va_reader_config.aspx">&#9881; Reader Configuration</a> &mdash; register, edit, delete readers in iDash</li>
+            <li><a href="../va_reader_config.aspx">&#9881; Reader Configuration</a> &mdash; register, edit, delete readers in AssetWorx</li>
             <li><a href="va_reader_config.html">Reader Config Documentation</a> &mdash; setup and field reference</li>
             <li><a href="../va_site_config.aspx">Site Configuration</a> &mdash; API credentials (base URL, username, password)</li>
         </ul>

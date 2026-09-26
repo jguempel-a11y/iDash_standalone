@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <title>VA CMR STATS &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -27,7 +28,7 @@
             <em>how many assets are in my CMR, how many have been found today, who scanned them, and where are they?</em>
         </p>
         <div class="alert-green">
-            <strong>&#9989; This page is data-driven directly from the iDash database.</strong><br/>
+            <strong>&#9989; This page is data-driven directly from the AssetWorx database.</strong><br/>
             Every number, percentage, name, and location you see on this page is pulled live from
             <code>dbo.v_asset</code> at the moment you load or refresh it. There is no cache, no staging table,
             and no intermediate report file. What you see is exactly what is in the database right now.
@@ -40,7 +41,7 @@
         <p>
             A <strong>CMR (Consolidated Memorandum Receipt)</strong> is a formal VA accountability document that assigns
             a group of government equipment to a specific service chief, department head, or responsible custodian.
-            The holder is legally accountable for every asset listed. In iDash, the CMR number is stored in
+            The holder is legally accountable for every asset listed. In AssetWorx, the CMR number is stored in
             the <code>text8</code> field on each asset record &mdash; all assets with the same <code>text8</code> value
             belong to the same CMR group.
         </p>
@@ -81,7 +82,7 @@
         </table>
         <div class="alert-yellow">
             <strong>&#9888; Technical Note &mdash; Date Comparison</strong><br/>
-            Because iDash stores <code>lastinventoried</code> as <code>datetimeoffset</code> (which includes a
+            Because AssetWorx stores <code>lastinventoried</code> as <code>datetimeoffset</code> (which includes a
             UTC offset that can vary by device), the filter uses <code>CONVERT(date, lastinventoried) &ge; @ScanFrom</code>
             with an explicit <code>SqlDbType.Date</code> parameter. This matches only the calendar date portion
             and correctly handles mixed timezones (e.g., records stored as <code>+00:00</code> UTC and
@@ -136,7 +137,7 @@
                 <tr><td><strong>Total Assets</strong></td><td><code>COUNT(*)</code></td><td>Total assets assigned to a CMR (non-null, non-blank <code>text8</code>).</td></tr>
                 <tr><td><strong>Found (Window)</strong></td><td><code>SUM(CASE WHEN CONVERT(date,lastinventoried) &ge; @ScanFrom THEN 1 ELSE 0 END)</code></td><td>Assets inventoried within the scan window. Percentage shown below the number.</td></tr>
                 <tr><td><strong>Still Remaining</strong></td><td>Total &minus; Found</td><td>Assets not yet inventoried in the selected window.</td></tr>
-                <tr><td><strong>Never Scanned</strong></td><td><code>SUM(CASE WHEN lastinventoried IS NULL THEN 1 ELSE 0 END)</code></td><td>Assets with no scan record whatsoever &mdash; they have never been inventoried in iDash.</td></tr>
+                <tr><td><strong>Never Scanned</strong></td><td><code>SUM(CASE WHEN lastinventoried IS NULL THEN 1 ELSE 0 END)</code></td><td>Assets with no scan record whatsoever &mdash; they have never been inventoried in AssetWorx.</td></tr>
                 <tr><td><strong>Overall Progress</strong></td><td>Found &divide; Total &times; 100</td><td>Percentage of all CMR assets found within the window. Animates on load.</td></tr>
             </tbody>
         </table>
@@ -189,7 +190,7 @@
                         two users both contributed scans. Blank if no one scanned this CMR in the window.
                         <br/><br/>
                         <strong>Important:</strong> This field reads <code>lastmodifiedby</code>, which is updated
-                        by the iDash scan processing service. It reflects the user account that processed
+                        by the AssetWorx scan processing service. It reflects the user account that processed
                         the scan transaction &mdash; typically the person who held the scanner or ran the ENNX batch under their login.
                     </td>
                 </tr>
@@ -259,7 +260,7 @@
                 <tr>
                     <td><strong>Email Report</strong></td>
                     <td>CMR Summary CSV attached</td>
-                    <td>Sends the summary CSV to recipients configured in the iDash email settings. Subject line includes window, site, and any active CMR filter.</td>
+                    <td>Sends the summary CSV to recipients configured in the AssetWorx email settings. Subject line includes window, site, and any active CMR filter.</td>
                     <td>Distributing progress updates to administrators remotely</td>
                 </tr>
             </tbody>
@@ -282,7 +283,7 @@
             <tbody>
                 <tr><td><code>text8</code></td><td>varchar</td><td>CMR number &mdash; the grouping key for every query on this page. All assets sharing a value here belong to the same CMR.</td></tr>
                 <tr><td><code>lastinventoried</code></td><td>datetimeoffset</td><td>The timestamp of the most recent physical scan. This field determines Found vs. Remaining for every window calculation. Note: stored as datetimeoffset, which includes a UTC offset that can vary by device timezone.</td></tr>
-                <tr><td><code>lastmodifiedby</code></td><td>varchar</td><td>Username of the account that last processed a scan transaction against this record. Used for the Scanners column. This is the iDash login identity, not necessarily the person's display name.</td></tr>
+                <tr><td><code>lastmodifiedby</code></td><td>varchar</td><td>Username of the account that last processed a scan transaction against this record. Used for the Scanners column. This is the AssetWorx login identity, not necessarily the person's display name.</td></tr>
                 <tr><td><code>locationname</code></td><td>varchar</td><td>Room or location recorded at the time of the most recent scan. Used for Last Location Found.</td></tr>
                 <tr><td><code>companyid</code></td><td>int</td><td>Facility/station identifier. Used by the Site dropdown filter.</td></tr>
                 <tr><td><code>name</code></td><td>varchar</td><td>Asset number (tag number). Shown in the Asset Detail export.</td></tr>
@@ -340,7 +341,7 @@ ORDER BY ScannedCount * 1.0 / COUNT(*) DESC, ...</pre>
 
         <h3>Why CONVERT(date, ...) Instead of &ge; DateTime</h3>
         <p>
-            iDash devices may store <code>lastinventoried</code> with different UTC offset values
+            AssetWorx devices may store <code>lastinventoried</code> with different UTC offset values
             depending on the device timezone. Comparing <code>lastinventoried &ge; @ScanFrom</code> with
             a plain <code>DateTime</code> parameter causes SQL Server to implicitly convert DateTime as
             UTC (<code>+00:00</code>), which can make scans stored with a negative offset appear to fall
@@ -353,7 +354,7 @@ ORDER BY ScannedCount * 1.0 / COUNT(*) DESC, ...</pre>
     </div>
 
     <div style="text-align:center; color:var(--muted-docs); font-size:12px; margin-top:40px;">
-        Intelligent Distributed Asset Scanning Hub Documentation &copy; 2026<br/>
+        VA Asset Intelligence Hub Documentation &copy; 2026<br/>
         iDash CMR Accountability Module
     </div>
 </div>
@@ -417,7 +418,7 @@ ORDER BY ScannedCount * 1.0 / COUNT(*) DESC, ...</pre>
             Supply technicians have a limited time window &mdash; often tied directly to the number of assets &mdash; to complete this inventory. Without a real-time progress view, they are working blind.
         </div>
         <p>
-            In iDash, the CMR number is stored in the <code>text8</code> field on each asset record. All assets sharing the same CMR number belong to the same accountability group.
+            In AssetWorx, the CMR number is stored in the <code>text8</code> field on each asset record. All assets sharing the same CMR number belong to the same accountability group.
         </p>
     </div>
 
@@ -572,7 +573,7 @@ ORDER BY ScannedCount * 1.0 / COUNT(*) DESC, ...</pre>
     </div>
 
     <div style="text-align:center; color:var(--muted-docs); font-size:12px; margin-top:40px;">
-        Intelligent Distributed Asset Scanning Hub Documentation &copy; 2026<br/>
+        VA Asset Intelligence Hub Documentation &copy; 2026<br/>
         Authored by the iDash project lead.
     </div>
 </div>

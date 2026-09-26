@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>SCANNER & SYSTEM USER MANAGEMENT &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <title>ASSETWORX USER MANAGEMENT &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -17,20 +18,20 @@
 
     <!-- OVERVIEW -->
     <div class="card">
-        <h1>&#128100; Scanner & System User Management (sysuser)</h1>
+        <h1>&#128100; AssetWorx User Management (sysuser)</h1>
         <div class="kv"><span class="k">File</span><code>va_aw_user_management.aspx</code> / <code>va_aw_user_management.aspx.cs</code></div>
-        <div class="kv"><span class="k">Target Table</span><code>dbo.sysuser</code> in the iDash SQL Server database</div>
+        <div class="kv"><span class="k">Target Table</span><code>dbo.sysuser</code> in the AssetWorx SQL Server database</div>
         <div class="kv"><span class="k">Access</span>iDash Administrator role only (same gate as iDash User Management)</div>
         <div class="kv"><span class="k">Date Added</span>July 10, 2026</div>
-        <p>This page provides a self-contained interface inside iDash for creating, editing, and deleting <strong>scanner & system user accounts</strong> &mdash; the <code>sysuser</code> records that control who can log in to the iDash web application at <code>http://localhost</code>.</p>
-        <p><strong>This is the easiest tool for managing RFID scanner login credentials and permissions.</strong> Use it to add, remove, or edit the username, password, user type, and site assignment for any handheld RFID scanner operator &mdash; without needing to open the iDash web UI.</p>
+        <p>This page provides a self-contained interface inside iDash for creating, editing, and deleting <strong>AssetWorx application-level user accounts</strong> &mdash; the <code>sysuser</code> records that control who can log in to the AssetWorx web application at <code>http://localhost</code>.</p>
+        <p><strong>This is the easiest tool for managing RFID scanner login credentials and permissions.</strong> Use it to add, remove, or edit the username, password, user type, and site assignment for any handheld RFID scanner operator &mdash; without needing to open the AssetWorx web UI.</p>
 
         <div class="alert alert-info">
-            <strong>This is separate from iDash User Management.</strong> iDash users (stored in <code>App_Data/idash_users.json</code>) control portal access to iDash itself. scanner users (stored in <code>dbo.sysuser</code>) control who can log in to the main iDash application, the mobile handheld client, and the API.
+            <strong>This is separate from iDash User Management.</strong> iDash users (stored in <code>App_Data/idash_users.json</code>) control portal access to iDash itself. AssetWorx users (stored in <code>dbo.sysuser</code>) control who can log in to the main AssetWorx application, the mobile handheld client, and the API.
         </div>
 
         <div class="alert" style="background:color-mix(in srgb, #ef4444, transparent 85%); border-color:#ef4444; color:#ef4444;">
-            <strong>&#9888; Do NOT sign in to this page as <code>superadmin</code> or <code>admin</code>.</strong> Those are scanner user accounts created for internal UI functions &mdash; they are not SQL Server credentials and will not work here. Sign in with <strong><code>idashadmin</code></strong>, which is the standard SQL Server account used for database management operations.
+            <strong>&#9888; Do NOT sign in to this page as <code>superadmin</code> or <code>admin</code>.</strong> Those are AssetWorx application-level accounts created for internal UI functions &mdash; they are not SQL Server credentials and will not work here. Sign in with <strong><code>assetworxadmin</code></strong>, which is the standard SQL Server account used for database management operations.
         </div>
 
         <div class="toc">
@@ -55,23 +56,23 @@
         <table>
             <tr><th>Field</th><th>Value</th><th>Notes</th></tr>
             <tr><td><strong>SQL Server</strong></td><td><code>.\sqlexpress</code></td><td>Pre-populated from web.config</td></tr>
-            <tr><td><strong>Database</strong></td><td><code>iDash</code></td><td>Pre-populated from web.config</td></tr>
-            <tr><td><strong>SQL Username</strong></td><td><code>idashadmin</code></td><td>Pre-populated from web.config</td></tr>
-            <tr><td><strong>SQL Password</strong></td><td><code>idashadmin</code></td><td>Standard DB management password &mdash; enter manually</td></tr>
+            <tr><td><strong>Database</strong></td><td><code>AssetWorx</code></td><td>Pre-populated from web.config</td></tr>
+            <tr><td><strong>SQL Username</strong></td><td><code>assetworxadmin</code></td><td>Pre-populated from web.config</td></tr>
+            <tr><td><strong>SQL Password</strong></td><td><code>assetworxadmin</code></td><td>Standard DB management password &mdash; enter manually</td></tr>
         </table>
 
         <div class="alert" style="background:color-mix(in srgb, #ef4444, transparent 85%); border-color:#ef4444; color:#ef4444;">
-            <strong>&#9888; Do NOT use <code>superadmin</code> / <code>admin</code> here.</strong> Those are <em>scanner user accounts</em> (stored in the <code>sysuser</code> table itself). They are the accounts people use to log in to the iDash web UI and handheld scanners. They are <strong>not</strong> SQL Server database credentials and will fail to connect. Always use <strong><code>idashadmin</code></strong> for database management.
+            <strong>&#9888; Do NOT use <code>superadmin</code> / <code>admin</code> here.</strong> Those are <em>AssetWorx application accounts</em> (stored in the <code>sysuser</code> table itself). They are the accounts people use to log in to the AssetWorx web UI and handheld scanners. They are <strong>not</strong> SQL Server database credentials and will fail to connect. Always use <strong><code>assetworxadmin</code></strong> for database management.
         </div>
 
-        <h3>&#128225; Default iDash application Passwords</h3>
-        <p>The following are the factory-default passwords for the built-in scanner accounts. These should be changed after initial setup.</p>
+        <h3>&#128225; Default AssetWorx Application Passwords</h3>
+        <p>The following are the factory-default passwords for the built-in AssetWorx accounts. These should be changed after initial setup.</p>
         <table>
-            <tr><th>scanner username</th><th>Default Password</th><th>Purpose</th></tr>
-            <tr><td><code>admin</code></td><td><code>demo</code></td><td>Default administrator account for the iDash web UI</td></tr>
+            <tr><th>AssetWorx Username</th><th>Default Password</th><th>Purpose</th></tr>
+            <tr><td><code>admin</code></td><td><code>demo</code></td><td>Default administrator account for the AssetWorx web UI</td></tr>
             <tr><td><code>superadmin</code></td><td><code>demo</code></td><td>Super administrator with cross-site access (no company restriction)</td></tr>
         </table>
-        <p style="color:var(--muted-docs); font-size:13px;">These passwords are for logging in to iDash at <code>http://localhost</code> and on the RFID handheld scanners &mdash; <strong>not</strong> for connecting to this iDash management page.</p>
+        <p style="color:var(--muted-docs); font-size:13px;">These passwords are for logging in to AssetWorx at <code>http://localhost</code> and on the RFID handheld scanners &mdash; <strong>not</strong> for connecting to this iDash management page.</p>
 
         <h3>&#128241; Primary Use Case: RFID Scanner User Management</h3>
         <p>The most common use of this page is <strong>managing login credentials for RFID handheld scanners</strong>. Each scanner operator needs a <code>sysuser</code> account with:</p>
@@ -82,30 +83,30 @@
             <li><strong>Restrict Edit on Mobile</strong> toggle &mdash; prevents the operator from modifying asset records on the handheld</li>
             <li><strong>Inventory Limited User</strong> toggle &mdash; restricts the operator to limited inventory functions</li>
         </ul>
-        <p>Instead of navigating to <code>http://localhost</code>, logging in as admin, and using the iDash UI, you can do all of this directly from iDash in seconds.</p>
+        <p>Instead of navigating to <code>http://localhost</code>, logging in as admin, and using the AssetWorx UI, you can do all of this directly from iDash in seconds.</p>
     </div>
 
     <!-- WHY THIS WAS BUILT -->
     <div class="card" id="why">
         <h2>Why This Was Built</h2>
         <h3>The Problem</h3>
-        <p>Creating an scanner user account previously required:</p>
+        <p>Creating an AssetWorx user account previously required:</p>
         <ol>
-            <li>Navigating to <code>http://localhost</code> (the iDash web application)</li>
+            <li>Navigating to <code>http://localhost</code> (the AssetWorx web application)</li>
             <li>Logging in with an existing admin account</li>
-            <li>Using the built-in scanner user management interface</li>
+            <li>Using the built-in AssetWorx user management interface</li>
         </ol>
         <p>This was problematic for several reasons:</p>
         <ul>
-            <li><strong>Network dependency:</strong> The iDash web application runs on a .NET Core pipeline that requires the full iDash application stack to be running &mdash; including license checks, Redis/local cache, MQTT workers, and various background services. If any of these are down or misconfigured, the UI is inaccessible.</li>
+            <li><strong>Network dependency:</strong> The AssetWorx web app runs on a .NET Core pipeline that requires the full AssetWorx application stack to be running &mdash; including license checks, Redis/local cache, MQTT workers, and various background services. If any of these are down or misconfigured, the UI is inaccessible.</li>
             <li><strong>No standalone access:</strong> You cannot create the first admin user without an already-working admin user. If the default <code>admin/admin</code> account is locked or its password has been changed, there&rsquo;s no UI-based recovery path short of direct SQL manipulation.</li>
-            <li><strong>Operational friction:</strong> During site deployments, field installations, and break-fix scenarios, having to start the full iDash application just to add or modify a user account is unnecessary overhead. The iDash portal is already running and authenticated.</li>
+            <li><strong>Operational friction:</strong> During site deployments, field installations, and break-fix scenarios, having to start the full AssetWorx application just to add or modify a user account is unnecessary overhead. The iDash portal is already running and authenticated.</li>
         </ul>
 
         <h3>The Solution</h3>
-        <p>The new <strong>Scanner & System User Management</strong> page in iDash provides direct SQL access to the <code>dbo.sysuser</code> table. It bypasses the iDash .NET Core application entirely and writes directly to the database using the same parameterized SQL patterns used throughout iDash. This means:</p>
+        <p>The new <strong>AssetWorx User Management</strong> page in iDash provides direct SQL access to the <code>dbo.sysuser</code> table. It bypasses the AssetWorx .NET Core application entirely and writes directly to the database using the same parameterized SQL patterns used throughout iDash. This means:</p>
         <ul>
-            <li>Users can be created even when the iDash web application is offline</li>
+            <li>Users can be created even when the AssetWorx web application is offline</li>
             <li>Password hashing is performed using a <strong>binary-compatible implementation</strong> of the ASP.NET Core Identity PasswordHasher V3 algorithm (see <a href="#password">Password Hashing</a> section)</li>
             <li>All 17 columns of the <code>sysuser</code> table are exposed as form fields, including the toggle options that control mobile restrictions and inventory limitations</li>
         </ul>
@@ -119,7 +120,7 @@
         <h3>Phase 1: Connect</h3>
         <ol>
             <li>Administrator enters SQL Server credentials (server, database, username, password)</li>
-            <li>Fields are <strong>pre-populated from <code>web.config</code></strong> using the existing <code>iDash</code> connection string, so in most cases only the password needs to be entered</li>
+            <li>Fields are <strong>pre-populated from <code>web.config</code></strong> using the existing <code>AssetWorx</code> connection string, so in most cases only the password needs to be entered</li>
             <li>On connect, the page validates the connection and confirms the <code>dbo.sysuser</code> table exists</li>
             <li>The connection string is stored in the ASP.NET session (memory-only, never persisted to disk)</li>
         </ol>
@@ -144,7 +145,7 @@
         <table>
             <tr><th>Field</th><th>Description</th><th>Pre-populated From</th></tr>
             <tr><td><strong>SQL Server</strong></td><td>SQL Server instance name</td><td><code>web.config</code> &rarr; <code>Data Source</code></td></tr>
-            <tr><td><strong>Database</strong></td><td>Database name (e.g., <code>iDash</code>)</td><td><code>web.config</code> &rarr; <code>Database</code></td></tr>
+            <tr><td><strong>Database</strong></td><td>Database name (e.g., <code>AssetWorx</code>)</td><td><code>web.config</code> &rarr; <code>Database</code></td></tr>
             <tr><td><strong>SQL Username</strong></td><td>SQL auth username</td><td><code>web.config</code> &rarr; <code>User ID</code></td></tr>
             <tr><td><strong>SQL Password</strong></td><td>SQL auth password</td><td><em>Never pre-populated</em> (security)</td></tr>
         </table>
@@ -157,7 +158,7 @@
         <p>If the table doesn&rsquo;t exist, the connection is rejected with a clear error message.</p>
 
         <h3>Why user-supplied credentials instead of just using web.config?</h3>
-        <p>This is intentional. The page is designed to work against <strong>any iDash database</strong>, not just the one in <code>web.config</code>. During multi-site deployments, a technician may need to manage users on a different SQL instance. The pre-population from <code>web.config</code> is a convenience for the default case.</p>
+        <p>This is intentional. The page is designed to work against <strong>any AssetWorx database</strong>, not just the one in <code>web.config</code>. During multi-site deployments, a technician may need to manage users on a different SQL instance. The pre-population from <code>web.config</code> is a convenience for the default case.</p>
     </div>
 
     <!-- SYSUSER TABLE SCHEMA -->
@@ -181,7 +182,7 @@
             <tr><td><code>hideadminpopups</code></td><td><code>bit</code></td><td>NO</td><td>&#10003;</td><td>Suppresses admin notification popups in the AW UI</td></tr>
             <tr><td><code>inventorylimiteduser</code></td><td><code>bit</code></td><td>YES</td><td>&#10003;</td><td>Restricts the user to limited inventory functions</td></tr>
             <tr><td><code>restricteditmobile</code></td><td><code>bit</code></td><td>YES</td><td>&#10003;</td><td>Prevents the user from editing assets on the mobile client</td></tr>
-            <tr style="color:var(--muted-docs);"><td><code>verificationcode</code></td><td><code>varchar(50)</code></td><td>YES</td><td>&mdash;</td><td>System-generated MFA code (managed by iDash)</td></tr>
+            <tr style="color:var(--muted-docs);"><td><code>verificationcode</code></td><td><code>varchar(50)</code></td><td>YES</td><td>&mdash;</td><td>System-generated MFA code (managed by AssetWorx)</td></tr>
             <tr style="color:var(--muted-docs);"><td><code>verificationcodecreated</code></td><td><code>datetimeoffset</code></td><td>YES</td><td>&mdash;</td><td>Timestamp of last verification code</td></tr>
             <tr style="color:var(--muted-docs);"><td><code>verificationattempts</code></td><td><code>int</code></td><td>YES</td><td>&mdash;</td><td>Number of failed MFA attempts</td></tr>
         </table>
@@ -192,7 +193,7 @@
         <p>Setting <code>companyid</code> to NULL (the &ldquo;None &mdash; Super Admin&rdquo; option) creates a user with cross-site access, similar to the built-in <code>superadmin</code> account.</p>
 
         <h3>UserType Values</h3>
-        <p>iDash uses two string-based permission levels stored in the <code>usertype</code> column:</p>
+        <p>AssetWorx uses two string-based permission levels stored in the <code>usertype</code> column:</p>
         <table>
             <tr><th>Value</th><th>Permissions</th></tr>
             <tr><td><code>Create, Edit, Delete</code></td><td>Full CRUD access to assets, locations, and records within the user&rsquo;s assigned company</td></tr>
@@ -205,7 +206,7 @@
         <h2>Password Hashing &mdash; ASP.NET Core Identity V3 Compatibility</h2>
 
         <div class="alert" style="background:color-mix(in srgb, #f59e0b, transparent 85%); border-color:#f59e0b; color:#f59e0b;">
-            <strong>Critical implementation detail.</strong> iDash runs on ASP.NET Core and uses <code>Microsoft.AspNetCore.Identity.PasswordHasher&lt;T&gt;</code> to hash passwords. iDash runs on classic ASP.NET Framework 4.8. Rather than reference .NET Core DLLs from .NET Framework code (fragile cross-framework reference), we implemented a <strong>binary-compatible password hasher from scratch</strong>.
+            <strong>Critical implementation detail.</strong> AssetWorx runs on ASP.NET Core and uses <code>Microsoft.AspNetCore.Identity.PasswordHasher&lt;T&gt;</code> to hash passwords. iDash runs on classic ASP.NET Framework 4.8. Rather than reference .NET Core DLLs from .NET Framework code (fragile cross-framework reference), we implemented a <strong>binary-compatible password hasher from scratch</strong>.
         </div>
 
         <h3>The Binary Format</h3>
@@ -254,7 +255,7 @@ private static string HashPasswordV3(string password)
     return Convert.ToBase64String(output);
 }</pre>
 
-        <h3>Why this matches what iDash expects</h3>
+        <h3>Why this matches what AssetWorx expects</h3>
         <p>The ASP.NET Core source code for <code>PasswordHasher&lt;T&gt;.HashPassword()</code> uses the same algorithm:</p>
         <ul>
             <li>Same format marker byte (<code>0x01</code> for V3)</li>
@@ -263,10 +264,10 @@ private static string HashPasswordV3(string password)
             <li>Same salt size (128-bit) and subkey size (256-bit)</li>
             <li>Same big-endian (network byte order) encoding for the header integers</li>
         </ul>
-        <p>When iDash calls <code>PasswordHasher.VerifyHashedPassword()</code>, it reads the format header from the stored hash to determine the PRF, iteration count, and salt length, then re-derives the subkey and compares. Because our header values match, the verification succeeds.</p>
+        <p>When AssetWorx calls <code>PasswordHasher.VerifyHashedPassword()</code>, it reads the format header from the stored hash to determine the PRF, iteration count, and salt length, then re-derives the subkey and compares. Because our header values match, the verification succeeds.</p>
 
         <div class="alert alert-info">
-            <strong>Note on iteration count:</strong> The existing iDash passwords on this server use 10,000 iterations (the .NET Core 2.x default). Our implementation matches this. If iDash is ever upgraded to a version using 100,000 iterations (the .NET 6+ default), the existing passwords created by iDash will still verify correctly because the iteration count is embedded in each password hash. New passwords created by iDash would just use the higher count.
+            <strong>Note on iteration count:</strong> The existing AssetWorx passwords on this server use 10,000 iterations (the .NET Core 2.x default). Our implementation matches this. If AssetWorx is ever upgraded to a version using 100,000 iterations (the .NET 6+ default), the existing passwords created by iDash will still verify correctly because the iteration count is embedded in each password hash. New passwords created by AssetWorx would just use the higher count.
         </div>
     </div>
 
@@ -276,8 +277,8 @@ private static string HashPasswordV3(string password)
 
         <h3>Create User</h3>
         <ol>
-            <li>Click <strong>&ldquo;+ Add scanner user&rdquo;</strong> button</li>
-            <li>Fill in the form fields. Only <strong>Username</strong> is strictly required. Password is optional (can be set later via iDash or via Edit).</li>
+            <li>Click <strong>&ldquo;+ Add AssetWorx User&rdquo;</strong> button</li>
+            <li>Fill in the form fields. Only <strong>Username</strong> is strictly required. Password is optional (can be set later via AssetWorx or via Edit).</li>
             <li>Select a <strong>User Type</strong> (&ldquo;Create, Edit, Delete&rdquo; for full access, &ldquo;View Only&rdquo; for read-only)</li>
             <li>Select a <strong>Company (Site)</strong> from the dropdown, or &ldquo;None&rdquo; for a super admin account</li>
             <li>Toggle any options: Hide Admin Popups, Inventory Limited User, Restrict Edit on Mobile</li>
@@ -312,7 +313,7 @@ VALUES
         </ul>
 
         <div class="alert" style="background:color-mix(in srgb, #ef4444, transparent 85%); border-color:#ef4444; color:#ef4444;">
-            <strong>Warning:</strong> Deleting a user from the <code>sysuser</code> table is permanent. There is no soft-delete or recycle bin. The user will immediately lose the ability to log in to iDash.
+            <strong>Warning:</strong> Deleting a user from the <code>sysuser</code> table is permanent. There is no soft-delete or recycle bin. The user will immediately lose the ability to log in to AssetWorx.
         </div>
     </div>
 
@@ -344,7 +345,7 @@ cmd.Parameters.AddWithValue("@password", (object)hashedPw ?? DBNull.Value);
         </table>
 
         <h3>Network Boundary</h3>
-        <p>This page makes a <strong>direct SQL connection</strong> from the IIS worker process to SQL Server. No HTTP API calls are made to the iDash .NET Core application. The connection uses the same network path as all other iDash pages that query the iDash database (e.g., ENNX, Site Inventory, Asset Stats).</p>
+        <p>This page makes a <strong>direct SQL connection</strong> from the IIS worker process to SQL Server. No HTTP API calls are made to the AssetWorx .NET Core application. The connection uses the same network path as all other iDash pages that query the AssetWorx database (e.g., ENNX, Site Inventory, Asset Stats).</p>
     </div>
 
     <!-- FILES CHANGED -->
@@ -386,14 +387,14 @@ cmd.Parameters.AddWithValue("@password", (object)hashedPw ?? DBNull.Value);
 
         <div class="changelog-entry" style="border-left:4px solid #10b981; padding-left:16px; margin-bottom:24px;">
             <div style="font-size:12px; color:var(--muted-docs); margin-bottom:4px;">2026-07-10 &mdash; <span style="color:#10b981; font-weight:700;">NEW FEATURE</span></div>
-            <h3 style="margin-top:0;">Scanner & System User Management Page</h3>
-            <p><strong>What:</strong> New iDash page (<code>va_aw_user_management.aspx</code>) that allows iDash administrators to create, edit, and delete iDash <code>sysuser</code> records directly via SQL &mdash; without needing to access the iDash web application.</p>
-            <p><strong>Why:</strong> Eliminates the requirement to have the full iDash application stack running just to manage user accounts. Enables user creation during initial deployments, break-fix scenarios, and when the iDash web application is unavailable.</p>
+            <h3 style="margin-top:0;">AssetWorx User Management Page</h3>
+            <p><strong>What:</strong> New iDash page (<code>va_aw_user_management.aspx</code>) that allows iDash administrators to create, edit, and delete AssetWorx <code>sysuser</code> records directly via SQL &mdash; without needing to access the AssetWorx web application.</p>
+            <p><strong>Why:</strong> Eliminates the requirement to have the full AssetWorx application stack running just to manage user accounts. Enables user creation during initial deployments, break-fix scenarios, and when the AssetWorx web application is unavailable.</p>
             <p><strong>How:</strong></p>
             <ul>
                 <li>Administrator enters SQL Server credentials (pre-populated from <code>web.config</code>)</li>
-                <li>Page connects directly to the iDash database and performs CRUD operations on <code>dbo.sysuser</code></li>
-                <li>Password hashing uses a purpose-built <strong>ASP.NET Core Identity V3 compatible hasher</strong> (PBKDF2-SHA256, 10K iterations, 128-bit salt, 256-bit subkey) that produces the exact binary format iDash expects</li>
+                <li>Page connects directly to the AssetWorx database and performs CRUD operations on <code>dbo.sysuser</code></li>
+                <li>Password hashing uses a purpose-built <strong>ASP.NET Core Identity V3 compatible hasher</strong> (PBKDF2-SHA256, 10K iterations, 128-bit salt, 256-bit subkey) that produces the exact binary format AssetWorx expects</li>
                 <li>All 13 user-facing columns are exposed: username, password, firstname, lastname, email, phone, cardid, rfidtag, usertype, companyid, hideadminpopups, inventorylimiteduser, restricteditmobile</li>
                 <li>Company dropdown populated from <code>dbo.company</code> table for site assignment</li>
             </ul>
@@ -415,7 +416,7 @@ cmd.Parameters.AddWithValue("@password", (object)hashedPw ?? DBNull.Value);
 
     <!-- FOOTER -->
     <div style="text-align:center; color:var(--muted-docs); font-size:12px; margin-top:40px;">
-        Scanner & System User Management (sysuser) &mdash; Documentation &copy; 2026<br/>
+        AssetWorx User Management (sysuser) &mdash; Documentation &copy; 2026<br/>
         Created: July 10, 2026 &bull; ID Integration Inc.
     </div>
 

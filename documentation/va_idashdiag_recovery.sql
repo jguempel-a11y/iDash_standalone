@@ -1,4 +1,4 @@
-﻿-- ============================================================
+-- ============================================================
 -- EXTRACT SCRIPT: Pull clean asset data from backup, generate
 -- UPDATE statements to run on the damaged remote system
 -- ============================================================
@@ -16,7 +16,7 @@ DECLARE @BackupPath NVARCHAR(500) = N'C:\path\to\backup_from_other_system.bak';
 DECLARE @TempDB     NVARCHAR(128) = N'Recovery_Temp';
 DECLARE @MdfPath    NVARCHAR(500) = N'C:\temp\Recovery_Temp.mdf';
 DECLARE @LdfPath    NVARCHAR(500) = N'C:\temp\Recovery_Temp.ldf';
-DECLARE @TargetDB   NVARCHAR(128) = N'iDash';  -- DB name on the OTHER system
+DECLARE @TargetDB   NVARCHAR(128) = N'AssetWorx';  -- DB name on the OTHER system
 -- ════════════════════════════════
 
 -- Step 1: Get logical file names from backup

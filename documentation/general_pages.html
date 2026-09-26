@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>Module Overview &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -205,7 +206,7 @@
             <tr>
                 <td><strong>Print Template Mappings</strong></td>
                 <td class="file-ref">va_print_mapping.aspx</td>
-                <td>Bind device scanning Tag Types to custom iDash print templates for automatic label routing.</td>
+                <td>Bind device scanning Tag Types to custom AssetWorx print templates for automatic label routing.</td>
                 <td><span class="access access-all">All Users</span></td>
             </tr>
         </table>
@@ -283,13 +284,13 @@
             <tr>
                 <td><strong>IIS &amp; App Log Analyzer</strong></td>
                 <td class="file-ref">va_log_viewer.aspx</td>
-                <td>Advanced web server log analysis &mdash; filter IIS logs by IP, URI, and status code. Auto-diagnoses common iDash service errors from Serilog app logs.</td>
+                <td>Advanced web server log analysis &mdash; filter IIS logs by IP, URI, and status code. Auto-diagnoses common AssetWorx service errors from Serilog app logs.</td>
                 <td><span class="access access-login">Login Required</span></td>
             </tr>
             <tr>
                 <td><strong>Database Restore</strong></td>
                 <td class="file-ref">va_db_restore.aspx</td>
-                <td>Restore the iDash database from a <code>.bak</code> backup file. <strong>DANGER ZONE</strong> &mdash; overwrites the live production database.</td>
+                <td>Restore the AssetWorx database from a <code>.bak</code> backup file. <strong>DANGER ZONE</strong> &mdash; overwrites the live production database.</td>
                 <td><span class="access access-admin">Admin Only</span></td>
             </tr>
             <tr>
@@ -301,7 +302,7 @@
             <tr>
                 <td><strong>Supply Chain Bridge</strong></td>
                 <td class="file-ref">va_fhir_bridge.aspx</td>
-                <td>Push supply chain data (assets &amp; locations) from iDash to VA VistA via AEMS/MERS SQL sync. Includes ENNX session loading, parsing, and 7-step push pipeline.</td>
+                <td>Push supply chain data (assets &amp; locations) from AssetWorx to VA VistA via AEMS/MERS SQL sync. Includes ENNX session loading, parsing, and 7-step push pipeline.</td>
                 <td><span class="access access-login">Login Required</span></td>
             </tr>
             <tr>
@@ -370,7 +371,7 @@
         </div>
 
         <div class="note-box" style="margin-top:20px;">
-            <strong>&#x2139; For Developers:</strong> Each module listed above has a corresponding <code>.aspx</code> markup file and <code>.aspx.cs</code> code-behind file in <code>C:\inetpub\wwwroot\iDash\</code>. Shared styles are in <code>theme.css</code> and theme initialization is handled by <code>theme-init.js</code>. All modules use the same SQL connection string configured in <code>web.config</code> or via the Site Configuration wizard.
+            <strong>&#x2139; For Developers:</strong> Each module listed above has a corresponding <code>.aspx</code> markup file and <code>.aspx.cs</code> code-behind file in <code>C:\inetpub\wwwroot\AssetWorx.WebClient\iDash\</code>. Shared styles are in <code>theme.css</code> and theme initialization is handled by <code>theme-init.js</code>. All modules use the same SQL connection string configured in <code>web.config</code> or via the Site Configuration wizard.
         </div>
     </div>
 
@@ -413,7 +414,7 @@
     </div>
 
     <div style="text-align:center; color:var(--muted-docs); font-size:12px; margin-top:40px;">
-        iDash Documentation v2.5.0 &middot; Build 2026-07-28 &middot; ID Integration Inc. &copy; 2026
+        iDash Documentation v2.5.0 &middot; Build 2026-07-28 &middot; AssetWorx &copy; 2026
     </div>
 </div>
 </body>

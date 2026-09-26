@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
     <title>PRINT QUEUE &amp; BATCH FIX &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -67,13 +68,13 @@
         </div>
 
         <h3>The BarTender SQL Query (inside .btw templates)</h3>
-        <p>Each BarTender template (<code>.btw</code> file) contains an embedded database connection that runs a SQL query against the iDash database. The query BarTender executes when triggered:</p>
+        <p>Each BarTender template (<code>.btw</code> file) contains an embedded database connection that runs a SQL query against the AssetWorx database. The query BarTender executes when triggered:</p>
         
         <div class="sql-block">
             <h4>&#128451; BarTender Template Database Query</h4>
             <pre><code>-- This query is embedded INSIDE each BarTender .btw template file
 -- (Edit via BarTender Designer → Database Setup → Database Connection)
--- Connection: OLEDB to iDash SQL Server
+-- Connection: OLEDB to AssetWorx SQL Server
 -- Query Mode: "All Records"
 
 SELECT pj.id, pj.recordid, pj.templateid, pj.generatedrfid, 
@@ -95,8 +96,8 @@ ORDER BY pj.created ASC</code></pre>
         </div>
 
         <h3>The v_printjob View</h3>
-        <p>iDash also provides a convenience view for the Print Administration page:</p>
-        <pre><code>-- dbo.v_printjob (used by iDash Print Administration UI)
+        <p>AssetWorx also provides a convenience view for the Print Administration page:</p>
+        <pre><code>-- dbo.v_printjob (used by AssetWorx Print Administration UI)
 CREATE VIEW [dbo].[v_printjob] AS
 SELECT a.name  AS assetname,
        l.name  AS locationname,
@@ -170,7 +171,7 @@ WHERE completed = 0
             <thead><tr><th>File</th><th>Change</th><th>Impact</th></tr></thead>
             <tbody>
                 <tr>
-                    <td><code>App_Code\IdashApiHelper.cs</code></td>
+                    <td><code>App_Code\AssetWorxApiHelper.cs</code></td>
                     <td>
                         <strong>SubmitPrintJobsBatch()</strong> &mdash; Replaced SQL-insert-then-trigger-once approach with individual API calls + poll-for-completion between each.<br>
                         <strong>SubmitPrintJobs()</strong> &mdash; Added same poll-for-completion logic between jobs.<br>
@@ -351,13 +352,13 @@ TRUNCATE TABLE dbo.printjob;</code></pre>
                 <p>User selects assets in <strong>Excel Import</strong> or <strong>Asset Master</strong> and clicks <em>Print</em>.</p>
             </div>
             <div class="timeline-item">
-                <h4>2. iDash Server (IdashApiHelper.cs)</h4>
-                <p>Calls <code>SubmitPrintJob()</code> which POSTs to the iDash API:<br>
+                <h4>2. iDash Server (AssetWorxApiHelper.cs)</h4>
+                <p>Calls <code>SubmitPrintJob()</code> which POSTs to the AssetWorx API:<br>
                 <code>POST /api/printjob</code> with <code>recordId</code>, <code>templateId</code>, <code>companyId</code><br>
                 The API inserts a row into <code>dbo.printjob</code> with <code>completed=0</code>.</p>
             </div>
             <div class="timeline-item">
-                <h4>3. iDash API &rarr; MQTT Trigger</h4>
+                <h4>3. AssetWorx API &rarr; MQTT Trigger</h4>
                 <p>The API publishes an MQTT message to the Print Server topic, notifying it that a new job is ready.</p>
             </div>
             <div class="timeline-item">
@@ -393,7 +394,7 @@ TRUNCATE TABLE dbo.printjob;</code></pre>
                 <tr>
                     <td>Message: <em>"Print Client not currently connected"</em></td>
                     <td>Print Server Windows Service is stopped or MQTT credentials are wrong</td>
-                    <td>Start the <code>iDash Print Server</code> service. Verify MQTT username/password in <code>appsettings.json</code> matches <code>dbo.printclient</code>.</td>
+                    <td>Start the <code>AssetWorx Print Server</code> service. Verify MQTT username/password in <code>appsettings.json</code> matches <code>dbo.printclient</code>.</td>
                 </tr>
                 <tr>
                     <td>Message: <em>"BarTender Print Result Failure"</em></td>
@@ -407,7 +408,7 @@ TRUNCATE TABLE dbo.printjob;</code></pre>
                 </tr>
                 <tr>
                     <td>Duplicate labels (after fix)</td>
-                    <td>Old version of <code>IdashApiHelper.cs</code> deployed</td>
+                    <td>Old version of <code>AssetWorxApiHelper.cs</code> deployed</td>
                     <td>Verify the file contains <code>WaitForPendingJobsComplete</code>. Re-deploy from dev server.</td>
                 </tr>
             </tbody>
@@ -419,7 +420,7 @@ TRUNCATE TABLE dbo.printjob;</code></pre>
         <h2>&#128640; Deployment Checklist</h2>
         <ol>
             <li>Clear stuck print jobs: <code>DELETE FROM dbo.printjob WHERE completed = 0</code></li>
-            <li>Copy <code>App_Code\IdashApiHelper.cs</code> from dev to production's <code>iDash\App_Code\</code></li>
+            <li>Copy <code>App_Code\AssetWorxApiHelper.cs</code> from dev to production's <code>iDash\App_Code\</code></li>
             <li>IIS auto-compiles on next request (no restart needed)</li>
             <li>Test: Select 3 assets in Asset Master &rarr; Print &rarr; verify 3 labels (not 7)</li>
             <li>Test: Import 3 from Excel &rarr; Import &amp; Print &rarr; verify 3 labels</li>

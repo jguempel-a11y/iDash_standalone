@@ -5,8 +5,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="description" content="ENNX Live Scan &mdash; mobile RFID and barcode inventory live scanner with automated database commitment for Zebra handhelds and web clients." />
-    <title>ENNX Live Scan &mdash; AssetWorx</title>
-    <link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
+    <title>ENNX Live Scan &mdash; iDash</title>
+    <link rel="icon" type="image/png" href="Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="favicon.ico" />
     <link rel="stylesheet" href="theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />

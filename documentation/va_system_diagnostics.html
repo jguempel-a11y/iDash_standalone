@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>SYSTEM DIAGNOSTICS &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -20,7 +21,7 @@
     <div class="container">
         <h1>&#128202; System Diagnostics &amp; Health Monitor</h1>
         <div style="margin-bottom:30px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <span class="badge badge-api">iDash API</span>
+            <span class="badge badge-api">AssetWorx API</span>
             <span class="badge badge-db">Database Connected</span>
             <span class="badge" style="background:color-mix(in srgb,#f59e0b 15%,transparent); color:#f59e0b; border:1px solid #f59e0b;">Diagnostic Tool</span>
             <span class="badge" style="background:color-mix(in srgb,#10b981 15%,transparent); color:#10b981; border:1px solid #10b981;">New 08/26</span>
@@ -47,7 +48,7 @@
         <!-- ── OVERVIEW ─────────────────────────────────────────────── -->
         <h2 id="overview">1. Overview &amp; Purpose</h2>
         <p>
-            <code>va_system_diagnostics.aspx</code> is a one-click health-check dashboard for the iDash
+            <code>va_system_diagnostics.aspx</code> is a one-click health-check dashboard for the AssetWorx
             platform. It was created to solve a recurring problem: after a database restore, a server migration,
             or a reboot, the system can appear to work for web users but silently fail for the
             <strong>mobile app in batch mode</strong>.
@@ -113,7 +114,7 @@
                 <td style="padding:8px 12px;">Code-behind &mdash; all test runners, OAuth2 token fetch, DB queries, batch PUT loop, email HTML builder</td>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
-                <td style="padding:8px 12px;"><code>App_Code/IdashApiHelper.cs</code></td>
+                <td style="padding:8px 12px;"><code>App_Code/AssetWorxApiHelper.cs</code></td>
                 <td style="padding:8px 12px;">Shared OAuth2 token cache &mdash; diagnostics re-uses the same <code>client_credentials</code> flow</td>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
@@ -133,19 +134,19 @@
         <p>
             Sends a <code>POST</code> to <code>/connect/token</code> with <code>grant_type=client_credentials</code>
             using the credentials from <code>web.config</code> keys
-            <code>iDash_ClientId</code> / <code>iDash_ClientSecret</code>.
+            <code>AssetWorx_ClientId</code> / <code>AssetWorx_ClientSecret</code>.
         </p>
         <p><strong>Pass:</strong> receives an <code>access_token</code> and caches it for subsequent tests.<br/>
            <strong>Fail:</strong> API is down, IIS not running, wrong client credentials, or network issue.</p>
         <div class="callout callout-info">
             The client credentials live in <code>dbo.clientapp</code>. Query:
             <code>SELECT clientid, secret FROM dbo.clientapp</code>. The default fallback uses
-            <code>iDash_ClientId=v512</code> from <code>web.config</code>.
+            <code>AssetWorx_ClientId=v512</code> from <code>web.config</code>.
         </div>
 
         <h3>&#128451; Test 2: Database &amp; License</h3>
         <p>
-            Connects directly to the iDash SQL database and checks:
+            Connects directly to the AssetWorx SQL database and checks:
         </p>
         <ul>
             <li>Number of companies in <code>dbo.company</code></li>
@@ -155,7 +156,7 @@
         </ul>
         <div class="callout callout-warning">
             If the license key is shown as <strong>&ldquo;MISSING&rdquo;</strong>, batch mode will always fail.
-            The license must be applied via the iDash Settings UI or by directly updating
+            The license must be applied via the AssetWorx Settings UI or by directly updating
             <code>dbo.applicationsetting SET licensekey = '...'</code>.
         </div>
 
@@ -185,13 +186,13 @@
             <li>Records per-asset timing and catches any errors</li>
             <li>Specifically detects the string <em>&ldquo;License limits exceeded&rdquo;</em> in the response body</li>
         </ol>
-        <p><strong>Why PUT without ID in the URL?</strong> The iDash API route is
+        <p><strong>Why PUT without ID in the URL?</strong> The AssetWorx API route is
            <code>[HttpPut] api/[controller]</code> &mdash; the asset ID is in the JSON body, not the URL path.
            <code>PUT /api/asset/{id}</code> returns 405 Method Not Allowed.</p>
         <div class="callout callout-info">
             <strong>Expected performance:</strong> ~300&ndash;400ms per asset on a local server. Times above 1 second
             suggest SQL or API performance issues. This number is useful as a regression baseline when upgrading
-            iDash.
+            AssetWorx.
         </div>
 
         <!-- ── RUNNING ─────────────────────────────────────────────── -->
@@ -259,7 +260,7 @@
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:8px 12px;">Database &amp; License &mdash; &ldquo;MISSING&rdquo;</td>
                 <td style="padding:8px 12px;">License key cleared by DB restore or Settings page</td>
-                <td style="padding:8px 12px;">Re-apply license via iDash Settings &rarr; License tab</td>
+                <td style="padding:8px 12px;">Re-apply license via AssetWorx Settings &rarr; License tab</td>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:8px 12px;">Batch Update &mdash; LICENSE LIMITS EXCEEDED</td>
@@ -301,13 +302,13 @@
         </p>
         <ol>
             <li>Copy <code>va_system_diagnostics.aspx</code> and <code>va_system_diagnostics.aspx.cs</code>
-                to <code>C:\inetpub\wwwroot\iDash\</code> on the target server</li>
-            <li>No config changes needed &mdash; it reads <code>iDash_TokenUrl</code>,
-                <code>iDash_ClientId</code>, <code>iDash_ClientSecret</code>,
-                and <code>iDash_ApiBase</code> from that server&rsquo;s <code>web.config</code></li>
+                to <code>C:\inetpub\wwwroot\AssetWorx.WebClient\iDash\</code> on the target server</li>
+            <li>No config changes needed &mdash; it reads <code>AssetWorx_TokenUrl</code>,
+                <code>AssetWorx_ClientId</code>, <code>AssetWorx_ClientSecret</code>,
+                and <code>AssetWorx_ApiBase</code> from that server&rsquo;s <code>web.config</code></li>
             <li>First check what client credentials exist on that server:
                 <code>SELECT clientid, secret FROM dbo.clientapp</code></li>
-            <li>Update <code>web.config</code> if the <code>iDash_ClientId</code> key is missing</li>
+            <li>Update <code>web.config</code> if the <code>AssetWorx_ClientId</code> key is missing</li>
         </ol>
         <div class="callout callout-info">
             <strong>WV-specific check:</strong> The WV system (VISN5-8) had its DB restored from the BURBOT
@@ -352,14 +353,14 @@
         <h3>Authentication Flow</h3>
         <p>
             The diagnostics page authenticates using OAuth2 <code>client_credentials</code> grant
-            (same flow as <code>IdashApiHelper.cs</code>). Token endpoint:
+            (same flow as <code>AssetWorxApiHelper.cs</code>). Token endpoint:
         </p>
         <pre><code>POST /connect/token
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=client_credentials
 &amp;client_id=v512
-&amp;client_secret=[from web.config iDash_ClientSecret]</code></pre>
+&amp;client_secret=[from web.config AssetWorx_ClientSecret]</code></pre>
         <p>
             Response contains <code>access_token</code> used as <code>Bearer</code> on all subsequent calls.
         </p>
@@ -457,7 +458,7 @@ TestResults.Add(TestMyNewCheck());</code></pre>
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:8px 12px;">Tests hang for &gt;30 seconds</td>
                 <td style="padding:8px 12px;">API is not responding (IIS recycled, app pool stopped)</td>
-                <td style="padding:8px 12px;">Open IIS Manager &rarr; restart iDash app pool; check <code>C:\Logs\WebClient_log.txt</code></td>
+                <td style="padding:8px 12px;">Open IIS Manager &rarr; restart AssetWorx app pool; check <code>C:\Logs\WebClient_log.txt</code></td>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:8px 12px;">Email button does nothing</td>
@@ -467,7 +468,7 @@ TestResults.Add(TestMyNewCheck());</code></pre>
             <tr>
                 <td style="padding:8px 12px;">Batch test 500 errors</td>
                 <td style="padding:8px 12px;">Asset payload missing required fields for API validation</td>
-                <td style="padding:8px 12px;">Check <code>C:\Logs\WebClient_log.txt</code> for the full exception. May indicate schema changes in iDash update.</td>
+                <td style="padding:8px 12px;">Check <code>C:\Logs\WebClient_log.txt</code> for the full exception. May indicate schema changes in AssetWorx update.</td>
             </tr>
         </table>
 

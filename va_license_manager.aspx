@@ -5,7 +5,8 @@
 <meta charset="utf-8" />
 <title>License Manager — iDash</title>
 <script src="theme-init.js"></script>
-<link rel="icon" type="image/png" href="/iDash/Assets/branding/rfid.png" />
+<link rel="icon" type="image/png" href="Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="favicon.ico" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="theme.css" />

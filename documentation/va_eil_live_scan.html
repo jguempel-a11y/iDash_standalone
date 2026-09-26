@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>EIL Live Scan &amp; Reconciliation (Mobile RFID Optimized) &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -36,7 +37,7 @@
             <span class="badge badge-db">&#128100; Operator Auth Synchronized</span>
         </div>
         <p style="font-size:16px;margin:0;">
-            The <strong>EIL Live Scan &amp; Reconciliation</strong> module is a high-speed, mobile-optimized asset accountability tool designed for Zebra mobile RFID handhelds and web workstations. It loads targeted Equipment Item Lists (EIL / CMR) into an interactive checklist, cross-references physical sweeps in real-time, compiles government-ready ENNX export structures, and <strong>directly commits updated inventory locations and timestamps to the iDash database</strong>.
+            The <strong>EIL Live Scan &amp; Reconciliation</strong> module is a high-speed, mobile-optimized asset accountability tool designed for Zebra mobile RFID handhelds and web workstations. It loads targeted Equipment Item Lists (EIL / CMR) into an interactive checklist, cross-references physical sweeps in real-time, compiles government-ready ENNX export structures, and <strong>directly commits updated inventory locations and timestamps to the AssetWorx database</strong>.
         </p>
     </div>
 
@@ -66,7 +67,7 @@
             <tr>
                 <td><strong>Direct Database "Commit Scans"</strong></td>
                 <td>Replaced passive text saving with active database execution: updates <code>dbo.asset.text6</code> (location), <code>lastinventoried = SYSDATETIMEOFFSET()</code>, <code>lastmodifiedby</code>, <code>lastmodified</code>, and inserts an audit record into <code>dbo.EnnxLiveSession</code>.</td>
-                <td>Scanned rooms and reconciled CMR items immediately reflect in iDash master reports and inventory history.</td>
+                <td>Scanned rooms and reconciled CMR items immediately reflect in AssetWorx master reports and inventory history.</td>
             </tr>
             <tr>
                 <td><strong>Mobile Streamlined Workflow</strong></td>

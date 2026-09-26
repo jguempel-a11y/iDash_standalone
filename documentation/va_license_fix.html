@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>iDash Docs � License Fix: Network Adapter Change</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <title>iDash Docs — License Fix: Network Adapter Change</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
 </head>
@@ -15,13 +16,13 @@
         <p class="doc-subtitle">How to resolve <code>LICENSE KEY ERROR. EXPECTING MAC ADDRESS</code> after a NIC swap, adapter replacement, or VM migration.</p>
 
         <div class="callout callout-warn">
-            <strong>This is a common issue.</strong> Every time a server's network adapter is replaced, disabled, or swapped, the iDash license validation fails because the license is bound to the old adapter's MAC address. This guide documents the fix.
+            <strong>This is a common issue.</strong> Every time a server's network adapter is replaced, disabled, or swapped, the AssetWorx license validation fails because the license is bound to the old adapter's MAC address. This guide documents the fix.
         </div>
 
-        <!-- ------- SECTION 1 ------- -->
+        <!-- ═══════ SECTION 1 ═══════ -->
         <h2 id="s1"><span class="section-num">1</span> Understanding the Problem</h2>
         
-        <p>iDash licenses are tied to a specific <strong>MAC address</strong> (hardware network adapter identifier). When you see this error in the logs:</p>
+        <p>AssetWorx licenses are tied to a specific <strong>MAC address</strong> (hardware network adapter identifier). When you see this error in the logs:</p>
         
         <pre class="code-block">LICENSE KEY ERROR. EXPECTING MAC ADDRESS 00E04C360E15 WHICH IS NOT FOUND ON THIS SERVER.</pre>
 
@@ -45,11 +46,11 @@
 }</pre>
         <p>The <code>LicenseKey</code> field format is: <code>Label MAC|sites|?|assets|MAC</code>. The MAC appears at both the start and end of the key string.</p>
 
-        <!-- ------- SECTION 2 ------- -->
+        <!-- ═══════ SECTION 2 ═══════ -->
         <h2 id="s2"><span class="section-num">2</span> Step-by-Step Fix</h2>
 
         <div class="callout callout-info">
-            <strong>Prerequisites:</strong> SQL Server Management Studio (SSMS) access to the iDash database, access to the iDash web interface, and the new license key (base64 string) from ID Integration Inc..
+            <strong>Prerequisites:</strong> SQL Server Management Studio (SSMS) access to the AssetWorx database, access to the AssetWorx web interface, and the new license key (base64 string) from Infinid Technologies.
         </div>
 
         <h3>Step 1: Identify the Current MAC Address</h3>
@@ -58,7 +59,7 @@
         <p>Note the MAC address (e.g., <code>80-E4-BA-DA-C5-E1</code>). Remove dashes and uppercase it: <code>80E4BADAC5E1</code>. This is the MAC that the new license must be keyed to.</p>
 
         <h3>Step 2: Request a New License</h3>
-        <p>Contact <strong>ID Integration Inc.</strong> (or your license provider) with:</p>
+        <p>Contact <strong>Infinid Technologies</strong> (or your license provider) with:</p>
         <ul>
             <li>The new MAC address</li>
             <li>The site name / VISN</li>
@@ -67,7 +68,7 @@
         <p>They will provide a new base64-encoded license string.</p>
 
         <h3>Step 3: Clear the Old License (SQL)</h3>
-        <p>Connect to the iDash database in SSMS and run:</p>
+        <p>Connect to the AssetWorx database in SSMS and run:</p>
         <pre class="code-block">-- Verify current (broken) license
 SELECT licensekey FROM dbo.applicationsetting;
 
@@ -77,36 +78,36 @@ UPDATE dbo.applicationsetting SET licensekey = '';</pre>
         <div class="callout callout-warn">
             <strong>Script available:</strong> The full diagnostic + fix script is available at: <br>
             <code>iDash &rarr; Downloads &rarr; Scripts &rarr; va_license_fix.sql</code><br>
-            Or directly: <a href="../downloads/Scripts/va_license_fix.sql">va_license_fix.sql</a>
+            Or directly: <a href="/iDash/downloads/Scripts/va_license_fix.sql">va_license_fix.sql</a>
         </div>
 
         <h3>Step 4: Apply the New License</h3>
-        <p><strong>Use the iDash web interface</strong> (recommended):</p>
+        <p><strong>Use the AssetWorx web interface</strong> (recommended):</p>
         <ol>
-            <li>Open the iDash admin / settings page</li>
+            <li>Open the AssetWorx admin / settings page</li>
             <li>Paste the new base64 license key into the license field</li>
             <li>Save / Apply</li>
         </ol>
 
         <div class="callout callout-warn">
-            <strong>If the iDash interface rejects the key</strong>, the <code>licensekey</code> column may be too short. Run this first:
+            <strong>If the AssetWorx interface rejects the key</strong>, the <code>licensekey</code> column may be too short. Run this first:
             <pre class="code-block" style="margin-top:8px;">ALTER TABLE dbo.applicationsetting ALTER COLUMN licensekey varchar(2000);</pre>
             Newer licenses with site labels (e.g., "VA Baltimore") produce longer base64 strings that may exceed a <code>varchar(255)</code> column.
         </div>
 
         <h3>Step 5: Restart Services</h3>
         <pre class="code-block">iisreset
-# Also restart the iDash Print Server service if applicable
-Restart-Service "iDash Print Server" -ErrorAction SilentlyContinue</pre>
+# Also restart the AssetWorx Print Server service if applicable
+Restart-Service "AssetWorx Print Server" -ErrorAction SilentlyContinue</pre>
 
         <h3>Step 6: Verify</h3>
         <ul>
-            <li>Check the web application logs (<code>C:\Logs\</code>) � the MAC error should be gone</li>
-            <li>Run <strong>iDash &rarr; System Diagnostics</strong> � the "Database &amp; License" test should pass</li>
+            <li>Check the web application logs (<code>C:\Logs\</code>) — the MAC error should be gone</li>
+            <li>Run <strong>iDash &rarr; System Diagnostics</strong> — the "Database &amp; License" test should pass</li>
             <li>Try a batch update from a mobile device to confirm license limits are no longer exceeded</li>
         </ul>
 
-        <!-- ------- SECTION 3 ------- -->
+        <!-- ═══════ SECTION 3 ═══════ -->
         <h2 id="s3"><span class="section-num">3</span> Decoding a License Key</h2>
         <p>License keys are base64-encoded JSON. To inspect one, use PowerShell:</p>
         <pre class="code-block"># Decode a license key
@@ -122,14 +123,14 @@ if ($mod -gt 0) { $key += ('=' * (4 - $mod)) }  # fix padding if needed
 }</pre>
         <p>The MAC address appears in the <code>LicenseKey</code> value. Compare it with the server's actual MAC to confirm the key matches.</p>
 
-        <!-- ------- SECTION 4 ------- -->
+        <!-- ═══════ SECTION 4 ═══════ -->
         <h2 id="s4"><span class="section-num">4</span> Troubleshooting</h2>
 
         <table>
             <tr><th>Problem</th><th>Cause</th><th>Fix</th></tr>
             <tr>
                 <td>License accepted but batch updates still fail with "License limits exceeded"</td>
-                <td>iDash API caches the license in memory</td>
+                <td>AssetWorx API caches the license in memory</td>
                 <td>Run <code>iisreset</code> to clear the cache</td>
             </tr>
             <tr>
@@ -148,18 +149,18 @@ if ($mod -gt 0) { $key += ('=' * (4 - $mod)) }  # fix padding if needed
                 <td>Repeat the process. Consider using a USB Ethernet adapter with a fixed MAC.</td>
             </tr>
             <tr>
-                <td>Multiple MACs on server � which one?</td>
+                <td>Multiple MACs on server — which one?</td>
                 <td>Server has multiple NICs</td>
                 <td>Use the MAC of the <strong>primary active</strong> adapter. Run <code>Get-NetAdapter | Where Status -eq Up</code></td>
             </tr>
             <tr>
                 <td>Error repeats every 5 minutes in logs</td>
-                <td>iDash re-checks the license on a timer</td>
+                <td>AssetWorx re-checks the license on a timer</td>
                 <td>Expected behavior until the license is fixed. Will stop after applying valid key + iisreset.</td>
             </tr>
         </table>
 
-        <!-- ------- SECTION 5 ------- -->
+        <!-- ═══════ SECTION 5 ═══════ -->
         <h2 id="s5"><span class="section-num">5</span> Prevention</h2>
         <ul>
             <li><strong>Document the MAC address</strong> for each site in your site records</li>
@@ -169,23 +170,23 @@ if ($mod -gt 0) { $key += ('=' * (4 - $mod)) }  # fix padding if needed
             <li><strong>Before replacing a NIC</strong>, note the current MAC and request the new license proactively</li>
         </ul>
 
-        <!-- ------- SECTION 6 ------- -->
-        <h2 id="s6"><span class="section-num">6</span> Quick Reference � Complete Fix Commands</h2>
+        <!-- ═══════ SECTION 6 ═══════ -->
+        <h2 id="s6"><span class="section-num">6</span> Quick Reference — Complete Fix Commands</h2>
         <p>Copy-paste this checklist for fast resolution:</p>
         <pre class="code-block">-- 1. Find current MAC (PowerShell on affected server)
 Get-NetAdapter | Where-Object Status -eq 'Up' | Select-Object Name, MacAddress
 
--- 2. Get new license from ID Integration for the new MAC
+-- 2. Get new license from Infinid for the new MAC
 
 -- 3. Clear old license (SSMS)
 UPDATE dbo.applicationsetting SET licensekey = '';
 
--- 4. Apply new license via iDash web interface
+-- 4. Apply new license via AssetWorx web interface
 --    (paste the base64 key and save)
 
 -- 5. Restart services (PowerShell, elevated)
 iisreset
-Restart-Service "iDash Print Server" -ErrorAction SilentlyContinue
+Restart-Service "AssetWorx Print Server" -ErrorAction SilentlyContinue
 
 -- 6. Verify (check logs)
 Get-Content "C:\Logs\*.txt" -Tail 20 | Select-String "LICENSE"
@@ -195,7 +196,7 @@ Get-Content "C:\Logs\*.txt" -Tail 20 | Select-String "LICENSE"
             <strong>Related:</strong>
             <a href="va_system_diagnostics.html">System Diagnostics</a> &bull;
             <a href="va_site_config.html">Site Configuration</a> &bull;
-            <a href="../downloads/Scripts/va_license_fix.sql" download class="btn">&#128190; Download va_license_fix.sql</a>
+            <a href="/iDash/downloads/Scripts/va_license_fix.sql">va_license_fix.sql</a>
         </div>
     </div>
 </body>

@@ -1,9 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>PRINT ADMINISTRATION &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -55,12 +56,12 @@
         <!-- 1. ARCHITECTURE OVERVIEW                    -->
         <!--  -->
         <h2 id="overview">1. Architecture Overview</h2>
-        <p>Printing in iDash/iDash uses a message-based architecture where print commands flow through the iDash core API:</p>
+        <p>Printing in iDash/AssetWorx uses a message-based architecture where print commands flow through the AssetWorx Core API:</p>
         
         <div style="background:#0d1117; color:#c9d1d9; font-family:monospace; font-size:12px; padding:16px; border-radius:10px; line-height:1.8; margin:16px 0; overflow-x:auto;">
 <pre style="margin:0;">
                     
-   iDash UI    iDash API       MQTT    Print Server  BarTender 
+   iDash UI    AssetWorx API       MQTT    Print Server  BarTender 
   (Browser)         /api/printjob/          Broker          Service           Printer  
                         print              (port                                       
   Asset Master                               8883)         Subscribes         .btw     
@@ -85,24 +86,24 @@
                 <th style="text-align:left; padding:10px; color:var(--muted-docs);">Location</th>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
-                <td style="padding:10px; font-weight:700;">iDash API</td>
+                <td style="padding:10px; font-weight:700;">AssetWorx API</td>
                 <td style="padding:10px;">Receives print requests, builds the label data payload, publishes to MQTT</td>
                 <td style="padding:10px;"><code>http://localhost/api/printjob/print</code></td>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:10px; font-weight:700;">MQTT Broker</td>
                 <td style="padding:10px;">Message bus that routes print commands to Print Server(s)</td>
-                <td style="padding:10px;">Built into iDash API (port 8883 TLS)</td>
+                <td style="padding:10px;">Built into AssetWorx API (port 8883 TLS)</td>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:10px; font-weight:700;">Print Server</td>
                 <td style="padding:10px;">Windows service that subscribes to MQTT, invokes BarTender SDK</td>
-                <td style="padding:10px;"><code>iDash.PrintServer.exe</code></td>
+                <td style="padding:10px;"><code>AssetWorx.PrintServer.exe</code></td>
             </tr>
             <tr>
                 <td style="padding:10px; font-weight:700;">BarTender</td>
                 <td style="padding:10px;">Label design software that renders <code>.btw</code> templates and sends to physical printers</td>
-                <td style="padding:10px;"><code>C:\idash_prints\*.btw</code></td>
+                <td style="padding:10px;"><code>C:\assetworx_prints\*.btw</code></td>
             </tr>
         </table>
 
@@ -113,14 +114,14 @@
         
         <ol style="font-size:14px; line-height:1.8;">
             <li>User selects assets and clicks <strong>Print</strong> in iDash (Asset Master or TagTeam Scan)</li>
-            <li>iDash calls <code>IdashApiHelper.SubmitPrintJob()</code> which:
+            <li>iDash calls <code>AssetWorxApiHelper.SubmitPrintJob()</code> which:
                 <ul>
                     <li>Resolves the <strong>companyId</strong> from the selected template</li>
                     <li>Gets an OAuth token from the correct <code>idash_XXX</code> client app</li>
                     <li>POSTs to <code>/api/printjob/print</code> with the asset record ID and template ID</li>
                 </ul>
             </li>
-            <li>The iDash API:
+            <li>The AssetWorx API:
                 <ul>
                     <li>Creates a <code>printjob</code> row in the database</li>
                     <li>Looks up the asset data, template configuration, and label field mappings</li>
@@ -145,7 +146,7 @@
         <h2 id="new-site" style="margin-top:40px; padding-top:20px; border-top:2px solid #10b981;">3. Setting Up a New Site for Printing</h2>
         
         <div style="background:color-mix(in srgb, #10b981, transparent 90%); border:1px solid #10b981; border-radius:8px; padding:12px 16px; margin:16px 0; font-size:13px;">
-            <strong>&#128161; Easiest Method:</strong> Open <a href="../va_print_admin.aspx" style="color:#10b981;">Print Administration</a>, go to the <strong>Site Overview</strong> tab, and click <strong>Quick Setup</strong> for any site marked "Incomplete". This auto-creates all three required items.
+            <strong>&#128161; Easiest Method:</strong> Open <a href="/iDash/va_print_admin.aspx" style="color:#10b981;">Print Administration</a>, go to the <strong>Site Overview</strong> tab, and click <strong>Quick Setup</strong> for any site marked "Incomplete". This auto-creates all three required items.
         </div>
 
         <h3>What "Quick Setup" Creates</h3>
@@ -186,7 +187,7 @@
 
 -- 1. Create template
 INSERT INTO template (name, templatetype, filename, printmethod, companyid, printclientid)
-VALUES ('AW_Std_Small', 'Asset', 'C:\idash_prints\AW_Std_Small.btw', 'Bartender', @cid, @pcid);
+VALUES ('AW_Std_Small', 'Asset', 'c:\assetworx_prints\AW_Std_Small.btw', 'Bartender', @cid, @pcid);
 
 -- 2. Map printer to site
 INSERT INTO printclientcompany (printclientid, companyid) VALUES (@pcid, @cid);
@@ -231,11 +232,11 @@ VALUES ('idash_512', 'Client Credentials', 'YOUR_SECRET_HERE', @cid);
         <!-- 6. MQTT CONFIGURATION                       -->
         <!--  -->
         <h2 id="mqtt" style="margin-top:40px; padding-top:20px; border-top:2px solid #8B5CF6;">6. MQTT Configuration</h2>
-        <p>MQTT is the message protocol that connects the iDash API to the Print Server. Configuration is in two places:</p>
+        <p>MQTT is the message protocol that connects the AssetWorx API to the Print Server. Configuration is in two places:</p>
 
-        <h3>iDash API Side (<code>appsettings.json</code>)</h3>
+        <h3>AssetWorx API Side (<code>appsettings.json</code>)</h3>
         <pre style="padding:14px; border-radius:10px; background:var(--chip); border:1px solid var(--line); font-size:12px; overflow-x:auto;">
-C:\inetpub\wwwroot\iDash\appsettings.json
+C:\inetpub\wwwroot\AssetWorx.WebClient\appsettings.json
 
 {
     "MqttServer": "localhost",
@@ -273,7 +274,7 @@ C:\inetpub\wwwroot\iDash\appsettings.json
         <h2 id="bartender" style="margin-top:40px; padding-top:20px; border-top:2px solid var(--line);">7. BarTender Template Files</h2>
         
         <h3>File Location</h3>
-        <p>All <code>.btw</code> files are stored in: <code>C:\idash_prints\</code></p>
+        <p>All <code>.btw</code> files are stored in: <code>C:\assetworx_prints\</code></p>
 
         <h3>Requirements</h3>
         <ul>
@@ -286,7 +287,7 @@ C:\inetpub\wwwroot\iDash\appsettings.json
         <h3>Printer Routing</h3>
         <p>The <code>.btw</code> file contains the Windows printer name. If you need to redirect to a different printer, configure <code>printer_routing.json</code>:</p>
         <pre style="padding:14px; border-radius:10px; background:var(--chip); border:1px solid var(--line); font-size:12px; overflow-x:auto;">
-C:\idash_prints\printer_routing.json
+C:\assetworx_prints\printer_routing.json
 
 {
     "AW_Std_Small.btw": "ZDesigner ZD621-203dpi ZPL",
@@ -307,7 +308,7 @@ C:\idash_prints\printer_routing.json
             <li><strong>Print-Client-Company mapping</strong> linking the printer to the site</li>
         </ul>
 
-        <p>When a user logs into iDash, they only see templates for their site. The <code>IdashApiHelper</code> automatically:</p>
+        <p>When a user logs into iDash, they only see templates for their site. The <code>AssetWorxApiHelper</code> automatically:</p>
         <ol>
             <li>Resolves the <strong>companyId</strong> from the selected template's <code>companyid</code> column</li>
             <li>Picks the correct <code>idash_XXX</code> client credentials from the <code>clientapp</code> table</li>
@@ -351,7 +352,7 @@ C:\idash_prints\printer_routing.json
         <h2 id="legacy" style="margin-top:40px; padding-top:20px; border-top:2px solid #f59e0b;">9. Legacy PowerShell Print Server</h2>
         
         <div style="background:color-mix(in srgb, #f59e0b, transparent 90%); border:1px solid #f59e0b; border-radius:8px; padding:12px 16px; margin:16px 0; font-size:13px;">
-            <strong>&#9888; Note:</strong> The PowerShell print spooler is the <strong>legacy/fallback</strong> method. The standard path is now through the iDash core API + MQTT. Use the PowerShell script only for scenarios where the API is unavailable or for one-off batch prints.
+            <strong>&#9888; Note:</strong> The PowerShell print spooler is the <strong>legacy/fallback</strong> method. The standard path is now through the AssetWorx Core API + MQTT. Use the PowerShell script only for scenarios where the API is unavailable or for one-off batch prints.
         </div>
 
         <h3>Scripts</h3>
@@ -365,7 +366,7 @@ C:\idash_prints\printer_routing.json
                 <td style="padding:10px;">Polls the <code>printjob</code> table and sends jobs to BarTender. Runs as a background service.</td>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
-                <td style="padding:10px;"><code>downloads\Software\idash_prints\Run_Bypass_Print_Once.ps1</code></td>
+                <td style="padding:10px;"><code>downloads\Software\assetworx_prints\Run_Bypass_Print_Once.ps1</code></td>
                 <td style="padding:10px;">One-shot: processes all pending jobs then exits.</td>
             </tr>
             <tr>
@@ -376,7 +377,7 @@ C:\idash_prints\printer_routing.json
 
         <h3>When to Use the Legacy Script</h3>
         <ul>
-            <li>The iDash API or MQTT broker is down and you need emergency printing</li>
+            <li>The AssetWorx API or MQTT broker is down and you need emergency printing</li>
             <li>Batch printing from a machine without API access</li>
             <li>Testing BarTender templates without full API setup</li>
             <li>Sites that haven't migrated to the MQTT-based architecture yet</li>
@@ -399,7 +400,7 @@ C:\idash_prints\printer_routing.json
 
         <h3>Format</h3>
         <pre style="padding:14px; border-radius:10px; background:var(--chip); border:1px solid var(--line); font-size:12px; overflow-x:auto;">
-C:\idash_prints\printer_routing.json
+C:\assetworx_prints\printer_routing.json
 
 {
     "AW_IQ350.btw":       "Metal_Small",
@@ -437,23 +438,23 @@ C:\idash_prints\printer_routing.json
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:10px;"><code>*.btw</code> templates</td>
-                <td style="padding:10px;"><code>C:\idash_prints\</code></td>
+                <td style="padding:10px;"><code>C:\assetworx_prints\</code></td>
                 <td style="padding:10px;">All BarTender label layouts</td>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:10px;"><code>printer_routing.json</code></td>
-                <td style="padding:10px;"><code>C:\idash_prints\</code></td>
+                <td style="padding:10px;"><code>C:\assetworx_prints\</code></td>
                 <td style="padding:10px;">Update printer names for new server!</td>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:10px;"><code>Run_Bypass_Spooler.ps1</code></td>
-                <td style="padding:10px;"><code>C:\idash_prints\</code></td>
+                <td style="padding:10px;"><code>C:\assetworx_prints\</code></td>
                 <td style="padding:10px;">Legacy PowerShell spooler (if needed)</td>
             </tr>
             <tr>
                 <td style="padding:10px;"><code>Seagull.BarTender.Print.dll</code></td>
                 <td style="padding:10px;">BarTender install directory</td>
-                <td style="padding:10px;">Installed by iDash Print Server installer</td>
+                <td style="padding:10px;">Installed by AssetWorx Print Server installer</td>
             </tr>
         </table>
 
@@ -490,12 +491,12 @@ C:\idash_prints\printer_routing.json
         <!-- 12. PRINT METHOD COMPARISON                 -->
         <!--  -->
         <h2 id="comparison" style="margin-top:40px; padding-top:20px; border-top:2px solid #8B5CF6;">12. Print Method Comparison</h2>
-        <p>There are three ways to print from iDash/iDash:</p>
+        <p>There are three ways to print from iDash/AssetWorx:</p>
 
         <table style="width:100%; border-collapse:collapse; margin:12px 0; font-size:13px;">
             <tr style="border-bottom:2px solid var(--line);">
                 <th style="padding:10px; color:var(--muted-docs);"></th>
-                <th style="padding:10px; color:var(--muted-docs);">1. iDash Print Server (MQTT)</th>
+                <th style="padding:10px; color:var(--muted-docs);">1. AssetWorx Print Server (MQTT)</th>
                 <th style="padding:10px; color:var(--muted-docs);">2. PowerShell Desktop Spooler</th>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
@@ -546,9 +547,9 @@ C:\idash_prints\printer_routing.json
                 <th style="text-align:left; padding:10px; color:var(--muted-docs);">Fix</th>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
-                <td style="padding:10px;"><strong>Print from iDash works but not from iDash</strong></td>
+                <td style="padding:10px;"><strong>Print from AssetWorx works but not from iDash</strong></td>
                 <td style="padding:10px;">Missing <code>idash_XXX</code> client app for the user's site, or template not associated with the correct companyid</td>
-                <td style="padding:10px;">Go to <a href="../va_print_admin.aspx" style="color:var(--accent);">Print Admin</a> &rarr; Site Overview &rarr; Quick Setup</td>
+                <td style="padding:10px;">Go to <a href="/iDash/va_print_admin.aspx" style="color:var(--accent);">Print Admin</a>  Site Overview  Quick Setup</td>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:10px;"><strong>"NullReferenceException" in API logs</strong></td>
@@ -568,7 +569,7 @@ C:\idash_prints\printer_routing.json
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:10px;"><strong>"BarTender document could not be opened"</strong></td>
                 <td style="padding:10px;">The <code>template.filename</code> is a bare name without extension or full path</td>
-                <td style="padding:10px;"><code>UPDATE template SET filename = 'C:\idash_prints\AW_Std_Small.btw' WHERE id = X</code></td>
+                <td style="padding:10px;"><code>UPDATE template SET filename = 'C:\assetworx_prints\AW_Std_Small.btw' WHERE id = X</code></td>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:10px;"><strong>All jobs go to the same printer (wrong routing)</strong></td>
@@ -611,7 +612,7 @@ C:\idash_prints\printer_routing.json
         <!-- NEW MACHINE SETUP CHECKLIST                 -->
         <!--  -->
         <h2 id="new-machine" style="margin-top:40px; padding-top:20px; border-top:2px solid #f59e0b;">New Machine Setup Checklist</h2>
-        <p>Complete checklist for setting up printing on a new iDash server. Follow these steps in order.</p>
+        <p>Complete checklist for setting up printing on a new AssetWorx server. Follow these steps in order.</p>
 
         <div style="background:color-mix(in srgb, #f59e0b, transparent 90%); border:1px solid #f59e0b; border-radius:10px; padding:16px; margin:16px 0;">
             <strong style="color:#f59e0b;"> Key Lesson Learned</strong>
@@ -620,10 +621,10 @@ C:\idash_prints\printer_routing.json
 
         <h3>Prerequisites</h3>
         <ol style="font-size:14px; line-height:2;">
-            <li>iDash Web Portal installed and IIS configured</li>
+            <li>AssetWorx WebClient installed and IIS configured</li>
             <li>BarTender installed (64-bit edition) with Integration &amp; Licensing Services running</li>
-            <li>iDash Print Server service installed (<code>C:\Program Files (x86)\ID Integration Inc.\iDash Print Server\</code>)</li>
-            <li>SQL Server Express with <code>iDash</code> database</li>
+            <li>AssetWorx Print Server service installed (<code>C:\Program Files (x86)\InfinID Technologies\AssetWorx Print Server\</code>)</li>
+            <li>SQL Server Express with <code>AssetWorx</code> database</li>
         </ol>
 
         <div style="background:color-mix(in srgb, #f59e0b, transparent 90%); border:1px solid #f59e0b; border-radius:10px; padding:16px; margin:16px 0;">
@@ -633,7 +634,7 @@ C:\idash_prints\printer_routing.json
             </p>
             <ol style="margin:6px 0 0; padding-left:20px; font-size:13px; line-height:1.6;">
                 <li><strong>BarTender is installed</strong> (64-bit edition).</li>
-                <li><strong>iDash Print Server is installed</strong> (copies the Seagull assemblies into the Print Server directory).</li>
+                <li><strong>AssetWorx Print Server is installed</strong> (copies the Seagull assemblies into the Print Server directory).</li>
                 <li><strong>The server is rebooted</strong> to initialize BarTender system services, register native COM objects, and update the system environment PATH. Attempting to print prior to a reboot will fail with <em>Could not load file or assembly 'Seagull.Interop.dll'</em>.</li>
             </ol>
         </div>
@@ -658,7 +659,7 @@ C:\idash_prints\printer_routing.json
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:10px; font-weight:700;">3</td>
                 <td style="padding:10px;"><strong>Configure WebClient <code>appsettings.json</code></strong></td>
-                <td style="padding:10px;">At <code>c:\inetpub\wwwroot\iDash.WebClient\appsettings.json</code>:<br>
+                <td style="padding:10px;">At <code>c:\inetpub\wwwroot\AssetWorx.WebClient\appsettings.json</code>:<br>
                      Set <code>UseForPrinting</code> = <code>true</code><br>
                      Set <code>PrintClientUsername</code> and <code>PrintClientPassword</code> to match step 1<br>
                      Verify <code>MqttServer</code> = <code>localhost</code> and <code>MqttServerPort</code> = <code>8883</code></td>
@@ -666,7 +667,7 @@ C:\idash_prints\printer_routing.json
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:10px; font-weight:700;">4</td>
                 <td style="padding:10px;"><strong>Configure Print Server <code>appsettings.json</code></strong></td>
-                <td style="padding:10px;">At <code>C:\Program Files (x86)\ID Integration Inc.\iDash Print Server\appsettings.json</code>:<br>
+                <td style="padding:10px;">At <code>C:\Program Files (x86)\InfinID Technologies\AssetWorx Print Server\appsettings.json</code>:<br>
                      Set <code>PrintClientUsername</code> and <code>PrintClientPassword</code> to match step 1<br>
                      Set <code>UseForPrinting</code> = <code>true</code></td>
             </tr>
@@ -683,7 +684,7 @@ C:\idash_prints\printer_routing.json
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:10px; font-weight:700;">7</td>
                 <td style="padding:10px;"><strong>Restart Services</strong></td>
-                <td style="padding:10px;">Run <code>iisreset</code> to restart the MQTT broker. Restart the iDash Print Server service via Services.msc.</td>
+                <td style="padding:10px;">Run <code>iisreset</code> to restart the MQTT broker. Restart the AssetWorx Print Server service via Services.msc.</td>
             </tr>
             <tr>
                 <td style="padding:10px; font-weight:700;">8</td>
@@ -701,12 +702,12 @@ C:\idash_prints\printer_routing.json
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:10px;">WebClient <code>appsettings.json</code></td>
-                <td style="padding:10px;"><code>c:\inetpub\wwwroot\iDash.WebClient\appsettings.json</code></td>
+                <td style="padding:10px;"><code>c:\inetpub\wwwroot\AssetWorx.WebClient\appsettings.json</code></td>
                 <td style="padding:10px;">MQTT broker (validates connections) + iDash MQTT notifier (publishes jobs)</td>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:10px;">Print Server <code>appsettings.json</code></td>
-                <td style="padding:10px;"><code>C:\Program Files (x86)\...\iDash Print Server\appsettings.json</code></td>
+                <td style="padding:10px;"><code>C:\Program Files (x86)\...\AssetWorx Print Server\appsettings.json</code></td>
                 <td style="padding:10px;">Print Server service (connects as MQTT subscriber)</td>
             </tr>
             <tr>
@@ -782,7 +783,7 @@ C:\idash_prints\printer_routing.json
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:10px;"><strong>BarTender File Path</strong></td>
-                <td style="padding:10px;">Default: <code>C:\idash_prints\AW_Std_Small.btw</code></td>
+                <td style="padding:10px;">Default: <code>c:\assetworx_prints\AW_Std_Small.btw</code></td>
                 <td style="padding:10px;">Path to the BarTender label template file on the print server</td>
             </tr>
             <tr>
@@ -911,7 +912,7 @@ C:\idash_prints\printer_routing.json
         </ul>
 
         <div style="margin-top:30px; padding-top:20px; border-top:1px solid var(--line); font-size:12px; color:var(--muted-docs);">
-            <em>Last updated: August 2026 &bull; Print Administration v1.1 &bull; Consolidates: Print Server Setup, Printing Decision Guide, Direct MQTT Label Printing &bull; Added: Setup Wizard (Section 14)</em>
+            <em>Last updated: August 2026 &bull; Print Administration v1.1 &bull; Consolidates: Print Server Setup, Printing Decision Guide, Printing Without AssetWorx Print Server &bull; Added: Setup Wizard (Section 14)</em>
         </div>
     </div>
 </body>

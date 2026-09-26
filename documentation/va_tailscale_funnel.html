@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>TAILSCALE FUNNEL SETUP &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -25,7 +26,7 @@
 
         <!-- OVERVIEW -->
         <h2>Overview</h2>
-        <p>This guide configures <strong>Tailscale Funnel</strong> on <code>VISN5-8</code> to expose iDash and iDash (running on IIS port 80) through a public HTTPS URL. VA staff can then access iDash, print labels, and use all web features from their desktop without VPN or firewall changes.</p>
+        <p>This guide configures <strong>Tailscale Funnel</strong> on <code>VISN5-8</code> to expose AssetWorx and iDash (running on IIS port 80) through a public HTTPS URL. VA staff can then access iDash, print labels, and use all web features from their desktop without VPN or firewall changes.</p>
 
         <table style="width:100%; border-collapse:collapse; margin:12px 0;">
             <tr style="border-bottom:2px solid var(--line);">
@@ -42,7 +43,7 @@
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:10px;"><strong>Local Service</strong></td>
-                <td style="padding:10px;">IIS on port <code>80</code> (iDash Web Portal + iDash)</td>
+                <td style="padding:10px;">IIS on port <code>80</code> (AssetWorx WebClient + iDash)</td>
             </tr>
             <tr style="border-bottom:1px solid var(--line);">
                 <td style="padding:10px;"><strong>Public URL</strong></td>
@@ -59,7 +60,7 @@
         <div style="background:var(--chip); border:1px solid var(--line); border-radius:10px; padding:16px; margin:16px 0;">
             <ul style="margin:0; padding-left:18px; line-height:2;">
                 <li>Tailscale client installed on <code>VISN5-8</code> and signed in as <code>v5martinsburg@id-integration.com</code></li>
-                <li>IIS running and serving iDash / iDash on port 80 (<code>http://localhost/iDash</code> works locally)</li>
+                <li>IIS running and serving AssetWorx / iDash on port 80 (<code>http://localhost/iDash</code> works locally)</li>
                 <li>Admin access to the Tailscale admin console at <a href="https://login.tailscale.com/admin" target="_blank" style="color:var(--accent);">login.tailscale.com/admin</a></li>
                 <li>Administrator PowerShell on <code>VISN5-8</code></li>
             </ul>
@@ -123,7 +124,7 @@ Start-Service Tailscale</pre>
         <!-- STEP 4 -->
         <h2>Step 4 &mdash; Start Tailscale Funnel</h2>
         <p>Open an <strong>Administrator PowerShell</strong> on <code>VISN5-8</code> and run both commands:</p>
-        <pre style="background:var(--chip); border:1px solid var(--line); border-radius:8px; padding:14px; font-size:13px; overflow-x:auto;"># Funnel 1: iDash / iDash (IIS port 80 → public HTTPS 443)
+        <pre style="background:var(--chip); border:1px solid var(--line); border-radius:8px; padding:14px; font-size:13px; overflow-x:auto;"># Funnel 1: iDash / AssetWorx (IIS port 80 → public HTTPS 443)
 tailscale funnel --bg 80
 
 # Funnel 2: BarTender Print Portal (port 8080 → public HTTPS 8443)
@@ -235,7 +236,7 @@ tailscale status</pre>
             <strong style="color:#f59e0b;">&#9888; Funnel = Public Internet Access</strong>
             <p style="margin:6px 0 0; font-size:13px;">Tailscale Funnel exposes your server to the <strong>entire internet</strong>, not just your tailnet. Anyone with the URL can reach IIS. Make sure:</p>
             <ul style="font-size:13px; margin:8px 0 0; padding-left:18px;">
-                <li>iDash and iDash have <strong>authentication enabled</strong> (login required)</li>
+                <li>iDash and AssetWorx have <strong>authentication enabled</strong> (login required)</li>
                 <li>IIS is <strong>not</strong> serving other sensitive apps on port 80</li>
                 <li>The WebClient API requires <strong>Bearer token auth</strong> (it does by default)</li>
                 <li>Consider <strong>IP allowlisting</strong> in IIS if only specific VA networks need access</li>
@@ -290,11 +291,11 @@ VISN5-8 Tailscale Client
     |
     | HTTP (port 80, localhost)
     v
-IIS &rarr; iDash Web Portal &rarr; iDash
+IIS &rarr; AssetWorx WebClient &rarr; iDash
     |
     | MQTT (port 8883, localhost)
     v
-iDash Print Server &rarr; BarTender &rarr; Label Printer
+AssetWorx Print Server &rarr; BarTender &rarr; Label Printer
         </pre>
         <p>Key: The VA user only needs outbound HTTPS. No VPN, no firewall rules, no port forwarding. Tailscale handles TLS termination and proxies to local IIS.</p>
 

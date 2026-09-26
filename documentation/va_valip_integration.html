@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>VALIP Integration Reference &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -48,7 +49,7 @@
             <span class="badge badge-api">&#x1F517; API Integration</span>
         </div>
         <p>
-            Reference documentation for integrating iDash/iDash with VA systems of record.
+            Reference documentation for integrating AssetWorx/iDash with VA systems of record.
             Covers the VA Logistics Integration Platform (VALIP), AEMS/MERS modernization, and
             the available integration paths for pushing ENNX scan data to VistA.
         </p>
@@ -86,7 +87,7 @@
 
         <div class="why-box">
             <strong>&#x1F4A1; Why This Matters for iDash:</strong><br/>
-            VALIP is the <strong>official middleware layer</strong> between external systems (like iDash/iDash) and
+            VALIP is the <strong>official middleware layer</strong> between external systems (like iDash/AssetWorx) and
             VA systems of record (AEMS/MERS, VistA). Instead of writing directly to VA SQL databases,
             the intended integration path goes through VALIP's API gateway.
         </div>
@@ -110,7 +111,7 @@
                 </tr>
                 <tr>
                     <td style="vertical-align: top;">
-                        <strong>iDash / iDash</strong><br/>
+                        <strong>iDash / AssetWorx</strong><br/>
                         &bull; RFID scanning (ENNX)<br/>
                         &bull; Asset tracking<br/>
                         &bull; Location updates
@@ -344,7 +345,7 @@
         </table>
         <div class="arch-flow" style="font-family: inherit; white-space: normal; text-align: center; font-size: 0.9rem;">
             <strong>VALIP Message Flow (from VA OIT document):</strong><br/><br/>
-            <span style="background:rgba(16,185,129,0.15); padding:4px 12px; border-radius:6px;">SCM System (iDash/iDash)</span>
+            <span style="background:rgba(16,185,129,0.15); padding:4px 12px; border-radius:6px;">SCM System (AssetWorx/iDash)</span>
             &nbsp;&#x27A1;&nbsp;
             <span style="background:rgba(59,130,246,0.15); padding:4px 12px; border-radius:6px;">VALIP (IRIS ESB)</span>
             &nbsp;&#x27A1;&nbsp;
@@ -406,7 +407,7 @@
             <li>Integrates visibility from multiple vantage points with automated detection and response</li>
         </ul>
         <div class="warn-box">
-            <strong>&#x26A0; Implication for iDash:</strong><br/>
+            <strong>&#x26A0; Implication for AssetWorx:</strong><br/>
             Any future VALIP integration (Path C) will require compliance with ZTA requirements.
             This likely means mTLS certificates, application-level authentication tokens, and
             approval through the Zscaler Application Connector for our traffic to reach VALIP endpoints.
@@ -433,7 +434,7 @@
             <strong>&#x1F4A1; AssetWorks is Listed:</strong><br/>
             The VA production environment document explicitly lists <strong>"Assetworks BarTender"</strong> as one of
             the official VA Inventory/Asset Management supply chain systems (alongside AEMS/MERS, Maximo,
-            EQUIP, Nuvolo, SC Logic, SNOW, and others). This confirms iDash is a recognized component
+            EQUIP, Nuvolo, SC Logic, SNOW, and others). This confirms AssetWorx is a recognized component
             in the VA supply chain ecosystem.
         </div>
 

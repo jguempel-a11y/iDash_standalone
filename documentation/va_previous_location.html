@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>VA LOCATION &amp; SCAN HISTORY &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -138,7 +139,7 @@
             <tr>
                 <td><strong>Description</strong></td>
                 <td><code>a.description</code></td>
-                <td>Human-readable equipment name from the iDash database (e.g., <em>Wheelchair, Manual</em>).</td>
+                <td>Human-readable equipment name from the AssetWorx database (e.g., <em>Wheelchair, Manual</em>).</td>
             </tr>
             <tr>
                 <td><strong>EIL</strong></td>
@@ -168,7 +169,7 @@
             <tr>
                 <td><strong>Last Observed Loc</strong></td>
                 <td><code>a.lastobservedlocation</code></td>
-                <td>The location where a fixed RFID reader last detected this asset. Updated automatically by the iDash RFID reader infrastructure. May differ from scan-based locations.</td>
+                <td>The location where a fixed RFID reader last detected this asset. Updated automatically by the AssetWorx RFID reader infrastructure. May differ from scan-based locations.</td>
             </tr>
             <tr>
                 <td><strong>Current Loc (text6)</strong></td>
@@ -334,7 +335,7 @@ ORDER BY ISNULL(h.timeseen, a.lastinventoried) DESC</pre>
         <div class="warn">
             <strong>&#9888; Read-Only:</strong> This tool performs no writes. All queries are
             <code>SELECT</code> only. It cannot modify location records, asset fields, or history entries.
-            To correct a location, use Tag Team Scan or the iDash desktop application.
+            To correct a location, use Tag Team Scan or the AssetWorx desktop application.
         </div>
     </div>
 

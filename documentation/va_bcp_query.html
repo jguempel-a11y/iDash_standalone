@@ -1,10 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8" />
     <title>VA BCP QUERY &mdash; iDash Documentation</title>
-    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -16,7 +17,7 @@
 <body>
 
     <div class="container">
-        <h1>VA BCP Query Generator for iDash</h1>
+        <h1>VA BCP query generator for AssetWorx</h1>
         <p style="color:var(--muted-docs); font-size:15px; margin-top:-15px; margin-bottom:30px; line-height:1.5;">
             Use this interactive tool to dynamically generate bulk copy program (BCP) extract scripts and SQLCMD batch
             insert scripts. Configure the server, database credentials, and target stations below. The scripts will
@@ -26,7 +27,7 @@
         <div class="form-group">
             <label for="outputPath">Server Share Path & File Name (Output)</label>
             <input type="text" id="outputPath" class="form-control"
-                value="\\vhavanapprfidp\idashsqlcmd\VISN20_RFIDSQL\LsvDataForIdash.txt"
+                value="\\vhavanapprfidp\AssetworxSQLCMD\VISN20_RFIDSQL\LSVDataForAssetWorx.txt"
                 oninput="updateScript()">
         </div>
 
@@ -66,13 +67,13 @@
             </div>
             <div class="form-group" style="flex:1; min-width:200px;">
                 <label for="sqlDb">Database</label>
-                <input type="text" id="sqlDb" class="form-control" value="idash" oninput="updateScript()">
+                <input type="text" id="sqlDb" class="form-control" value="assetworx" oninput="updateScript()">
             </div>
         </div>
         <div style="display:flex; gap:20px; flex-wrap:wrap;">
             <div class="form-group" style="flex:1; min-width:200px;">
                 <label for="sqlUser">Username</label>
-                <input type="text" id="sqlUser" class="form-control" value="scannerUser" oninput="updateScript()">
+                <input type="text" id="sqlUser" class="form-control" value="assetworxuser" oninput="updateScript()">
             </div>
             <div class="form-group" style="flex:1; min-width:200px;">
                 <label for="sqlPass">Password</label>
@@ -122,11 +123,11 @@
       - BCP/bulk import operations (also needs bulkadmin)
       
       For SQL Express, can also run from command prompt:
-      sqlcmd -S .\sqlexpress -E -Q "ALTER SERVER ROLE [sysadmin] ADD MEMBER [idashadmin]"
+      sqlcmd -S .\sqlexpress -E -Q "ALTER SERVER ROLE [sysadmin] ADD MEMBER [assetworxadmin]"
 */
 USE master;
 GO
-ALTER SERVER ROLE [sysadmin] ADD MEMBER [idashadmin];
+ALTER SERVER ROLE [sysadmin] ADD MEMBER [assetworxadmin];
 GO
 
 USE [{DB_NAME}];
