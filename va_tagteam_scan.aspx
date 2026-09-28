@@ -1180,7 +1180,7 @@
             <div id="sync-toast"></div>
             <form id="form1" runat="server">
                 <div class="status-bar">
-                    <span>AssetWorx Tag Team Scan</span>
+                    <span>iDash Tag Team Scan</span>
                     <span id="connection-indicator">Checking Connection...</span>
                 </div>
                 <div class="wrap">
@@ -1342,6 +1342,10 @@
                                                 <span class="badge-flagged">Wrong Site</span>
                                             </div>
 
+                                            <div visible='<%# !string.IsNullOrEmpty(Eval("Cmr") as string) && ((string)Eval("Cmr")).Trim().StartsWith("78") %>' runat="server">
+                                                <span class="badge-78-ignored">&#128737; OIT (78)</span>
+                                            </div>
+
                                             <div visible='<%# Convert.ToBoolean(Eval("IsStatusFlagged")) %>' runat="server">
                                                 <span class="badge-status-warn">Not In Use</span>
                                             </div>
@@ -1478,6 +1482,10 @@
                                 </select>
                                 <button type="button" id="BtnPreviewChecked" class="btn" style="background:#0284c7; color:#fff; display:none;" onclick="previewCheckedTag();">&#128065; Preview Tag</button>
                                 <button type="button" id="BtnPrintChecked" class="btn btn-blue" onclick="printCheckedTags();" style="display:none;">Server Print (#)</button>
+                                <label id="lblExcludeOitPrint" style="color:var(--text); font-size:12px; font-weight:600; display:inline-flex; align-items:center; gap:6px; cursor:pointer; height:36px; padding:0 10px; border-radius:6px; background:var(--chip); border:1px solid var(--line);" title="Exclude 78 CMR (OIT) items from print selection">
+                                    <input type="checkbox" id="chkExcludeOitPrint" checked="checked" onchange="syncExcludeOit(this.checked);" />
+                                    &#128737; Skip 78 OIT on Print
+                                </label>
                                 <asp:Button ID="BtnMarkSelectedTagged" runat="server" Text="Mark Selected as Tagged"
                                     OnClick="BtnMarkSelectedTagged_Click" CssClass="btn"
                                     Style="background:#7c3aed; display:none; font-size:13px;"
@@ -1502,7 +1510,7 @@
                                     OnClick="BtnShowOit_Click" CssClass="btn" Style="background:var(--btn-alt); border:1px solid #f59e0b; color:#f59e0b;" />
                             </div>
                             <label style="color:var(--muted); font-size:13px; display:flex; gap:6px; align-items:center; cursor:pointer;">
-                                <asp:CheckBox ID="ChkIgnore78Cmr" runat="server" />
+                                <asp:CheckBox ID="ChkIgnore78Cmr" runat="server" onchange="syncExcludeOit(this.checked);" />
                                 Ignore 78 EIL/CMR
                             </label>
                         </div>
@@ -1647,12 +1655,12 @@
 
                                 const norm = (tagType || '').toLowerCase().replace(/[\s\-_]+/g, '');
                                 if ((norm.indexOf('large') >= 0 && norm.indexOf('metal') >= 0) || norm === 'largemetal' || norm === 'metallarge') {
-                                    return 'c:\\assetworx_prints\\AW_Large_Metal.btw';
+                                    return 'c:\\idash_prints\\iDash_Large_Metal.btw';
                                 }
                                 if (norm.indexOf('iq350') >= 0) {
-                                    return 'c:\\assetworx_prints\\AW_Metal_IQ350.btw';
+                                    return 'c:\\idash_prints\\iDash_Metal_IQ350.btw';
                                 }
-                                return 'c:\\assetworx_prints\\AW_Std_Small.btw';
+                                return 'c:\\idash_prints\\iDash_Std_Small.btw';
                             }
 
                             async function openLabelPreview(barcode, desc, sn, cmr, tagType, assetId) {

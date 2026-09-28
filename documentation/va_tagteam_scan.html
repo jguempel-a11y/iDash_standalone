@@ -250,6 +250,23 @@
                 <li><strong>Use case:</strong> OIT (Office of Information Technology) assets typically have CMR/EIL values starting with "78". We do not tag OIT equipment; checking this box prevents them from polluting your site's ENNX report and from being incorrectly updated in the database.</li>
             </ul>
 
+            <!-- AUTOMATED OIT PRINT SHIELD -->
+            <div class="alert alert-ok" style="margin-top:16px;">
+                <div style="font-size:15px; font-weight:700; color:#047857; margin-bottom:8px;">
+                    &#128737; Automated OIT Print Shield (&ldquo;Skip 78 OIT on Print&rdquo;) &mdash; Added 2026-09-28
+                </div>
+                <p style="margin-bottom:8px; line-height:1.6;">
+                    For technicians who scan 100&ndash;200 items offline with Bluetooth scanners, sync back at the cart, and print RFID replacement labels in bulk, Tag Team Scan includes an <strong>Automated OIT Print Shield</strong>:
+                </p>
+                <ul style="margin-bottom:0; line-height:1.6;">
+                    <li><strong>Visual Grid Badge:</strong> Any asset whose CMR starts with <code>78</code> displays a distinct purple <span class="badge-78-ignored">&#128737; OIT (78)</span> badge in the Scan Status column.</li>
+                    <li><strong>Print Toolbar Checkbox:</strong> A dedicated <code>[&#10003;] &#128737; Skip 78 OIT on Print</code> checkbox sits directly beside the <em>Server Print</em> button. It is <strong>enabled by default</strong> and persisted in <code>localStorage</code>.</li>
+                    <li><strong>Smart Select-All:</strong> Checking the header checkbox (<em>Select All for Print</em>) automatically selects all eligible contract equipment while <strong>leaving all 78 OIT assets unchecked</strong>.</li>
+                    <li><strong>Live Counter Feedback:</strong> The print button dynamically updates to display both the selected count and skipped count: e.g. <code>Server Print (142) [8 OIT skipped]</code>.</li>
+                    <li><strong>Zero Accidental Tagging:</strong> Because no labels are printed for OIT equipment, taggers holding the printed stack of replacement RFID labels will never accidentally tag non-contract OIT parts in the rooms.</li>
+                </ul>
+            </div>
+
             <!-- SITUATIONAL REALITIES & LIMITATIONS FOR FIELD TEAMS -->
             <div class="alert alert-warn" style="margin-top:16px;">
                 <div style="font-size:15px; font-weight:700; color:#b45309; margin-bottom:8px;">

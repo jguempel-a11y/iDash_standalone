@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -290,17 +290,57 @@ public partial class va_tagteam_scan : System.Web.UI.Page
                 if (savedTgt) ddlTgt.value = savedTgt;
                 ddlTgt.addEventListener('change', function() { localStorage.setItem('aw_tagteam_print_tgt', this.value); });
             }
+
+            // Init and synchronize Ignore 78 setting from localStorage (default to true)
+            const saved78 = localStorage.getItem('aw_tagteam_ignore78');
+            const shouldIgnore = (saved78 === null || saved78 === 'true');
+            const chkPrint = document.getElementById('chkExcludeOitPrint');
+            if (chkPrint) chkPrint.checked = shouldIgnore;
+            const chkEnnx = document.getElementById('ChkIgnore78Cmr');
+            if (chkEnnx) chkEnnx.checked = shouldIgnore;
         } catch (e) {
             console.error('Failed to setup print templates', e);
         }
     }
 
+    function isIgnore78Active() {
+        const chkPrint = document.getElementById('chkExcludeOitPrint');
+        if (chkPrint) return chkPrint.checked;
+        const chkEnnx = document.getElementById('ChkIgnore78Cmr');
+        if (chkEnnx) return chkEnnx.checked;
+        const saved78 = localStorage.getItem('aw_tagteam_ignore78');
+        return (saved78 === null || saved78 === 'true');
+    }
+
+    window.syncExcludeOit = function(val) {
+        localStorage.setItem('aw_tagteam_ignore78', val ? 'true' : 'false');
+        const chkEnnx = document.getElementById('ChkIgnore78Cmr');
+        if (chkEnnx) chkEnnx.checked = val;
+        const chkPrint = document.getElementById('chkExcludeOitPrint');
+        if (chkPrint) chkPrint.checked = val;
+        const chkAll = document.getElementById('chkAllPrint');
+        if (chkAll && chkAll.checked) {
+            toggleAllPrint(chkAll);
+        } else {
+            updatePrintBtn();
+        }
+    };
+
     function toggleAllPrint(source) {
+        const exclude78 = isIgnore78Active();
         const checkboxes = document.querySelectorAll('.chk-print:not([disabled])');
+        let skippedOit = 0;
         checkboxes.forEach(cb => {
-            cb.checked = source.checked;
+            const cmr = (cb.getAttribute('data-cmr') || '').trim();
+            const isOit = cmr.startsWith('78');
+            if (source.checked && exclude78 && isOit) {
+                cb.checked = false;
+                skippedOit++;
+            } else {
+                cb.checked = source.checked;
+            }
         });
-        updatePrintBtn();
+        updatePrintBtn(skippedOit);
     }
 
     document.addEventListener('change', function(e) {
@@ -309,7 +349,7 @@ public partial class va_tagteam_scan : System.Web.UI.Page
         }
     });
 
-    function updatePrintBtn() {
+    function updatePrintBtn(skippedOit) {
         const checked = document.querySelectorAll('.chk-print:checked');
         const btn = document.getElementById('BtnPrintChecked');
         const ddlTpl = document.getElementById('DdlPrintTemplate');
@@ -328,7 +368,11 @@ public partial class va_tagteam_scan : System.Web.UI.Page
         if(btn) {
             if(checked.length > 0) {
                 btn.style.display = 'inline-block';
-                btn.innerText = 'Server Print (' + checked.length + ')';
+                let txt = 'Server Print (' + checked.length + ')';
+                if (typeof skippedOit === 'number' && skippedOit > 0) {
+                    txt += ' [' + skippedOit + ' OIT skipped]';
+                }
+                btn.innerText = txt;
                 if(ddlTpl) ddlTpl.style.display = 'inline-block';
                 if(ddlTgt) ddlTgt.style.display = 'inline-block';
                 if(btnMarkSel) {
@@ -442,8 +486,18 @@ public partial class va_tagteam_scan : System.Web.UI.Page
     };
 
     async function printCheckedTags() {
-        const checked = document.querySelectorAll('.chk-print:checked');
-        if (checked.length === 0) return;
+        const exclude78 = isIgnore78Active();
+        const allChecked = Array.from(document.querySelectorAll('.chk-print:checked'));
+        const checked = allChecked.filter(cb => {
+            const cmr = (cb.getAttribute('data-cmr') || '').trim();
+            return !(exclude78 && cmr.startsWith('78'));
+        });
+        if (checked.length === 0) {
+            if (allChecked.length > 0) {
+                alert('All ' + allChecked.length + ' selected item(s) belong to OIT (78 CMR) and were skipped by the ""Skip 78 OIT on Print"" filter.');
+            }
+            return;
+        }
 
         const ddlTpl = document.getElementById('DdlPrintTemplate');
         const ddlTgt = document.getElementById('DdlPrintTarget');
