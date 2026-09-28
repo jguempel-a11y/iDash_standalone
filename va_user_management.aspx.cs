@@ -430,7 +430,9 @@ public partial class va_user_management : System.Web.UI.Page
         public string Email       { get; set; }
         public string Phone       { get; set; }
         public string CardId      { get; set; }
+        public string Cardid      { get { return CardId; } set { CardId = value; } }
         public string RfidTag     { get; set; }
+        public string Rfidtag     { get { return RfidTag; } set { RfidTag = value; } }
         public string UserType    { get; set; }
         public int?   CompanyId   { get; set; }
         public string CompanyName { get; set; }
@@ -438,6 +440,7 @@ public partial class va_user_management : System.Web.UI.Page
 
     private void BindAwGrid()
     {
+        LitAwMsg.Text = "";
         string cs = AwConnStr;
         if (string.IsNullOrEmpty(cs)) { LitAwMsg.Text = "<div class='alert alert-err'>&#9888; Database connection string not configured.</div>"; return; }
         

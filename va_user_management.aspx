@@ -414,7 +414,7 @@
 
     <!-- ===== SCANNER & SYSTEM USERS SECTION ===== -->
     <div id="awSection" class="section-hidden">
-        <asp:Literal ID="LitAwMsg" runat="server" />
+        <asp:Literal ID="LitAwMsg" runat="server" EnableViewState="false" />
         <div class="card">
             <div class="card-title" style="justify-content:space-between;">
                 <span>&#128737; Scanner &amp; System Users</span>
