@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>iDash V1.0 Product Definition & Commercial Packaging — ID Integration Inc.</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .badge-draft { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); font-weight: 700; padding: 4px 10px; border-radius: 6px; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; }
+        .badge-core { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); font-weight: 700; padding: 3px 8px; border-radius: 4px; font-size: 11px; }
+        .badge-opt { background: rgba(2, 132, 199, 0.15); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.4); font-weight: 700; padding: 3px 8px; border-radius: 4px; font-size: 11px; }
+        .badge-code { font-family: 'Cascadia Code', Consolas, monospace; background: var(--chip, rgba(0,0,0,0.06)); padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+        .pricing-callout { background: linear-gradient(135deg, rgba(46, 168, 255, 0.08), rgba(16, 185, 129, 0.08)); border: 1px solid rgba(46, 168, 255, 0.3); border-radius: 14px; padding: 22px; margin: 24px 0; }
+        .price-badge { font-size: 1.35rem; font-weight: 800; color: #10b981; }
+        .pillar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin: 20px 0; }
+        .pillar-card { background: var(--chip); border: 1px solid var(--line-docs); border-radius: 12px; padding: 18px; }
+        .pillar-card h4 { margin: 0 0 8px 0; color: var(--accent-docs); font-size: 1.05rem; display: flex; align-items: center; gap: 8px; }
+        .pillar-card ul { margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.55; }
+        .config-box { background: var(--chip); border-left: 4px solid var(--accent-docs); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+        .gate-check { color: #10b981; font-weight: bold; margin-right: 6px; }
+        .checklist-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; font-size: 13.5px; }
+        .check-box { width: 18px; height: 18px; border: 2px solid var(--accent-docs); border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; color: var(--accent-docs); font-weight: bold; flex-shrink: 0; margin-top: 2px; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <!-- TOP DRAFT BANNER -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span class="badge-draft">&#128274; Internal Working Draft</span>
+                <span style="font-size:12px; color:var(--muted-docs);">&bull; Confidential &bull; Not Published to Documentation Hub</span>
+            </div>
+            <div>
+                <span style="font-size:12px; color:var(--muted-docs);">Target Release: <strong>v1.0.0</strong> &bull; Updated September 2026</span>
+            </div>
+        </div>
+
+        <!-- MAIN HEADER CARD -->
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:14px;">
+                <div>
+                    <div style="font-size:13px; text-transform:uppercase; letter-spacing:1px; color:var(--accent-docs); font-weight:700;">ID Integration Inc. &mdash; Commercial Software Specification</div>
+                    <h1 style="margin:4px 0 6px 0;">iDash: Product Definition, Packaging &amp; Pricing</h1>
+                    <p style="margin:0; font-size:1.15rem; color:var(--muted-docs); font-weight:600;">
+                        Intelligent Distributed Asset Scanning Hub &trade;
+                    </p>
+                </div>
+                <div style="text-align:right;">
+                    <span class="badge-core">VERSION 1.0 RELEASE SPEC</span>
+                    <div style="font-size:11px; color:var(--muted-docs); margin-top:6px;">Repo: <code>jguempel-a11y/iDash_standalone</code></div>
+                </div>
+            </div>
+
+            <div class="alert alert-info" style="margin-top:22px;">
+                <strong>Working Decision:</strong> Freeze a supportable Version 1.0 commercial baseline around the mature asset tracking, real-time inventory sweeping, field tagging, direct ZPL label printing, fixed RFID portal tracking, and operational analytics currently deployed and field-tested across VA medical centers (e.g., Prescott and VISN 5 facilities). Maintain robust standalone database compatibility for V1, while establishing clean API contracts for future enterprise connectors as dedicated post-V1 roadmap milestones.
+            </div>
+        </div>
+
+        <!-- SECTION 1: PRODUCT IDENTITY & BRANDING -->
+        <div class="card">
+            <h2>1. Product Identity &amp; Brand Positioning</h2>
+            <p>
+                <strong>Primary Commercial Brand:</strong> <code style="font-size:1.05rem;">iDash &mdash; Intelligent Distributed Asset Scanning Hub&trade;</code><br />
+                <strong>Publisher / Developer:</strong> <strong>ID Integration Inc.</strong>
+            </p>
+            <p>
+                The name <strong>iDash</strong> preserves the immediate operational brand recognition already established among biomedical engineers, logistics specialists, and RFID field scanning technicians. The expanded acronym &mdash; <strong>Intelligent Distributed Asset Scanning Hub</strong> &mdash; captures the system's architectural strength: bridging distributed RFID scanning hardware (handhelds, fixed readers, mobile carts) into a unified, high-performance asset intelligence and reporting hub.
+            </p>
+
+            <table style="margin-top:16px;">
+                <thead>
+                    <tr>
+                        <th style="width:50px;">Rank</th>
+                        <th>Brand Option</th>
+                        <th>Descriptor</th>
+                        <th>Evaluation &amp; Recommendation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1</strong></td>
+                        <td><strong>iDash&trade;</strong><br/><span style="font-size:11px; color:var(--muted-docs);">Intelligent Distributed Asset Scanning Hub</span></td>
+                        <td>RFID Asset Visibility, Inventory &amp; Location Intelligence</td>
+                        <td><strong style="color:#10b981;">&check; Primary Recommended Mark.</strong> Retains established customer recognition, highlights the distributed multi-site architecture, and cleanly unifies all scanning workflows under ID Integration Inc.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2</strong></td>
+                        <td><strong>ID Integration Asset Intelligence Platform&trade;</strong></td>
+                        <td>Enterprise RFID Asset Intelligence Platform</td>
+                        <td>Broad corporate umbrella mark. Best utilized as an overarching solution descriptor for enterprise and federal contracting documentation.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3</strong></td>
+                        <td><strong>ID Integration Asset Intelligence Suite&trade;</strong></td>
+                        <td>RFID Workflow, Tracking &amp; Integration Suite</td>
+                        <td>Traditional enterprise-software positioning; suitable for multi-module commercial procurement schedules.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="alert alert-warn" style="margin-bottom:0;">
+                <strong>Branding &amp; Compliance Notice:</strong> Strictly maintain ID Integration Inc. ownership across all customer collateral. Do not use &reg; until formal trademark registration is granted; use &trade;. All collateral, user manuals, and online interfaces must be 100% free of legacy vendor branding.
+            </div>
+        </div>
+
+        <!-- SECTION 2: LOCKED V1.0 FEATURE SCOPE -->
+        <div class="card">
+            <h2>2. Version 1.0 &mdash; Locked Commercial Feature Scope</h2>
+            <p>
+                The following represents the locked release boundary for <strong>iDash V1.0</strong>. Features within this boundary are production-tested, hardened, and supported. Items outside this boundary are formally assigned to the post-V1 roadmap.
+            </p>
+
+            <div class="pillar-grid">
+                <!-- Pillar 1 -->
+                <div class="pillar-card">
+                    <h4>&#128187; Browser &amp; User Experience</h4>
+                    <ul>
+                        <li>Zero-footprint web application for desktop, rugged tablet, and handheld browsers.</li>
+                        <li>Full compatibility with Chrome and Zebra Enterprise Browser.</li>
+                        <li>Single URL navigation with role-appropriate views (Biomed, Logistics, Warehouse, Admin).</li>
+                        <li>Multi-site and site-scoped access control with granular facility partitioning.</li>
+                        <li>Dark mode / light mode theme support with responsive high-density data tables.</li>
+                    </ul>
+                </div>
+
+                <!-- Pillar 2 -->
+                <div class="pillar-card">
+                    <h4>&#128225; Handheld Inventory &amp; Locating</h4>
+                    <ul>
+                        <li>Real-time room inventory sweep engine executing at 30&ndash;50 tags/second.</li>
+                        <li>Instant reconciliation: Green Found, Red Misplaced, Yellow Missing, Gray Unregistered.</li>
+                        <li>Targeted RFID locating with audible &amp; visual "Geiger-counter" proximity signal strength.</li>
+                        <li>Tag Team Scan offline caching engine with batch synchronization upon reconnection.</li>
+                        <li>Automatic tag validation against configured EPC formats and filter rules.</li>
+                    </ul>
+                </div>
+
+                <!-- Pillar 3 -->
+                <div class="pillar-card">
+                    <h4>&#127991; Field Tagging &amp; Label Printing</h4>
+                    <ul>
+                        <li>Barcode scanning to look up equipment, verify existing records, and bind RFID tags.</li>
+                        <li>Authorized correction of selected asset fields through controlled, auditable workflows.</li>
+                        <li>Browser-driven direct ZPL label printing and RFID tag encoding with print preview.</li>
+                        <li>Multi-printer support for desktop and mobile Zebra RFID printers (ZT411, ZD621R, etc.).</li>
+                        <li>Batch print queue and bulk tagging project workflows.</li>
+                    </ul>
+                </div>
+
+                <!-- Pillar 4 -->
+                <div class="pillar-card">
+                    <h4>&#128202; Reporting &amp; Operational Analytics</h4>
+                    <ul>
+                        <li>Sub-second multi-criteria asset search across serial, EE, CMR, model, and location.</li>
+                        <li>Configurable table columns, persistent user filters, and saved views.</li>
+                        <li>Comprehensive inventory audit reports, CMR variance statistics, and Excel export.</li>
+                        <li>Read-only analytical SQL reporting queries with transactional safety.</li>
+                        <li>Discrepancy dashboards highlighting missing, expired, and misplaced capital assets.</li>
+                    </ul>
+                </div>
+
+                <!-- Pillar 5 -->
+                <div class="pillar-card">
+                    <h4>&#128506; Fixed RFID &amp; Location Intelligence</h4>
+                    <ul>
+                        <li>Direct integration with fixed UHF RFID readers (Zebra FX9600, FX7500).</li>
+                        <li>Timestamped asset movement and transit events captured from choke-points and doorways.</li>
+                        <li>Interactive 2D floorplan visualization and antenna zone location mapping.</li>
+                        <li>Comprehensive location history audit trail for high-value equipment finding and chain-of-custody.</li>
+                        <li>Real-time antenna diagnostic telemetry and heartbeat monitoring.</li>
+                    </ul>
+                </div>
+
+                <!-- Pillar 6 -->
+                <div class="pillar-card">
+                    <h4>&#128272; Security, Administration &amp; DevOps</h4>
+                    <ul>
+                        <li>On-premises IIS / ASP.NET server deployment running on Windows Server with SQL Server.</li>
+                        <li>Role-based access control (RBAC), fail-closed authorization, and persistent security audit log.</li>
+                        <li>Integrated deployment and system diagnostics wizard (<code>deploy_idash.aspx</code>).</li>
+                        <li>Complete Software Bill of Materials (SBOM) and third-party attribution register.</li>
+                        <li>Documented installation, database backup, restore, upgrade, and rollback procedures.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: EXPLICITLY OUTSIDE V1.0 -->
+        <div class="card">
+            <h2>3. Explicitly Outside V1.0 &mdash; Post-V1 Roadmap</h2>
+            <p>
+                To guarantee commercial delivery and support stability, the following capabilities are explicitly deferred to subsequent version releases:
+            </p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                <div class="config-box">
+                    <strong style="color:var(--accent-docs);">&#128683; Deferred Architecture Scope</strong>
+                    <ul style="margin:8px 0 0 0; padding-left:20px; font-size:13px; line-height:1.6;">
+                        <li><strong>Cloud / Multi-Tenant SaaS Hosting:</strong> V1 remains strictly on-premises and air-gapped intranet certified.</li>
+                        <li><strong>Native App Store Binaries:</strong> V1 standardizes on high-performance browser PWA and Zebra Enterprise Browser.</li>
+                        <li><strong>Active Beacon Hardware:</strong> V1 is purpose-engineered for passive EPC Gen2 UHF RFID technology.</li>
+                    </ul>
+                </div>
+                <div class="config-box">
+                    <strong style="color:var(--accent-docs);">&#128683; Deferred Integration Scope</strong>
+                    <ul style="margin:8px 0 0 0; padding-left:20px; font-size:13px; line-height:1.6;">
+                        <li><strong>Unattended Host System Writes:</strong> Automated write-backs to external host systems without operator confirmation.</li>
+                        <li><strong>Direct Pre-Built ERP Connectors:</strong> Direct Nuvolo, ServiceNow, or Oracle adapters (assigned to the Connector module roadmap).</li>
+                        <li><strong>National Data Lake Aggregation:</strong> Cross-VISN central aggregation beyond the facility-level database clustering supported in V1.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 4: V1.0 RELEASE GATES -->
+        <div class="card">
+            <h2>4. Version 1.0 Release Gates &amp; Quality Criteria</h2>
+            <p>Every commercial release candidate must pass all 8 mandatory release gates before external customer delivery:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:180px;">Release Gate</th>
+                        <th>Required Quality Outcome</th>
+                        <th style="width:140px;">Verification</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. Feature Freeze</strong></td>
+                        <td>Only defect resolutions, performance optimizations, and security patches permitted into the V1 release branch.</td>
+                        <td><span class="gate-check">&check;</span> Sign-Off Required</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. Version &amp; Repository</strong></td>
+                        <td>Commercial codebase tagged as <code>v1.0.0</code> in the standalone repository (<code>jguempel-a11y/iDash_standalone</code>), maintaining complete revision history.</td>
+                        <td><span class="gate-check">&check;</span> Git Tag Verified</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. Security Validation</strong></td>
+                        <td>Final application vulnerability scan, role-boundary audit, SQL parameterization verification, and remediated evidence log.</td>
+                        <td><span class="gate-check">&check;</span> Security Audit Log</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. Supply-Chain Evidence</strong></td>
+                        <td>Generated Software Bill of Materials (SBOM), third-party license register, and SHA-256 build checksums.</td>
+                        <td><span class="gate-check">&check;</span> SBOM Manifest</td>
+                    </tr>
+                    <tr>
+                        <td><strong>5. Deployment Automation</strong></td>
+                        <td>Validated deployment package via <code>deploy_idash.aspx</code>, including database schema scripts, IIS configuration, and rollback instructions.</td>
+                        <td><span class="gate-check">&check;</span> Deployment Test</td>
+                    </tr>
+                    <tr>
+                        <td><strong>6. Facility Accreditation</strong></td>
+                        <td>Documented facility OIT and ISO security boundary compliance documentation supporting local Authority to Operate (ATO).</td>
+                        <td><span class="gate-check">&check;</span> ISO Package Ready</td>
+                    </tr>
+                    <tr>
+                        <td><strong>7. Documentation Suite</strong></td>
+                        <td>Complete User Manual, Administrator Operations Guide, Scanner Quick Reference Card, and Deployment Wizard Guide.</td>
+                        <td><span class="gate-check">&check;</span> Docs Verified</td>
+                    </tr>
+                    <tr>
+                        <td><strong>8. Support Readiness</strong></td>
+                        <td>Tier 1 and Tier 2 support workflows, escalation matrix, SLA targets, and supported-version maintenance policies finalized.</td>
+                        <td><span class="gate-check">&check;</span> Support SLA Bound</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- SECTION 5: PACKAGING & PART NUMBERS -->
+        <div class="card">
+            <h2>5. Commercial Packaging &amp; Software Part Numbers</h2>
+            <p>
+                Standardized <strong>ID Integration Inc. (IDI)</strong> part numbers provide clear, modular procurement options for medical centers and enterprise facilities:
+            </p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:180px;">Part Number</th>
+                        <th>Product / Module Description</th>
+                        <th>Licensing Scope &amp; Inclusions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code class="badge-code">IDI-SW-IDASH-CORE</code></td>
+                        <td><strong>iDash Core &mdash; Facility Site License</strong><br/><span style="font-size:11px; color:var(--muted-docs);">Base Platform</span></td>
+                        <td>Full server application, responsive web client, handheld RFID room sweeps, Tag Team scanning, Geiger locating, barcode verification, direct ZPL label printing, reporting engine, and user administration. Unlimited users per licensed facility.</td>
+                    </tr>
+                    <tr>
+                        <td><code class="badge-code">IDI-SW-IDASH-RTLS</code></td>
+                        <td><strong>Fixed RFID Location &amp; Mapping Module</strong><br/><span style="font-size:11px; color:var(--muted-docs);">Optional Add-On</span></td>
+                        <td>Fixed RFID reader ingest engine (Zebra FX9600/FX7500), doorway/chokepoint movement event logging, real-time antenna zone mapping, 2D floorplan visualization, and movement history audit tracking.</td>
+                    </tr>
+                    <tr>
+                        <td><code class="badge-code">IDI-SW-IDASH-CONN</code></td>
+                        <td><strong>Enterprise Integration Connector</strong><br/><span style="font-size:11px; color:var(--muted-docs);">Optional Add-On</span></td>
+                        <td>Per external system / facility interface. Designed for structured integration with external systems (e.g., AEMS/MERS, Nuvolo/ServiceNow, Oracle). Specific engineering and adapter scopes quoted separately.</td>
+                    </tr>
+                    <tr>
+                        <td><code class="badge-code">IDI-PS-IDASH-IMPL</code></td>
+                        <td><strong>Implementation, Configuration &amp; Training</strong><br/><span style="font-size:11px; color:var(--muted-docs);">Professional Services</span></td>
+                        <td>Turn-key on-premises server installation, database setup, Zebra printer and handheld configuration, facility site mapping, administrator onboarding, and train-the-trainer operational training.</td>
+                    </tr>
+                    <tr>
+                        <td><code class="badge-code">IDI-SW-IDASH-SUP</code></td>
+                        <td><strong>Annual Software Maintenance &amp; Technical Support</strong><br/><span style="font-size:11px; color:var(--muted-docs);">Recurring Annual</span></td>
+                        <td>Software maintenance updates, defect fixes, security patches, compatibility updates, and Tier 2/Tier 3 technical support under the defined SLA agreement.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- SECTION 6: PRELIMINARY PRICING -->
+        <div class="card">
+            <h2>6. Preliminary Commercial Price List</h2>
+            <div class="pricing-callout">
+                <div style="font-size:14px; font-weight:700; color:var(--accent-docs); text-transform:uppercase; letter-spacing:0.5px;">Core Pricing Philosophy</div>
+                <p style="margin:6px 0 0 0; font-size:13.5px;">
+                    iDash utilizes a <strong>per-facility site license</strong> model rather than restrictive per-user seats. This encourages broad facility-wide adoption across Biomed, Logistics, Warehouse, and Quality teams without administrative friction, while monetizing enterprise scale, advanced modules, and recurring support.
+                </p>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:170px;">Part Number</th>
+                        <th>Item</th>
+                        <th style="width:150px;">Preliminary List</th>
+                        <th>Licensing &amp; Pricing Terms</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code class="badge-code">IDI-SW-IDASH-CORE</code></td>
+                        <td><strong>Core Facility Site License</strong></td>
+                        <td><span class="price-badge">$95,000</span></td>
+                        <td>Per medical center / facility site. Unlimited named users within the licensed physical facility.</td>
+                    </tr>
+                    <tr>
+                        <td><code class="badge-code">IDI-SW-IDASH-RTLS</code></td>
+                        <td><strong>Fixed RFID Location &amp; Mapping</strong></td>
+                        <td><span class="price-badge">$40,000</span></td>
+                        <td>Optional module per facility. Covers all fixed reader zones across the licensed facility.</td>
+                    </tr>
+                    <tr>
+                        <td><code class="badge-code">IDI-SW-IDASH-CONN</code></td>
+                        <td><strong>Enterprise Integration Connector</strong></td>
+                        <td><span class="price-badge">$50,000</span></td>
+                        <td>Per external host system interface per facility. Complex custom data integrations quoted on SOW.</td>
+                    </tr>
+                    <tr>
+                        <td><code class="badge-code">IDI-PS-IDASH-IMPL</code></td>
+                        <td><strong>Implementation &amp; Training</strong></td>
+                        <td><span class="price-badge">$20,000</span></td>
+                        <td>Standard starting turnkey deployment package. Travel expenses and custom integration quoted separately.</td>
+                    </tr>
+                    <tr>
+                        <td><code class="badge-code">IDI-SW-IDASH-SUP</code></td>
+                        <td><strong>Annual Maintenance &amp; Support</strong></td>
+                        <td><span class="price-badge">20%</span> / year</td>
+                        <td>Calculated as 20% of net software license value. Annual renewal covering updates, security patches, and SLA support.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- SECTION 7: EXAMPLE SITE CONFIGURATIONS -->
+        <div class="card">
+            <h2>7. Example Facility Deployment Configurations</h2>
+            <p>Below are representative commercial configurations illustrating typical customer deployment tiers:</p>
+
+            <div class="config-box">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+                    <strong style="font-size:1.1rem; color:var(--text-docs);">Configuration A: Handheld Inventory &amp; Field Tagging Facility</strong>
+                    <span style="font-weight:800; color:#10b981; font-size:1.15rem;">$115,000 Initial &bull; $19,000/yr Support</span>
+                </div>
+                <p style="margin:6px 0 8px 0; font-size:13px; color:var(--muted-docs);">
+                    Ideal for medical centers focused on rapid annual/monthly room sweeps, equipment locating, and on-demand RFID label printing.
+                </p>
+                <div style="font-size:13px;">
+                    &bull; Core Facility License (<code>IDI-SW-IDASH-CORE</code>): $95,000<br />
+                    &bull; Implementation, Server Setup &amp; Training (<code>IDI-PS-IDASH-IMPL</code>): $20,000<br />
+                    &bull; Annual Software Maintenance &amp; Support (Year 2+): $19,000 / year
+                </div>
+            </div>
+
+            <div class="config-box">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+                    <strong style="font-size:1.1rem; color:var(--text-docs);">Configuration B: Full Passive RFID RTLS &amp; Location Tracking Facility</strong>
+                    <span style="font-weight:800; color:#10b981; font-size:1.15rem;">$155,000 Initial &bull; $27,000/yr Support</span>
+                </div>
+                <p style="margin:6px 0 8px 0; font-size:13px; color:var(--muted-docs);">
+                    Comprehensive deployment including handheld inventory sweeps plus fixed reader choke-point tracking and interactive 2D floorplan visualization.
+                </p>
+                <div style="font-size:13px;">
+                    &bull; Core Facility License (<code>IDI-SW-IDASH-CORE</code>): $95,000<br />
+                    &bull; Fixed RFID Location &amp; Mapping Module (<code>IDI-SW-IDASH-RTLS</code>): $40,000<br />
+                    &bull; Implementation &amp; Calibration Training (<code>IDI-PS-IDASH-IMPL</code>): $20,000<br />
+                    &bull; Annual Software Maintenance &amp; Support (Year 2+): $27,000 / year
+                </div>
+            </div>
+
+            <div class="config-box">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+                    <strong style="font-size:1.1rem; color:var(--text-docs);">Configuration C: Comprehensive Facility + Enterprise Integration</strong>
+                    <span style="font-weight:800; color:#10b981; font-size:1.15rem;">$205,000 Initial &bull; $37,000/yr Support</span>
+                </div>
+                <p style="margin:6px 0 8px 0; font-size:13px; color:var(--muted-docs);">
+                    Complete facility solution combining handheld sweeps, fixed RTLS portals, and an enterprise host connector for bidirectional synchronization.
+                </p>
+                <div style="font-size:13px;">
+                    &bull; Core Facility License (<code>IDI-SW-IDASH-CORE</code>): $95,000<br />
+                    &bull; Fixed RFID Location &amp; Mapping Module (<code>IDI-SW-IDASH-RTLS</code>): $40,000<br />
+                    &bull; Enterprise Integration Connector (<code>IDI-SW-IDASH-CONN</code>): $50,000<br />
+                    &bull; Implementation, Integration Setup &amp; Training (<code>IDI-PS-IDASH-IMPL</code>): $20,000<br />
+                    &bull; Annual Software Maintenance &amp; Support (Year 2+): $37,000 / year
+                </div>
+            </div>
+
+            <div class="alert alert-info" style="margin-bottom:0;">
+                <strong>Enterprise &amp; VISN Volume Schedule:</strong> Multi-facility VISN packages will utilize volume-discounted software tiers (e.g., 5-site, 10-site, and full network agreements) that preserve recurring support value while presenting compelling multi-site cost efficiency to federal procurement officers.
+            </div>
+        </div>
+
+        <!-- SECTION 8: 30-DAY COMMERCIALIZATION PLAN -->
+        <div class="card">
+            <h2>8. Recommended 30-Day Commercialization Plan</h2>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <div class="checklist-item">
+                    <span class="check-box">&check;</span>
+                    <div><strong>Week 1 &mdash; Scope &amp; Repository Freeze:</strong> Freeze V1.0 commercial feature scope; branch <code>release/v1.0.0</code> in the standalone iDash repository; compile base build manifest.</div>
+                </div>
+                <div class="checklist-item">
+                    <span class="check-box">&check;</span>
+                    <div><strong>Week 1 &mdash; Trademark &amp; Naming Formalization:</strong> Submit <em>iDash (Intelligent Distributed Asset Scanning Hub)</em> and corporate marks to trademark counsel for official filing and clearance.</div>
+                </div>
+                <div class="checklist-item">
+                    <span class="check-box">&check;</span>
+                    <div><strong>Weeks 1&ndash;2 &mdash; Licensing &amp; Part Number Registration:</strong> Establish ID Integration software part numbers, standard EULA terms, and multi-tier support SLA agreements.</div>
+                </div>
+                <div class="checklist-item">
+                    <span class="check-box">&check;</span>
+                    <div><strong>Weeks 2&ndash;3 &mdash; Quality &amp; Security Validation:</strong> Complete formal release-gate testing, vulnerability verification, SBOM generation, and packaging of the <code>deploy_idash.aspx</code> installation wizard.</div>
+                </div>
+                <div class="checklist-item">
+                    <span class="check-box">&check;</span>
+                    <div><strong>Weeks 2&ndash;4 &mdash; Reference Deployments &amp; User Feedback:</strong> Validate production behavior at Prescott and VISN 5 reference sites, capturing operational metrics and operator feedback.</div>
+                </div>
+                <div class="checklist-item">
+                    <span class="check-box">&check;</span>
+                    <div><strong>Week 4 &mdash; Customer Collateral Release:</strong> Finalize customer-facing 2-page product specification, executive slide deck, and official operator documentation suite.</div>
+                </div>
+                <div class="checklist-item">
+                    <span class="check-box">&rarr;</span>
+                    <div><strong>Post-V1 &mdash; Roadmap Architecture Kickoff:</strong> Initiate technical requirements and architecture for enterprise connectors (AEMS/MERS, Nuvolo) and national data lake infrastructure.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 9: EXECUTIVE DECISIONS CHECKLIST -->
+        <div class="card">
+            <h2>9. Executive Decisions Prior to External Launch</h2>
+            <p>Management confirmation is required on the following 7 operational and commercial decisions:</p>
+            
+            <div style="display:flex; flex-direction:column; gap:12px; margin-top:14px;">
+                <div class="checklist-item">
+                    <span class="check-box">1</span>
+                    <div><strong>Final Brand Formalization:</strong> Confirm <em>iDash (Intelligent Distributed Asset Scanning Hub)</em> as the official commercial mark upon completion of trademark clearance.</div>
+                </div>
+                <div class="checklist-item">
+                    <span class="check-box">2</span>
+                    <div><strong>Release Build Sign-Off:</strong> Approve the frozen V1.0.0 build hash, release manifest, and official target commercial availability date.</div>
+                </div>
+                <div class="checklist-item">
+                    <span class="check-box">3</span>
+                    <div><strong>Perpetual vs. Subscription Option:</strong> Confirm standard perpetual site license model with annual maintenance, alongside an optional 3-year or 5-year SaaS-like term subscription structure.</div>
+                </div>
+                <div class="checklist-item">
+                    <span class="check-box">4</span>
+                    <div><strong>SLA &amp; Support Escalation Tiers:</strong> Approve the 20% annual maintenance rate, formal support hours (e.g., 8am&ndash;8pm EST), and emergency escalation response targets.</div>
+                </div>
+                <div class="checklist-item">
+                    <span class="check-box">5</span>
+                    <div><strong>RTLS Module Bundling Strategy:</strong> Determine whether the Fixed RFID Location &amp; Mapping module (<code>IDI-SW-IDASH-RTLS</code>) is quoted strictly as an add-on or bundled into strategic facility proposals.</div>
+                </div>
+                <div class="checklist-item">
+                    <span class="check-box">6</span>
+                    <div><strong>Channel &amp; Federal Partner Pricing:</strong> Establish standard authorized reseller discount tiers for certified federal systems integration partners.</div>
+                </div>
+                <div class="checklist-item">
+                    <span class="check-box">7</span>
+                    <div><strong>Cybersecurity &amp; Section 508 Claims:</strong> Ensure all external marketing literature and technical claims reflect verifiable VA OIT security and accessibility compliance documentation.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer style="margin-top:40px;padding:24px;border-top:1px solid var(--line-docs);font-size:12px;color:var(--muted-docs);display:flex;justify-content:space-between;align-items:center;background:var(--bg-docs);max-width:1000px;margin-left:auto;margin-right:auto;flex-wrap:wrap;gap:12px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 18px; border-radius: 3px;">
+            <span style="font-weight: 700; font-size: 14px; color:var(--text-docs); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
+            <span style="color:var(--muted-docs); font-size: 11px;">Intelligent Distributed Asset Scanning Hub &bull; ID Integration Inc.</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;">
+            <span>&copy; 2026 ID Integration Inc. &bull; Internal Review Draft &bull; All Rights Reserved</span>
+        </div>
+    </footer>
+</body>
+</html>
