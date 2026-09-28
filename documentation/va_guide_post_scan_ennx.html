@@ -58,13 +58,13 @@
             <thead><tr><th style="width:5%">#</th><th>Action</th></tr></thead>
             <tbody>
                 <tr><td>1</td><td>Go to Scanning PC &rarr; open <strong>Microsoft Edge</strong></td></tr>
-                <tr><td>2</td><td>Open <strong>VA Intelligence Hub</strong> (bookmarked)</td></tr>
-                <tr><td>3</td><td>Sign in with your VA credentials</td></tr>
+                <tr><td>2</td><td>Open <strong>iDash Hub</strong> (bookmarked)</td></tr>
+                <tr><td>3</td><td>Sign in with your iDash credentials</td></tr>
                 <tr><td>4</td><td>Click <strong>ENNX Export &amp; History</strong></td></tr>
                 <tr><td>5</td><td>Enter <strong>Date</strong> (date of today&rsquo;s scan)</td></tr>
                 <tr><td>6</td><td>Select <strong>Site: 613</strong></td></tr>
                 <tr><td>7</td><td>Select your <strong>User</strong> from the dropdown</td></tr>
-                <tr><td>8</td><td>Check <strong>Tagged Items Only</strong></td></tr>
+                <tr><td>8</td><td><strong>Tagged Items Only:</strong> Check if reporting strictly on tagged parts; leave unchecked for all scanned inventory</td></tr>
                 <tr><td>9</td><td>Click <strong>Build ENNX</strong></td></tr>
                 <tr><td>10</td><td>Click <strong>Email ENNX + Excel</strong></td></tr>
             </tbody>
@@ -76,25 +76,25 @@
 
     <div class="step-card">
         <div class="step-title"><span class="step-num">1</span> Go to the Scanning PC &amp; Open Edge</div>
-        <div class="step-desc">Return to the Scanning PC &mdash; the same computer where you synced the scanner before heading out. Open <strong>Microsoft Edge</strong>.</div>
-        <div class="warn-box"><strong>&#9888; Must be done at the Scanning PC.</strong> The ENNX tool reads scan data that was uploaded when you synced the scanner. Use the same PC that was used for the pre-scan sync.</div>
+        <div class="step-desc">Return to the Scanning PC &mdash; the same computer connected to your facility network. Open <strong>Microsoft Edge</strong>.</div>
+        <div class="warn-box"><strong>&#9888; Network Connection Required:</strong> The ENNX tool reads scan data committed to the master database. Ensure the workstation has access to the iDash portal.</div>
     </div>
 
     <div class="step-card">
-        <div class="step-title"><span class="step-num">2</span> Open the VA Intelligence Hub</div>
-        <div class="step-desc">Click the <strong>VA Intelligence Hub</strong> bookmark in Edge, or navigate directly to the URL below.</div>
+        <div class="step-title"><span class="step-num">2</span> Open the iDash Hub</div>
+        <div class="step-desc">Click the <strong>iDash Hub</strong> bookmark in Edge, or navigate directly to the ENNX tool.</div>
         <div class="info-box">
             <strong>&#128279; Bookmarked URL:</strong><br />
-            <code class="url">http://visn5-8.tail03df01.ts.net/idash/va_ennx.aspx</code>
+            <code class="url">/va_ennx.aspx</code>
         </div>
-        <div class="tip-box"><strong>&#128161; Shortcut:</strong> The VA Intelligence Hub link is already saved in Edge Favorites on the Scanning PC. Look for it in the Favorites Bar or press <strong>Ctrl+Shift+B</strong> to show the Favorites Bar.</div>
+        <div class="tip-box"><strong>&#128161; Shortcut:</strong> The iDash Hub link is saved in Edge Favorites on the Scanning PC. Look for it in the Favorites Bar or press <strong>Ctrl+Shift+B</strong> to show the Favorites Bar.</div>
     </div>
 
     <div class="step-card">
         <div class="step-title"><span class="step-num">3</span> Sign In</div>
-        <div class="step-desc">Enter your username and password. <strong>These are the same credentials you use to log in to the iDash scanner app.</strong></div>
-        <img class="ss-port" src="img/access/login_idash.png" alt="Intelligent Distributed Asset Scanning Hub login screen with Username and Password fields" />
-        <p class="ss-cap">iDash login screen &mdash; use the same VA username and password as the scanner app.</p>
+        <div class="step-desc">Enter your username and password, accept the Software Usage Agreement, and click <strong>Sign In</strong>. <strong>These are the same credentials you use on the iDash scanner.</strong></div>
+        <img class="ss" src="img/access/login_idash.png?v=20260928_idash" alt="Intelligent Distributed Asset Scanning Hub sign-in page" />
+        <p class="ss-cap">iDash sign-in screen &mdash; enter your facility site number and password, then click <strong>Sign In</strong>.</p>
     </div>
 
     <hr class="section-divider" />
@@ -125,15 +125,18 @@
                 <p>Select your username from the <strong>User</strong> dropdown. <em>Only users who have scan sessions for the selected date will appear in this list.</em> If your name is missing, verify the scanner sync was completed.</p>
             </div>
             <div class="field-card">
-                <h4>&#9989; Step 8 &mdash; Tagged Items Only</h4>
-                <p>Check the <strong>Tagged Items Only</strong> checkbox. This limits the export to assets that have RFID tags applied, which is the standard for daily inventory reports.</p>
+                <h4>&#9989; Step 8 &mdash; Tagged Items Only (Filter Option)</h4>
+                <p>
+                    <strong>Check this box</strong> only if your team is actively conducting a tagging initiative and you strictly want to report on newly tagged items.<br/>
+                    <strong>Leave unchecked</strong> if you are performing routine inventory sweeps or general location audits &mdash; leaving this blank ensures all scanned assets in the room are reported regardless of whether they were recently tagged.
+                </p>
             </div>
         </div>
 
-        <img class="ss" src="img/ennx/ennx_email_success.png" alt="ENNX Export page with From Date 07/30/2026, Site 613, User dennis selected, Email sent successfully to 1 recipients banner at top" />
-        <p class="ss-cap">Example of correctly filled-in filters: From Date = scan date, Site = 613, User = your username, Tagged Items Only checked. The green banner at the top confirms the email was sent (Step 10).</p>
+        <img class="ss" src="img/ennx/ennx_email_success.png" alt="ENNX Export page with From Date 07/30/2026, Site 613, User selected, Email sent banner at top" />
+        <p class="ss-cap">Example of correctly filled-in filters: From Date = scan date, Site = 613, User = your username. (Leave &ldquo;Tagged Items Only&rdquo; unchecked when reporting on all scanned assets).</p>
 
-        <div class="warn-box"><strong>&#9888; User not in dropdown?</strong> If your username does not appear in the User list, the scanner sync did not complete successfully. Return to the scanner, go to <strong>MORE &rarr; Sync App</strong>, wait for confirmation, then reload this page.</div>
+        <div class="warn-box"><strong>&#9888; User not in dropdown?</strong> If your username does not appear in the User list, verify that the scan session was committed on the scanner. In iDash Inventory, tap <strong>Commit Scans</strong> while connected to the network, then reload this page.</div>
     </div>
 
     <div class="step-card">
@@ -147,8 +150,8 @@
     <div class="step-card">
         <div class="step-title"><span class="step-num">10</span> Click &ldquo;Email ENNX + Excel&rdquo;</div>
         <div class="step-desc">Click <span class="btn-demo btn-link">Email ENNX + Excel</span> to send the report. Email recipients are pre-configured &mdash; you do not need to enter any email addresses.</div>
-        <img class="ss" src="img/ennx/ennx_email_success.png" alt="ENNX Export page with green Email sent successfully to 1 recipients banner at the top of the page" />
-        <p class="ss-cap">Success &mdash; the green banner &ldquo;<strong>Email sent successfully to 1 recipients.</strong>&rdquo; confirms the ENNX report and Excel file have been delivered. Your post-scan workflow is complete.</p>
+        <img class="ss" src="img/ennx/ennx_email_success.png" alt="ENNX Export page with green Email sent successfully banner at the top of the page" />
+        <p class="ss-cap">Success &mdash; the green banner &ldquo;<strong>Email sent successfully.</strong>&rdquo; confirms the ENNX report and Excel file have been delivered. Your post-scan workflow is complete.</p>
         <div class="success-box"><strong>&#10003; Done!</strong> The ENNX report and Excel export have been emailed to the configured recipients. No further action is needed for today&rsquo;s scan session.</div>
     </div>
 
@@ -158,13 +161,13 @@
         <thead><tr><th style="width:5%">#</th><th>Step</th><th>Value / Setting</th></tr></thead>
         <tbody>
             <tr><td>1</td><td>Computer</td><td>Scanning PC &mdash; Microsoft Edge</td></tr>
-            <tr><td>2</td><td>URL</td><td><code class="url">http://visn5-8.tail03df01.ts.net/idash/va_ennx.aspx</code> (bookmarked)</td></tr>
+            <tr><td>2</td><td>URL</td><td><code class="url">/va_ennx.aspx</code> (bookmarked on Scanning PC)</td></tr>
             <tr><td>3</td><td>Credentials</td><td>Same username &amp; password as the scanner app</td></tr>
             <tr><td>4</td><td>Navigate to</td><td>ENNX Export &amp; History</td></tr>
             <tr><td>5</td><td>From Date</td><td>Today&rsquo;s date (date of the scan)</td></tr>
             <tr><td>6</td><td>Site</td><td><strong>613</strong></td></tr>
             <tr><td>7</td><td>User</td><td>Your username (only users with scans appear)</td></tr>
-            <tr><td>8</td><td>Tagged Items Only</td><td>&#9989; <strong>Checked</strong></td></tr>
+            <tr><td>8</td><td>Tagged Items Only</td><td>Check <strong>only</strong> for tagging projects; leave <strong>unchecked</strong> for routine inventory</td></tr>
             <tr><td>9</td><td>Action</td><td>Click <strong>Build ENNX</strong>, review the data</td></tr>
             <tr><td>10</td><td>Action</td><td>Click <strong>Email ENNX + Excel</strong> &mdash; recipients are pre-set</td></tr>
         </tbody>
@@ -174,7 +177,7 @@
     <table class="doc-table">
         <thead><tr><th style="width:34%">Problem</th><th>Cause</th><th>Fix</th></tr></thead>
         <tbody>
-            <tr><td>My username is not in the User dropdown</td><td>Scanner sync did not complete</td><td>On scanner: <strong>MORE &rarr; Sync App</strong> at the Scanning PC, then reload the ENNX page.</td></tr>
+            <tr><td>My username is not in the User dropdown</td><td>Scanner commit was not sent</td><td>On scanner: tap <strong>Commit Scans</strong> in iDash Inventory while on network, then reload this page.</td></tr>
             <tr><td>ENNX builds but shows no data</td><td>Date, Site, or User filter is wrong</td><td>Confirm the From Date matches the scan date and Site = 613.</td></tr>
             <tr><td>Email not received by recipients</td><td>SMTP issue or wrong recipients configured</td><td>Contact the iDash administrator to verify email configuration.</td></tr>
             <tr><td>Build ENNX is slow</td><td>Large scan session with many assets</td><td>Normal behavior &mdash; wait for the page to finish loading before clicking Email.</td></tr>
