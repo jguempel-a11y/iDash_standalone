@@ -427,33 +427,32 @@
                     <div>
                         <div class="card-header">
                             <div class="card-header-title">
-                                &#128241; VA RFID SCANNING &mdash; FIELD QUICK REF
+                                &#128241; iDash RFID SCANNING &mdash; FIELD QUICK REF
                             </div>
-                            <span class="card-badge">Zebra TC53 + RF40</span>
+                            <span class="card-badge">Zebra TC53 + RFD40</span>
                         </div>
                         <ol class="step-list">
-                            <li data-step="1.">Take scanner and sled to <strong>Scanning PC</strong>.</li>
-                            <li data-step="2.">Enter pin on Scanner: <span class="highlight-pin">5613</span></li>
-                            <li data-step="3.">Open iDash, select <strong>&ldquo;Yes&rdquo;</strong> to sync app <span class="must-pc">(MUST BE DONE AT SCANNING PC)</span>.</li>
-                            <li data-step="4.">Log in with user &amp; password; wait until <strong>app sync is complete</strong> before leaving PC to scan locations.</li>
-                            <li data-step="5.">Scan room location tag with <span class="trigger-tag trig-bottom">Bottom Trigger</span> (Barcode) on sled.</li>
-                            <li data-step="6.">Scan room for RFID tags using <span class="trigger-tag trig-top">Top Trigger</span> (RFID Sweep) on sled.</li>
-                            <li data-step="7.">If updates are needed after scan: tap <strong>Asset</strong> &rarr; review items:
+                            <li data-step="1.">Unlock TC53 screen (PIN: <span class="highlight-pin">5613</span>).</li>
+                            <li data-step="2.">Open <strong>Google Chrome</strong> (or tap 1-tap iDash shortcut on home screen).</li>
+                            <li data-step="3.">Sign in to iDash with site number &amp; password (e.g. <strong>613</strong>) &rarr; tap <strong>Sign In</strong>.</li>
+                            <li data-step="4.">From the Hub, tap <strong>Inventory</strong> (<code>va_inventory.aspx</code>).</li>
+                            <li data-step="5.">Scan room location placard using <span class="trigger-tag trig-bottom">Bottom Trigger</span> (Barcode) on sled. Room manifest preloads automatically.</li>
+                            <li data-step="6.">Sweep room for RFID tags using <span class="trigger-tag trig-top">Top Trigger</span> (RFID Sweep) on sled. Audio beeps confirm tag reads.</li>
+                            <li data-step="7.">Review live color-coded status table:
                                 <div class="color-legend">
-                                    <span class="c-pill cp-org">Orange: Inventoried</span>
-                                    <span class="c-pill cp-grn">Green: Confirmed</span>
-                                    <span class="c-pill cp-blu">Blue: Move / Move All</span>
-                                    <span class="c-pill cp-pnk">Pink: Locate Mode</span>
+                                    <span class="c-pill cp-grn">&#10003; Green: Verified In-Place</span>
+                                    <span class="c-pill cp-blu">&#128205; Blue: Misplaced (Other Room)</span>
+                                    <span class="c-pill cp-org">&#9632; Orange: Expected / Not Read</span>
                                 </div>
                             </li>
-                            <li data-step="8.">When inventory is done, click <strong>&ldquo;Inventory Done&rdquo;</strong> and proceed to next location, repeating steps 5&ndash;7 until finished.</li>
-                            <li data-step="9.">When finished scanning, return to Scanning PC &rarr; click <strong>&ldquo;More&rdquo; tab</strong> &rarr; scroll &amp; tap <strong>&ldquo;Sync App&rdquo;</strong> <span class="must-pc">(MUST BE DONE AT SCANNING PC)</span>.</li>
-                            <li data-step="10."><strong>Log out</strong> of iDash.</li>
+                            <li data-step="8.">Tap <strong>Commit Scans</strong> &rarr; in dialog, choose action for misplaced items (<em>Move to this room</em> or <em>Keep location</em>).</li>
+                            <li data-step="9.">Confirm save (<em>&ldquo;Scans Committed&rdquo;</em>). Proceed to next room and repeat Steps 5&ndash;8.</li>
+                            <li data-step="10.">When scanning is complete, return to <strong>Scanning PC</strong> for daily ENNX reporting.</li>
                         </ol>
                     </div>
                     <div class="card-footer">
-                        <span>PIN: <strong>5613</strong> &bull; Sled: <strong>RF40</strong></span>
-                        <span>Source: <code>Enter pin on Scanner.docx</code></span>
+                        <span>PIN: <strong>5613</strong> &bull; Sled: <strong>RFD40</strong></span>
+                        <span>Platform: <strong>iDash Inventory (Chrome)</strong></span>
                     </div>
                 </div>
             </div>
@@ -470,26 +469,24 @@
                             <div class="card-header-title" style="color:#1d4ed8;">
                                 &#128424; SCANNING PC &mdash; ENNX EXPORT &amp; EMAIL
                             </div>
-                            <span class="card-badge" style="background:#eff6ff; color:#1d4ed8; border-color:#bfdbfe;">iDash Portal</span>
+                            <span class="card-badge" style="background:#eff6ff; color:#1d4ed8; border-color:#bfdbfe;">iDash ENNX</span>
                         </div>
                         <ol class="step-list">
-                            <li data-step="1.">Go to <strong>Scanning PC</strong> and open <strong>Edge Browser</strong>.</li>
-                            <li data-step="2.">Open <strong>VA Intelligence Hub</strong> (Bookmarked):<br>
-                                <code style="font-size:9px; background:#f1f5f9; padding:1px 4px; border-radius:3px; color:#0f172a; word-break:break-all;">http://visn5-8.tail03df01.ts.net/idash/va_ennx.aspx</code>
-                            </li>
-                            <li data-step="3."><strong>Sign in</strong> (Use the <em>same credentials</em> as scanner).</li>
-                            <li data-step="4.">Click on <strong>&ldquo;ENNX EXPORT &amp; HISTORY&rdquo;</strong>.</li>
-                            <li data-step="5.">Enter date: <strong>(Date of Scan)</strong>.</li>
-                            <li data-step="6.">Select site: <strong>613</strong>.</li>
-                            <li data-step="7.">Enter user: <em>(Only users with scans show in drop down)</em>.</li>
-                            <li data-step="8.">Check <strong>&ldquo;Tagged Items Only&rdquo;</strong>.</li>
-                            <li data-step="9.">Click on <strong>&ldquo;Build ENNX&rdquo;</strong>.</li>
-                            <li data-step="10.">Click on <strong>&ldquo;Email ENNX + Excel&rdquo;</strong> <span style="font-size:9.5px; color:#15803d; font-weight:700;">(Recipients already set)</span>.</li>
+                            <li data-step="1.">Go to <strong>Scanning PC</strong> &rarr; open <strong>Microsoft Edge</strong> (or Chrome).</li>
+                            <li data-step="2.">Open bookmarked <strong>iDash Hub</strong> &rarr; click <strong>ENNX Export &amp; History</strong> (or go to <code>/va_ennx.aspx</code>).</li>
+                            <li data-step="3."><strong>Sign In</strong> with your VA username &amp; password.</li>
+                            <li data-step="4.">Set <strong>From Date</strong>: Date of scan session (default: today).</li>
+                            <li data-step="5.">Select <strong>Site</strong>: <strong>613</strong> (or your facility number).</li>
+                            <li data-step="6.">Select <strong>User</strong>: Your username <em>(only users with committed scans appear)</em>.</li>
+                            <li data-step="7."><strong>Tagged Items Only</strong>: Leave <strong>UNCHECKED</strong> for routine room inventory; check <strong>ONLY</strong> for active tagging projects.</li>
+                            <li data-step="8.">Click <strong>Build ENNX</strong> &rarr; review ENNX preview and Data Details table.</li>
+                            <li data-step="9.">Verify trailer total: <code>***END***^N</code> equals <code>1 (ID) + Rooms + Assets</code>.</li>
+                            <li data-step="10.">Click <strong>Email ENNX + Excel</strong> &rarr; verify green <em>&ldquo;Email sent successfully&rdquo;</em> banner!</li>
                         </ol>
                     </div>
                     <div class="card-footer">
-                        <span>Site: <strong>613</strong> &bull; Portal: <strong>iDash ENNX</strong></span>
-                        <span>Source: <code>scanner back.docx</code></span>
+                        <span>Site: <strong>613</strong> &bull; Module: <strong>ENNX Export</strong></span>
+                        <span>Delivery: <strong>Email + Excel Attached</strong></span>
                     </div>
                 </div>
             </div>
@@ -515,17 +512,17 @@
                     <li><strong>Bottom Trigger:</strong> 1D/2D Barcode imager. Aim at room door frame or location placard barcode.</li>
                     <li><strong>Top Trigger:</strong> RFID UHF Antenna sweep. Pull and sweep room to read asset tags.</li>
                     <li><strong>PIN:</strong> <code style="color:var(--accent); font-weight:bold;">5613</code> to unlock the Zebra TC53 screen.</li>
-                    <li><strong>Scanner Sled:</strong> Zebra RF40 UHF RFID sled connected via Bluetooth/eConn.</li>
+                    <li><strong>Primary Browser:</strong> Google Chrome (supported by Zebra Enterprise Browser &amp; DataWedge).</li>
+                    <li><strong>Scanner Sled:</strong> Zebra RFD40 UHF RFID sled connected via Bluetooth/eConnex.</li>
                 </ul>
             </div>
 
             <div class="quick-box">
                 <h3>&#128392; Color Codes on Scanner Screen</h3>
                 <ul style="margin:0; padding-left:18px; line-height:1.8; font-size:13.5px; color:var(--muted-docs);">
-                    <li><strong style="color:#fb923c;">Orange:</strong> Inventoried / expected in this location.</li>
-                    <li><strong style="color:#22c55e;">Green:</strong> Confirmed found during this scan session.</li>
-                    <li><strong style="color:#60a5fa;">Blue:</strong> Located elsewhere in iDash database &mdash; tap to <em>Move</em> or <em>Move All</em>.</li>
-                    <li><strong style="color:#f472b6;">Pink:</strong> Locate Mode &mdash; Geiger counter signal-strength finder.</li>
+                    <li><strong style="color:#22c55e;">Green:</strong> Verified In-Place (Asset expected in this room and physically confirmed).</li>
+                    <li><strong style="color:#60a5fa;">Blue:</strong> Misplaced (Located in iDash database under another room &mdash; can move on commit).</li>
+                    <li><strong style="color:#fb923c;">Orange:</strong> Expected in this location but not yet read during this sweep.</li>
                 </ul>
             </div>
         </div>
