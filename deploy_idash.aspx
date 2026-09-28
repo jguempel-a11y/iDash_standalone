@@ -60,14 +60,76 @@
         .item-val { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
         .item-detail { font-size: 11px; color: var(--muted); word-break: break-all; }
         
-        /* Buttons */
-        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; border-radius: 8px; border: none; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.15s; }
-        .btn:hover { opacity: 0.88; transform: translateY(-1px); }
-        .btn-primary { background: var(--accent); color: #fff; }
-        .btn-green   { background: var(--accent-2); color: #000; }
-        .btn-danger  { background: var(--danger); color: #fff; }
-        .btn-ghost   { background: transparent; border: 1px solid var(--line); color: var(--text); }
-        .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
+        /* Buttons & Nav Pills - matching Fixed Reader Portal button style */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: 1px solid transparent;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+            text-decoration: none !important;
+            font-family: inherit;
+            line-height: 1.4;
+        }
+        a.btn, a.btn:link, a.btn:visited {
+            text-decoration: none !important;
+        }
+        .btn:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+        }
+        
+        /* Fixed Reader Portal Primary Button style */
+        .btn-primary, a.btn-primary, a.btn-primary:link, a.btn-primary:visited {
+            background: color-mix(in srgb, var(--accent), transparent 85%) !important;
+            color: var(--accent) !important;
+            border: 1px solid color-mix(in srgb, var(--accent), transparent 60%) !important;
+            box-shadow: inset 0 1px 2px color-mix(in srgb, var(--accent), transparent 60%);
+        }
+        .btn-primary:hover, a.btn-primary:hover {
+            background: color-mix(in srgb, var(--accent), transparent 75%) !important;
+            color: var(--accent) !important;
+            border-color: var(--accent) !important;
+        }
+        
+        /* Fixed Reader Portal Green / Online style */
+        .btn-green, a.btn-green, a.btn-green:link, a.btn-green:visited {
+            background: color-mix(in srgb, #10b981, transparent 85%) !important;
+            color: #059669 !important;
+            border: 1px solid rgba(16, 185, 129, 0.4) !important;
+        }
+        .btn-green:hover, a.btn-green:hover {
+            background: color-mix(in srgb, #10b981, transparent 72%) !important;
+            color: #047857 !important;
+        }
+        
+        .btn-danger, a.btn-danger, a.btn-danger:link, a.btn-danger:visited {
+            background: color-mix(in srgb, var(--danger), transparent 85%) !important;
+            color: #dc2626 !important;
+            border: 1px solid rgba(239, 68, 68, 0.4) !important;
+        }
+        .btn-danger:hover, a.btn-danger:hover {
+            background: color-mix(in srgb, var(--danger), transparent 72%) !important;
+        }
+        
+        .btn-ghost, a.btn-ghost, a.btn-ghost:link, a.btn-ghost:visited {
+            background: var(--card) !important;
+            border: 1px solid var(--line) !important;
+            color: var(--muted) !important;
+        }
+        .btn-ghost:hover, a.btn-ghost:hover {
+            border-color: var(--accent) !important;
+            color: var(--accent) !important;
+            background: color-mix(in srgb, var(--accent), transparent 94%) !important;
+        }
+        
+        .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 16px; }
         
         /* Tables */
         table.wiz-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 16px; }
@@ -110,8 +172,10 @@
                         <p class="hero-subtitle">Automated Install, Database Initializer, Multi-Site Config, and Production Validator</p>
                     </div>
                 </div>
-                <div>
-                    <span class="badge badge-info" id="system-mode-badge">&#9679; iDash Autonomous Platform</span>
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <a href="documentation/idash_deployment_wizard.html" class="btn btn-ghost btn-sm" style="text-decoration:none; padding:6px 14px;" target="_blank">&#128214; Docs</a>
+                    <a href="index.aspx" class="btn btn-primary btn-sm" style="text-decoration:none; padding:6px 14px;">&#8962; Hub</a>
+                    <span class="badge badge-info" id="system-mode-badge" style="margin-left:4px;">&#9679; iDash Autonomous Platform</span>
                 </div>
             </div>
 
@@ -190,7 +254,7 @@
                     <div class="card-header">
                         <div>
                             <h2 class="card-title">&#128451; Step 2: Database Initialization &amp; Schema Engine</h2>
-                            <p class="card-desc">Inspect, deploy, or upgrade the clean iDash database schema with zero AssetWorx legacy artifacts.</p>
+                            <p class="card-desc">Inspect, deploy, or upgrade the clean standalone iDash database schema.</p>
                         </div>
                         <div style="display:flex; gap:10px;">
                             <button type="button" class="btn btn-ghost" onclick="checkDatabaseStatus()">&#8635; Check Schema</button>
@@ -213,7 +277,7 @@
                                 <span class="badge badge-ok" id="schema-badge">26 Clean Tables</span>
                             </div>
                             <div class="item-val" id="db-table-count">-- Tables / -- Views</div>
-                            <div class="item-detail">Zero AssetWorx legacy columns or tables</div>
+                            <div class="item-detail">Zero legacy columns or tables</div>
                         </div>
                         <div class="item-box">
                             <div class="item-top">
@@ -384,11 +448,11 @@
                     <div class="cert-card" id="cert-card" style="display: none;">
                         <div style="font-size: 36px; margin-bottom: 4px;">&#127881;</div>
                         <div class="cert-title">iDash Production Deployment Certified</div>
-                        <div class="cert-meta" id="cert-meta-text">All systems verified operational with zero legacy AssetWorx dependencies.</div>
-                        <div style="display: flex; justify-content: center; gap: 12px; margin-top: 14px;">
-                            <a href="index.aspx" class="btn btn-green">&#127968; Go to iDash Hub</a>
-                            <a href="va_asset_master.aspx" class="btn btn-primary">&#128451; Open Asset Master</a>
-                            <a href="va_fixed_reader.aspx" class="btn btn-ghost">&#128225; Fixed Reader Portal</a>
+                        <div class="cert-meta" id="cert-meta-text">All systems verified operational in standalone iDash mode.</div>
+                        <div style="display: flex; justify-content: center; gap: 14px; margin-top: 18px; flex-wrap: wrap;">
+                            <a href="index.aspx" class="btn btn-primary" style="padding: 10px 22px; font-size: 13.5px;">&#127968; Go to iDash Hub</a>
+                            <a href="va_asset_master.aspx" class="btn btn-primary" style="padding: 10px 22px; font-size: 13.5px;">&#128451; Open Asset Master</a>
+                            <a href="va_fixed_reader.aspx" class="btn btn-primary" style="padding: 10px 22px; font-size: 13.5px;">&#128225; Fixed Reader Portal</a>
                         </div>
                     </div>
 

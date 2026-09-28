@@ -708,6 +708,11 @@
         <div class="card">
             <h2><span class="section-num">9</span>&#9881; Architecture & Deployment</h2>
             <div class="grid">
+                <a class="tile" href="idash_deployment_wizard.html" style="border-color: #10b981; background: linear-gradient(135deg, color-mix(in srgb, var(--text), transparent 98%), rgba(16, 185, 129, 0.08));">
+                    <div class="tile-title" style="color:#10b981;">&#128640; iDash Deployment &amp; System Wizard</div>
+                    <p style="color:var(--muted-docs); margin:0;">Complete operational and architecture manual for <code>deploy_idash.aspx</code>: automated host probes, schema engine, multi-tenant facility provisioning, security hardening, and production readiness certification.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, #10b981 15%, transparent); border:1px solid #10b981; color:#10b981;">Deployment Wizard</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #3b82f6 15%, transparent); border:1px solid #3b82f6; color:#3b82f6;">5-Step Engine</span> <span class="chip" style="margin-top:6px; background:color-mix(in srgb, #8B5CF6 15%, transparent); border:1px solid #8B5CF6; color:#8B5CF6;">Screenshots</span></p>
+                </a>
+
                 <a class="tile" href="idash_architecture_rationale.html" style="border-color: var(--warn, #f59e0b);">
                     <div class="tile-title" style="color:var(--warn, #f59e0b);">&#127959; Architecture Rationale & Developer Handoff</div>
                     <p style="color:var(--muted-docs); margin:0;">Why iDash is built the way it is. Hybrid SQL + API approach, key file map, two-pipeline IIS setup.<br><span class="chip" style="margin-top:6px; background:color-mix(in srgb, var(--warn, #f59e0b) 15%, transparent); border:1px solid var(--warn, #f59e0b); color:var(--warn, #f59e0b);">Hybrid Architecture</span></p>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>iDash Deployment &amp; System Wizard &mdash; Documentation</title>
+    <title>iDash Deployment &amp; System Wizard &mdash; Operational &amp; Architecture Guide</title>
     <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
     <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="stylesheet" href="docs_theme.css" />
@@ -17,19 +17,20 @@
             border: 1px solid var(--line, #2a3441);
             border-radius: 14px;
             padding: 26px;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
         }
         .step-header {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
         }
         .step-num {
             width: 34px;
             height: 34px;
             border-radius: 50%;
-            background: var(--accent, #3b82f6);
+            background: var(--accent, #0284c7);
             color: #fff;
             display: flex;
             align-items: center;
@@ -39,7 +40,7 @@
             flex-shrink: 0;
         }
         .step-title {
-            font-size: 18px;
+            font-size: 19px;
             font-weight: 700;
             margin: 0;
             color: var(--text);
@@ -47,19 +48,21 @@
         .step-desc {
             color: var(--muted-docs, #8b95a5);
             font-size: 14px;
-            line-height: 1.7;
-            margin-bottom: 14px;
+            line-height: 1.75;
+            margin-bottom: 16px;
         }
         .badge-pill {
             display: inline-flex;
             align-items: center;
-            padding: 3px 10px;
+            gap: 6px;
+            padding: 3px 11px;
             border-radius: 20px;
             font-size: 11px;
             font-weight: 700;
         }
         .badge-green { background: color-mix(in srgb, #10b981, transparent 85%); color: #10b981; border: 1px solid #10b981; }
-        .badge-blue  { background: color-mix(in srgb, #3b82f6, transparent 85%); color: #3b82f6; border: 1px solid #3b82f6; }
+        .badge-blue  { background: color-mix(in srgb, #0284c7, transparent 85%); color: #0284c7; border: 1px solid #0284c7; }
+        .badge-purple { background: color-mix(in srgb, #8b5cf6, transparent 85%); color: #8b5cf6; border: 1px solid #8b5cf6; }
         .action-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -86,21 +89,63 @@
             color: var(--muted-docs);
             line-height: 1.6;
         }
+        .doc-figure {
+            margin: 22px 0;
+            text-align: center;
+        }
+        .doc-figure img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            border: 1px solid var(--line-docs, #2a3441);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+        }
+        .doc-figure figcaption {
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--muted-docs);
+            font-style: italic;
+        }
+        .why-card {
+            background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 8%, transparent), var(--card-docs));
+            border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+        .why-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 17px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .why-card p {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--text);
+        }
     </style>
 </head>
 <body>
 <div class="wrap">
-    <a href="index.aspx" class="back-link">&larr; Back to Documentation Hub</a><br/><br/>
+    <div style="margin-bottom: 18px;">
+        <a href="index.aspx">&larr; Back to Documentation Hub</a> &bull;
+        <a href="../deploy_idash.aspx" style="color: #10b981; font-weight: bold;">&rarr; Open Live Deployment Wizard (deploy_idash.aspx)</a>
+    </div>
 
-    <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+    <!-- MAIN HEADER CARD -->
+    <div class="card" style="margin-bottom: 28px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:14px;">
             <div>
-                <h1 style="margin-bottom:4px;">&#128640; iDash Deployment &amp; System Wizard</h1>
+                <h1 style="margin-bottom:6px;">&#128640; iDash Deployment &amp; System Wizard</h1>
                 <p style="font-size:15px; color:var(--muted-docs); margin:0;">
-                    Autonomous 5-step installer, database schema engine, multi-site provisioning utility, and production validation certifier.
+                    Autonomous 5-step installer, database schema engine, multi-site isolation provisioner, and production validation suite.
                 </p>
             </div>
-            <div style="display:flex; gap:10px;">
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
                 <a href="../deploy_idash.aspx" class="btn" style="background:#10b981; color:#fff; border:none; padding:9px 18px; border-radius:8px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
                     &#128640; Launch Wizard
                 </a>
@@ -110,110 +155,291 @@
             </div>
         </div>
 
-        <div class="info" style="margin-top:20px;">
-            <strong>Why was this wizard created?</strong><br/>
-            Historically, deploying iDash required manual SQL scripts, SSMS table creation, manual IIS directory permission checking, and separate multi-site setup steps. 
-            The <strong>Deployment &amp; System Wizard</strong> (<code>deploy_idash.aspx</code>) turns this into an <em>autonomous, single-screen experience</em> that guarantees 100% clean standalone operation with zero legacy AssetWorx or InfinID dependencies.
+        <div style="margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
+            <span class="badge-pill badge-green">&#10003; Autonomous Zero-Touch</span>
+            <span class="badge-pill badge-blue">&#128451; Pure Standalone Schema</span>
+            <span class="badge-pill badge-purple">&#127970; Multi-Site Station Isolation</span>
+            <span class="badge-pill badge-green">&#127881; 100% Production Certified</span>
         </div>
     </div>
 
-    <!-- 5-STEP PIPELINE BREAKDOWN -->
-    <h2><span class="section-num">1</span>&#9881; The 5-Step Automated Pipeline</h2>
+    <!-- WHY IT IS USED AND NEEDED -->
+    <div class="why-card">
+        <h3>&#128161; Why This Wizard Was Created &amp; Why It Is Needed</h3>
+        <p>
+            Deploying enterprise asset tracking systems across Veterans Affairs (VA) medical centers, VISN networks, and regional field teams has historically been a high-friction, error-prone endeavor. Traditional installations required manual database administration: executing ad-hoc SQL scripts in SQL Server Management Studio (SSMS), checking table schemas by hand, verifying IIS application pool permissions, configuring connection strings, and manually populating facility stations.
+        </p>
+        <p>
+            A single missing table index, unmapped database view, or restrictive folder permission could cause runtime failures during live technician scanning sweeps in the field.
+        </p>
+        <p style="margin-bottom:0;">
+            The <strong>iDash Deployment &amp; System Wizard</strong> (<code>deploy_idash.aspx</code>) solves this by transforming the entire installation, schema provisioning, multi-site configuration, and system hardening into an <strong>autonomous, single-screen, guided pipeline</strong>. It delivers guaranteed 100% clean standalone operation, verifies every host dependency before traffic is accepted, and issues an immutable, verifiable certificate of production readiness.
+        </p>
+    </div>
 
+    <!-- WHEN TO USE THE WIZARD -->
+    <div class="card" style="margin-bottom: 28px;">
+        <h2>&#128197; Operational Scenarios: When to Use the Wizard</h2>
+        <div class="action-grid">
+            <div class="action-box">
+                <h4>&#128640; Initial Server Commissioning</h4>
+                <p>When provisioning a brand new Windows Server VM, bare-metal server, or mobile inventory cart. Probes IIS, provisions the database catalog, and sets up initial facility stations.</p>
+            </div>
+            <div class="action-box">
+                <h4>&#9881; Software Upgrades &amp; Migrations</h4>
+                <p>After upgrading the iDash codebase. Step 2 automatically synchronizes schema tables and reporting views without dropping tables or risking historical inventory data.</p>
+            </div>
+            <div class="action-box">
+                <h4>&#127970; Adding New Facilities / Stations</h4>
+                <p>When onboarding a new VA Medical Center or divisional substation (e.g. Station 528 Upstate New York). Instantly configures tenant data isolation, API keys, and MQTT topics.</p>
+            </div>
+            <div class="action-box">
+                <h4>&#128260; Disaster Recovery Verification</h4>
+                <p>After restoring a SQL backup or recovering from a hardware event. Step 5 runs non-destructive CRUD write probes and verifies read/write integrity in seconds.</p>
+            </div>
+            <div class="action-box">
+                <h4>&#128274; Security Credential Rotation</h4>
+                <p>Securely update the primary <code>idashadmin</code> administrative password using modern PBKDF2 with SHA-256 salted HMAC cryptographic hashing.</p>
+            </div>
+            <div class="action-box">
+                <h4>&#128203; Audit &amp; Compliance Certification</h4>
+                <p>Execute the automated 5-point validation suite to generate an on-screen verified readiness certificate stamped with the server hostname, UTC timestamp, and sub-millisecond latencies.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5-STEP PIPELINE IN-DEPTH -->
+    <h2 style="margin-top: 36px;"><span class="section-num">1</span>&#9881; The 5-Step Automated Pipeline</h2>
+
+    <!-- STEP 1 -->
     <div class="step-card">
         <div class="step-header">
             <div class="step-num">1</div>
-            <h3 class="step-title">Host Environment &amp; Prerequisites Check</h3>
-            <span class="badge-pill badge-green">&#10003; Automated Probes</span>
+            <h3 class="step-title">Step 1: Host Environment &amp; Prerequisites Check</h3>
+            <span class="badge-pill badge-green">&#10003; Non-Destructive Probes</span>
         </div>
         <div class="step-desc">
-            Executes non-destructive real-time probes against the host system:
+            Executes automated, real-time diagnostic probes against the host Windows operating system and IIS hosting environment:
         </div>
         <div class="action-grid">
             <div class="action-box">
-                <h4>&#128187; IIS &amp; ASP.NET 4.8</h4>
-                <p>Verifies CLR version, worker process identity (<code>IIS_IUSRS</code> / AppPool), and application pool architecture.</p>
+                <h4>&#128187; Host Operating System &amp; Machine Identity</h4>
+                <p>Verifies 64-bit Windows OS build, server hostname, and processor architecture.</p>
             </div>
             <div class="action-box">
-                <h4>&#128193; File Write Permissions</h4>
-                <p>Ensures <code>App_Data/</code>, <code>logs/</code>, <code>config/</code>, and <code>uploads/</code> have read/write access.</p>
+                <h4>&#9881; .NET Framework &amp; CLR Runtime</h4>
+                <p>Validates that the 64-bit ASP.NET 4.8 CLR runtime (v4.0.30319) is active and running under an isolated application pool.</p>
             </div>
             <div class="action-box">
-                <h4>&#128451; SQL Connectivity</h4>
-                <p>Tests connection string reachability, SQL instance latency, and database credentials.</p>
+                <h4>&#128193; File System Write Permissions</h4>
+                <p>Confirms the worker process (<code>IIS_IUSRS</code>) has full read/write access to <code>App_Data/</code>, <code>logs/</code>, and config directories.</p>
             </div>
+            <div class="action-box">
+                <h4>&#128451; SQL Server Connectivity &amp; Engine</h4>
+                <p>Tests the ADO.NET connection string, verifies SQL Server version (e.g. SQL Server 2022), and measures connection latency.</p>
+            </div>
+            <div class="action-box">
+                <h4>&#128190; Storage Volume Free Space</h4>
+                <p>Ensures sufficient disk capacity is available on the hosting volume (minimum 10 GB recommended for log and database backups).</p>
+            </div>
+        </div>
+
+        <div class="doc-figure">
+            <img src="img/deployment/deploy_step1_environment.png?v=20260928_idash" alt="Step 1: Host Environment & Prerequisites" />
+            <figcaption>
+                <strong>Figure 1:</strong> Step 1 Host Environment &amp; Prerequisites verification &mdash; displaying real-time probe cards for Host OS, .NET CLR, App_Data permissions, volume storage, and SQL Server connectivity.
+            </figcaption>
         </div>
     </div>
 
+    <!-- STEP 2 -->
     <div class="step-card">
         <div class="step-header">
             <div class="step-num">2</div>
-            <h3 class="step-title">Database Schema Engine &amp; Initializer</h3>
-            <span class="badge-pill badge-blue">&#9881; Standalone Schema</span>
+            <h3 class="step-title">Step 2: Database Initialization &amp; Schema Engine</h3>
+            <span class="badge-pill badge-blue">&#9881; Pure Standalone Schema</span>
         </div>
         <div class="step-desc">
-            Inspects the target SQL database and compares it against the pure standalone iDash baseline:
+            Audits the SQL database catalog against the pure standalone iDash baseline and provides automated, non-destructive migrations:
         </div>
-        <ul style="margin:0; padding-left:20px; font-size:13.5px; color:var(--muted-docs); line-height:1.8;">
-            <li><strong>26 Clean Core Tables:</strong> Ensures <code>v_asset</code>, <code>asset_inventory</code>, <code>company</code>, <code>locations</code>, <code>fixedreader</code>, <code>printjob</code>, <code>printtemplate</code>, and <code>printerrouting</code> exist with exact modern schemas.</li>
-            <li><strong>Zero Legacy Columns:</strong> Guarantees no orphaned AssetWorx or GPS tables remain.</li>
-            <li><strong>One-Click Deployment / Upgrade:</strong> Automatically provisions missing tables, indexes, and optimized reporting views (<code>v_asset_extended</code>) safely without data loss.</li>
+        <ul style="margin:0; padding-left:22px; font-size:13.5px; color:var(--muted-docs); line-height:1.8;">
+            <li><strong>26 Pure Core Tables:</strong> Verifies core tables exist, including <code>asset</code>, <code>location</code>, <code>company</code>, <code>fixedreader</code>, <code>printjob</code>, <code>printtemplate</code>, <code>printerrouting</code>, <code>EnnxLiveSession</code>, and <code>sysuser</code>.</li>
+            <li><strong>7 Modern Reporting Views:</strong> Automatically compiles high-speed views (<code>dbo.v_asset</code>, <code>dbo.v_asset_extended</code>) with optimized left-joins for instant reporting across hundreds of thousands of equipment records.</li>
+            <li><strong>Zero Legacy Dependencies:</strong> Ensures clean standalone operation with no orphaned tables or outdated columns.</li>
+            <li><strong>Safe Non-Destructive Migrations:</strong> Clicking <strong>Deploy / Refresh Schema</strong> automatically provisions any missing tables, columns, or indexes without dropping existing data or interrupting operations.</li>
         </ul>
+
+        <div class="doc-figure">
+            <img src="img/deployment/deploy_step2_schema.png?v=20260928_idash" alt="Step 2: Database Initialization & Schema Engine" />
+            <figcaption>
+                <strong>Figure 2:</strong> Step 2 Database Initialization &amp; Schema Engine &mdash; inspecting SQL catalog status, base tables, optimized views, live asset counts, and diagnostic deployment console.
+            </figcaption>
+        </div>
     </div>
 
+    <!-- STEP 3 -->
     <div class="step-card">
         <div class="step-header">
             <div class="step-num">3</div>
-            <h3 class="step-title">Multi-Site Isolation &amp; Facility Provisioning</h3>
-            <span class="badge-pill badge-green">&#127970; Multi-Tenant</span>
+            <h3 class="step-title">Step 3: Facility &amp; Multi-Site Provisioning</h3>
+            <span class="badge-pill badge-purple">&#127970; Station Data Isolation</span>
         </div>
         <div class="step-desc">
-            Configures strict tenant data isolation by provisioning site and station identifiers:
+            Manages VA Medical Centers, Station numbers, isolated client application keys (<code>dbo.clientapp</code>), and MQTT topic hierarchies:
         </div>
-        <ul style="margin:0; padding-left:20px; font-size:13.5px; color:var(--muted-docs); line-height:1.8;">
-            <li>Lists all active facility stations (e.g., <code>517 Beckley</code>, <code>512 Baltimore</code>, <code>613 Martinsburg</code>).</li>
-            <li>Allows instant one-click provisioning of new stations and facility names with cascade integrity.</li>
-            <li>Ensures scanner sessions, reader antenna observations, and ENNX exports strictly honor site filtering.</li>
+        <ul style="margin:0; padding-left:22px; font-size:13.5px; color:var(--muted-docs); line-height:1.8;">
+            <li><strong>Facility Inventory Roster:</strong> Lists all registered facilities (e.g., Station 512 Baltimore, 517 Beckley, 540 Clarksburg, 581 Huntington, 613 Martinsburg, 649 Prescott) with real-time asset counts per station.</li>
+            <li><strong>API Client Key Generation:</strong> Automatically provisions an isolated <code>clientapp</code> credential token for each station to restrict handheld scanner access.</li>
+            <li><strong>MQTT Topic Scoping:</strong> Assigns facility-specific MQTT pub/sub namespaces (e.g. <code>mqtt_512_baltimore</code>) so fixed portal readers only stream detections to their authorized station.</li>
+            <li><strong>Instant Provisioning Form:</strong> Allows administrators to add a new VA Station # and Facility Name in one click with full database referential integrity.</li>
         </ul>
+
+        <div class="doc-figure">
+            <img src="img/deployment/deploy_step3_facilities.png?v=20260928_idash" alt="Step 3: Facility & Multi-Site Provisioning" />
+            <figcaption>
+                <strong>Figure 3:</strong> Step 3 Facility &amp; Multi-Site Provisioning &mdash; multi-tenant station table with active asset tallies, API client credentials, MQTT topics, and new facility registration.
+            </figcaption>
+        </div>
     </div>
 
+    <!-- STEP 4 -->
     <div class="step-card">
         <div class="step-header">
             <div class="step-num">4</div>
-            <h3 class="step-title">Admin &amp; Security Setup</h3>
-            <span class="badge-pill badge-blue">&#128100; RBAC &amp; Auth</span>
+            <h3 class="step-title">Step 4: Administrator Account &amp; Security Hardening</h3>
+            <span class="badge-pill badge-blue">&#128100; RBAC &amp; Cryptographic Storage</span>
         </div>
         <div class="step-desc">
-            Manages the central administrator account (<code>idashadmin</code>) and sets up authentication parameters:
+            Configures and hardens the primary system administrator account (<code>idashadmin</code>):
         </div>
-        <ul style="margin:0; padding-left:20px; font-size:13.5px; color:var(--muted-docs); line-height:1.8;">
-            <li>Cryptographic password update using PBKDF2 with SHA-256 and salted HMAC hash storage.</li>
-            <li>Sets default technical alert notification email address.</li>
-            <li>Enforces role-based access control (RBAC) across all administrative tools.</li>
+        <ul style="margin:0; padding-left:22px; font-size:13.5px; color:var(--muted-docs); line-height:1.8;">
+            <li><strong>PBKDF2 SHA-256 Hash Storage:</strong> Passwords are encrypted using 10,000 iterations of PBKDF2 with unique cryptographic salt and SHA-256 HMAC &mdash; ensuring government-grade credential security.</li>
+            <li><strong>System Alert Notifications:</strong> Sets the primary administrative email recipient for automated error alerts, scan session summaries, and scheduled inventory reports.</li>
+            <li><strong>Operator Profile:</strong> Configures administrator first and last name for audit logging on database changes.</li>
         </ul>
     </div>
 
+    <!-- STEP 5 -->
     <div class="step-card">
         <div class="step-header">
             <div class="step-num">5</div>
-            <h3 class="step-title">End-to-End Validation Suite &amp; Production Certification</h3>
-            <span class="badge-pill badge-green">&#127881; Verified Ready</span>
+            <h3 class="step-title">Step 5: End-to-End System Validation Suite &amp; Certification</h3>
+            <span class="badge-pill badge-green">&#127881; 100% Production Certified</span>
         </div>
         <div class="step-desc">
-            Executes automated integration test probes simulating actual field usage:
+            Executes five automated integration probes simulating actual field usage to prove end-to-end operational readiness:
         </div>
-        <ul style="margin:0; padding-left:20px; font-size:13.5px; color:var(--muted-docs); line-height:1.8;">
-            <li><strong>Database Read/Write Probe:</strong> Validates transactional writes and rollbacks.</li>
-            <li><strong>Unified Views:</strong> Queries <code>v_asset</code> and location hierarchy to ensure sub-millisecond query performance.</li>
-            <li><strong>Scan API Endpoint:</strong> Simulates live handheld and fixed reader packet submission.</li>
-            <li><strong>Certification Certificate:</strong> When 100% of probes pass, generates an on-screen verified certificate stamped with host name and UTC timestamp, complete with quick-launch buttons to the iDash Hub, Asset Master, and Fixed Reader Portal.</li>
-        </ul>
+        <table style="width:100%; border-collapse:collapse; margin:14px 0; font-size:13px;">
+            <thead>
+                <tr style="border-bottom:2px solid var(--line-docs); text-align:left;">
+                    <th style="padding:8px 10px;">Diagnostic Probe</th>
+                    <th style="padding:8px 10px;">Typical Latency</th>
+                    <th style="padding:8px 10px;">Verification Purpose</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:8px 10px;"><strong>Database Read &amp; Row Enumeration</strong></td>
+                    <td style="padding:8px 10px; color:#10b981; font-weight:700;">&lt; 100ms</td>
+                    <td style="padding:8px 10px;">Queries full asset catalog (e.g. 584,053 items) to verify non-blocking read concurrency.</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:8px 10px;"><strong>Database Write Probe (CRUD Transaction)</strong></td>
+                    <td style="padding:8px 10px; color:#10b981; font-weight:700;">&lt; 15ms</td>
+                    <td style="padding:8px 10px;">Inserts and immediately removes a synthetic probe record to verify transactional commit authority.</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:8px 10px;"><strong>Asset Master View Resolution (dbo.v_asset)</strong></td>
+                    <td style="padding:8px 10px; color:#10b981; font-weight:700;">&lt; 10ms</td>
+                    <td style="padding:8px 10px;">Resolves top 100 joined records to confirm foreign keys and view indices are healthy.</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:8px 10px;"><strong>RFID Scan API Endpoint (scan_api.aspx)</strong></td>
+                    <td style="padding:8px 10px; color:#10b981; font-weight:700;">&lt; 1200ms</td>
+                    <td style="padding:8px 10px;">Simulates an incoming HTTP REST scan packet from Zebra handhelds to verify API ingest.</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:8px 10px;"><strong>MQTT Broker Service (Port 1883)</strong></td>
+                    <td style="padding:8px 10px; color:#10b981; font-weight:700;">&lt; 5ms</td>
+                    <td style="padding:8px 10px;">Opens a TCP socket to localhost:1883 to verify the fixed reader streaming daemon is active.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="doc-figure">
+            <img src="img/deployment/deploy_step5_certification.png?v=20260928_idash" alt="Step 5: Validation Suite & Production Certification" />
+            <figcaption>
+                <strong>Figure 4:</strong> Step 5 End-to-End Validation Suite &amp; Production Certification &mdash; all five diagnostic probes passing in sub-millisecond latencies, with the verified production certificate banner and direct quick-launch actions.
+            </figcaption>
+        </div>
+    </div>
+
+    <!-- TECHNICAL ENDPOINTS -->
+    <h2><span class="section-num">2</span>&#128736; Technical Architecture &amp; REST Actions</h2>
+    <div class="card" style="margin-bottom: 28px;">
+        <p style="margin-top:0; color:var(--muted-docs); font-size:14px;">
+            The wizard executes stateless, lightweight AJAX actions handled directly by <code>deploy_idash.aspx.cs</code>:
+        </p>
+        <table style="width:100%; border-collapse:collapse; font-size:13px;">
+            <thead>
+                <tr style="border-bottom:2px solid var(--line-docs); text-align:left;">
+                    <th style="padding:8px 10px;">Action Parameter</th>
+                    <th style="padding:8px 10px;">HTTP Method</th>
+                    <th style="padding:8px 10px;">Backend Method</th>
+                    <th style="padding:8px 10px;">Functional Payload</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:8px 10px;"><code>?action=check_env</code></td>
+                    <td style="padding:8px 10px;">GET</td>
+                    <td style="padding:8px 10px;"><code>CheckEnvironment()</code></td>
+                    <td style="padding:8px 10px;">Returns OS, CLR, disk space, folder write permissions, and SQL latency.</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:8px 10px;"><code>?action=check_db_status</code></td>
+                    <td style="padding:8px 10px;">GET</td>
+                    <td style="padding:8px 10px;"><code>CheckDatabaseStatus()</code></td>
+                    <td style="padding:8px 10px;">Audits table/view counts, live asset tallies, and schema health.</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:8px 10px;"><code>?action=deploy_schema</code></td>
+                    <td style="padding:8px 10px;">POST</td>
+                    <td style="padding:8px 10px;"><code>DeploySchema()</code></td>
+                    <td style="padding:8px 10px;">Executes non-destructive table migrations, view creation, and index tuning.</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:8px 10px;"><code>?action=get_facilities</code></td>
+                    <td style="padding:8px 10px;">GET</td>
+                    <td style="padding:8px 10px;"><code>GetFacilities()</code></td>
+                    <td style="padding:8px 10px;">Returns array of registered stations, asset counts, client keys, and MQTT topics.</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:8px 10px;"><code>?action=provision_facility</code></td>
+                    <td style="padding:8px 10px;">POST</td>
+                    <td style="padding:8px 10px;"><code>ProvisionFacility(...)</code></td>
+                    <td style="padding:8px 10px;">Provisions a new VA station number, facility name, and isolated client key.</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:8px 10px;"><code>?action=update_admin</code></td>
+                    <td style="padding:8px 10px;">POST</td>
+                    <td style="padding:8px 10px;"><code>UpdateAdmin(...)</code></td>
+                    <td style="padding:8px 10px;">Updates admin password via PBKDF2 hash and updates notification email.</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:8px 10px;"><code>?action=run_tests</code></td>
+                    <td style="padding:8px 10px;">GET</td>
+                    <td style="padding:8px 10px;"><code>RunDiagnosticTests()</code></td>
+                    <td style="padding:8px 10px;">Executes the 5 integration test probes and generates certification metadata.</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
     <!-- HOW TO ACCESS -->
-    <h2><span class="section-num">2</span>&#128279; Accessing the Wizard</h2>
-    <div class="card" style="padding:20px 24px;">
-        <p style="margin-top:0; color:var(--muted-docs); font-size:14px;">The deployment wizard can be launched from multiple locations in iDash:</p>
+    <h2><span class="section-num">3</span>&#128279; Accessing the Wizard</h2>
+    <div class="card" style="margin-bottom: 28px;">
+        <p style="margin-top:0; color:var(--muted-docs); font-size:14px;">The deployment wizard can be launched from multiple access points across iDash:</p>
         <div class="action-grid">
             <div class="action-box">
                 <h4>&#127760; Direct URL</h4>
@@ -221,14 +447,31 @@
             </div>
             <div class="action-box">
                 <h4>&#8962; Main iDash Hub</h4>
-                <p>Located under <strong>Admin Tools</strong> &rarr; <strong style="color:#10b981;">🚀 iDash Deployment &amp; System Wizard</strong>, or search "deploy" in the Command Palette.</p>
+                <p>Accessible from the top navigation bar or quick tools: click <strong style="color:#10b981;">🚀 Deployment &amp; System Wizard</strong>, or search "deploy" in the Command Palette (<code>Ctrl+K</code>).</p>
             </div>
             <div class="action-box">
-                <h4>&#9881; Site Configuration</h4>
+                <h4>&#9881; System Configuration</h4>
                 <p>Accessible from the sidebar navigation (<strong>🚀 Deployment &amp; DB Wizard</strong>) or the Database panel in <code>va_site_config.aspx</code>.</p>
             </div>
         </div>
     </div>
+
+    <div style="margin-top:40px;padding-top:20px;border-top:1px solid var(--line);">
+        <a href="index.aspx" style="font-weight:600;">&larr; Back to Documentation Hub</a> &bull;
+        <a href="../deploy_idash.aspx" style="font-weight:600; color:#10b981;">&rarr; Launch Deployment &amp; System Wizard</a>
+    </div>
 </div>
+
+<footer style="margin-top:40px;padding:20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted-docs);display:flex;justify-content:space-between;align-items:center;background:var(--bg);max-width:1400px;margin-left:auto;margin-right:auto;">
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
+        <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
+        <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+        <span>&copy; 2026 ID Integration Inc. &mdash; Enterprise Deployment Documentation</span>
+        <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height:14px;opacity:.9;">
+    </div>
+</footer>
 </body>
 </html>
