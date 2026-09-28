@@ -666,7 +666,7 @@
 
     <div class="dp-actions">
         <button type="button" id="dpEditToggle" class="dp-edit-toggle" onclick="toggleEditMode()">&#9998; Edit Mode</button>
-        <a id="dpEditLink" href="#" target="_blank" class="dp-action-btn">&#8599; Open in AssetWorx</a>
+        
         <button type="button" class="dp-action-btn" onclick="printFromDetail()">&#128424; Print Tag</button>
     </div>
 
@@ -804,6 +804,10 @@
         var _qsSite = _qs.get('site');
         if (_qsLoc)  { $('#txtLocation').val(decodeURIComponent(_qsLoc)); }
         if (_qsSite && _qsSite !== '0') { setSiteDropdown(_qsSite); }
+        var _qsSearch = _qs.get('search') || _qs.get('q');
+        if (_qsSearch) { $('#txtSearch').val(decodeURIComponent(_qsSearch)); }
+        var _qsCmr = _qs.get('cmr');
+        if (_qsCmr) { $('#txtCmr').val(decodeURIComponent(_qsCmr)); }
 
         // == Pre-fill from Live Feed Watch List (?watchFilter=1) BEFORE initGrid ==
         (function () {
@@ -844,7 +848,7 @@
                             var banner = document.createElement('div');
                             banner.id = 'watchFilterBanner';
                             banner.style.cssText = 'background:color-mix(in srgb,#10b981 12%,transparent);border:1px solid #10b981;border-radius:8px;padding:10px 16px;margin:0 0 12px 0;display:flex;align-items:center;justify-content:space-between;font-size:13px;color:#10b981;';
-                            banner.innerHTML = '<span>📡 <strong>Fixed Reader Watch List</strong> — Showing <strong>' + names.length + '</strong> asset(s)' + siteInfo + '. <a href="javascript:history.back()" style="color:#10b981;text-decoration:underline;">Back</a></span>'
+                            banner.innerHTML = '<span>📡 <strong>Fixed Reader Watch List</strong> — Showing <strong>' + names.length + '</strong> asset(s)' + siteInfo + (_qsCmr ? ' (CMR: <strong>' + decodeURIComponent(_qsCmr) + '</strong>)' : '') + '. <a href="javascript:history.back()" style="color:#10b981;text-decoration:underline;">Back</a></span>'
                                 + '<button type="button" onclick="clearWatchFilter()" style="background:none;border:1px solid #10b981;color:#10b981;border-radius:4px;padding:3px 10px;cursor:pointer;font-size:12px;">✕ Clear Filter</button>';
                             var grid = document.getElementById('assetGrid');
                             if (grid && grid.parentElement) grid.parentElement.parentElement.insertBefore(banner, grid.parentElement);
@@ -1834,7 +1838,7 @@
 
         // Set title and edit link
         document.getElementById('dpTitle').textContent = assetName || 'Asset Detail';
-        document.getElementById('dpEditLink').href = '/#!/admin/editasset/' + assetId;
+        // dpEditLink removed
 
         // Reset badges
         ['badgeLoc','badgeCO','badgeMnt','badgeChild'].forEach(function(id) {

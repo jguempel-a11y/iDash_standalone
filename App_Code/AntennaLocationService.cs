@@ -83,6 +83,7 @@ public static class AntennaLocationService
         public bool   IsCrossSite    { get; set; }   // True = asset belongs to a different site than the reader
         public string AssetSiteName  { get; set; }   // Name of the asset's home site (for cross-site display)
         public string AssignedLocation { get; set; } // Asset's current assigned location name
+        public string Cmr            { get; set; }   // CMR number (from dbo.asset.text8)
     }
 
     private static readonly ConcurrentQueue<LiveTagEvent> _liveFeed = new ConcurrentQueue<LiveTagEvent>();
@@ -143,7 +144,7 @@ public static class AntennaLocationService
 
     private static void EnqueueLiveEvent(string epc, long assetId, string assetName,
         string description, ReaderCacheEntry reader, int antennaPort, string antennaName,
-        bool locationChanged, bool isCrossSite = false, string assetSiteName = "", string assignedLocation = "")
+        bool locationChanged, bool isCrossSite = false, string assetSiteName = "", string assignedLocation = "", string cmr = "")
     {
         // 2-second live-feed debounce per tag+antenna combo
         string key = epc + ":" + reader.ReaderId + ":" + antennaPort;
@@ -169,7 +170,8 @@ public static class AntennaLocationService
             LocationChanged = locationChanged,
             IsCrossSite   = isCrossSite,
             AssetSiteName = assetSiteName,
-            AssignedLocation = assignedLocation
+            AssignedLocation = assignedLocation,
+            Cmr           = cmr ?? ""
         });
 
         // Trim ring buffer
@@ -985,10 +987,11 @@ public static class AntennaLocationService
             int assetCompany = 0;
             int currentLocationId = 0;
             string assignedLocationName = "";
+            string cmr = "";
             bool provisioned = false;
 
             using (var cmd = new SqlCommand(
-                @"SELECT a.id, a.name, a.companyid, a.locationid, l.name AS locationname
+                @"SELECT a.id, a.name, a.companyid, a.locationid, a.text8 AS cmr, l.name AS locationname
                   FROM dbo.asset a
                   LEFT JOIN dbo.location l ON l.id = a.locationid
                   WHERE a.rfidtag = @tag", conn))
@@ -1004,6 +1007,7 @@ public static class AntennaLocationService
                         assetCompany = Convert.ToInt32(rdr["companyid"]);
                         currentLocationId = rdr["locationid"] != DBNull.Value ? Convert.ToInt32(rdr["locationid"]) : 0;
                         assignedLocationName = rdr["locationname"] != DBNull.Value ? rdr["locationname"].ToString() : "";
+                        cmr = rdr["cmr"] != DBNull.Value ? rdr["cmr"].ToString().Trim() : "";
                     }
                 }
             }
@@ -1015,7 +1019,8 @@ public static class AntennaLocationService
                 provisioned ? "" : "Not provisioned — EPC: " + tagHex,
                 reader, antennaPort, locationName,
                 false /* locationChanged determined below for provisioned tags */,
-                false, "", provisioned ? assignedLocationName : "");
+                false, "", provisioned ? assignedLocationName : "",
+                provisioned ? cmr : "");
 
             if (!provisioned) return; // No DB changes for unknown tags
 
@@ -1071,7 +1076,7 @@ public static class AntennaLocationService
                 EnqueueLiveEvent(tagHex, assetId, assetName,
                     "Visitor from " + assetSiteName + " — read-only, location NOT changed",
                     reader, antennaPort, locationName,
-                    false /* locationChanged */, true /* isCrossSite */, assetSiteName, assignedLocationName);
+                    false /* locationChanged */, true /* isCrossSite */, assetSiteName, assignedLocationName, cmr);
                 return;
             }
 
@@ -1081,11 +1086,11 @@ public static class AntennaLocationService
             using (var cmd = new SqlCommand(@"UPDATE dbo.asset
                 SET lastobservedtime = SYSDATETIMEOFFSET(),
                     lastobservedlocation = @loc,
-                    readerid = @readerId
+                    nearestfixed = @readerName
                 WHERE id = @id", conn))
             {
                 cmd.Parameters.AddWithValue("@loc", locationName);
-                cmd.Parameters.AddWithValue("@readerId", reader.ReaderId);
+                cmd.Parameters.AddWithValue("@readerName", reader.PhysicalId ?? "");
                 cmd.Parameters.AddWithValue("@id", assetId);
                 cmd.ExecuteNonQuery();
             }
@@ -1135,7 +1140,7 @@ public static class AntennaLocationService
             // Enqueue same-site live feed event
             EnqueueLiveEvent(tagHex, assetId, assetName, "", reader,
                 antennaPort, locationName, locationChanged && shouldUpdate,
-                false /* isCrossSite */, "", assignedLocationName);
+                false /* isCrossSite */, "", assignedLocationName, cmr);
         }
         catch (Exception ex)
         {

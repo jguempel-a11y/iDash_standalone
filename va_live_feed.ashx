@@ -86,7 +86,7 @@ public class LiveFeedHandler : IHttpHandler
             "\"assetName\":\"{4}\",\"description\":\"{5}\"," +
             "\"readerId\":{6},\"readerName\":\"{7}\"," +
             "\"antennaPort\":{8},\"antennaName\":\"{9}\",\"locationChanged\":{10}," +
-            "\"isCrossSite\":{11},\"assetSiteName\":\"{12}\",\"assignedLocation\":\"{13}\"}}",
+            "\"isCrossSite\":{11},\"assetSiteName\":\"{12}\",\"assignedLocation\":\"{13}\",\"cmr\":\"{14}\"}}",
             e.Seq,
             Esc(e.Ts),
             Esc(e.Epc),
@@ -100,7 +100,8 @@ public class LiveFeedHandler : IHttpHandler
             e.LocationChanged ? "true" : "false",
             e.IsCrossSite ? "true" : "false",
             Esc(e.AssetSiteName ?? ""),
-            Esc(e.AssignedLocation ?? "")
+            Esc(e.AssignedLocation ?? ""),
+            Esc(e.Cmr ?? "")
         );
         resp.Write("data: " + data + "\n\n");
     }

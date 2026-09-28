@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_fixed_reader_live.aspx.cs" Inherits="va_fixed_reader_live" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_fixed_reader_live.aspx.cs" Inherits="va_fixed_reader_live" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +9,7 @@
 <script>
 /* iDash Theme Pre-paint Initializer */
 (function() {
-    var saved = localStorage.getItem('idash_theme') || localStorage.getItem('aw_theme_preference') || localStorage.getItem('idash-theme');
+    var saved = localStorage.getItem('idash_theme');
     if (saved === 'light') {
         document.documentElement.setAttribute('data-theme', 'light');
     } else {
@@ -178,6 +178,27 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:
         </div>
       </div>
     </div>
+
+    <hr class="watch-divider" />
+    <div class="watch-hdr" onclick="toggleCmrWatchPanel()">
+      <div class="sb-title" style="margin-bottom:0;">&#127919; CMR Watch List <span class="watch-count" id="cmrCount" style="display:none;">0</span></div>
+      <span id="cmrChev" style="font-size:12px;color:var(--muted);transition:transform .2s;">&#9660;</span>
+    </div>
+    <div id="cmrWatchPanel">
+      <textarea class="watch-ta" id="cmrInput" placeholder="Enter CMR numbers to watch...&#10;One per line or comma-separated&#10;e.g. 100, 110, 380"></textarea>
+      <div class="watch-btns">
+        <button type="button" class="watch-btn primary" onclick="activateCmrWatch()">&#127919; Watch CMR</button>
+        <button type="button" class="watch-btn muted" onclick="clearCmrWatch()">&#10005; Clear</button>
+      </div>
+      <div class="watch-list" id="cmrList"></div>
+      <div id="cmrWatchActions" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--line);">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:6px;">Found CMR actions:</div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <button type="button" class="watch-btn primary" style="font-size:11px;padding:5px 8px;" onclick="exportCmrWatchCsv()">&#128229; Export Found CMRs to CSV</button>
+          <button type="button" class="watch-btn primary" style="font-size:11px;padding:5px 8px;background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green);border-color:var(--green);" onclick="openFoundCmrInMaster()">&#128203; Open in Asset Master</button>
+        </div>
+      </div>
+    </div>
   </aside>
 
   <main class="main">
@@ -212,17 +233,19 @@ const ALLOWED_COS = <%=AllowedCompanyIdsJson%>;
 
 let es=null,paused=false,soundOn=false,lastSeq=0,sessReads=0,uniqA=new Set(),actRdrs=new Set(),rowN=0,rpm=[],watchAll=true,selR=new Set(),selA=new Set(),badges={};
 let watchAssets=new Set(), watchResults=new Map(), watchPanelOpen=true;
+let watchCmrs=new Set(), cmrResults=new Map(), cmrWatchPanelOpen=true;
 const MAX=200;
 
 window.addEventListener('DOMContentLoaded', () => {
     buildSB();
-    var saved = localStorage.getItem('idash_theme') || localStorage.getItem('aw_theme_preference') || localStorage.getItem('idash-theme');
+    var saved = localStorage.getItem('idash_theme');
     applyTheme(saved === 'light' ? 'light' : 'dark');
     loadWatch();
+    loadCmrWatch();
     startSSE();
 });
 window.addEventListener('storage', (e) => {
-    if (e.key === 'idash_theme' || e.key === 'aw_theme_preference' || e.key === 'idash-theme') {
+    if (e.key === 'idash_theme') {
         applyTheme(e.newValue === 'light' ? 'light' : 'dark');
     }
 });
@@ -299,32 +322,40 @@ function onRead(ev){
   const bk=ev.readerId+':'+ev.antennaPort,bd=badges[bk];
   if(bd){bd.classList.add('show');bd.textContent=fmtT(ev.ts);clearTimeout(bd._t);bd._t=setTimeout(()=>bd.classList.remove('show'),3000);}
   var isWatched=checkWatchList(ev);
-  if(soundOn){try{const ctx=window._ac||(window._ac=new(window.AudioContext||window.webkitAudioContext)()),o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=isWatched?1100:(ev.locationChanged?880:660);g.gain.setValueAtTime(isWatched?.12:.06,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+(isWatched?.15:.08));o.start();o.stop(ctx.currentTime+(isWatched?.15:.08));}catch{}}
-  addRow(ev,isWatched);
+  var isWatchedCmr=checkCmrWatchList(ev);
+  var isAlert=isWatched||isWatchedCmr;
+  if(soundOn){try{const ctx=window._ac||(window._ac=new(window.AudioContext||window.webkitAudioContext)()),o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=isAlert?1100:(ev.locationChanged?880:660);g.gain.setValueAtTime(isAlert?.12:.06,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+(isAlert?.15:.08));o.start();o.stop(ctx.currentTime+(isAlert?.15:.08));}catch{}}
+  addRow(ev,isWatched,isWatchedCmr);
 }
-function addRow(ev,isWatched){
+function addRow(ev,isWatched,isWatchedCmr){
   const feed=document.getElementById('fScroll'),em=document.getElementById('emSt');if(em)em.remove();
   const rows=feed.querySelectorAll('.feed-row');if(rows.length>=MAX)rows[rows.length-1].remove();
   const row=document.createElement('div');rowN++;
   const isVisitor=ev.isCrossSite===true||ev.isCrossSite==='true';
-  const fc=isWatched?'fw':(isVisitor?'fv':(ev.locationChanged?'fl':'fn'));
+  const isAlert=isWatched||isWatchedCmr;
+  const fc=isAlert?'fw':(isVisitor?'fv':(ev.locationChanged?'fl':'fn'));
   row.className='feed-row ni '+(rowN%2?'':'even')+' '+fc;
   let tag;
-  if(isWatched){
-    tag='<span class="tw">🎯 Watched</span>';
+  if(isWatched && isWatchedCmr){
+    tag=`<span class="tw" title="Watched Asset & CMR ${ev.cmr||''}">\uD83C\uDFAF Watched / CMR ${ev.cmr||''}</span>`;
+  } else if(isWatched){
+    tag='<span class="tw">\uD83C\uDFAF Watched</span>';
+  } else if(isWatchedCmr){
+    tag=`<span class="tw" title="Watched CMR: ${ev.cmr||''}">\uD83C\uDFAF CMR ${ev.cmr||''}</span>`;
   } else if(isVisitor){
     const site=ev.assetSiteName||('Site '+ev.assetCompanyId)||'Other site';
-    tag=`<span class="tn" style="background:color-mix(in srgb,#f59e0b 20%,transparent);color:#d97706;border-color:#f59e0b;" title="${ev.description||''}">👁 ${site}</span>`;
+    tag=`<span class="tn" style="background:color-mix(in srgb,#f59e0b 20%,transparent);color:#d97706;border-color:#f59e0b;" title="${ev.description||''}">\uD83D\uDC41 ${site}</span>`;
   } else {
-    tag=ev.locationChanged?'<span class="tm">📍 Moved</span>':(ev.assetId>0?'<span class="ts">Seen</span>':'<span class="tn">New</span>');
+    tag=ev.locationChanged?'<span class="tm">\uD83D\uDCCD Moved</span>':(ev.assetId>0?'<span class="ts">Seen</span>':'<span class="tn">New</span>');
   }
+  const cmrBadge=ev.cmr?`<span style="font-size:10px;padding:1px 5px;border-radius:4px;background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent);margin-left:5px;font-family:monospace;" title="CMR Number">CMR ${ev.cmr}</span>`:'';
   const assetDisplay=isVisitor
-    ?`<span style="opacity:.7;font-style:italic;">${ev.assetName||ev.epc||'—'}</span>`
-    :(isWatched?`<strong style="color:var(--amber);">${ev.assetName||ev.epc||'—'}</strong>`:`${ev.assetName||ev.epc||'—'}`);
-  row.innerHTML=`<span class="ct">${fmtT(ev.ts)}</span><span class="ce" title="${ev.epc||''}">${ev.epc||'—'}</span>
-    <span class="ca" title="${ev.description||ev.assetName||''}">${assetDisplay}</span>
-    <span class="can" title="${ev.antennaName||''}">${ev.antennaName||('📡 '+ev.readerName)||'—'}</span>
-    <span class="cp">${ev.antennaPort||'—'}</span><span>${tag}</span>`;
+    ?`<span style="opacity:.7;font-style:italic;">${ev.assetName||ev.epc||'â€”'}</span>`
+    :(isAlert?`<strong style="color:var(--amber);">${ev.assetName||ev.epc||'â€”'}</strong>`:`${ev.assetName||ev.epc||'â€”'}`);
+  row.innerHTML=`<span class="ct">${fmtT(ev.ts)}</span><span class="ce" title="${ev.epc||''}">${ev.epc||'â€”'}</span>
+    <span class="ca" title="${ev.description||ev.assetName||''}">${assetDisplay}${cmrBadge}</span>
+    <span class="can" title="${ev.antennaName||''}">${ev.antennaName||('\uD83D\uDCE1 '+ev.readerName)||'â€”'}</span>
+    <span class="cp">${ev.antennaPort||'â€”'}</span><span>${tag}</span>`;
   feed.insertBefore(row,feed.firstChild);
   setTimeout(()=>row.classList.remove(fc,'ni'),1500);
   if(document.getElementById('aScroll').checked)feed.scrollTop=0;
@@ -343,15 +374,9 @@ function applyTheme(t) {
     var isLight = (t === 'light');
     if (isLight) {
         document.documentElement.setAttribute('data-theme', 'light');
-        localStorage.setItem('idash_theme', 'light');
-        localStorage.setItem('aw_theme_preference', 'light');
-        localStorage.setItem('idash-theme', 'light');
-    } else {
+        localStorage.setItem('idash_theme', 'light');    } else {
         document.documentElement.removeAttribute('data-theme');
-        localStorage.setItem('idash_theme', '');
-        localStorage.setItem('aw_theme_preference', 'dark');
-        localStorage.setItem('idash-theme', 'dark');
-    }
+        localStorage.setItem('idash_theme', '');    }
     var b = document.getElementById('bThm');
     if (b) b.textContent = isLight ? '🌙 Dark' : '☀ Light';
 }
@@ -480,20 +505,183 @@ function openFoundInMaster(){
   window.open('va_asset_master.aspx?watchFilter=1','_blank');
 }
 
-// ── Theme Management ─────────────────────────────────────────
+// â”€â”€ CMR Watch List â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function toggleCmrWatchPanel(){
+  cmrWatchPanelOpen=!cmrWatchPanelOpen;
+  document.getElementById('cmrWatchPanel').style.display=cmrWatchPanelOpen?'':'none';
+  document.getElementById('cmrChev').style.transform=cmrWatchPanelOpen?'':'rotate(-90deg)';
+}
+function loadCmrWatch(){
+  try{
+    var saved=localStorage.getItem('idash-cmr-watch-list');
+    if(saved){document.getElementById('cmrInput').value=saved;activateCmrWatch(true);}
+  }catch{}
+}
+function activateCmrWatch(silent){
+  var raw=document.getElementById('cmrInput').value;
+  var items=raw.split(/[\n,]+/).map(function(s){return s.trim();}).filter(function(s){return s.length>0;});
+  watchCmrs.clear();cmrResults.clear();
+  items.forEach(function(c){
+    var key=c.toUpperCase();
+    watchCmrs.add(key);
+    cmrResults.set(key,{cmr:c,found:false,assets:[]});
+  });
+  try{localStorage.setItem('idash-cmr-watch-list',raw);}catch{}
+  renderCmrWatchList();
+  var cnt=document.getElementById('cmrCount');
+  if(items.length>0){cnt.textContent=items.length;cnt.style.display='';}
+  else{cnt.style.display='none';}
+}
+function clearCmrWatch(){
+  watchCmrs.clear();cmrResults.clear();
+  document.getElementById('cmrInput').value='';
+  document.getElementById('cmrList').innerHTML='';
+  document.getElementById('cmrCount').style.display='none';
+  var actEl=document.getElementById('cmrWatchActions');
+  if(actEl)actEl.style.display='none';
+  try{localStorage.removeItem('idash-cmr-watch-list');}catch{}
+}
+function checkCmrWatchList(ev){
+  if(watchCmrs.size===0||!ev.cmr)return false;
+  var tagCmr=String(ev.cmr).trim().toUpperCase();
+  if(!tagCmr)return false;
+  var matched=false;
+  watchCmrs.forEach(function(key){
+    if(tagCmr===key||tagCmr.indexOf(key)!==-1||key.indexOf(tagCmr)!==-1){
+      var r=cmrResults.get(key);
+      if(r){
+        r.found=true;
+        r.assets=r.assets||[];
+        var existing=r.assets.find(function(a){
+          return (a.epc&&a.epc===ev.epc)||(a.assetName&&a.assetName===ev.assetName);
+        });
+        var assetEntry={
+          assetName:ev.assetName||ev.epc||'Unknown',
+          epc:ev.epc||'',
+          time:fmtT(ev.ts),
+          fullTime:ev.ts||'',
+          location:ev.antennaName||ev.readerName||'',
+          assignedLocation:ev.assignedLocation||''
+        };
+        if(!existing){
+          r.assets.unshift(assetEntry);
+        } else {
+          existing.time=assetEntry.time;
+          existing.fullTime=assetEntry.fullTime;
+          existing.location=assetEntry.location;
+          existing.assignedLocation=assetEntry.assignedLocation;
+        }
+        renderCmrWatchList();
+      }
+      matched=true;
+    }
+  });
+  return matched;
+}
+function renderCmrWatchList(){
+  var el=document.getElementById('cmrList');
+  if(!el)return;
+  el.innerHTML='';
+  var hasFound=false;
+  cmrResults.forEach(function(r){
+    if(r.found)hasFound=true;
+    var cls=r.found?'wl-item found':'wl-item';
+    var dotCls=r.found?'wl-dot found':'wl-dot waiting';
+    var countTxt=(r.assets&&r.assets.length>0)?(' ('+r.assets.length+' part'+(r.assets.length>1?'s':'')+')'):'';
+    var statusTxt=r.found?('\u2705 Found'+countTxt):'\uD83D\uDD0D Watching';
+    var statusColor=r.found?'var(--green)':'var(--amber)';
+    var html='<div class="'+cls+'">';
+    html+='<div style="display:flex;align-items:center;gap:6px;">';
+    html+='<span class="'+dotCls+'"></span>';
+    html+='<span class="wl-name" style="max-width:140px;">CMR '+r.cmr+'</span>';
+    html+='<span style="font-size:10px;font-weight:600;color:'+statusColor+';white-space:nowrap;margin-left:auto;">'+statusTxt+'</span>';
+    html+='</div>';
+    if(r.found&&r.assets&&r.assets.length>0){
+      var latest=r.assets[0];
+      html+='<div class="wl-time">Latest: <strong>'+latest.assetName+'</strong> ('+latest.time+' \u2014 '+latest.location+')</div>';
+      if(latest.assignedLocation)html+='<div class="wl-time">\uD83D\uDCCD Assigned: '+latest.assignedLocation+'</div>';
+      if(r.assets.length>1){
+        html+='<div style="font-size:9px;color:var(--muted);margin-top:2px;">Other parts: '+
+          r.assets.slice(1,4).map(function(a){return a.assetName;}).join(', ')+
+          (r.assets.length>4?' (+'+(r.assets.length-4)+' more)':'')+'</div>';
+      }
+      html+='<div style="margin-top:4px;display:flex;justify-content:flex-end;">'+
+        '<a href="javascript:void(0)" onclick="openSingleCmrInMaster(\''+String(r.cmr).replace(/'/g,"\\'")+'\')" style="font-size:10px;color:var(--accent);text-decoration:none;font-weight:600;">\uD83D\uDCCB View CMR in Master &rarr;</a>'+
+        '</div>';
+    }
+    html+='</div>';
+    el.innerHTML+=html;
+  });
+  var actEl=document.getElementById('cmrWatchActions');
+  if(actEl)actEl.style.display=hasFound?'':'none';
+}
+function exportCmrWatchCsv(){
+  var rows=[['CMR','Asset Name','EPC','Status','Time Detected','Reader / Antenna','Assigned Location']];
+  cmrResults.forEach(function(r){
+    if(r.found&&r.assets&&r.assets.length>0){
+      r.assets.forEach(function(a){
+        rows.push([
+          r.cmr,
+          a.assetName,
+          a.epc||'',
+          'Found',
+          a.fullTime||a.time,
+          a.location||'',
+          a.assignedLocation||''
+        ]);
+      });
+    } else {
+      rows.push([r.cmr,'','','Not Found','','','']);
+    }
+  });
+  var csv=rows.map(function(row){
+    return row.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(',');
+  }).join('\r\n');
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='CMRWatchList-Found-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function openFoundCmrInMaster(){
+  var foundAssets=[];
+  var foundCmrs=[];
+  cmrResults.forEach(function(r){
+    if(r.found){
+      if(foundCmrs.indexOf(r.cmr)===-1)foundCmrs.push(r.cmr);
+      if(r.assets){
+        r.assets.forEach(function(a){
+          if(a.assetName&&foundAssets.indexOf(a.assetName)===-1)foundAssets.push(a.assetName);
+        });
+      }
+    }
+  });
+  if(foundCmrs.length===0){
+    alert('No assets matching watched CMRs found yet. Wait for a fixed reader to detect matching parts.');
+    return;
+  }
+  try{sessionStorage.setItem('idash-watch-filter',JSON.stringify(foundAssets));}catch{}
+  var url='va_asset_master.aspx?watchFilter=1';
+  if(foundCmrs.length===1){
+    url+='&cmr='+encodeURIComponent(foundCmrs[0]);
+  }
+  window.open(url,'_blank');
+}
+function openSingleCmrInMaster(cmr){
+  window.open('va_asset_master.aspx?cmr='+encodeURIComponent(cmr),'_blank');
+}
+
 function toggleTheme() {
   var html = document.documentElement;
   var isLight = html.getAttribute('data-theme') === 'light';
   var next = isLight ? 'dark' : 'light';
   if (next === 'light') {
     html.setAttribute('data-theme', 'light');
-    localStorage.setItem('idash_theme', 'light');
-    localStorage.setItem('aw_theme_preference', 'light');
-  } else {
+    localStorage.setItem('idash_theme', 'light');  } else {
     html.removeAttribute('data-theme');
-    localStorage.setItem('idash_theme', 'dark');
-    localStorage.setItem('aw_theme_preference', 'dark');
-  }
+    localStorage.setItem('idash_theme', 'dark');  }
   updateThemeBtn();
 }
 
@@ -507,7 +695,7 @@ function updateThemeBtn() {
 
 updateThemeBtn();
 window.addEventListener('storage', function(e) {
-  if (e.key === 'idash_theme' || e.key === 'aw_theme_preference') {
+  if (e.key === 'idash_theme') {
     if (e.newValue === 'light') {
       document.documentElement.setAttribute('data-theme', 'light');
     } else {
