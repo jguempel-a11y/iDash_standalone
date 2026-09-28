@@ -1,11 +1,30 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="index.aspx.cs" Inherits="index" ResponseEncoding="utf-8" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="index.aspx.cs" Inherits="index" ResponseEncoding="utf-8" %>
     <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 
 
         <!DOCTYPE html>
         <html xmlns="http://www.w3.org/1999/xhtml">
-        <script>/* Apply saved theme BEFORE paint to prevent flash */
-        (function(){var t=localStorage.getItem('idash_theme');if(t!=='dark')document.documentElement.setAttribute('data-theme','light');})();
+        <script>/* Apply saved theme BEFORE paint to prevent flash. Default is light mode. */
+        (function(){
+            try {
+                localStorage.removeItem('aw_theme_preference');
+                localStorage.removeItem('idash-theme');
+                var t = localStorage.getItem('idash_theme');
+                if (!t) {
+                    var m = document.cookie.match(/(?:^|;\s*)idash_theme=([^;]+)/);
+                    if (m) t = m[1];
+                }
+                if (window.location.search.indexOf('theme=light') !== -1) t = 'light';
+                if (window.location.search.indexOf('theme=dark') !== -1) t = 'dark';
+                if (t === 'dark') {
+                    document.documentElement.removeAttribute('data-theme');
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                }
+            } catch(e) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
         </script>
 
         <head runat="server">
@@ -464,7 +483,10 @@
                 <div class="page">
                     <% if (!IsLoggedIn) { %>
                     <!-- LOGIN-REQUIRED GATE -->
-                    <div class="login-gate-wrapper">
+                    <div class="login-gate-wrapper" style="position:relative;">
+                        <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
+                            <button type="button" id="gateThemeToggleBtn" onclick="toggleIdashTheme()" title="Toggle Light/Dark Mode" style="background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; font-size:13px; color:var(--text); transition:all 0.2s; display:inline-flex; align-items:center; gap:6px; box-shadow:var(--shadow);"><span id="gateThemeIcon">&#9790;</span><span id="gateThemeLabel" style="font-size:12px; font-weight:600;">Dark</span></button>
+                        </div>
                         <div class="login-gate-brand">
                             <div class="login-brand-lockup">
                                 <img src="<%= ResolveUrl("~/Assets/branding/IDIntegration.jpg") %>" class="login-brand-logo" alt="ID Integration" />
@@ -858,6 +880,13 @@
                                 <div class="tile-desc">All system &amp; facility configuration &mdash; Server ports, License management (readers, handhelds, carts), Database connections, API credentials, RabbitMQ broker, Email / SMTP, and Windows Services.</div>
                             </div>
                             <% } %>
+                            <!-- iDash Deployment & System Wizard (Environment, Schema Engine, Multi-Site Provisioning, Security, Validation) -->
+                            <% if (CanSeeTile("admin_deploy") || CanSeeTile("admin_site_config") || CanSeeTile("admin_manualdb")) { %>
+                            <div class="tile" onclick="location.href='deploy_idash.aspx'" style="border-left: 4px solid #10b981; background: color-mix(in srgb, #10b981 6%, transparent);">
+                                <div class="tile-title" style="color:#10b981;">&#128640; iDash Deployment &amp; System Wizard</div>
+                                <div class="tile-desc">5-step implementation wizard: host environment check, database schema initialization &amp; upgrade engine, multi-site isolation provisioning, idashadmin setup, and production certification validation.</div>
+                            </div>
+                            <% } %>
                             <!-- Fixed Reader Configuration (Zebra FX9600 / FX7500 reader registrations) -->
                             <% if (CanSeeTile("admin_reader_config") || CanSeeTile("admin_site_config")) { %>
                             <div class="tile" onclick="location.href='va_reader_config.aspx'" style="border-left: 4px solid #06b6d4; background: rgba(6,182,212,0.05);">
@@ -884,13 +913,16 @@
                     function toggleIdashTheme() {
                         var html = document.documentElement;
                         var isLight = html.getAttribute('data-theme') === 'light';
-                        if (isLight) {
+                        var next = isLight ? 'dark' : 'light';
+                        if (next === 'dark') {
                             html.removeAttribute('data-theme');
-                            localStorage.setItem('idash_theme', 'dark');
                         } else {
                             html.setAttribute('data-theme', 'light');
-                            localStorage.setItem('idash_theme', 'light');
                         }
+                        try {
+                            localStorage.setItem('idash_theme', next);
+                            document.cookie = 'idash_theme=' + next + '; path=/; max-age=31536000; SameSite=Lax';
+                        } catch(e) {}
                         updateThemeIcon();
                     }
                     function updateThemeIcon() {
@@ -898,15 +930,22 @@
                         var iconEl = document.getElementById('themeIcon');
                         var labelEl = document.getElementById('themeLabel');
                         var btn = document.getElementById('themeToggleBtn');
-                        if (iconEl) iconEl.innerHTML = isLight ? '&#9728;' : '&#127769;';
-                        if (labelEl) labelEl.textContent = isLight ? 'Light' : 'Dark';
+                        if (iconEl) iconEl.innerHTML = isLight ? '&#9790;' : '&#9728;';
+                        if (labelEl) labelEl.textContent = isLight ? 'Dark' : 'Light';
                         if (btn) btn.title = isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode';
+
+                        var gateIcon = document.getElementById('gateThemeIcon');
+                        var gateLabel = document.getElementById('gateThemeLabel');
+                        var gateBtn = document.getElementById('gateThemeToggleBtn');
+                        if (gateIcon) gateIcon.innerHTML = isLight ? '&#9790;' : '&#9728;';
+                        if (gateLabel) gateLabel.textContent = isLight ? 'Dark' : 'Light';
+                        if (gateBtn) gateBtn.title = isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode';
                     }
                     document.addEventListener('DOMContentLoaded', updateThemeIcon);
 
                     // -- Welcome card --
                     function dismissWelcome() {
-                        localStorage.setItem('aw_welcomed', '1');
+                        localStorage.setItem('idash_welcomed', '1');
                         var card = document.getElementById('welcomeCard');
                         if (card) { card.style.transition = 'opacity 0.4s'; card.style.opacity = '0'; setTimeout(function(){ card.style.display='none'; }, 400); }
                     }
@@ -999,7 +1038,7 @@ function toggleSection(id) {
                         allTilesAnim.forEach(function(t, i) { t.style.animationDelay = (i * 0.04) + 's'; });
 
                         // -- Welcome card --
-                        if (!localStorage.getItem('aw_welcomed')) {
+                        if (!localStorage.getItem('idash_welcomed')) {
                             var card = document.getElementById('welcomeCard');
                             if (card) card.style.display = 'block';
                         }
@@ -1457,6 +1496,10 @@ function toggleSection(id) {
                         var chk = document.querySelector('input[id*="ChkAgreementGate"]');
                         if (chk) chk.checked = true;
                         closeAgreementModal();
+                    }
+
+                    if (window.location.search.indexOf('expand=1') !== -1 || window.location.search.indexOf('expand=all') !== -1) {
+                        document.querySelectorAll('.section-card.collapsed').forEach(function(c){ c.classList.remove('collapsed'); });
                     }
                 </script>
 

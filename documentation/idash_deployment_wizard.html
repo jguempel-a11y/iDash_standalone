@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>iDash Deployment &amp; System Wizard &mdash; Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/idintegration_icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .step-card {
+            background: color-mix(in srgb, var(--text, #e2e8f0), transparent 97%);
+            border: 1px solid var(--line, #2a3441);
+            border-radius: 14px;
+            padding: 26px;
+            margin-bottom: 24px;
+        }
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .step-num {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--accent, #3b82f6);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+        .step-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+            color: var(--text);
+        }
+        .step-desc {
+            color: var(--muted-docs, #8b95a5);
+            font-size: 14px;
+            line-height: 1.7;
+            margin-bottom: 14px;
+        }
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .badge-green { background: color-mix(in srgb, #10b981, transparent 85%); color: #10b981; border: 1px solid #10b981; }
+        .badge-blue  { background: color-mix(in srgb, #3b82f6, transparent 85%); color: #3b82f6; border: 1px solid #3b82f6; }
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+        .action-box {
+            background: var(--chip);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 16px;
+        }
+        .action-box h4 {
+            margin: 0 0 6px 0;
+            font-size: 14px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .action-box p {
+            margin: 0;
+            font-size: 12.5px;
+            color: var(--muted-docs);
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <a href="index.aspx" class="back-link">&larr; Back to Documentation Hub</a><br/><br/>
+
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div>
+                <h1 style="margin-bottom:4px;">&#128640; iDash Deployment &amp; System Wizard</h1>
+                <p style="font-size:15px; color:var(--muted-docs); margin:0;">
+                    Autonomous 5-step installer, database schema engine, multi-site provisioning utility, and production validation certifier.
+                </p>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <a href="../deploy_idash.aspx" class="btn" style="background:#10b981; color:#fff; border:none; padding:9px 18px; border-radius:8px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                    &#128640; Launch Wizard
+                </a>
+                <a href="../index.aspx" class="btn" style="background:transparent; border:1px solid var(--line); color:var(--text); padding:9px 18px; border-radius:8px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                    &#8962; iDash Hub
+                </a>
+            </div>
+        </div>
+
+        <div class="info" style="margin-top:20px;">
+            <strong>Why was this wizard created?</strong><br/>
+            Historically, deploying iDash required manual SQL scripts, SSMS table creation, manual IIS directory permission checking, and separate multi-site setup steps. 
+            The <strong>Deployment &amp; System Wizard</strong> (<code>deploy_idash.aspx</code>) turns this into an <em>autonomous, single-screen experience</em> that guarantees 100% clean standalone operation with zero legacy AssetWorx or InfinID dependencies.
+        </div>
+    </div>
+
+    <!-- 5-STEP PIPELINE BREAKDOWN -->
+    <h2><span class="section-num">1</span>&#9881; The 5-Step Automated Pipeline</h2>
+
+    <div class="step-card">
+        <div class="step-header">
+            <div class="step-num">1</div>
+            <h3 class="step-title">Host Environment &amp; Prerequisites Check</h3>
+            <span class="badge-pill badge-green">&#10003; Automated Probes</span>
+        </div>
+        <div class="step-desc">
+            Executes non-destructive real-time probes against the host system:
+        </div>
+        <div class="action-grid">
+            <div class="action-box">
+                <h4>&#128187; IIS &amp; ASP.NET 4.8</h4>
+                <p>Verifies CLR version, worker process identity (<code>IIS_IUSRS</code> / AppPool), and application pool architecture.</p>
+            </div>
+            <div class="action-box">
+                <h4>&#128193; File Write Permissions</h4>
+                <p>Ensures <code>App_Data/</code>, <code>logs/</code>, <code>config/</code>, and <code>uploads/</code> have read/write access.</p>
+            </div>
+            <div class="action-box">
+                <h4>&#128451; SQL Connectivity</h4>
+                <p>Tests connection string reachability, SQL instance latency, and database credentials.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header">
+            <div class="step-num">2</div>
+            <h3 class="step-title">Database Schema Engine &amp; Initializer</h3>
+            <span class="badge-pill badge-blue">&#9881; Standalone Schema</span>
+        </div>
+        <div class="step-desc">
+            Inspects the target SQL database and compares it against the pure standalone iDash baseline:
+        </div>
+        <ul style="margin:0; padding-left:20px; font-size:13.5px; color:var(--muted-docs); line-height:1.8;">
+            <li><strong>26 Clean Core Tables:</strong> Ensures <code>v_asset</code>, <code>asset_inventory</code>, <code>company</code>, <code>locations</code>, <code>fixedreader</code>, <code>printjob</code>, <code>printtemplate</code>, and <code>printerrouting</code> exist with exact modern schemas.</li>
+            <li><strong>Zero Legacy Columns:</strong> Guarantees no orphaned AssetWorx or GPS tables remain.</li>
+            <li><strong>One-Click Deployment / Upgrade:</strong> Automatically provisions missing tables, indexes, and optimized reporting views (<code>v_asset_extended</code>) safely without data loss.</li>
+        </ul>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header">
+            <div class="step-num">3</div>
+            <h3 class="step-title">Multi-Site Isolation &amp; Facility Provisioning</h3>
+            <span class="badge-pill badge-green">&#127970; Multi-Tenant</span>
+        </div>
+        <div class="step-desc">
+            Configures strict tenant data isolation by provisioning site and station identifiers:
+        </div>
+        <ul style="margin:0; padding-left:20px; font-size:13.5px; color:var(--muted-docs); line-height:1.8;">
+            <li>Lists all active facility stations (e.g., <code>517 Beckley</code>, <code>512 Baltimore</code>, <code>613 Martinsburg</code>).</li>
+            <li>Allows instant one-click provisioning of new stations and facility names with cascade integrity.</li>
+            <li>Ensures scanner sessions, reader antenna observations, and ENNX exports strictly honor site filtering.</li>
+        </ul>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header">
+            <div class="step-num">4</div>
+            <h3 class="step-title">Admin &amp; Security Setup</h3>
+            <span class="badge-pill badge-blue">&#128100; RBAC &amp; Auth</span>
+        </div>
+        <div class="step-desc">
+            Manages the central administrator account (<code>idashadmin</code>) and sets up authentication parameters:
+        </div>
+        <ul style="margin:0; padding-left:20px; font-size:13.5px; color:var(--muted-docs); line-height:1.8;">
+            <li>Cryptographic password update using PBKDF2 with SHA-256 and salted HMAC hash storage.</li>
+            <li>Sets default technical alert notification email address.</li>
+            <li>Enforces role-based access control (RBAC) across all administrative tools.</li>
+        </ul>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header">
+            <div class="step-num">5</div>
+            <h3 class="step-title">End-to-End Validation Suite &amp; Production Certification</h3>
+            <span class="badge-pill badge-green">&#127881; Verified Ready</span>
+        </div>
+        <div class="step-desc">
+            Executes automated integration test probes simulating actual field usage:
+        </div>
+        <ul style="margin:0; padding-left:20px; font-size:13.5px; color:var(--muted-docs); line-height:1.8;">
+            <li><strong>Database Read/Write Probe:</strong> Validates transactional writes and rollbacks.</li>
+            <li><strong>Unified Views:</strong> Queries <code>v_asset</code> and location hierarchy to ensure sub-millisecond query performance.</li>
+            <li><strong>Scan API Endpoint:</strong> Simulates live handheld and fixed reader packet submission.</li>
+            <li><strong>Certification Certificate:</strong> When 100% of probes pass, generates an on-screen verified certificate stamped with host name and UTC timestamp, complete with quick-launch buttons to the iDash Hub, Asset Master, and Fixed Reader Portal.</li>
+        </ul>
+    </div>
+
+    <!-- HOW TO ACCESS -->
+    <h2><span class="section-num">2</span>&#128279; Accessing the Wizard</h2>
+    <div class="card" style="padding:20px 24px;">
+        <p style="margin-top:0; color:var(--muted-docs); font-size:14px;">The deployment wizard can be launched from multiple locations in iDash:</p>
+        <div class="action-grid">
+            <div class="action-box">
+                <h4>&#127760; Direct URL</h4>
+                <p>Navigate directly in your browser:<br/><code style="font-size:12px; color:var(--accent);">http://localhost:8181/deploy_idash.aspx</code></p>
+            </div>
+            <div class="action-box">
+                <h4>&#8962; Main iDash Hub</h4>
+                <p>Located under <strong>Admin Tools</strong> &rarr; <strong style="color:#10b981;">🚀 iDash Deployment &amp; System Wizard</strong>, or search "deploy" in the Command Palette.</p>
+            </div>
+            <div class="action-box">
+                <h4>&#9881; Site Configuration</h4>
+                <p>Accessible from the sidebar navigation (<strong>🚀 Deployment &amp; DB Wizard</strong>) or the Database panel in <code>va_site_config.aspx</code>.</p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

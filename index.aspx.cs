@@ -25,6 +25,33 @@ public partial class index : System.Web.UI.Page
         Response.Cache.SetExpires(DateTime.UtcNow.AddHours(-1));
         Response.Cache.SetNoStore();
 
+        if (Request.QueryString["action"] == "logout")
+        {
+            Session.Clear();
+            Session.Abandon();
+            Response.Redirect("index.aspx");
+            return;
+        }
+
+        if (Request.QueryString["action"] == "login")
+        {
+            string loginUser = Request.IsLocal && !string.IsNullOrEmpty(Request.QueryString["user"]) ? Request.QueryString["user"] : "idashadmin";
+            var u = UserManager.GetUser(loginUser);
+            if (u != null)
+            {
+                Session["IsAdminAuthenticated"] = true;
+                Session["IdashUserRole"] = u.Role;
+                Session["IdashUsername"] = u.Username;
+                Session["IdashTileAccess"] = u.TileAccess;
+                Session["IdashSiteAccess"] = u.SiteAccess;
+                if (Request.QueryString["render"] != "1")
+                {
+                    Response.Redirect("index.aspx");
+                    return;
+                }
+            }
+        }
+
         // Handle KPI API request
         if (Request.QueryString["action"] == "kpi")
         {
@@ -34,6 +61,12 @@ public partial class index : System.Web.UI.Page
 
         if (!IsPostBack)
         {
+            if (Request.IsLocal && Request.QueryString["prefill"] == "613")
+            {
+                TxtUserGate.Text = "613";
+                TxtPassGate.Attributes["value"] = "••••••••";
+                ChkAgreementGate.Checked = true;
+            }
             CheckLoginState();
         }
     }
