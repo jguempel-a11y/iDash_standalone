@@ -42,6 +42,15 @@
             Operating natively on the <strong>Zebra TC53 / RFD40</strong> handhelds as well as desktop workstations, the v2.0 engine processes high-speed scan bursts (30&ndash;50 tags/sec) using an $O(1)$ memory engine, automatically partitions scans by room location barcodes (<code>SP...</code>), suppresses duplicate reads, presents a 4-color stream reconciliation table, and emails validated ENNX files directly to logistics teams.
         </p>
 
+        <div style="margin: 24px 0; text-align: center;">
+            <figure style="margin: 0;">
+                <img src="img/ennx_gen/universal_ennx_live.png?v=20260928_idash" alt="Universal ENNX Creator Interface" style="max-width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--line-docs); box-shadow: 0 8px 24px rgba(0,0,0,0.18);" />
+                <figcaption style="margin-top: 10px; font-size: 13px; color: var(--muted-docs); font-style: italic;">
+                    <strong>Figure 1:</strong> Universal ENNX Creator (v2.0) interface running live on iDash &mdash; featuring the unified single-row filter bar, active room partition (<code>SP 2-223</code>, <code>SP 2-224</code>), 4-color stream rows, and real-time ENNX trailer calculation (<code>***END***^5</code>).
+                </figcaption>
+            </figure>
+        </div>
+
         <div class="alert alert-info" style="padding:16px 20px;border-radius:12px;margin:20px 0;border-left:6px solid var(--accent-docs);background:color-mix(in srgb, var(--accent-docs), transparent 90%);color:var(--text-docs);">
             <strong>&#8505; Production Migration Notice:</strong> 
             The previous postback and square-tile version has been archived as <strong><code>va_universal_ennx_legacy.aspx</code></strong>. The active production interface is now <strong><code>va_universal_ennx.aspx</code></strong>.
@@ -157,7 +166,40 @@ SP009-BD. 8A
 SP015-BD. 8A
 517 EE45001
 ***END***^5</pre>
-        <p>The trailer <code>***END***^N</code> calculates <em>N</em> as the exact count of locations and assets, ensuring rejection-free intake into Vista/AEMS-MERS.</p>
+        <h3>ENNX Trailer Line Calculation Formula</h3>
+        <p>
+            The trailer line <code>***END***^N</code> is strictly validated upon ingestion into Vista / AEMS-MERS. The total count <strong><em>N</em></strong> is calculated as follows:
+        </p>
+        <table style="margin-top:10px;">
+            <thead>
+                <tr><th>Component</th><th>Included in <em>N</em>?</th><th>Example Lines</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Header Identifiers</strong></td>
+                    <td><span style="color:#ef4444;font-weight:700;">NO (0)</span></td>
+                    <td><code>ENNX</code> and <code>ID</code> lines are excluded.</td>
+                </tr>
+                <tr>
+                    <td><strong>Room Locations</strong></td>
+                    <td><span style="color:#10b981;font-weight:700;">YES (+1 per location)</span></td>
+                    <td><code>SP009-BD. 8A</code>, <code>SP015-BD. 8A</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Scanned Asset Barcodes</strong></td>
+                    <td><span style="color:#10b981;font-weight:700;">YES (+1 per asset)</span></td>
+                    <td><code>517 EE35607</code>, <code>517 EE31883</code>, <code>517 EE45001</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Trailer Line Itself</strong></td>
+                    <td><span style="color:#ef4444;font-weight:700;">NO (0)</span></td>
+                    <td><code>***END***^N</code> does not count itself.</td>
+                </tr>
+            </tbody>
+        </table>
+        <p style="margin-top:12px;font-size:13px;color:var(--muted-docs);">
+            <strong>Mathematical Formula:</strong> <code>N = Total_Locations + Total_Assets</code> (or total body lines between <code>ID</code> and <code>***END***</code>). In the example above: <strong>2 locations + 3 assets = 5</strong>, yielding <code>***END***^5</code>.
+        </p>
     </div>
 
     <div style="margin-top:48px;padding-top:20px;border-top:1px solid var(--line);">

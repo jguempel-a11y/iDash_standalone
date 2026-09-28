@@ -27,6 +27,15 @@
         <h2>Technical Operation</h2>
         <p>The system renders the UI through <code>va_ennx.aspx</code> with a code-behind at <code>va_ennx.aspx.cs</code>. It queries <code>dbo.asset</code> directly (with a <code>LEFT JOIN</code> on <code>dbo.location</code> for location names) using parameterized ADO.NET commands. The Site and User dropdowns are populated dynamically on page load and on any date or site change, showing only records relevant to the selected time window.</p>
 
+        <div style="margin: 24px 0; text-align: center;">
+            <figure style="margin: 0;">
+                <img src="img/ennx_gen/ennx_export_dashboard.png?v=20260928_idash" alt="ENNX Export Dashboard Interface" style="max-width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--line-docs); box-shadow: 0 8px 24px rgba(0,0,0,0.18);" />
+                <figcaption style="margin-top: 10px; font-size: 13px; color: var(--muted-docs); font-style: italic;">
+                    <strong>Figure 1:</strong> ENNX Export Dashboard (<code>va_ennx.aspx</code>) &mdash; multi-day date range selector, dynamically scoped site/user dropdowns, OIT &amp; No-Data asset inspection, and instant email dispatch.
+                </figcaption>
+            </figure>
+        </div>
+
         <h2>Global Master Export (ALL USERS Bypass)</h2>
         <p>By default, the ENNX logic enforces strict user ownership mapping (matching <code>LASTMODIFIEDBY</code>) so technicians only generate payloads for assets they physically tagged.<br><br>The <b>-- ALL USERS --</b> option at the top of the User dropdown bypasses this filter and queries across all technicians for the selected date range and site &mdash; enabling administrators to build a single unified daily master payload without manually stitching together individual files.</p>
 
@@ -76,6 +85,55 @@
         </ul>
         <p>Preview panels appear inline on the page when clicked and can be reviewed alongside the main ENNX
            text preview. The previews use the same date range and site filter as the main report.</p>
+
+        <h2>ENNX Output Format &amp; Trailer Specification</h2>
+        <p>The generated ENNX text payload strictly adheres to VA Vista / AEMS-MERS physical inventory format specifications:</p>
+        <pre style="background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:14px;font-size:13px;color:#a7f3d0;overflow-x:auto;">ENNX
+ID
+SP009-BD. 8A
+517 EE35607
+517 EE31883
+SP015-BD. 8A
+517 EE45001
+***END***^5</pre>
+        <h3>Trailer Line Calculation Formula (***END***^N)</h3>
+        <p>
+            The trailer line <code>***END***^N</code> verifies transmission integrity. The integer <strong><em>N</em></strong> represents the exact count of location lines and asset lines compiled into the file body:
+        </p>
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+            <thead>
+                <tr style="border-bottom:2px solid var(--line-docs);">
+                    <th style="padding:8px; text-align:left;">Line Type</th>
+                    <th style="padding:8px; text-align:left;">Counted in <em>N</em>?</th>
+                    <th style="padding:8px; text-align:left;">Explanation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:8px;"><strong>Header (<code>ENNX</code>, <code>ID</code>)</strong></td>
+                    <td style="padding:8px; color:#ef4444; font-weight:700;">NO (0)</td>
+                    <td style="padding:8px;">Protocol identifiers are excluded from the line sum.</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:8px;"><strong>Location Lines (<code>SP...</code>)</strong></td>
+                    <td style="padding:8px; color:#10b981; font-weight:700;">YES (+1 each)</td>
+                    <td style="padding:8px;">Each distinct room header line counts toward the total.</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:8px;"><strong>Asset Lines (e.g. <code>517 EE...</code>)</strong></td>
+                    <td style="padding:8px; color:#10b981; font-weight:700;">YES (+1 each)</td>
+                    <td style="padding:8px;">Each equipment item barcode line counts toward the total.</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--line-docs);">
+                    <td style="padding:8px;"><strong>Trailer (<code>***END***^N</code>)</strong></td>
+                    <td style="padding:8px; color:#ef4444; font-weight:700;">NO (0)</td>
+                    <td style="padding:8px;">The trailer terminator does not count itself.</td>
+                </tr>
+            </tbody>
+        </table>
+        <p style="font-size:13px; color:var(--muted-docs);">
+            <strong>Formula:</strong> <code>N = Total_Locations + Total_Assets</code> (or total lines between <code>ID</code> and <code>***END***</code>). For example, 2 room locations + 3 equipment items = 5 total lines, producing <code>***END***^5</code>.
+        </p>
 
         <h2>Source Architecture</h2>
         <p>
