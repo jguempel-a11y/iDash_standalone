@@ -239,6 +239,140 @@
             body { background: #fff !important; color: #000 !important; font-size: 10pt; }
             .era-table { font-size: 8pt; }
         }
+        /* Theme-Adaptive Topology Diagram Styles */
+        .topo-box {
+            background: var(--card-docs, #ffffff);
+            border: 2px solid var(--line-docs, #e2e8f0);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 20px 0 28px 0;
+            color: var(--text-docs, #0f172a);
+            box-shadow: 0 4px 18px rgba(0,0,0,0.04);
+        }
+        .topo-section {
+            border: 2px dashed;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+        .topo-section.enterprise {
+            background: color-mix(in srgb, #3b82f6 5%, var(--card-docs, #ffffff));
+            border-color: #3b82f6;
+        }
+        .topo-section.enclave {
+            background: color-mix(in srgb, #8b5cf6 6%, var(--card-docs, #ffffff));
+            border-color: #8b5cf6;
+        }
+        .topo-sec-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .topo-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 12px;
+        }
+        .topo-node {
+            background: var(--bg-docs, #ffffff);
+            border: 1px solid var(--line-docs, #e2e8f0);
+            border-radius: 10px;
+            padding: 12px 14px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .topo-node:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+        }
+        .topo-node-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-docs, #0f172a);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .topo-node-desc {
+            font-size: 0.8rem;
+            color: var(--muted-docs, #64748b);
+            line-height: 1.4;
+        }
+        .topo-pill-group {
+            margin-top: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .pill {
+            font-size: 0.7rem;
+            font-family: 'JetBrains Mono', Consolas, monospace;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 4px;
+            border: 1px solid;
+            white-space: nowrap;
+        }
+        .pill.blue {
+            background: color-mix(in srgb, #3b82f6 12%, transparent);
+            color: #2563eb;
+            border-color: color-mix(in srgb, #3b82f6 30%, transparent);
+        }
+        [data-theme="dark"] .pill.blue { color: #60a5fa; }
+        .pill.purple {
+            background: color-mix(in srgb, #8b5cf6 12%, transparent);
+            color: #7c3aed;
+            border-color: color-mix(in srgb, #8b5cf6 30%, transparent);
+        }
+        [data-theme="dark"] .pill.purple { color: #a78bfa; }
+        .pill.green {
+            background: color-mix(in srgb, #10b981 12%, transparent);
+            color: #059669;
+            border-color: color-mix(in srgb, #10b981 30%, transparent);
+        }
+        [data-theme="dark"] .pill.green { color: #34d399; }
+        .pill.amber {
+            background: color-mix(in srgb, #f59e0b 12%, transparent);
+            color: #d97706;
+            border-color: color-mix(in srgb, #f59e0b 30%, transparent);
+        }
+        [data-theme="dark"] .pill.amber { color: #fbbf24; }
+        .topo-firewall {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 18px 0;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #ef4444;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .topo-firewall::before, .topo-firewall::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ef4444, transparent);
+        }
+        .ascii-diagram-toggle {
+            background: var(--card-docs, #ffffff);
+            color: var(--text-docs, #0f172a);
+            border: 1px solid var(--line-docs, #cbd5e1);
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-family: 'JetBrains Mono', Consolas, monospace;
+            font-size: 11px;
+            line-height: 1.45;
+            overflow-x: auto;
+            margin-top: 14px;
+        }
     </style>
 </head>
 <body>
@@ -1191,7 +1325,172 @@
         All core iDash application components, database storage, and RFID peripherals operate within a dedicated, segmented SPS-OT / Biomedical VLAN. Communication with enterprise infrastructure (Active Directory, NTP, WSUS) is routed through restricted internal boundary firewalls. Zero external Internet connections exist.
     </div>
 
-    <pre style="background:var(--surface2, #0f172a); color:var(--text, #f8fafc); border:1px solid var(--line-docs); border-radius:12px; padding:20px; font-family:'JetBrains Mono', Consolas, monospace; font-size:12px; line-height:1.45; overflow-x:auto;">
+    <!-- Responsive Visual Architecture Diagram (Seamless in Light and Dark Mode) -->
+    <div class="topo-box">
+        <!-- Zone 1: VA Hospital Enterprise Network -->
+        <div class="topo-section enterprise">
+            <div class="topo-sec-header" style="color: #2563eb;">
+                <span style="display:flex; align-items:center; gap:8px;">&#127760; Zone 1: VA Hospital Enterprise Network &amp; Shared Services</span>
+                <span class="pill blue">Internal VA Boundary</span>
+            </div>
+            <div class="topo-cards-grid">
+                <div class="topo-node">
+                    <div class="topo-node-title">&#128340; Time &amp; Name Resolution</div>
+                    <div class="topo-node-desc">VA Enterprise time sync &amp; DNS query infrastructure.</div>
+                    <div class="topo-pill-group">
+                        <span class="pill blue">NTP UDP 123</span>
+                        <span class="pill blue">DNS TCP/UDP 53</span>
+                    </div>
+                </div>
+                <div class="topo-node">
+                    <div class="topo-node-title">&#128274; Identity &amp; Directory</div>
+                    <div class="topo-node-desc">Active Directory authentication, PIV CRLs &amp; domain GPO.</div>
+                    <div class="topo-pill-group">
+                        <span class="pill blue">LDAPS TCP 636</span>
+                        <span class="pill blue">PKI/PIV 80/443</span>
+                    </div>
+                </div>
+                <div class="topo-node">
+                    <div class="topo-node-title">&#128295; Automated Patching</div>
+                    <div class="topo-node-desc">VA HTM medical device update &amp; WSUS/SCCM servers.</div>
+                    <div class="topo-pill-group">
+                        <span class="pill blue">WSUS/MDE 80/443</span>
+                        <span class="pill blue">Port 8530-8531</span>
+                    </div>
+                </div>
+                <div class="topo-node">
+                    <div class="topo-node-title">&#128187; Biomed Workstations</div>
+                    <div class="topo-node-desc">Clinical &amp; engineering staff accessing iDash portal.</div>
+                    <div class="topo-pill-group">
+                        <span class="pill blue">HTTPS 443 In</span>
+                        <span class="pill blue">RDP TCP 3389</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boundary Firewall Barrier -->
+        <div class="topo-firewall">
+            &#128274; Internal VA Boundary Firewall / Router ACLs &mdash; Zero Public Internet Ingress / Egress &#128274;
+        </div>
+
+        <!-- Zone 2: SPS-OT Accreditation Boundary -->
+        <div class="topo-section enclave">
+            <div class="topo-sec-header" style="color: #7c3aed;">
+                <span style="display:flex; align-items:center; gap:8px;">&#128737; Zone 2: VHA SPS-OT Accreditation Boundary (Dedicated VLAN Enclave)</span>
+                <span class="pill purple">SPS-OT Enclave</span>
+            </div>
+
+            <!-- Server & Database Tier -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; margin-bottom: 16px;">
+                <div class="topo-node" style="border-left: 4px solid #8b5cf6;">
+                    <div class="topo-node-title" style="color:#7c3aed;">
+                        &#128451; iDash Application Server (Virtual Machine)
+                    </div>
+                    <div class="topo-node-desc">
+                        Microsoft Windows Server 2019 / 2022 (VMware / Hyper-V)<br />
+                        &bull; <strong>IIS 10.0 Web Application:</strong> Port 80 (HTTP redirect), Port 443 (HTTPS TLS 1.2/1.3)<br />
+                        &bull; <strong>Standalone Web &amp; Live SSE Feed:</strong> Port 8181 (HTTP) / Port 8443 (TLS Proxy)<br />
+                        &bull; <strong>Antenna Location Service:</strong> Background multi-threaded MQTT ingestion &amp; LLRP poller<br />
+                        &bull; <strong>BarTender Print Engine Service:</strong> REST API Port 5160 &amp; direct raw ZPL spooler
+                    </div>
+                    <div class="topo-pill-group">
+                        <span class="pill purple">IIS 80/443</span>
+                        <span class="pill purple">Live SSE 8181</span>
+                        <span class="pill green">MQTT 1883/8883</span>
+                        <span class="pill amber">BarTender 5160</span>
+                    </div>
+                </div>
+
+                <div class="topo-node" style="border-left: 4px solid #10b981;">
+                    <div class="topo-node-title" style="color:#059669;">
+                        &#128450; Microsoft SQL Server Database Instance
+                    </div>
+                    <div class="topo-node-desc">
+                        Microsoft SQL Server 2019 / 2022 Enterprise Instance<br />
+                        &bull; <strong>Master Records:</strong> Capital assets, surgical trays, instrumentation &amp; RME<br />
+                        &bull; <strong>Audit Trail:</strong> Immutable timestamped scan history (<code>dbo.locationhistory</code>)<br />
+                        &bull; <strong>Hardware Cache:</strong> Fixed reader portal bindings &amp; antenna port mappings<br />
+                        &bull; <strong>Privacy Guarantee:</strong> Strictly Zero PII / Zero ePHI stored
+                    </div>
+                    <div class="topo-pill-group">
+                        <span class="pill green">SQL TCP 1433</span>
+                        <span class="pill green">SQL Browser UDP 1434</span>
+                        <span class="pill green">Zero ePHI</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Connected Peripherals & Mobile Fleet Tier -->
+            <div style="font-weight: 700; font-size: 0.85rem; color: var(--text-docs); margin: 12px 0 8px 0; text-transform: uppercase; letter-spacing: 0.05em;">
+                Connected SPS Operational Peripherals &amp; Mobile Scanner Fleet
+            </div>
+            <div class="topo-cards-grid">
+                <div class="topo-node">
+                    <div class="topo-node-title">&#128241; Zebra MC3330xR Handhelds</div>
+                    <div class="topo-node-desc">
+                        Android 11&ndash;14 &bull; FIPS 140-2 Cert #3866<br />
+                        WPA2/WPA3-Enterprise Wi-Fi (AES-256). Offline buffer with automated sync.
+                    </div>
+                    <div class="topo-pill-group">
+                        <span class="pill blue">HTTPS 443</span>
+                        <span class="pill purple">FIPS #3866</span>
+                    </div>
+                </div>
+
+                <div class="topo-node">
+                    <div class="topo-node-title">&#128225; Zebra FX9600 / FXR90 Fixed Readers</div>
+                    <div class="topo-node-desc">
+                        Zebra Linux BSP v3.30 &bull; Ethernet (802.3)<br />
+                        Choke-point portals &amp; room transition telemetry. Active VA-owned firmware.
+                    </div>
+                    <div class="topo-pill-group">
+                        <span class="pill green">MQTT 1883/8883</span>
+                        <span class="pill green">HTTP POST 8181</span>
+                    </div>
+                </div>
+
+                <div class="topo-node">
+                    <div class="topo-node-title">&#128424; Zebra ZT411R &amp; ZD621R Printers</div>
+                    <div class="topo-node-desc">
+                        Zebra Link-OS v7.4 &bull; FIPS #4767 supported<br />
+                        Autoclave RFID tag encoding &amp; surgical tray labeling. Ethernet connected.
+                    </div>
+                    <div class="topo-pill-group">
+                        <span class="pill amber">Raw ZPL 6101/9100</span>
+                        <span class="pill amber">BarTender 5160</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="topo-legend" style="display:flex; flex-wrap:wrap; gap:16px; margin-top:16px; padding-top:12px; border-top:1px solid var(--line-docs); font-size:0.82rem;">
+            <div style="display:flex; align-items:center; gap:6px;">
+                <span style="width:10px; height:10px; border-radius:50%; background:#2563eb; display:inline-block;"></span>
+                <span>VA Infrastructure Services</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+                <span style="width:10px; height:10px; border-radius:50%; background:#7c3aed; display:inline-block;"></span>
+                <span>iDash Application &amp; Web Tier</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+                <span style="width:10px; height:10px; border-radius:50%; background:#059669; display:inline-block;"></span>
+                <span>SQL Database &amp; Real-Time Telemetry (MQTT/SSE)</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+                <span style="width:10px; height:10px; border-radius:50%; background:#d97706; display:inline-block;"></span>
+                <span>Thermal RFID Print Spooling (ZPL/BarTender)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Collapsible Text / ASCII View for Auditors (Clean in both Light & Dark modes) -->
+    <details style="margin: 16px 0 28px 0;">
+        <summary style="cursor: pointer; font-size: 0.88rem; font-weight: 700; color: var(--accent-docs);">
+            &#128065; Click to view textual/ASCII Network Matrix representation
+        </summary>
+        <pre class="ascii-diagram-toggle">
 +----------------------------------------------------------------------------------------------------+
 |                                     VA HOSPITAL ENTERPRISE NETWORK                                 |
 |                                                                                                    |
@@ -1244,7 +1543,8 @@
 |  | FIPS 140-2 #3866   |               | MQTT / HTTP POST   |              | Raw ZPL Port 6101  |   |
 |  +--------------------+               +--------------------+              +--------------------+   |
 +----------------------------------------------------------------------------------------------------+
-    </pre>
+        </pre>
+    </details>
 
     <!-- SECTION 8: APPENDIX F - VENDOR LETTER -->
     <h2 id="vendor-letter">&#128220; 8. Appendix F: Vendor Statement of Support</h2>
