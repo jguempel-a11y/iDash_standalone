@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -315,7 +315,7 @@ ID
 ***END***^{total line count}</pre>
             <ul>
                 <li>Location resolved: <code>LocationTagged</code> &rarr; <code>Locationname</code> &rarr; <code>Previous_Location</code> (first non-empty, "MISSING" treated as empty)</li>
-                <li>Footer count includes: ENNX header + ID prefix + each location header + each asset name</li>
+                <li>Trailer count calculation: <code>N = 1 (ID line) + (Location headers) + (Asset lines)</code>. The top <code>ENNX</code> keyword and the <code>***END***^N</code> trailer line itself are excluded from N (Total lines in file = <code>N + 2</code>).</li>
                 <li>ID prefix configurable via <code>IdPrefix</code> in <code>~/config/report_automation.json</code> (default: <code>ID</code>)</li>
             </ul>
 

@@ -145,6 +145,70 @@
         <img class="ss" src="img/ennx/ennx_view_data.png" alt="ENNX Export page after building showing ENNX text preview with room and asset IDs, and Data Details table with asset Name, Location, EIL, Description, Tag Date, Previous Location columns" />
         <p class="ss-cap">After clicking Build ENNX &mdash; the ENNX Text Preview fills in with location and asset IDs, and the Data Details table shows each asset with its current and previous location. Review to confirm the data looks correct.</p>
         <div class="tip-box"><strong>&#128161; Review the data before emailing.</strong> Scan the Data Details grid to confirm assets and locations look as expected for today&rsquo;s scan session. If something looks wrong, check your filter settings.</div>
+
+        <!-- ENNX Trailer Total Calculation Reference (User & Dev) -->
+        <div style="margin-top:20px; border-top:1px solid var(--line,#2a3441); padding-top:18px;">
+            <h4 style="margin:0 0 10px; font-size:15px; font-weight:800; color:var(--text,#e2e8f0); display:flex; align-items:center; gap:8px;">
+                <span>&#128290;</span> How the ENNX Trailer Total (<code>***END***^N</code>) is Calculated
+            </h4>
+            <p style="font-size:13px; color:var(--muted-docs,#8b95a5); line-height:1.7; margin-bottom:14px;">
+                At the very bottom of every generated ENNX file is a trailer line formatted as <code>***END***^N</code> (e.g., <code>***END***^29</code>). This number is an integrity checksum used during intake into VA Vista / AEMS-MERS and automated systems.
+            </p>
+
+            <div class="field-grid" style="margin-bottom:14px;">
+                <div class="field-card" style="border-left:4px solid var(--accent,#3b82f6);">
+                    <h4>&#128100; For Users &amp; Auditors: What N Means</h4>
+                    <p style="margin-bottom:8px;">
+                        <strong>N is the total count of content payload lines</strong> between the top <code>ENNX</code> header and the trailer line.
+                    </p>
+                    <div style="background:rgba(0,0,0,.25); border:1px solid var(--line,#2a3441); border-radius:6px; padding:10px 14px; font-family:monospace; font-size:12px; line-height:1.6; margin:8px 0; color:#38bdf8;">
+                        N = 1 (ID line) + (Location Headers) + (Scanned Asset Barcodes)
+                    </div>
+                    <p style="font-size:12px; margin:0;">
+                        <strong>Example:</strong> A scan session covering <strong>2 rooms</strong> with <strong>15 assets</strong>:<br/>
+                        &bull; 1 (ID line) + 2 (Rooms) + 15 (Assets) = <strong>18</strong><br/>
+                        &bull; Trailer line: <code>***END***^18</code><br/>
+                        <em>Why it matters:</em> Vista / AEMS-MERS checks this total against the parsed records upon import. If a record was truncated or dropped, Vista immediately halts the intake to prevent database corruption.
+                    </p>
+                </div>
+
+                <div class="field-card" style="border-left:4px solid #10b981;">
+                    <h4>&#128421;&#65039; For Developers: Calculation &amp; Parsing Logic</h4>
+                    <p style="margin-bottom:8px;">
+                        <strong>Total lines in file = N + 2</strong> (excluding only line 1 <code>ENNX</code> and the trailer line itself).
+                    </p>
+                    <div style="background:rgba(0,0,0,.25); border:1px solid var(--line,#2a3441); border-radius:6px; padding:10px 14px; font-family:monospace; font-size:11px; line-height:1.5; margin:8px 0; color:#4ade80;">
+                        // C# Backend (va_ennx.aspx.cs / Runner)<br/>
+                        int count = 1; // initialized to 1 for the 'ID' line<br/>
+                        foreach (var grp in groups) {<br/>
+                        &nbsp;&nbsp;count++; // +1 for room/location header<br/>
+                        &nbsp;&nbsp;foreach (DataRow row in grp) {<br/>
+                        &nbsp;&nbsp;&nbsp;&nbsp;if (Clean(row["Name"]).Length &gt; 0)<br/>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;count++; // +1 for each asset barcode<br/>
+                        &nbsp;&nbsp;}<br/>
+                        }<br/>
+                        sb.AppendLine("***END***^" + count);
+                    </div>
+                    <p style="font-size:12px; margin:0;">
+                        <strong>Alternative Line Count:</strong> <code>body.TrimEnd().Split('\n').Length - 1</code> (subtracts 1 for the <code>ENNX</code> header).<br/>
+                        <strong>Parsers:</strong> Always skip lines starting with <code>***END***</code> when processing assets, and split on <code>^</code> to validate line count checksum.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Visual File Anatomy -->
+            <div style="background:color-mix(in srgb, var(--text,#e2e8f0), transparent 97%); border:1px solid var(--line,#2a3441); border-radius:8px; padding:12px 16px; font-size:12px; font-family:monospace; line-height:1.7;">
+                <span style="color:var(--muted-docs,#8b95a5); font-weight:700;">ENNX File Line-by-Line Anatomy:</span><br/>
+                <span style="color:#f59e0b;">ENNX</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&larr; Line 1: Header keyword (always excluded from N)<br/>
+                <span style="color:#38bdf8;">ID</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&larr; Line 2: Prefix identifier [Count = 1]<br/>
+                <span style="color:#a78bfa;">SP-ROOM-101</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&larr; Line 3: Location header [+1]<br/>
+                <span style="color:#34d399;">512 EE18193</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&larr; Line 4: Asset barcode [+1]<br/>
+                <span style="color:#34d399;">512 EE18194</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&larr; Line 5: Asset barcode [+1]<br/>
+                <span style="color:#a78bfa;">SP-ROOM-102</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&larr; Line 6: Next location header [+1]<br/>
+                <span style="color:#34d399;">512 EE18200</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&larr; Line 7: Asset barcode [+1]<br/>
+                <span style="color:#ef4444; font-weight:700;">***END***^6</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&larr; Line 8: Trailer where N = 6 (1 ID + 2 locations + 3 assets)
+            </div>
+        </div>
     </div>
 
     <div class="step-card">
