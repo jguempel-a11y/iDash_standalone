@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -250,6 +250,57 @@
                 <li><strong>Use case:</strong> OIT (Office of Information Technology) assets typically have CMR/EIL values starting with "78". We do not tag OIT equipment; checking this box prevents them from polluting your site's ENNX report and from being incorrectly updated in the database.</li>
             </ul>
 
+            <!-- SITUATIONAL REALITIES & LIMITATIONS FOR FIELD TEAMS -->
+            <div class="alert alert-warn" style="margin-top:16px;">
+                <div style="font-size:15px; font-weight:700; color:#b45309; margin-bottom:8px;">
+                    &#9888;&#65039; Field Team Alert: Situations Where "Ignore 78" Will NOT Operate
+                </div>
+                <p style="margin-bottom:10px; line-height:1.6;">
+                    For employees using Tag Team Scan in the field &mdash; especially carts operating in <strong>deliberate Offline Mode</strong> (Wi-Fi turned off) with handheld Bluetooth barcode scanners &mdash; be aware of the following situational constraints:
+                </p>
+                <table style="width:100%; border-collapse:collapse; background:rgba(0,0,0,0.03); border:1px solid var(--line-docs); font-size:13px; line-height:1.5;">
+                    <thead>
+                        <tr style="border-bottom:2px solid var(--line-docs); background:rgba(245,158,11,0.08); text-align:left;">
+                            <th style="padding:8px 10px; width:28%;">Situation / Workflow</th>
+                            <th style="padding:8px 10px; width:36%;">Why "Ignore 78" Cannot Operate</th>
+                            <th style="padding:8px 10px; width:36%;">Operational Field Guidance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom:1px solid var(--line-docs);">
+                            <td style="padding:8px 10px;"><strong>1. Offline Mode (Wi-Fi Disabled)</strong><br/><span style="font-size:11px; color:var(--muted-docs);">Cart / tablet disconnected while using Bluetooth barcode scanner</span></td>
+                            <td style="padding:8px 10px;">The local browser has no live connection to the SQL database. When a barcode is scanned, the browser only captures the raw EE string (e.g. <code>613 EE123456</code>). <strong>The device does not know the asset's CMR/EIL number at scan time.</strong></td>
+                            <td style="padding:8px 10px;">Barcode scans buffer into <code>localStorage</code> regardless of CMR. Technicians can replace/print labels normally; OIT segregation happens during reconciliation or ENNX preview after reconnecting.</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--line-docs);">
+                            <td style="padding:8px 10px;"><strong>2. Offline Sync (Tap "Sync Now")</strong><br/><span style="font-size:11px; color:var(--muted-docs);">Connecting back to Wi-Fi and flushing buffered scans to server</span></td>
+                            <td style="padding:8px 10px;">The background sync endpoint (<code>?action=sync</code>) commits all buffered items directly to the database. The client-side checkbox state is not transmitted in the batch payload, so the sync processor saves all valid items.</td>
+                            <td style="padding:8px 10px;">After syncing, technicians can click <strong>Show OIT Assets Scanned</strong> to inspect any OIT assets that were swept up and notify the local OIT team if needed.</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--line-docs);">
+                            <td style="padding:8px 10px;"><strong>3. Asset Not in Database / Missing CMR</strong><br/><span style="font-size:11px; color:var(--muted-docs);">Newly arrived equipment or record with blank text8 (CMR)</span></td>
+                            <td style="padding:8px 10px;">If an asset has never been imported into <code>dbo.asset</code>, or its <code>text8</code> field is <code>NULL</code> or blank, the system has no CMR record. Because <code>item.Cmr</code> is empty, it does not match <code>78...</code>.</td>
+                            <td style="padding:8px 10px;">Unrecognized assets are flagged with <code>Status = "Not Found"</code>. Use <strong>Show No Data Assets</strong> to review items missing from the database.</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--line-docs);">
+                            <td style="padding:8px 10px;"><strong>4. Fresh Page Reload / New Session</strong><br/><span style="font-size:11px; color:var(--muted-docs);">Closing browser, refreshing tab, or navigating from dashboard</span></td>
+                            <td style="padding:8px 10px;">The checkbox is an unpersisted form element that defaults to <strong>unchecked</strong>. It does not stay checked across page reloads or new logins.</td>
+                            <td style="padding:8px 10px;">If scanning while connected to Wi-Fi, technicians must explicitly scroll down and check the box at the start of each scanning shift.</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid var(--line-docs);">
+                            <td style="padding:8px 10px;"><strong>5. Visual Confusion: Grid Shows "Saved"</strong><br/><span style="font-size:11px; color:var(--muted-docs);">Scanned 78 asset still appears in the table with a green badge</span></td>
+                            <td style="padding:8px 10px;">When checked (online), the system skips the SQL database write, but still keeps the item in the on-screen session list and labels its status as <strong>"Saved"</strong>.</td>
+                            <td style="padding:8px 10px;">Look at the top status banner: <em>"&#128316; Skipped DB update ... CMR/EIL starts with 78 (ignored)"</em> confirms the database update was skipped.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:8px 10px;"><strong>6. In-Grid Inline Editing</strong><br/><span style="font-size:11px; color:var(--muted-docs);">Clicking "Edit" on a row and clicking "Update"</span></td>
+                            <td style="padding:8px 10px;">Manual row updates through the grid's Edit button write directly to the database without checking the 78 rule.</td>
+                            <td style="padding:8px 10px;">Do not manually click "Update" on a 78 CMR asset row if you intend to leave the database un-tagged.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
             <h3 style="margin-top:16px;">Show No Data Assets <code>BtnShowNoData</code> <span class="badge badge-full" style="background:rgba(239,68,68,0.15); color:#ef4444; border-color:#ef4444;">Red Border</span></h3>
             <ul>
                 <li>Displays assets that were scanned but <strong>not found in the database</strong>.</li>
@@ -419,6 +470,9 @@
                 <li>Invalid barcodes are marked with <code>Status = "Error"</code> and <code>Description = "INVALID FORMAT"</code> &mdash; they appear in the grid so the user can see which scans were rejected.</li>
                 <li>On success, <code>localStorage</code> is cleared and the page reloads with all synced items visible in the grid.</li>
             </ol>
+            <div class="alert alert-info" style="margin-top:10px;">
+                <strong>&#128269; 78 CMR Auditing Post-Sync:</strong> Because offline scans are stored client-side without access to the SQL database, the "Ignore 78" rule does not filter offline scans during creation or sync. After tapping <strong>Sync Now</strong>, technicians can click <strong>Show OIT Assets Scanned</strong> to immediately view a clean report of any 78 OIT assets that were scanned during the offline session.
+            </div>
 
             <h3>UI Indicators</h3>
             <table style="width:100%; border-collapse:collapse; margin:10px 0;">
