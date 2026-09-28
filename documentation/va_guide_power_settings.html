@@ -1,8 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Adjusting Antenna Power on the Zebra Sled Reader &mdash; iDash Documentation</title>
+    <title>Zebra RFD40 Antenna Power &amp; Sound Level Guide &mdash; iDash Documentation</title>
     <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
@@ -11,258 +11,295 @@
     <meta http-equiv="Expires" content="0" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
-        .screenshot-row {
+        .hero-banner {
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.12), rgba(16, 185, 129, 0.12));
+            border: 2px solid var(--accent, #0284c7);
+            border-radius: 16px;
+            padding: 26px 30px;
+            margin-bottom: 28px;
             display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            margin: 20px 0;
-            align-items: flex-start;
+            gap: 22px;
+            align-items: center;
         }
-        .screenshot-wrap {
-            flex: 0 0 auto;
-            text-align: center;
+        .hero-icon {
+            width: 68px;
+            height: 68px;
+            border-radius: 16px;
+            background: var(--accent, #0284c7);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+            flex-shrink: 0;
+            box-shadow: 0 0 20px rgba(2, 132, 199, 0.35);
         }
-        .screenshot-wrap img {
-            max-height: 400px;
-            width: auto;
-            border-radius: 12px;
-            border: 2px solid var(--line);
-            box-shadow: 0 4px 18px rgba(0,0,0,0.25);
-            display: block;
-        }
-        .screenshot-wrap figcaption {
-            font-size: 0.78rem;
-            color: var(--muted);
-            margin-top: 8px;
-            max-width: 200px;
-        }
-        .power-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 14px;
-            margin: 20px 0;
-        }
-        .power-card {
-            background: var(--chip);
-            border: 1px solid var(--line);
-            border-radius: 12px;
-            padding: 16px 18px;
-        }
-        .power-card h4 {
-            margin: 0 0 6px 0;
-            font-size: 0.9rem;
-            color: var(--accent);
-        }
-        .power-card .power-range {
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: var(--text);
-            line-height: 1;
-            margin-bottom: 6px;
-        }
-        .power-card p {
-            font-size: 0.8rem;
-            color: var(--muted);
-            margin: 0;
-        }
+        .hero-text h1 { margin: 0 0 6px 0; font-size: 23px; font-weight: 800; border-bottom: none; padding-bottom: 0; }
+        .hero-text p { margin: 0; color: var(--muted-docs, #8b95a5); font-size: 14px; line-height: 1.6; }
+        
+        .step-card { background: color-mix(in srgb, var(--text, #e2e8f0), transparent 97%); border: 1px solid var(--line, #2a3441); border-radius: 14px; padding: 24px 28px; margin-bottom: 24px; }
+        .step-num { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: #0284c7; color: #fff; font-weight: 800; font-size: 15px; margin-right: 12px; flex-shrink: 0; }
+        .step-num.green { background: #10b981; }
+        .step-num.amber { background: #f59e0b; }
+        .step-num.purple { background: #8b5cf6; }
+        .step-title { font-size: 18px; font-weight: 700; display: flex; align-items: center; margin-bottom: 12px; }
+        .step-desc { color: var(--muted-docs, #8b95a5); font-size: 14px; line-height: 1.7; margin-bottom: 14px; }
+
+        .tip-box  { background: color-mix(in srgb, #10b981, transparent 88%); border: 1px solid rgba(16,185,129,0.3); border-left: 4px solid #10b981; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #10b981; }
+        .warn-box { background: color-mix(in srgb, #f59e0b, transparent 88%); border: 1px solid rgba(245,158,11,0.3); border-left: 4px solid #f59e0b; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #f59e0b; }
+        .info-box { background: color-mix(in srgb, #3b82f6, transparent 88%); border: 1px solid rgba(59,130,246,0.3); border-left: 4px solid #3b82f6; padding: 13px 17px; border-radius: 8px; font-size: 13px; margin: 14px 0; color: #3b82f6; }
+
+        .power-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 18px 0; }
+        .power-card { background: color-mix(in srgb, var(--text, #e2e8f0), transparent 95%); border: 1px solid var(--line, #2a3441); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; }
+        .power-card h4 { margin: 0 0 6px 0; font-size: 14px; font-weight: 800; color: var(--accent, #38bdf8); }
+        .power-card .dbm-val { font-size: 26px; font-weight: 800; color: var(--text, #e2e8f0); line-height: 1.1; margin-bottom: 6px; }
+        .power-card .range-label { font-size: 12px; font-weight: 700; color: #10b981; margin-bottom: 8px; }
+        .power-card p { font-size: 13px; color: var(--muted-docs, #8b95a5); margin: 0; line-height: 1.5; }
+
+        .code-box { background: color-mix(in srgb, var(--text, #e2e8f0), transparent 96%); border: 1px solid var(--line, #2a3441); border-radius: 8px; padding: 12px 16px; font-family: monospace; font-size: 13px; line-height: 1.6; margin: 10px 0; overflow-x: auto; color: #38bdf8; }
+        .section-divider { border: none; border-top: 2px solid var(--line, #2a3441); margin: 36px 0; }
+        .pill-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .pb-green { background: rgba(16,185,129,0.2); color: #10b981; }
+        .pb-blue  { background: rgba(59,130,246,0.2); color: #3b82f6; }
+        .pb-amber { background: rgba(245,158,11,0.2); color: #f59e0b; }
     </style>
 </head>
 <body>
 <div class="wrap">
 
-    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
-    <br/><br/>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <a href="index.aspx" class="back-link">&#8592; Back to Documentation Hub</a>
+        <div>
+            <span class="pill-badge pb-green">Zebra RFD40 / RFD90</span>
+            <span class="pill-badge pb-blue">123RFID Mobile</span>
+            <span class="pill-badge pb-amber">DataWedge Tuned</span>
+        </div>
+    </div>
 
     <!-- Hero -->
+    <div class="hero-banner">
+        <div class="hero-icon">&#128268;</div>
+        <div class="hero-text">
+            <h1>Zebra RFD40 Antenna Power &amp; Sound Level Guide</h1>
+            <p>Standard operating procedure for adjusting RFID transmit power (dBm) and hardware beeper sound levels on the <strong>Zebra RFD40 / RFD90 RFID Sled</strong> paired with <strong>Zebra TC53 / TC58</strong> mobile computers running iDash Standalone.</p>
+        </div>
+    </div>
+
+    <!-- Architecture Note -->
     <div class="card">
-        <h1>&#128268; Adjusting Antenna Power on the Zebra Sled Reader</h1>
-        <p style="font-size:16px;">
-            The iDash app lets you control the RFID antenna power level for each scanning mode independently.
-            Lower power narrows the read range &mdash; useful in dense environments where you want to avoid reading
-            tags from adjacent rooms. Higher power extends range for large, open spaces.
+        <h2>1. Architecture: How Hardware Settings Work in iDash</h2>
+        <p style="font-size:14.5px; line-height:1.7;">
+            In the modern iDash Standalone architecture, iDash is a <strong>100% web-based application</strong> accessed via Zebra Enterprise Browser. The web application does not run a proprietary local background daemon; instead, <strong>Zebra DataWedge and the Zebra Hardware Layer manage the physical RFD40 sled connection</strong> directly.
         </p>
-        <div class="alert-blue">
-            <strong>&#9432; Equipment Required</strong><br/>
-            Zebra TC53 mobile computer with Zebra Sled and the iDash app. Settings are stored per-device.
+        <p style="font-size:14px; line-height:1.7;">
+            Because the sled settings are controlled by hardware firmware, antenna power levels (dBm) and hardware beeper audio levels can be tuned through two primary tools:
+        </p>
+        <ul style="color:var(--muted-docs,#8b95a5); font-size:14px; line-height:1.8;">
+            <li><strong>Zebra 123RFID Mobile App (Recommended for Field Techs):</strong> Fast on-the-fly adjustment of Transmit Power (0&ndash;30 dBm) and Beeper Volume (High, Med, Low, Mute) directly on the handheld screen. Settings write directly to the sled&rsquo;s non-volatile memory and persist inside iDash!</li>
+            <li><strong>Zebra DataWedge Profile (Centralized Fleet Management):</strong> Pre-calibrating default RF transmit power and scan feedback beeps inside <code>datawedge.db</code> so every deployed scanner behaves identically.</li>
+        </ul>
+    </div>
+
+    <!-- METHOD 1: 123RFID MOBILE -->
+    <div class="card">
+        <h2>2. Method 1: Adjusting Power &amp; Sound via Zebra 123RFID Mobile (On-Device)</h2>
+        <p style="font-size:14px; line-height:1.7;">
+            The <strong>Zebra 123RFID Mobile</strong> app is the official Zebra handheld utility for managing RFD40 and RFD90 sleds. Adjustments made in 123RFID Mobile are immediately committed to the sled hardware.
+        </p>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">1</span> Open 123RFID Mobile &amp; Confirm Connection</div>
+            <div class="step-desc">
+                On the Zebra TC53 handheld, swipe up to open the Android app list and tap <strong>123RFID Mobile</strong>. Verify the top status banner displays your RFD40 sled with a <strong>connected (green)</strong> status.
+            </div>
+            <div class="tip-box">
+                <strong>&#128161; Not Connected?</strong> Ensure Bluetooth is turned on, the sled battery is charged, and pull the sled trigger once to wake the Bluetooth link.
+            </div>
         </div>
-        <h2 style="margin-top:28px;">Contents</h2>
-        <div class="toc">
-            <a href="#settings">Power Level Settings Explained</a>
-            <a href="#howto">How to Change Power Levels</a>
-            <a href="#recommendations">Recommended Settings</a>
-            <a href="#tips">Tips &amp; Notes</a>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">2</span> Navigate to Antenna Power Settings</div>
+            <div class="step-desc">
+                In 123RFID Mobile, tap the menu icon (or <strong>Settings</strong> gear), then select <strong>RFID Configuration</strong> (or <strong>Antenna</strong>).
+            </div>
+            <ol style="color:var(--muted-docs,#8b95a5); font-size:14px; line-height:1.9;">
+                <li>Locate the <strong>Transmit Power (dBm)</strong> slider / numeric field.</li>
+                <li>Adjust the power to your desired value between <strong>0 dBm</strong> (minimum range) and <strong>30 dBm</strong> (maximum range &mdash; 1 Watt EIRP).</li>
+                <li>Tap <strong>Apply</strong> or <strong>Save</strong> to burn the setting into the sled.</li>
+            </ol>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num">3</span> Adjust Sled Beeper Volume &amp; Sound Levels</div>
+            <div class="step-desc">
+                Still inside 123RFID Mobile Settings, navigate to <strong>Beeper / Feedback</strong>:
+            </div>
+            <ol style="color:var(--muted-docs,#8b95a5); font-size:14px; line-height:1.9;">
+                <li>Find <strong>Beeper Volume</strong> and select your preferred setting:
+                    <ul style="margin:4px 0;">
+                        <li><strong>High / Medium:</strong> Recommended for noisy clinical utility rooms, central logistics bays, and warehouses.</li>
+                        <li><strong>Low:</strong> Ideal for general outpatient clinics and corridors.</li>
+                        <li><strong>Mute / Quiet:</strong> Essential for active patient rooms, ICU units, and surgical suites where beepers cause patient disturbance.</li>
+                    </ul>
+                </li>
+                <li>Optionally toggle <strong>Haptic Vibration</strong> if you want the sled trigger handle to vibrate silently on successful reads.</li>
+                <li>Tap <strong>Apply</strong>.</li>
+            </ol>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-num green">4</span> Return to iDash &mdash; Settings Persist Automatically!</div>
+            <div class="step-desc">
+                Press the Recent Apps / Home button and switch back to <strong>Zebra Enterprise Browser</strong> running iDash (e.g. <code>va_inventory.aspx</code>).
+            </div>
+            <div class="tip-box">
+                <strong>&#10003; Zero Reboot Needed:</strong> The RFD40 sled hardware now fires at your newly configured power and sound levels during room inventory sweeps, with zero restart or re-login required in iDash.
+            </div>
         </div>
     </div>
 
-    <!-- Settings explained -->
-    <div class="card" id="settings">
-        <h2>Power Level Settings Explained</h2>
-        <p>
-            Power levels are set on a scale of <strong>1&ndash;100</strong>. The app has three independent power settings,
-            each controlling a different scanning mode:
+    <!-- CALIBRATION GUIDE -->
+    <div class="card">
+        <h2>3. Recommended RF Power Calibration for VA Clinical Spaces</h2>
+        <p style="font-size:14px; line-height:1.7;">
+            UHF RFID radio waves penetrate standard commercial drywall and acoustic ceiling tiles. Setting transmit power too high causes <em>RF bleed-through</em> (reading tags stored in the room next door or down the hallway). Setting it too low causes missed tags. Use these calibrated guidelines:
         </p>
+
         <div class="power-grid">
-            <div class="power-card">
-                <h4>&#128225; Inventory Power Level</h4>
-                <div class="power-range">1&ndash;100</div>
-                <p>Controls RFID read range when performing room inventory scans using the <strong>top trigger</strong>. Default: <strong>100</strong>.</p>
+            <div class="power-card" style="border-top:4px solid #10b981;">
+                <h4>Standard Room Inventory</h4>
+                <div class="dbm-val">22&ndash;26 dBm</div>
+                <div class="range-label">&#128207; Range: ~10&ndash;18 ft</div>
+                <p>Optimal for standard VA patient exam rooms, offices, and consult spaces. Sweeps room contents quickly without bleeding into neighboring suites.</p>
             </div>
-            <div class="power-card">
-                <h4>&#128203; Checkout Power Level</h4>
-                <div class="power-range">1&ndash;100</div>
-                <p>Controls read range during asset checkout workflows. Default: <strong>100</strong>.</p>
-            </div>
-            <div class="power-card">
-                <h4>&#128279; Associate &amp; Edit Power Level</h4>
-                <div class="power-range">1&ndash;100</div>
-                <p>Controls read range when associating RFID tags to assets or editing records. Kept low intentionally to read only the tag directly in front of you. Default: <strong>5</strong>.</p>
-            </div>
-        </div>
-        <div class="screenshot-row">
-            <figure class="screenshot-wrap">
-                <img src="img/power/image4.png" alt="App Settings screen showing Inventory Power 100, Checkout Power 100, Associate Power 5" />
-                <figcaption>Default settings: Inventory 100, Checkout 100, Associate 5</figcaption>
-            </figure>
-        </div>
-        <div class="alert-blue">
-            <strong>&#9432; Why is Associate Power so low?</strong><br/>
-            When pairing a physical RFID label to an asset record, you only want to read the one tag you are holding in front of the reader &mdash; not every tag in the room. Keeping this at <strong>5</strong> ensures precise, single-tag reads.
-        </div>
-    </div>
 
-    <!-- How To -->
-    <div class="card" id="howto">
-        <h2>How to Change Power Levels</h2>
-
-        <div class="step">
-            <div class="step-num sn-blue">1</div>
-            <div>
-                <strong>From any screen, tap the <em>MORE</em> tab</strong> at the top-right of the app navigation bar.
+            <div class="power-card" style="border-top:4px solid #f59e0b;">
+                <h4>Dense Storage &amp; Closets</h4>
+                <div class="dbm-val">12&ndash;18 dBm</div>
+                <div class="range-label">&#128207; Range: ~4&ndash;8 ft</div>
+                <p>Use in clean utility rooms, medication closets, and tight spaces packed with high-density tags to isolate inventory precisely.</p>
             </div>
-        </div>
-        <div class="screenshot-row">
-            <figure class="screenshot-wrap">
-                <img src="img/power/image1.png" alt="Scan Room Location screen showing MORE tab at top" />
-                <figcaption>Tap the <strong>MORE</strong> tab</figcaption>
-            </figure>
+
+            <div class="power-card" style="border-top:4px solid #8b5cf6;">
+                <h4>Tag Commissioning / Pairing</h4>
+                <div class="dbm-val">5&ndash;10 dBm</div>
+                <div class="range-label">&#128207; Range: ~1&ndash;3 ft</div>
+                <p>Crucial when pairing new RFID labels to asset records. Guarantees only the single tag held right at the antenna tip is read.</p>
+            </div>
+
+            <div class="power-card" style="border-top:4px solid #3b82f6;">
+                <h4>Warehouse &amp; Loading Docks</h4>
+                <div class="dbm-val">28&ndash;30 dBm</div>
+                <div class="range-label">&#128207; Range: ~25&ndash;35+ ft</div>
+                <p>Maximum power (1 Watt). Ideal for open engineering supply bays, high-bay pallet racking, and large staging yards.</p>
+            </div>
         </div>
 
-        <div class="step">
-            <div class="step-num sn-blue">2</div>
-            <div>
-                <strong>Scroll down the More menu</strong> to find <strong>APP SETTINGS</strong> near the bottom, then tap it.
-            </div>
-        </div>
-        <div class="screenshot-row">
-            <figure class="screenshot-wrap">
-                <img src="img/power/image2.png" alt="More menu top half showing Fixed V-Tags, Employees, Connect to Scanner, Choose Scanner" />
-                <figcaption>More menu &mdash; scroll down</figcaption>
-            </figure>
-            <figure class="screenshot-wrap">
-                <img src="img/power/image3.png" alt="More menu bottom half showing Software Connectivity, Read Tags, Log Out, App Settings" />
-                <figcaption>Tap <strong>APP SETTINGS</strong> at the bottom</figcaption>
-            </figure>
-        </div>
-
-        <div class="step">
-            <div class="step-num sn-blue">3</div>
-            <div>
-                <strong>Tap the power level field you want to change</strong> (e.g., <em>Inventory Power Level</em>).<br/>
-                A numeric keypad will appear. Clear the existing value and type your new number (1&ndash;100).
-            </div>
-        </div>
-        <div class="screenshot-row">
-            <figure class="screenshot-wrap">
-                <img src="img/power/image5.png" alt="App Settings with Inventory Power field active and keypad showing value 70 being entered" />
-                <figcaption>Tap the field, type new value (e.g., 70)</figcaption>
-            </figure>
-        </div>
-
-        <div class="step">
-            <div class="step-num sn-blue">4</div>
-            <div>
-                <strong>Tap the blue checkmark</strong> on the keypad (or tap done/return) to confirm the value.<br/>
-                Repeat for any other power levels you want to adjust.
-            </div>
-        </div>
-        <div class="screenshot-row">
-            <figure class="screenshot-wrap">
-                <img src="img/power/image6.png" alt="App Settings showing Inventory Power now set to 70" />
-                <figcaption>Value confirmed &mdash; field updates to new setting</figcaption>
-            </figure>
-        </div>
-
-        <div class="step">
-            <div class="step-num sn-green">5</div>
-            <div>
-                <strong>Tap <em>SAVE</em></strong> in the top-right corner of the App Settings screen.<br/>
-                You will be returned to the More menu and a <strong>"Settings updated"</strong> confirmation banner will appear at the bottom.
-            </div>
-        </div>
-        <div class="screenshot-row">
-            <figure class="screenshot-wrap">
-                <img src="img/power/image7.png" alt="More menu with Settings updated toast notification at bottom" />
-                <figcaption>"Settings updated" confirms save was successful</figcaption>
-            </figure>
-        </div>
-        <div class="alert-green">
-            <strong>&#9989; Settings take effect immediately.</strong> New power levels apply to your next scan &mdash; no app restart required.
-        </div>
-    </div>
-
-    <!-- Recommendations -->
-    <div class="card" id="recommendations">
-        <h2>&#127919; Recommended Power Settings</h2>
-        <table>
+        <table class="doc-table" style="margin-top:16px;">
             <thead>
-                <tr><th>Scenario</th><th>Inventory Power</th><th>Notes</th></tr>
+                <tr>
+                    <th style="width:25%;">Clinical Environment</th>
+                    <th style="width:20%;">Power Setting</th>
+                    <th>Reasoning &amp; Operational Benefit</th>
+                </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td><strong>Standard room inventory</strong></td>
-                    <td><strong>100</strong> (max)</td>
-                    <td>Best for most VA rooms. Reads all tags in a standard patient room without needing to get very close.</td>
+                    <td><strong>Inpatient Patient Rooms</strong></td>
+                    <td><strong>18&ndash;22 dBm</strong> | Mute Beeper</td>
+                    <td>Avoids alarming patients while preventing tag detection from adjacent patient rooms through standard drywall partition walls.</td>
                 </tr>
                 <tr>
-                    <td><strong>Dense environments</strong> (hallways, storage rooms packed with equipment)</td>
-                    <td><strong>50&ndash;70</strong></td>
-                    <td>Reduces bleed into adjacent areas. You may need to sweep more slowly or in closer passes.</td>
+                    <td><strong>Bio-Med Engineering Shop</strong></td>
+                    <td><strong>10&ndash;15 dBm</strong> | Med Beeper</td>
+                    <td>Prevents picking up hundreds of tagged medical devices sitting on repair shelves while you are scanning a specific cart.</td>
                 </tr>
                 <tr>
-                    <td><strong>Tag association / pairing</strong></td>
-                    <td>N/A</td>
-                    <td>Always use the <strong>Associate &amp; Edit Power Level</strong> (keep at <strong>5</strong>) &mdash; ensures only the single tag directly in front of the reader is picked up.</td>
+                    <td><strong>Radiology &amp; Lead-Lined Suites</strong></td>
+                    <td><strong>26&ndash;30 dBm</strong> | High Beeper</td>
+                    <td>Lead shielding completely stops RF bleed-through, allowing technicians to use full maximum power with zero cross-room contamination.</td>
                 </tr>
                 <tr>
-                    <td><strong>Large open bays or warehouses</strong></td>
-                    <td><strong>100</strong></td>
-                    <td>Full power. Walk the space in a grid pattern to ensure full coverage.</td>
+                    <td><strong>Hallways &amp; Corridors</strong></td>
+                    <td><strong>15&ndash;20 dBm</strong> | Low Beeper</td>
+                    <td>Prevents sweeping equipment stored inside locked rooms lining both sides of the corridor.</td>
                 </tr>
             </tbody>
         </table>
     </div>
 
-    <!-- Tips -->
-    <div class="card" id="tips">
-        <h2>&#128161; Tips &amp; Notes</h2>
-        <ul>
-            <li><strong>Inventory Duration</strong> (also in App Settings, default 7) controls how many seconds the scanner actively reads per trigger squeeze. Increase it for slower sweeps; decrease it if you want faster per-location scans.</li>
-            <li><strong>Lower power &ne; fewer reads.</strong> In most VA environments, power 70&ndash;100 reads the same tags. The difference becomes noticeable in rooms sharing thin walls with adjacent tagged inventory.</li>
-            <li><strong>Settings are per-device.</strong> If multiple TC53 units are in use, each must be configured individually in App Settings.</li>
-            <li><strong>Do not set Associate power above 10</strong> unless specifically troubleshooting a pairing issue. Higher values will read multiple tags simultaneously, making single-tag association unreliable.</li>
-        </ul>
-        <div class="alert-blue">
-            <strong>&#9432; Related guides:</strong>
-            <ul style="margin:8px 0 0 0;">
-                <li><a href="va_batch_scan.html">Batch Mode Scanning Guide</a> &mdash; full offline inventory workflow</li>
-                <li><a href="va_guide_locate.html">How to Use the Locate Feature</a> &mdash; RFID Geiger-counter mode</li>
-            </ul>
-        </div>
+    <!-- METHOD 2: DATAWEDGE -->
+    <div class="card">
+        <h2>4. Method 2: Centralized Power &amp; Sound Control via DataWedge</h2>
+        <p style="font-size:14px; line-height:1.7;">
+            For facility IT administrators managing a fleet of scanners, power and sound levels can be locked centrally within the Zebra DataWedge profile database (<code>datawedge.db</code>) rather than having technicians manually configure each handheld:
+        </p>
+
+        <ol style="color:var(--muted-docs,#8b95a5); font-size:14px; line-height:1.9;">
+            <li>On a master setup handheld, open the <strong>DataWedge</strong> app.</li>
+            <li>Select the active profile associated with Enterprise Browser (e.g., <code>iDash_Enterprise_Browser</code> or <code>idash_portal</code>).</li>
+            <li>Scroll to <strong>RFID Input</strong> &rarr; <strong>Antenna Configuration</strong> &rarr; set <strong>Transmit Power</strong> to your standardized facility baseline (e.g. <code>24 dBm</code>).</li>
+            <li>Scroll to <strong>Scan Feedback</strong> &rarr; set <strong>Beeper Volume</strong> to the desired level or enable <strong>Haptic Vibration</strong>.</li>
+            <li>Tap the 3 dots (&vellip;) in DataWedge &rarr; <strong>Settings</strong> &rarr; <strong>Export database</strong>.</li>
+            <li>Deploy the exported <code>datawedge.db</code> across your fleet (available in <a href="va_downloads.html" style="color:var(--accent,#38bdf8); font-weight:700;">iDash Software Downloads</a>).</li>
+        </ol>
     </div>
 
-    <br/>
-    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
-    <br/><br/>
+    <!-- WEB AUDIO NOTE -->
+    <div class="card">
+        <h2>5. Sled Hardware Audio vs. iDash Web Audio</h2>
+        <p style="font-size:14px; line-height:1.7;">
+            Technicians may hear two distinct types of audio feedback when scanning:
+        </p>
+        <ul style="color:var(--muted-docs,#8b95a5); font-size:14px; line-height:1.8;">
+            <li><strong>Hardware Sled Beep:</strong> Emitted directly from the physical speaker on the <em>RFD40 handle</em> when the RFID radio detects a tag. Controlled via 123RFID Mobile or DataWedge Beeper settings.</li>
+            <li><strong>iDash Web Application Sound:</strong> Emitted from the <em>TC53 handheld speaker</em> when a web page processes the scanned data (e.g., the geiger counter audio ticks in <code>va_rfid_locator.aspx</code> or error alert chime when an unexpected item is scanned). Controlled using the physical TC53 volume rocker buttons or on-screen mute toggles.</li>
+        </ul>
+    </div>
+
+    <!-- TROUBLESHOOTING -->
+    <div class="card">
+        <h2>&#128295; Troubleshooting</h2>
+        <table class="doc-table">
+            <thead>
+                <tr>
+                    <th style="width:30%;">Symptom</th>
+                    <th style="width:30%;">Probable Cause</th>
+                    <th>Corrective Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Tags from adjacent rooms are being scanned</td>
+                    <td>Transmit power is set too high (28&ndash;30 dBm)</td>
+                    <td>Open 123RFID Mobile &rarr; lower Transmit Power to <strong>18&ndash;22 dBm</strong> &rarr; tap Apply.</td>
+                </tr>
+                <tr>
+                    <td>Sled does not beep at all during scans</td>
+                    <td>Beeper volume is set to Mute/Quiet</td>
+                    <td>In 123RFID Mobile &rarr; Beeper &rarr; change volume to <strong>Medium</strong> or <strong>High</strong>.</td>
+                </tr>
+                <tr>
+                    <td>Handheld reads very few tags unless held 1 inch away</td>
+                    <td>Power is stuck at minimum (5&ndash;8 dBm) from tag pairing</td>
+                    <td>Raise Transmit Power back to standard room inventory level (<strong>24&ndash;26 dBm</strong>).</td>
+                </tr>
+                <tr>
+                    <td>123RFID Mobile shows "Reader Disconnected"</td>
+                    <td>RFD40 battery depleted or Bluetooth sleep timeout</td>
+                    <td>Pull the sled trigger to wake it up. If no blue LED flashes, dock sled in cradle or reseat battery.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 style="margin-top:28px;">&#128279; Related Guides</h2>
+        <ul>
+            <li><a href="va_guide_scanner_setup.html"><strong>Zebra TC53 Scanner Setup Guide</strong></a> &mdash; Complete pairing, Enterprise Browser, and DataWedge setup.</li>
+            <li><a href="va_guide_enterprise_browser.html"><strong>Zebra Enterprise Browser &amp; Config.xml Guide</strong></a> &mdash; Full kiosk lockdown and XML configuration.</li>
+            <li><a href="va_guide_scanner_daily_scan.html"><strong>Daily Room Inventory Walkthrough</strong></a> &mdash; 6-step scanning workflow from login to commit.</li>
+            <li><a href="va_guide_locate.html"><strong>RFID Asset Locator &amp; Proximity Scanning</strong></a> &mdash; Geiger-counter missing equipment hunter.</li>
+        </ul>
+    </div>
 
 </div>
 </body>
