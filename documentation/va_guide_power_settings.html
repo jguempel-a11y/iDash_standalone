@@ -89,7 +89,7 @@
     <div class="card">
         <h2>1. Architecture: How Hardware Settings Work in iDash</h2>
         <p style="font-size:14.5px; line-height:1.7;">
-            In the modern iDash Standalone architecture, iDash is a <strong>100% web-based application</strong> accessed via Zebra Enterprise Browser. The web application does not run a proprietary local background daemon; instead, <strong>Zebra DataWedge and the Zebra Hardware Layer manage the physical RFD40 sled connection</strong> directly.
+            In the modern iDash Standalone architecture, iDash is a <strong>100% web-based application</strong> accessed via <strong>Google Chrome</strong> (with Zebra Enterprise Browser installed on the device to provide required Zebra platform libraries and DataWedge hooks). The web application does not run a proprietary local background daemon; instead, <strong>Zebra DataWedge and the Zebra Hardware Layer manage the physical RFD40 sled connection</strong> directly.
         </p>
         <p style="font-size:14px; line-height:1.7;">
             Because the sled settings are controlled by hardware firmware, antenna power levels (dBm) and hardware beeper audio levels can be tuned through two primary tools:
@@ -148,9 +148,9 @@
         </div>
 
         <div class="step-card">
-            <div class="step-title"><span class="step-num green">4</span> Return to iDash &mdash; Settings Persist Automatically!</div>
+            <div class="step-title"><span class="step-num green">4</span> Return to Chrome &mdash; Settings Persist Automatically!</div>
             <div class="step-desc">
-                Press the Recent Apps / Home button and switch back to <strong>Zebra Enterprise Browser</strong> running iDash (e.g. <code>va_inventory.aspx</code>).
+                Press the Recent Apps / Home button and switch back to <strong>Google Chrome</strong> (or Enterprise Browser) running iDash (e.g. <code>va_inventory.aspx</code>).
             </div>
             <div class="tip-box">
                 <strong>&#10003; Zero Reboot Needed:</strong> The RFD40 sled hardware now fires at your newly configured power and sound levels during room inventory sweeps, with zero restart or re-login required in iDash.
