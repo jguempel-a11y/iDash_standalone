@@ -445,7 +445,7 @@
 
     <div class="callout purple">
         <strong>Executive Assessment Scope Statement:</strong><br />
-        This Enterprise Risk Analysis Report (ERAR) covers the operation and network connection of the <strong>iDash Enterprise Suite</strong> (running on Microsoft Windows Server 2019 / 2022, Microsoft SQL Server 2019 / 2022 database, Zebra TC53 Mobile Computer with RFD40 UHF RFID Sled (Android 11&ndash;14 wireless RFID &amp; barcode mobile terminals), Zebra FX9600 / FXR90 fixed passive RFID readers with BSP firmware v3.30.x, and Zebra ZT411R / ZD621R RFID label printers running Link-OS v7.4) within the VA Enterprise network.
+        This Enterprise Risk Analysis Report (ERAR) covers the operation and network connection of the <strong>iDash Enterprise Suite</strong> (running on Microsoft Windows Server 2019 / 2022, Microsoft SQL Server 2019 / 2022 database, Zebra TC53 Mobile Computers with RFD40 UHF RFID Sleds and Zebra TC22R RFID Handhelds (Android 11&ndash;14 wireless RFID &amp; barcode mobile terminals), Zebra FX9600 / FXR90 fixed passive RFID readers with BSP firmware v3.30.x, and Zebra ZT411R / ZD621R RFID label printers running Link-OS v7.4) within the VA Enterprise network.
         The overall residual risk to the VA Enterprise is <strong>Moderate</strong>.
         <br /><br />
         <strong>Data Sensitivity &amp; Patient Privacy:</strong> 
@@ -614,7 +614,7 @@
                 <td>
                     <strong>Server OS:</strong> Microsoft Windows Server 2019 (EOL: 01/09/2029) and Windows Server 2022 (EOL: 10/13/2031).<br />
                     <strong>Proprietary / Embedded Appliances:</strong><br />
-                    &bull; Zebra TC53 Mobile Computer with RFD40 UHF RFID Sled: Android 11&ndash;14 (Active, Qualcomm 6490 Octa-Core, FIPS 140-2/3 Validated Cryptographic Module, Wi-Fi 6E WPA3-Enterprise).<br />
+                    &bull; Zebra TC53 (w/ RFD40 Sled) &amp; Zebra TC22R Handhelds: Android 11&ndash;14 (Active, Qualcomm 6490 / 5430, FIPS 140-2/3 Validated Cryptographic Modules, Wi-Fi 6/6E WPA3-Enterprise).<br />
                     &bull; Zebra FX9600 Fixed Reader: Zebra Linux BSP v3.30.18 (Active, VA-owned &amp; maintained).<br />
                     &bull; Zebra FXR90 Rugged Fixed Reader: Zebra Linux BSP v3.30.16 (Active, VA-owned &amp; maintained).<br />
                     &bull; Zebra ZT411R Industrial RFID Printer: Link-OS v7.4 (Active vendor firmware).<br />
@@ -883,7 +883,7 @@
                 <td>Wireless Protocols &mdash; Encryption</td>
                 <td>Does the system use FIPS 140-2 encryption standards for wireless communications?</td>
                 <td><span class="badge-yes">Yes</span></td>
-                <td>Handheld scanners communicate over VA enterprise WPA2/WPA3-Enterprise (802.11i/AES). Zebra TC53 / RFD40 cryptographic module is validated under NIST FIPS 140-2/3 (Cert #4143 / #3866).</td>
+                <td>Handheld scanners communicate over VA enterprise WPA2/WPA3-Enterprise (802.11i/AES). Zebra TC53 / RFD40 and Zebra TC22R cryptographic modules are validated under NIST FIPS 140-2/3 (Cert #4143 / #3866).</td>
                 <td>AC-18(1)</td>
             </tr>
             <tr>
@@ -1200,7 +1200,7 @@
                 <td>Low Level Reader Protocol for reader hardware control and antenna diagnostic polling.</td>
             </tr>
 
-            <tr style="background:color-mix(in srgb, #3b82f6 8%, transparent); font-weight:700;"><td colspan="7">Mobile Handheld Scanners (Zebra TC53 with RFD40 UHF RFID Sled)</td></tr>
+            <tr style="background:color-mix(in srgb, #3b82f6 8%, transparent); font-weight:700;"><td colspan="7">Mobile Handheld Scanners (Zebra TC53 / RFD40 &amp; Zebra TC22R)</td></tr>
             <tr>
                 <td>Mobile Web UI &amp; Sync API</td>
                 <td>443, 80</td>
@@ -1266,6 +1266,18 @@
                 <td>Active (No EOL)</td>
                 <td>Non-Oracle (SPS)</td>
                 <td>Qualcomm 6490 chipset + RFD40 UHF RFID sled (eConnex/Bluetooth). Cryptographic module validated under NIST FIPS 140-2/3.</td>
+            </tr>
+            <tr>
+                <td><strong>Zebra Mobile Scanner</strong></td>
+                <td>Appliance</td>
+                <td>TC22R Handheld</td>
+                <td>Android Enterprise</td>
+                <td>Android 13, 14</td>
+                <td>Zebra Enterprise Browser / iDash Mobile</td>
+                <td>v3.x / Web</td>
+                <td>Active (No EOL)</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Compact UHF RFID &amp; barcode scanner. Qualcomm 5430 platform, Wi-Fi 6/6E, FIPS 140-2/3 validated cryptography.</td>
             </tr>
             <tr>
                 <td><strong>Zebra Fixed RFID Reader</strong></td>
@@ -1427,14 +1439,16 @@
             </div>
             <div class="topo-cards-grid">
                 <div class="topo-node">
-                    <div class="topo-node-title">&#128241; Zebra TC53 / RFD40 Handhelds</div>
+                    <div class="topo-node-title">&#128241; Zebra TC53 / RFD40 &amp; TC22R Handhelds</div>
                     <div class="topo-node-desc">
                         Android 11&ndash;14 &bull; FIPS 140-2/3 Validated<br />
-                        WPA2/WPA3-Enterprise Wi-Fi 6E (AES-256). Offline buffer with automated sync.
+                        WPA2/WPA3-Enterprise Wi-Fi 6/6E (AES-256). Offline buffer with automated sync.
                     </div>
                     <div class="topo-pill-group">
                         <span class="pill blue">HTTPS 443</span>
-                        <span class="pill purple">FIPS Validated</span>
+                        <span class="pill purple">TC53 + RFD40</span>
+                        <span class="pill purple">TC22R</span>
+                        <span class="pill green">FIPS Validated</span>
                     </div>
                 </div>
 
@@ -1537,7 +1551,7 @@
 |            | Wi-Fi (WPA2/3 Enterprise AES)       | Ethernet (802.3)                  | Ethernet    |
 |            v                                     v                                   v             |
 |  +--------------------+               +--------------------+              +--------------------+   |
-|  | Zebra TC53 + RFD40 |               | Zebra FX9600/FXR90 |              | Zebra ZT411R/ZD621R|   |
+|  | Zebra TC53 / TC22R |               | Zebra FX9600/FXR90 |              | Zebra ZT411R/ZD621R|   |
 |  | Mobile Handhelds   |               | Fixed RFID Readers |              | RFID Label Printers|   |
 |  | (Android 11-14)    |               | (Linux BSP v3.30)  |              | (Link-OS v7.4)     |   |
 |  | FIPS 140-2/3 Valid |               | MQTT / HTTP POST   |              | Raw ZPL Port 6101  |   |
@@ -1596,10 +1610,10 @@
                     <td style="padding: 8px; border: 1px solid #cbd5e1;">Relational database for asset location records and audit trail</td>
                 </tr>
                 <tr>
-                    <td style="padding: 8px; border: 1px solid #cbd5e1;">Mobile Handheld Terminal</td>
-                    <td style="padding: 8px; border: 1px solid #cbd5e1;">Zebra TC53 with RFD40 Sled</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">Mobile Handheld Terminals</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">Zebra TC53 (w/ RFD40 Sled) &amp; Zebra TC22R</td>
                     <td style="padding: 8px; border: 1px solid #cbd5e1;">Android 11&ndash;14 (FIPS 140-2/3 Validated)</td>
-                    <td style="padding: 8px; border: 1px solid #cbd5e1;">Handheld RFID and barcode inventory scanning terminal</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">Handheld RFID and barcode inventory scanning terminals</td>
                 </tr>
                 <tr>
                     <td style="padding: 8px; border: 1px solid #cbd5e1;">Fixed RFID Reader Peripheral</td>
@@ -1688,7 +1702,7 @@
             <h4>Peripheral Hardware MAC Addresses &amp; Serial Numbers</h4>
             <p>
                 Compile a facility hardware asset spreadsheet containing:<br />
-                &bull; Serial numbers and MAC addresses for all Zebra TC53 mobile computers and RFD40 RFID sleds.<br />
+                &bull; Serial numbers and MAC addresses for all Zebra TC53, RFD40, and TC22R mobile scanners.<br />
                 &bull; Static IP addresses, MAC addresses, and physical installation locations for all Zebra FX9600 and FXR90 fixed readers.<br />
                 &bull; Network print queue names, IP addresses, and serial numbers for Zebra ZT411R and ZD621R label printers.
             </p>
@@ -1711,7 +1725,7 @@
             <h4>NIST FIPS 140-2 Validation Certificates</h4>
             <p>
                 Attach the formal NIST cryptographic validation certificates to the submission dossier:<br />
-                &bull; <strong>Zebra TC53 Cryptographic Module:</strong> NIST FIPS 140-2/3 Validation Certificate.<br />
+                &bull; <strong>Zebra TC53 &amp; TC22R Cryptographic Modules:</strong> NIST FIPS 140-2/3 Validation Certificates.<br />
                 &bull; <strong>Zebra Link-OS Printer Cryptographic Module:</strong> NIST FIPS Certificate #4767.
             </p>
         </div>
