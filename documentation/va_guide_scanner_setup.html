@@ -181,8 +181,23 @@
                     <div class="code-box">This PC\TC53\Internal shared storage\Android\data\com.zebra.mdna.enterprisebrowser\Config.xml</div>
                 </li>
             </ol>
-            <div class="tip-box">
-                <strong>&#128161; Default StartPage:</strong> The pre-configured <code>Config.xml</code> points to your iDash Hub: <code>https://lingcod.tail585c9b.ts.net:8443/index.aspx</code>. If deploying on an isolated local network, you can edit the <code>&lt;StartPage&gt;</code> line to match your server&rsquo;s LAN IP (e.g. <code>http://172.20.0.42:8181/index.aspx</code>).
+            <div class="tip-box" style="border-left: 4px solid #f59e0b; color: var(--text, #e2e8f0); background: color-mix(in srgb, #f59e0b, transparent 92%);">
+                <div style="font-weight: 800; color: #f59e0b; font-size: 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                    &#9888;&#65039; Set Your Actual iDash Server URL in Config.xml
+                </div>
+                <p style="margin: 0 0 8px 0; font-size: 13px; line-height: 1.6;">
+                    The URL in the downloaded <code>Config.xml</code> template is an <strong>example</strong> (pointing to the development gateway <code>https://lingcod.tail585c9b.ts.net:8443/index.aspx</code>). Before or after deploying to your scanners, open <code>Config.xml</code> in Notepad or VS Code and <strong>insert your facility&rsquo;s actual iDash link</strong>.
+                </p>
+                <div class="code-box" style="margin: 6px 0; font-size: 12.5px; color: #38bdf8;">
+&lt;General&gt;<br/>
+&nbsp;&nbsp;&lt;Name value="Menu"/&gt;<br/>
+&nbsp;&nbsp;&lt;!-- Replace with your production server URL --&gt;<br/>
+&nbsp;&nbsp;&lt;StartPage value="<strong>https://&lt;servername&gt;:443/iDash</strong>" name="Menu"/&gt;<br/>
+&lt;/General&gt;
+                </div>
+                <p style="margin: 6px 0 0 0; font-size: 12px; color: var(--muted-docs, #8b95a5);">
+                    <em>Typical production formats:</em> <code>https://&lt;servername&gt;:443/iDash</code>, <code>https://&lt;servername&gt;/iDash</code>, or on an isolated local subnet: <code>http://&lt;server-ip&gt;:8181/index.aspx</code>.
+                </p>
             </div>
         </div>
 

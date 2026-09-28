@@ -129,6 +129,8 @@ EnterpriseBrowser_v5.6.0.10 Configuration file - Configured for iDash Standalone
 	  
       <General>
         <Name value="Menu"/>
+        <!-- EXAMPLE URL: Replace with your facility's actual iDash server URL! -->
+        <!-- Typically: https://<servername>:443/iDash or http://<server_ip>:8181/index.aspx -->
         <StartPage value="https://lingcod.tail585c9b.ts.net:8443/index.aspx" name="Menu"/>
       </General>
       
