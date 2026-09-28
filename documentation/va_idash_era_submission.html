@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Enterprise Risk Analysis (ERA) &amp; Pre-ATO Submission Package &mdash; iDash Documentation</title>
+    <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
+    <link rel="stylesheet" href="docs_theme.css" />
+    <script src="theme-init.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        .era-header-box {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.14), rgba(59, 130, 246, 0.10));
+            border: 2px solid #8b5cf6;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 28px;
+            display: flex;
+            gap: 22px;
+            align-items: center;
+        }
+        .era-badge {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #8b5cf6;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 38px;
+            font-weight: 800;
+            flex-shrink: 0;
+            box-shadow: 0 0 26px rgba(139, 92, 246, 0.45);
+        }
+        .era-header-text h1 {
+            margin: 0 0 6px 0;
+            border-bottom: none;
+            padding-bottom: 0;
+            color: #8b5cf6;
+            font-size: 1.65rem;
+            font-weight: 800;
+        }
+        .era-header-text p {
+            margin: 0;
+            color: var(--text-docs);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+            margin: 20px 0 28px 0;
+        }
+        .meta-card {
+            background: var(--chip);
+            border: 1px solid var(--line-docs);
+            border-radius: 10px;
+            padding: 14px 18px;
+        }
+        .meta-card .label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted-docs);
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .meta-card .value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-docs);
+            word-break: break-word;
+        }
+        .callout {
+            border-left: 4px solid var(--accent-docs);
+            background: color-mix(in srgb, var(--accent-docs) 8%, transparent);
+            padding: 14px 18px;
+            border-radius: 0 10px 10px 0;
+            margin: 18px 0;
+            font-size: 0.95rem;
+            line-height: 1.55;
+        }
+        .callout.success {
+            border-left-color: #10b981;
+            background: color-mix(in srgb, #10b981 8%, transparent);
+        }
+        .callout.warn {
+            border-left-color: #f59e0b;
+            background: color-mix(in srgb, #f59e0b 8%, transparent);
+        }
+        .callout.purple {
+            border-left-color: #8b5cf6;
+            background: color-mix(in srgb, #8b5cf6 8%, transparent);
+        }
+        .era-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0 26px 0;
+            font-size: 0.88rem;
+        }
+        .era-table th {
+            background: color-mix(in srgb, var(--accent-docs) 12%, transparent);
+            color: var(--text-docs);
+            padding: 10px 12px;
+            text-align: left;
+            border: 1px solid var(--line-docs);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .era-table td {
+            padding: 9px 12px;
+            border: 1px solid var(--line-docs);
+            vertical-align: top;
+            line-height: 1.45;
+        }
+        .era-table tr:nth-child(even) td {
+            background: color-mix(in srgb, var(--text-docs) 2%, transparent);
+        }
+        .badge-yes {
+            display: inline-block;
+            background: #10b981;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .badge-no {
+            display: inline-block;
+            background: #ef4444;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .badge-na {
+            display: inline-block;
+            background: #64748b;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .badge-mod {
+            display: inline-block;
+            background: #f59e0b;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .checklist-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 12px 14px;
+            border: 1px solid var(--line-docs);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background: var(--chip);
+        }
+        .chk-box {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #8b5cf6;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: #8b5cf6;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .chk-content h4 {
+            margin: 0 0 4px 0;
+            font-size: 0.95rem;
+            color: var(--text-docs);
+        }
+        .chk-content p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--muted-docs);
+            line-height: 1.4;
+        }
+        .toc-bar {
+            background: var(--chip);
+            border: 1px solid var(--line-docs);
+            border-radius: 10px;
+            padding: 12px 18px;
+            margin: 20px 0 30px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 0.85rem;
+        }
+        .toc-bar a {
+            color: var(--accent-docs);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+        .toc-bar a:hover {
+            background: color-mix(in srgb, var(--accent-docs) 15%, transparent);
+        }
+        .vendor-letter {
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 28px;
+            background: #ffffff;
+            color: #0f172a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px 0;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+        }
+        [data-theme="dark"] .vendor-letter {
+            background: #1e293b;
+            color: #f1f5f9;
+            border-color: #475569;
+        }
+        .vendor-letter h3 {
+            margin-top: 0;
+            color: #1e3a8a;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 8px;
+        }
+        [data-theme="dark"] .vendor-letter h3 {
+            color: #60a5fa;
+            border-bottom-color: #60a5fa;
+        }
+        @media print {
+            .topbar, .toc-bar, .back-link { display: none !important; }
+            body { background: #fff !important; color: #000 !important; font-size: 10pt; }
+            .era-table { font-size: 8pt; }
+        }
+    </style>
+</head>
+<body>
+<div class="docs-layout">
+    <div style="margin-bottom: 16px;">
+        <a href="index.aspx" class="back-link" style="color:var(--accent-docs); text-decoration:none; font-weight:600; font-size:0.9rem;">&larr; Back to Documentation Hub</a>
+    </div>
+
+    <!-- ERA Master Banner -->
+    <div class="era-header-box">
+        <div class="era-badge">&#128221;</div>
+        <div class="era-header-text">
+            <h1>Enterprise Risk Analysis (ERA) &amp; Pre-ATO Submission Package</h1>
+            <p>
+                Veterans Health Administration (VHA) &bull; Specialized Device Cybersecurity Department (SDCD) &bull; SPS-OT Baseline Assessment<br />
+                System: <strong>iDash (Intelligent Distributed Asset Scanning Hub)</strong> &bull; Manufacturer: <strong>ID Integration, Inc.</strong>
+            </p>
+        </div>
+    </div>
+
+    <div class="toc-bar">
+        <strong>Quick Navigation:</strong>
+        <a href="#identification">1. Identification &amp; Scope</a>
+        <a href="#risk-summary">2. Risk Summary &amp; Controls</a>
+        <a href="#control-questions">3. Control Questions (SQ.01&ndash;SQ.35)</a>
+        <a href="#mitigation-factors">4. Accepted Mitigations (AMF)</a>
+        <a href="#appendix-b">5. Appendix B: PPS Table</a>
+        <a href="#appendix-c">6. Appendix C: System Inventory</a>
+        <a href="#appendix-d">7. Appendix D: Network Topology</a>
+        <a href="#vendor-letter">8. Appendix F: Vendor Support Letter</a>
+        <a href="#gathering-checklist">9. ATO / ERA Checklist</a>
+    </div>
+
+    <!-- SECTION 1: SYSTEM IDENTIFICATION -->
+    <h2 id="identification">&#128392; 1. System Identification &amp; Assessment Metadata</h2>
+    <div class="meta-grid">
+        <div class="meta-card">
+            <div class="label">(1) System Name</div>
+            <div class="value">iDash (Intelligent Distributed Asset Scanning Hub)</div>
+        </div>
+        <div class="meta-card">
+            <div class="label">(2) VA Department</div>
+            <div class="value">Veterans Health Administration (VHA)</div>
+        </div>
+        <div class="meta-card">
+            <div class="label">(3) System Type / Category</div>
+            <div class="value">SPS-OT (Biomedical &amp; Surgical Asset Tracking Peripheral)</div>
+        </div>
+        <div class="meta-card">
+            <div class="label">(4) Target System ID / RITM</div>
+            <div class="value">RITM_IDASH_ERA_2026 (SPS-OT Baseline)</div>
+        </div>
+        <div class="meta-card">
+            <div class="label">System Version / Model</div>
+            <div class="value">iDash Enterprise Suite v1.2 / v2.0 Standalone</div>
+        </div>
+        <div class="meta-card">
+            <div class="label">Manufacturer / Vendor</div>
+            <div class="value">ID Integration, Inc. (Mukilteo, WA)</div>
+        </div>
+        <div class="meta-card">
+            <div class="label">Assigned Initial Risk</div>
+            <div class="value" style="color:#f59e0b;">High Risk (3.38)</div>
+        </div>
+        <div class="meta-card">
+            <div class="label">Final Residual Risk</div>
+            <div class="value" style="color:#10b981;">Moderate Risk (2.63) &mdash; Approved for Operation</div>
+        </div>
+    </div>
+
+    <div class="callout purple">
+        <strong>Executive Assessment Scope Statement:</strong><br />
+        This Enterprise Risk Analysis Report (ERAR) covers the operation and network connection of the <strong>iDash Enterprise Suite</strong> (running on Microsoft Windows Server 2019 / 2022, Microsoft SQL Server 2019 / 2022 database, Zebra MC3330xR Android 11&ndash;14 wireless RFID &amp; barcode mobile terminals, Zebra FX9600 / FXR90 fixed passive RFID readers with BSP firmware v3.30.x, and Zebra ZT411R / ZD621R RFID label printers running Link-OS v7.4) within the VA Enterprise network.
+        The overall residual risk to the VA Enterprise is <strong>Moderate</strong>.
+        <br /><br />
+        <strong>Data Sensitivity &amp; Patient Privacy:</strong> 
+        iDash exclusively tracks capital medical equipment, surgical instrumentation trays, RME assets, manufacturer serial numbers, RFID electronic product codes (EPCs), and physical room locations. 
+        <strong>Zero Personally Identifiable Information (PII) or electronic Protected Health Information (ePHI) is created, stored, processed, or transmitted by the system.</strong>
+    </div>
+
+    <!-- SECTION 2: RISK SUMMARY & NON-COMPLIANT CONTROLS -->
+    <h2 id="risk-summary">&#9878; 2. Risk Calculation &amp; Non-Compliant Controls Evaluation</h2>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+        <table class="era-table" style="margin: 0;">
+            <thead>
+                <tr>
+                    <th>Risk Metric</th>
+                    <th>Raw Count</th>
+                    <th>Residual Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Very High Risk</td><td>0</td><td>0</td></tr>
+                <tr><td>High Risk</td><td>5</td><td>0</td></tr>
+                <tr><td>Moderate Risk</td><td>2</td><td>5</td></tr>
+                <tr><td>Low Risk</td><td>1</td><td>2</td></tr>
+                <tr><td>Very Low Risk</td><td>0</td><td>1</td></tr>
+                <tr style="font-weight:700; background:color-mix(in srgb, var(--accent-docs) 10%, transparent);">
+                    <td>Risk Score Determination</td>
+                    <td>3.38 (High)</td>
+                    <td style="color:#10b981;">2.63 (Moderate)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table class="era-table" style="margin: 0;">
+            <thead>
+                <tr>
+                    <th>Concern Indicator</th>
+                    <th>Risk Threshold Formula</th>
+                    <th>Sign-off Authority</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Very High Risk</td><td>&gt; 4.0</td><td>Authorizing Official (AO) Mandatory</td></tr>
+                <tr><td>High Risk</td><td>&gt; 3.0 and &le; 4.0</td><td>Authorizing Official (AO) / AODR</td></tr>
+                <tr style="background:rgba(16, 185, 129, 0.12); font-weight:700;">
+                    <td>&#9733; Moderate Risk (iDash)</td>
+                    <td>&gt; 2.0 and &le; 3.0</td>
+                    <td>ISSO / SDCD Leadership Delegated</td>
+                </tr>
+                <tr><td>Low Risk</td><td>&gt; 1.0 and &le; 2.0</td><td>SDCD Risk Analyst Delegated</td></tr>
+                <tr><td>Very Low Risk</td><td>&gt; 0.0 and &le; 1.0</td><td>SDCD Risk Analyst Delegated</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>Non-Compliant Control Mitigation Register (NIST SP 800-53 Rev. 5)</h3>
+    <table class="era-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Vulnerability Description</th>
+                <th>Obj. (C-I-A)</th>
+                <th>Raw Risk</th>
+                <th>Mitigating Factors</th>
+                <th>Residual Risk</th>
+                <th>iDash Specific Mitigation &amp; Technical Countermeasures</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>AU-11</strong></td>
+                <td>Audit Record Retention</td>
+                <td>C-I</td>
+                <td><span class="badge-no">Low</span></td>
+                <td>3</td>
+                <td><span class="badge-yes">Very Low</span></td>
+                <td>IIS access logs, diagnostic logs, and database mutation records are preserved. All RFID tag observations stamp <code>dbo.locationhistory</code>. Application logs are retained until purged by system administrators during scheduled database maintenance.</td>
+            </tr>
+            <tr>
+                <td><strong>AU-6</strong></td>
+                <td>Audit Review, Analysis, and Reporting</td>
+                <td>A</td>
+                <td><span class="badge-mod">Moderate</span></td>
+                <td>2</td>
+                <td><span class="badge-mod">Moderate</span></td>
+                <td>iDash provides centralized log auditing via <code>va_log_viewer.aspx</code>, <code>va_tag_audit_report.aspx</code>, and <code>va_system_diagnostics.aspx</code>. Reviewed periodically and on demand by authorized VA Biomed/SPS staff.</td>
+            </tr>
+            <tr>
+                <td><strong>CM-2</strong></td>
+                <td>Operating System Baseline</td>
+                <td>I</td>
+                <td><span class="badge-no">High</span></td>
+                <td>2</td>
+                <td><span class="badge-mod">Moderate</span></td>
+                <td>Runs on actively supported Microsoft Windows Server 2019/2022. Handhelds operate Android 11&ndash;14 with security baselines. Fixed readers use Zebra Linux BSP v3.30.x. Modern Zebra ZT411R/ZD621R printers utilize Link-OS 7.4. (Discontinued ZD500R/ZT410R printers are excluded from fresh procurement).</td>
+            </tr>
+            <tr>
+                <td><strong>CP-9</strong></td>
+                <td>Information System Backup</td>
+                <td>C-I-A</td>
+                <td><span class="badge-mod">Moderate</span></td>
+                <td>2</td>
+                <td><span class="badge-mod">Moderate</span></td>
+                <td>Virtual machine snapshotting via VA hypervisor; SQL Server automated backup maintenance plans; iDash built-in database restoration verification workbench (<code>va_db_restore.aspx</code>).</td>
+            </tr>
+            <tr>
+                <td><strong>IA-2 (1)</strong></td>
+                <td>Administrator Accounts &amp; 2FA</td>
+                <td>C-I</td>
+                <td><span class="badge-no">High</span></td>
+                <td>3</td>
+                <td><span class="badge-mod">Moderate</span></td>
+                <td>Virtual server OS administration requires VA Active Directory / PIV smart card. In-app administrative actions restricted to designated roles (<code>idashadmin</code>). Application forms authentication utilizes PBKDF2/SHA-256 salted hashes.</td>
+            </tr>
+            <tr>
+                <td><strong>IA-5 (1)</strong></td>
+                <td>Password Aging &amp; Complexity</td>
+                <td>C-I</td>
+                <td><span class="badge-no">High</span></td>
+                <td>4</td>
+                <td><span class="badge-yes">Low</span></td>
+                <td>Password aging, lockouts, and complexity policies are inherited directly from the VA Active Directory domain Group Policy Objects (GPO).</td>
+            </tr>
+            <tr>
+                <td><strong>MP-7</strong></td>
+                <td>Universal Serial Bus (USB) Ports</td>
+                <td>C-I</td>
+                <td><span class="badge-no">High</span></td>
+                <td>3</td>
+                <td><span class="badge-mod">Moderate</span></td>
+                <td>Hosted on VA virtualized infrastructure in locked data centers with no physical access. USB mass storage blocked via GPO. Scanning operations occur via Wi-Fi/Ethernet rather than USB tethering.</td>
+            </tr>
+            <tr>
+                <td><strong>SC-28</strong></td>
+                <td>Data Encryption &mdash; Mechanism</td>
+                <td>C-I</td>
+                <td><span class="badge-no">High</span></td>
+                <td>4</td>
+                <td><span class="badge-yes">Low</span></td>
+                <td>Underlying server volume protected via Microsoft BitLocker or SAN-level hardware encryption (AES-256). All web traffic encrypted via TLS 1.2 / TLS 1.3 HTTPS. No ePHI is stored.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- SECTION 3: CONTROL QUESTIONS -->
+    <h2 id="control-questions">&#10067; 3. Security Risk Assessment Questionnaire (SQ.01 &ndash; SQ.35)</h2>
+    <p>Complete responses aligned with the VA OI&T Specialized Device Cybersecurity Department (SDCD) questionnaire standards:</p>
+
+    <table class="era-table">
+        <thead>
+            <tr>
+                <th style="width: 65px;">Control ID</th>
+                <th style="width: 150px;">Control Title</th>
+                <th style="width: 320px;">Risk Assessment Questionnaire</th>
+                <th style="width: 75px;">Response</th>
+                <th>Additional Technical Justification / Implementation Details</th>
+                <th style="width: 120px;">RMF Control</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>SQ.01</strong></td>
+                <td>Operating System</td>
+                <td>Does the system run on a supported Operating System?</td>
+                <td><span class="badge-no">No*</span></td>
+                <td>
+                    <strong>Server OS:</strong> Microsoft Windows Server 2019 (EOL: 01/09/2029) and Windows Server 2022 (EOL: 10/13/2031).<br />
+                    <strong>Proprietary / Embedded Appliances:</strong><br />
+                    &bull; Zebra MC3330xR Mobile Terminal: Android 11&ndash;14 (Active, Qualcomm Snapdragon SD660, FIPS 140-2 Cert #3866).<br />
+                    &bull; Zebra FX9600 Fixed Reader: Zebra Linux BSP v3.30.18 (Active, VA-owned &amp; maintained).<br />
+                    &bull; Zebra FXR90 Rugged Fixed Reader: Zebra Linux BSP v3.30.16 (Active, VA-owned &amp; maintained).<br />
+                    &bull; Zebra ZT411R Industrial RFID Printer: Link-OS v7.4 (Active vendor firmware).<br />
+                    &bull; Zebra ZD621R Desktop RFID Printer: Link-OS v7.4 (Active vendor firmware, FIPS #4767 supported).<br />
+                    <em>*Note: Marked "No" per VA convention due to embedded appliance firmware requiring POA&amp;M tracking, though all software &amp; hardware models in this baseline remain fully vendor-supported.</em>
+                </td>
+                <td>CM-2</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.02</strong></td>
+                <td>Database Application</td>
+                <td>If the system uses a database application, is it currently supported (e.g. not end-of-life)?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>Microsoft SQL Server 2019 (EOL: 01/08/2030) or Microsoft SQL Server 2022 (EOL: 01/11/2033). Fully maintained with regular cumulative updates (CU).</td>
+                <td>CM-6</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.03</strong></td>
+                <td>Patching &mdash; Windows Server Update Services</td>
+                <td>If the system runs a Microsoft Operating System, does the system utilize VA approved automated patching process? (Example: SCCM, WSUS, MDUS.)</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>The iDash host VM is enrolled in the local VA facility's automated patching system (MECM/SCCM, WSUS, or MDUS) and receives monthly Microsoft security rollups.</td>
+                <td>CM-11</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.04</strong></td>
+                <td>Patching &mdash; Process</td>
+                <td>Has the vendor provided a complete and documented process detailing how and when routine OS patch updates are to be applied, and by whom, to the VA department supporting the system?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>ID Integration Inc. provides a documented patching matrix and rollback guide. OS patches are applied monthly by VA OIT/Biomed. iDash application updates are tested in pre-production staging.</td>
+                <td>SI-2</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.05</strong></td>
+                <td>Patching &mdash; Critical</td>
+                <td>Has the vendor provided a documented process for addressing critical operating system and application patches for patching within 30 days from the release of the patch to the VA department supporting the system?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>ID Integration Inc. formally commits to a 30-day SLA for evaluating, validating, and releasing security patches for any identified zero-day or critical CVE affecting iDash components.</td>
+                <td>SI-2</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.06</strong></td>
+                <td>Audit Events</td>
+                <td>Does the system generate audit records?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>Comprehensive audit trail: IIS W3C HTTP access logs, Windows Security Event Logs, SQL Server transaction logs, and persistent database audit stamping (<code>lastmodified</code>, <code>lastmodifiedby</code>, <code>dbo.locationhistory</code>).</td>
+                <td>AU-2</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.07</strong></td>
+                <td>Audit Review, Analysis, and Reporting</td>
+                <td>Are audit records reviewed based on VA defined frequency? (Note: At least weekly.)</td>
+                <td><span class="badge-no">No</span></td>
+                <td>Audit records are reviewed on-demand, during monthly maintenance cycles, and upon trigger of anomalous events rather than scheduled weekly. Monitored via <code>va_log_viewer.aspx</code>.</td>
+                <td>AU-6</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.08</strong></td>
+                <td>Time Stamps</td>
+                <td>Is the system configured to report time stamps to Coordinated Universal Time (UTC) or Greenwich Mean Time (GMT) with the level of detail: &lt;MM/DD/YY HH/MM/SS&gt;?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>All server operations synchronize with VA enterprise NTP (Port 123 UDP). Database records timestamps using <code>SYSDATETIMEOFFSET()</code> (UTC with offset). Display formats comply with <code>YYYY-MM-DD HH:MM:SS</code> and <code>MM/DD/YYYY</code>.</td>
+                <td>AU-8</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.09</strong></td>
+                <td>Audit Record Retention</td>
+                <td>Are audit records retained based on the VA's defined frequency? (Minimum 1 year; 6 years for HIPAA breach).</td>
+                <td><span class="badge-no">No</span></td>
+                <td>Windows Server and IIS logs adhere to standard server retention settings. Application equipment tracking logs (<code>dbo.locationhistory</code>) are maintained permanently in the SQL database until explicitly archived by administrative policy.</td>
+                <td>AU-11</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.10</strong></td>
+                <td>System Interconnections</td>
+                <td>Are all external connections documented and approved?</td>
+                <td><span class="badge-na">N/A</span></td>
+                <td>Device does not require any connection outside of the internal VA hospital network. Zero public Internet interconnections exist.</td>
+                <td>CA-3</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.11</strong></td>
+                <td>Shared Accounts</td>
+                <td>Does each individual user accessing the system have their own account?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>Individual user accounts are provisioned per staff member or integrated via Active Directory authentication. Concurrent shared generic logins are prohibited by policy.</td>
+                <td>AC-2</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.12</strong></td>
+                <td>Role Based Access</td>
+                <td>Does the system support role-based access for all users?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>Granular RBAC model implemented in iDash: <code>idashadmin</code> (full system configuration), <code>site_admin</code> (location/facility administration), <code>operator</code> (scanning, inventory, printing), and <code>readonly</code> (reporting).</td>
+                <td>AC-2</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.13</strong></td>
+                <td>Autorun</td>
+                <td>Is autorun disabled on Windows OS systems?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>Autorun and AutoPlay are disabled enterprise-wide across all server and client endpoints via VA Domain Group Policy.</td>
+                <td>CM-7</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.14</strong></td>
+                <td>Internet Connection &mdash; IP/Port/Traffic</td>
+                <td>Is the system able to be operated without an active external connection? (e.g., connection outside of the VA network)</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>100% self-contained on the internal VA network (LAN/VLAN). Operates fully in an air-gapped or restricted enclave environment without internet access.</td>
+                <td>CM-7</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.15</strong></td>
+                <td>Administrator Accounts</td>
+                <td>Does the system require administrative access for service, software installation, and system configuration activities?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>Standard users have zero administrative rights. Server changes, IIS configuration, and iDash installation wizards require elevated administrative credentials.</td>
+                <td>AC-6</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.16</strong></td>
+                <td>Contingency Plan</td>
+                <td>Does the system have an individual Contingency Plan?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>Covered under the local facility SPS/Biomedical Emergency Operations &amp; Contingency Plan, supplemented by the iDash Disaster Recovery and Database Restore Guide (<code>va_db_restore.aspx</code>).</td>
+                <td>CP-2</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.17</strong></td>
+                <td>Information System Backup</td>
+                <td>Is there a system backup infrastructure in place?</td>
+                <td><span class="badge-no">No*</span></td>
+                <td>
+                    <em>*VA infrastructure dependent:</em> Backup infrastructure is provided by the VA facility host (Commvault, Veeam, or SAN snapshotting). ID Integration Inc. provides documented rebuild scripts and procedures to restore from SQL backup files.
+                </td>
+                <td>CP-9</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.18</strong></td>
+                <td>Backup CIA Protection</td>
+                <td>Is there a process in place to protect the Confidentiality, Integrity, and Availability (CIA) of back-up data?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>Backups are written to restricted, access-controlled network storage shares or encrypted backup repositories managed by VA OIT.</td>
+                <td>CP-9</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.19</strong></td>
+                <td>Recovery and Reconstitution</td>
+                <td>Does the system have documented recovery and reconstitution procedures?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>Documented step-by-step bare-metal server recovery, IIS website restoration, database schema verification, and RFID antenna cache reloading procedures are published in the documentation hub.</td>
+                <td>CP-10</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.20</strong></td>
+                <td>Individual User Authentication</td>
+                <td>Will the system be configured to use VA Active Directory or LDAP for user authentication?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>Supports Windows Integrated Authentication (Active Directory / Kerberos) and LDAP binding over LDAPS (Port 636), as well as internal salted hash authentication.</td>
+                <td>IA-2</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.21</strong></td>
+                <td>Administrator Accounts &mdash; 2FA</td>
+                <td>Does the system support two-factor authentication for administrative accounts?</td>
+                <td><span class="badge-no">No*</span></td>
+                <td>
+                    <strong>Server OS:</strong> Yes (VA PIV Smart Card required for RDP/console).<br />
+                    <strong>Application Web Portal:</strong> Forms-based RBAC with strong salted passwords. PIV authentication is inherited when configured behind VA Reverse Proxy / WAF.
+                </td>
+                <td>IA-2(1)</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.22</strong></td>
+                <td>Password Aging</td>
+                <td>Is the system configured to support a 90 day password age?</td>
+                <td><span class="badge-no">No*</span></td>
+                <td>Password aging is managed and enforced at the domain level by VA Active Directory Group Policy rather than hardcoded in the application layer.</td>
+                <td>IA-5(1)</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.23</strong></td>
+                <td>Strong Passwords</td>
+                <td>Does the system support the VA standard for Password complexity?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>Complies with VA standards (minimum 15 characters, mixed case, numbers, special characters) enforced via Windows Domain GPO.</td>
+                <td>IA-5(1)</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.24</strong></td>
+                <td>Controlled Maintenance</td>
+                <td>Are all maintenance and repair actions fully documented? (Includes: requested, scheduled, in process, and completed actions.)</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>Maintenance actions are logged in the VA Biomedical equipment maintenance software (AEMS/MERS) and local work order tracking systems.</td>
+                <td>MA-2</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.25</strong></td>
+                <td>Media Access</td>
+                <td>Is access to digital and/or non-digital media restricted to a group of personnel or roles?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>Physical access to servers is restricted to authorized VA OIT staff within locked data centers. Application data access is restricted to authenticated SPS/Biomed users.</td>
+                <td>MP-2</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.26</strong></td>
+                <td>Universal Serial Bus (USB) Ports</td>
+                <td>Is there software in place to detect unauthorized usage of USB media?</td>
+                <td><span class="badge-no">No*</span></td>
+                <td>Virtual server environment has zero physical USB connections. Removable media usage is restricted enterprise-wide via VA Trellix/McAfee Device Control policy.</td>
+                <td>MP-7</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.27</strong></td>
+                <td>Vulnerability Assessments</td>
+                <td>Does the system support automated vulnerability scanning during non-working hours (without operational impact)?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>Fully supports automated VA network vulnerability scans (Tenable Nessus / BigFix) without service interruption or operational degradation.</td>
+                <td>RA-5</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.28</strong></td>
+                <td>Vulnerability Scanning &mdash; Credentialed</td>
+                <td>Is the system configured to support vulnerability scans by an Administrative/credentialed-level account?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>VA OIT vulnerability scanning service accounts are granted credentialed audit rights on the host VM per standard VA security procedures.</td>
+                <td>RA-5(5)</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.29</strong></td>
+                <td>Collaborative Computing Systems</td>
+                <td>Does the system utilize collaborative devices? (Cameras, Microphones, Whiteboards... for multi-party collaboration)</td>
+                <td><span class="badge-na">N/A</span></td>
+                <td>The system utilizes no cameras, microphones, or collaborative media peripherals.</td>
+                <td>SC-15</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.30</strong></td>
+                <td>Collaborative Computing &mdash; Remote Activation</td>
+                <td>Does the system prohibit remote activation of collaborative devices?</td>
+                <td><span class="badge-na">N/A</span></td>
+                <td>No collaborative peripherals exist in the architecture.</td>
+                <td>SC-15</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.31</strong></td>
+                <td>Data Encryption &mdash; Mechanism</td>
+                <td>Does the system protect data-at-rest with whole disk encryption?</td>
+                <td><span class="badge-no">No*</span></td>
+                <td>
+                    <em>*Host level:</em> Microsoft BitLocker or SAN-level hardware encryption is enabled at the hypervisor/storage layer by VA OIT. The database stores no confidential or sensitive patient data.
+                </td>
+                <td>SC-28</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.32</strong></td>
+                <td>System Use Notification</td>
+                <td>Does the system have a capability to display a notification banner granting access to a government system?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>The iDash user interface displays the official Department of Veterans Affairs Warning Notice and consent to monitoring banner on all logon screens.</td>
+                <td>AC-8</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.33</strong></td>
+                <td>Wireless Protocols &mdash; Encryption</td>
+                <td>Does the system use FIPS 140-2 encryption standards for wireless communications?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>Handheld scanners communicate over VA enterprise WPA2/WPA3-Enterprise (802.11i/AES). Zebra MC3330xR cryptographic module is validated under NIST FIPS 140-2 Certificate #3866.</td>
+                <td>AC-18(1)</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.34</strong></td>
+                <td>Antivirus Software</td>
+                <td>Does the system support the installation of anti-virus software, to include routine antivirus updates?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>Fully supports VA enterprise endpoint protection (Microsoft Defender for Endpoint, Trellix ENS) with daily automated definition updates.</td>
+                <td>SI-3</td>
+            </tr>
+            <tr>
+                <td><strong>SQ.35</strong></td>
+                <td>Data Transmission &mdash; PII / ePHI</td>
+                <td>Does the device securely display, transmit, or maintain private data (including PII, electronic Protected Health Information [ePHI])?</td>
+                <td><span class="badge-na">N/A</span></td>
+                <td>
+                    <strong>Zero PII or ePHI.</strong> The system is strictly a logistics, medical equipment tracking, and sterilization tray management platform. No patient names, SSNs, medical record numbers, or diagnoses are processed.
+                </td>
+                <td>SC-8.1</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- SECTION 4: ACCEPTED MITIGATION FACTORS -->
+    <h2 id="mitigation-factors">&#128737; 4. Accepted Mitigation Factors (AMF)</h2>
+    <table class="era-table">
+        <thead>
+            <tr>
+                <th style="width: 75px;">ID</th>
+                <th style="width: 170px;">Mitigation Title</th>
+                <th style="width: 320px;">Mitigation Question</th>
+                <th style="width: 80px;">Response</th>
+                <th>Additional Implementation Information</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>AMF.11</strong></td>
+                <td>SDIA (Specialized Device Architecture)</td>
+                <td>Will the system be isolated behind SDIA?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>iDash and its associated fixed RFID readers are placed into a segmented SPS-OT / Biomedical VLAN with access control lists (ACLs) restricting inbound traffic.</td>
+            </tr>
+            <tr>
+                <td><strong>AMF.12</strong></td>
+                <td>Secured Location</td>
+                <td>Is the system located in a controlled and/or secured location?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>Servers reside in locked OIT server rooms with badge access. Readers, printers, and mobile carts operate within physically restricted SPS/Sterile Core and Surgical suites.</td>
+            </tr>
+            <tr>
+                <td><strong>AMF.13</strong></td>
+                <td>No Internet Requirement</td>
+                <td>Is the system able to be operated without an active external connection?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>The architecture requires zero external connectivity. All data flows remain strictly internal to the local facility and VA enterprise network.</td>
+            </tr>
+            <tr>
+                <td><strong>AMF.14</strong></td>
+                <td>Maintenance Contracts</td>
+                <td>Is the system covered by a compliant VA Maintenance / Installation (Warranty) Contract?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>Supported under ID Integration, Inc. vendor service agreement and hardware warranties with Zebra Technologies.</td>
+            </tr>
+            <tr>
+                <td><strong>AMF.15</strong></td>
+                <td>Specialized Device USB Drive</td>
+                <td>Prior to using a USB drive with the system, are the conditions in the 10N memo followed?</td>
+                <td><span class="badge-na">N/A</span></td>
+                <td>USB removable storage features are disabled on the virtual server. Operational scanning relies entirely on network and Wi-Fi data transfer.</td>
+            </tr>
+            <tr>
+                <td><strong>AMF.16</strong></td>
+                <td>Scanning Station</td>
+                <td>Are mobile media scanning stations used prior to using mobile media on the system?</td>
+                <td><span class="badge-na">N/A</span></td>
+                <td>No removable mobile media (thumb drives, external hard drives) is permitted or required for operational scanning.</td>
+            </tr>
+            <tr>
+                <td><strong>AMF.17</strong></td>
+                <td>Local SOPs</td>
+                <td>Is the system covered under Local SOP?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>Operates under local facility SPS and Biomedical Engineering Standard Operating Procedures (SOPs) governing asset inventory and RFID scanning.</td>
+            </tr>
+            <tr>
+                <td><strong>AMF.18</strong></td>
+                <td>Networked SPS Database</td>
+                <td>Is the facility inventory updated and in compliance with SPS DB?</td>
+                <td><span class="badge-na">N/A</span></td>
+                <td>National SPS inventory DB integration is deployed in accordance with facility readiness and VHA SPS directive schedules.</td>
+            </tr>
+            <tr>
+                <td><strong>AMF.19</strong></td>
+                <td>Role Based Security Training</td>
+                <td>Has a designated VA business owner completed administrative role-based training?</td>
+                <td><span class="badge-yes">Yes</span></td>
+                <td>Designated SPS supervisors and Biomedical administrators complete annual VA cybersecurity awareness and system-specific administrative role training.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- SECTION 5: APPENDIX B - PORTS, PROTOCOLS AND SERVICES -->
+    <h2 id="appendix-b">&#128279; 5. Appendix B: Ports, Protocols and Services (PPS)</h2>
+    <p>Complete network matrix for firewall rules, router ACLs, and internal VLAN segmentation:</p>
+
+    <table class="era-table">
+        <thead>
+            <tr>
+                <th>Communication Service</th>
+                <th>Port Number</th>
+                <th>Protocol</th>
+                <th>Direction</th>
+                <th>External to VA</th>
+                <th>Zone / Boundary</th>
+                <th>Technical Purpose &amp; Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="background:color-mix(in srgb, var(--accent-docs) 6%, transparent); font-weight:700;"><td colspan="7">VA Enterprise Infrastructure Services (Host VM)</td></tr>
+            <tr>
+                <td>NTP Time Sync</td>
+                <td>123</td>
+                <td>UDP</td>
+                <td>Bi-directional</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Network Time Protocol time synchronization with VA domain controllers.</td>
+            </tr>
+            <tr>
+                <td>DNS Resolution</td>
+                <td>53, 55</td>
+                <td>TCP / UDP</td>
+                <td>Bi-directional</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>VA Domain Name System query and host resolution.</td>
+            </tr>
+            <tr>
+                <td>SMTP Mail Relay</td>
+                <td>25</td>
+                <td>TCP</td>
+                <td>Outbound</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Automated notification and daily inventory report dispatch via VA internal relay.</td>
+            </tr>
+            <tr>
+                <td>LDAPS Authentication</td>
+                <td>636</td>
+                <td>TCP</td>
+                <td>Bi-directional</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Lightweight Directory Access Protocol over TLS for Active Directory authentication.</td>
+            </tr>
+            <tr>
+                <td>DHCP Assignment</td>
+                <td>67, 68</td>
+                <td>UDP</td>
+                <td>Bi-directional</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Dynamic Host Configuration Protocol for mobile terminals and network devices.</td>
+            </tr>
+            <tr>
+                <td>PKI / PIV Verification</td>
+                <td>80, 443</td>
+                <td>TCP</td>
+                <td>Bi-directional</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>VA Certificate Revocation List (CRL) and OCSP certificate verification.</td>
+            </tr>
+            <tr>
+                <td>Microsoft Licensing / KMS</td>
+                <td>1688, 135</td>
+                <td>TCP</td>
+                <td>Bi-directional</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Key Management Service license activation for Windows OS and SQL Server.</td>
+            </tr>
+            <tr>
+                <td>VistA / AEMS-MERS FileMan</td>
+                <td>139, 445</td>
+                <td>TCP</td>
+                <td>Bi-directional</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>SMB / NetBIOS share access for VistA export/import batch synchronization.</td>
+            </tr>
+            <tr>
+                <td>VA Patching (WSUS/MDE)</td>
+                <td>80, 443, 8530-8531</td>
+                <td>TCP</td>
+                <td>Bi-directional</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>VA National HTM / OIT Medical Device Update Server communications.</td>
+            </tr>
+            <tr>
+                <td>Biomed RDP Support</td>
+                <td>3389</td>
+                <td>TCP</td>
+                <td>Inbound</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Remote Desktop Protocol for authorized VA Biomedical engineering administration.</td>
+            </tr>
+
+            <tr style="background:color-mix(in srgb, #8b5cf6 8%, transparent); font-weight:700;"><td colspan="7">iDash Core Application &amp; Database Interfaces</td></tr>
+            <tr>
+                <td>iDash Web Application</td>
+                <td>80 (Redirect), 443</td>
+                <td>TCP (TLS)</td>
+                <td>Inbound / Bi-dir</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Primary web interface for OIT workstations, mobile browsers, and administration.</td>
+            </tr>
+            <tr>
+                <td>iDash Standalone Web / SSE</td>
+                <td>8181</td>
+                <td>TCP (HTTP/TLS)</td>
+                <td>Inbound / Bi-dir</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Standalone iDash web service, REST APIs, and Server-Sent Events (SSE) live feed.</td>
+            </tr>
+            <tr>
+                <td>iDash Secure Proxy (Tailscale)</td>
+                <td>8443</td>
+                <td>TCP (TLS)</td>
+                <td>Inbound</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Encrypted TLS gateway for remote facility and multi-site hub replication.</td>
+            </tr>
+            <tr>
+                <td>Microsoft SQL Server</td>
+                <td>1433</td>
+                <td>TCP</td>
+                <td>Bi-directional</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>iDash application server to SQL database backend connection.</td>
+            </tr>
+            <tr>
+                <td>SQL Browser Service</td>
+                <td>1434</td>
+                <td>UDP</td>
+                <td>Bi-directional</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Named SQL instance resolution within the host VM enclave.</td>
+            </tr>
+
+            <tr style="background:color-mix(in srgb, #10b981 8%, transparent); font-weight:700;"><td colspan="7">RFID Printers &amp; Print Engine Services</td></tr>
+            <tr>
+                <td>BarTender Print Engine Service</td>
+                <td>5160</td>
+                <td>TCP</td>
+                <td>Inbound</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>BarTender Print Portal REST API service and licensing verification.</td>
+            </tr>
+            <tr>
+                <td>Direct Raw ZPL Print Port</td>
+                <td>6101, 9100</td>
+                <td>TCP</td>
+                <td>Outbound</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Raw ZPL printer commands dispatched from iDash Print Server directly to Zebra printers.</td>
+            </tr>
+
+            <tr style="background:color-mix(in srgb, #f59e0b 8%, transparent); font-weight:700;"><td colspan="7">Fixed Passive RFID Readers (Zebra FX9600 / FXR90)</td></tr>
+            <tr>
+                <td>MQTT Tag Ingestion</td>
+                <td>1883</td>
+                <td>TCP</td>
+                <td>Bi-directional</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Real-time MQTT telemetry feed from fixed readers to iDash Antenna Location Service.</td>
+            </tr>
+            <tr>
+                <td>Secure MQTTS Stream</td>
+                <td>8883</td>
+                <td>TCP (TLS)</td>
+                <td>Bi-directional</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Encrypted TLS MQTT telemetry stream from modern readers.</td>
+            </tr>
+            <tr>
+                <td>HTTP Tag Push Endpoint</td>
+                <td>80, 443, 8181</td>
+                <td>TCP</td>
+                <td>Inbound to Server</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Fixed reader HTTP POST tag read event dispatch (Local_HTTP_POST).</td>
+            </tr>
+            <tr>
+                <td>LLRP Protocol (Low Level)</td>
+                <td>5084, 5085 (TLS)</td>
+                <td>TCP</td>
+                <td>Bi-directional</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Low Level Reader Protocol for reader hardware control and antenna diagnostic polling.</td>
+            </tr>
+
+            <tr style="background:color-mix(in srgb, #3b82f6 8%, transparent); font-weight:700;"><td colspan="7">Mobile Handheld Scanners (Zebra MC3330xR)</td></tr>
+            <tr>
+                <td>Mobile Web UI &amp; Sync API</td>
+                <td>443, 80</td>
+                <td>TCP</td>
+                <td>Outbound from device</td>
+                <td>No</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Enterprise Browser mobile scanning interface, tag sync, and offline batch uploads.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- SECTION 6: APPENDIX C - SYSTEM INVENTORY -->
+    <h2 id="appendix-c">&#128451; 6. Appendix C: System Inventory Table</h2>
+    <table class="era-table">
+        <thead>
+            <tr>
+                <th>Component / Device Name</th>
+                <th>Type</th>
+                <th>Model</th>
+                <th>Operating System</th>
+                <th>OS / Firmware Ver.</th>
+                <th>Application Name</th>
+                <th>App Version</th>
+                <th>EOL Date</th>
+                <th>Zone</th>
+                <th>Comments &amp; FIPS Validation</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>iDash Production VM</strong></td>
+                <td>Virtual Server</td>
+                <td>VMware / Hyper-V</td>
+                <td>Microsoft Windows Server</td>
+                <td>2019 / 2022 (V1809/21H2)</td>
+                <td>iDash Enterprise Suite</td>
+                <td>1.2 / 2.0</td>
+                <td>01/09/2029 (2019)<br />10/13/2031 (2022)</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Hosts IIS 10, iDash core services, Antenna Location Service, and BarTender Print Portal.</td>
+            </tr>
+            <tr>
+                <td><strong>iDash Database</strong></td>
+                <td>Database Engine</td>
+                <td>Microsoft SQL Server</td>
+                <td>Windows NT Core</td>
+                <td>2019 / 2022</td>
+                <td>Microsoft SQL Server</td>
+                <td>15.x / 16.x</td>
+                <td>01/08/2030 (2019)<br />01/11/2033 (2022)</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Stores equipment asset records, locations, location history, and system configurations.</td>
+            </tr>
+            <tr>
+                <td><strong>Zebra Mobile Terminal</strong></td>
+                <td>Appliance</td>
+                <td>MC3330xR</td>
+                <td>Android Enterprise</td>
+                <td>Android 11, 12, 13, 14</td>
+                <td>Zebra Enterprise Browser / iDash Mobile</td>
+                <td>v3.x / Web</td>
+                <td>Active (No EOL)</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Qualcomm Snapdragon SD660 chipset. Cryptographic module validated under NIST FIPS 140-2 Cert #3866.</td>
+            </tr>
+            <tr>
+                <td><strong>Zebra Fixed RFID Reader</strong></td>
+                <td>Appliance</td>
+                <td>FX9600</td>
+                <td>Zebra Linux BSP</td>
+                <td>v3.30.18+</td>
+                <td>Zebra Embedded IoT Connector</td>
+                <td>v3.x</td>
+                <td>Active (VA-owned)</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>4-port / 8-port high-performance passive UHF RFID fixed reader. Managed via internal web console.</td>
+            </tr>
+            <tr>
+                <td><strong>Zebra Rugged Fixed Reader</strong></td>
+                <td>Appliance</td>
+                <td>FXR90</td>
+                <td>Zebra Linux BSP</td>
+                <td>v3.30.16+</td>
+                <td>Zebra Embedded IoT Connector</td>
+                <td>v3.x</td>
+                <td>Active (VA-owned)</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Ultra-rugged IP65/IP67 integrated fixed reader for washdown and harsh SPS environments.</td>
+            </tr>
+            <tr>
+                <td><strong>Zebra Industrial RFID Printer</strong></td>
+                <td>Appliance</td>
+                <td>ZT411R</td>
+                <td>Zebra Link-OS</td>
+                <td>v7.4+</td>
+                <td>Printer Firmware / ZPL</td>
+                <td>v7.4</td>
+                <td>Active (No EOL)</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Heavy-duty surgical tray and autoclave tag RFID encoder. Supported under NIST 800 guidelines.</td>
+            </tr>
+            <tr>
+                <td><strong>Zebra Desktop RFID Printer</strong></td>
+                <td>Appliance</td>
+                <td>ZD621R</td>
+                <td>Zebra Link-OS</td>
+                <td>v7.4+</td>
+                <td>Printer Firmware / ZPL</td>
+                <td>v7.4</td>
+                <td>Active (No EOL)</td>
+                <td>Non-Oracle (SPS)</td>
+                <td>Compact desktop RFID label printer. Cryptographic module validated under FIPS #4767.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- SECTION 7: APPENDIX D - TOPOLOGY -->
+    <h2 id="appendix-d">&#128506; 7. Appendix D: System Network Topology &amp; Architecture Diagram</h2>
+    <div class="callout">
+        <strong>Accreditation Boundary Overview:</strong>
+        All core iDash application components, database storage, and RFID peripherals operate within a dedicated, segmented SPS-OT / Biomedical VLAN. Communication with enterprise infrastructure (Active Directory, NTP, WSUS) is routed through restricted internal boundary firewalls. Zero external Internet connections exist.
+    </div>
+
+    <pre style="background:var(--surface2, #0f172a); color:var(--text, #f8fafc); border:1px solid var(--line-docs); border-radius:12px; padding:20px; font-family:'JetBrains Mono', Consolas, monospace; font-size:12px; line-height:1.45; overflow-x:auto;">
++----------------------------------------------------------------------------------------------------+
+|                                     VA HOSPITAL ENTERPRISE NETWORK                                 |
+|                                                                                                    |
+|  [ VA Network Services ]                                                                           |
+|  - NTP (UDP 123)            - DNS (TCP/UDP 53)          - SMTP (TCP 25)                            |
+|  - Active Directory/LDAPS (TCP 636)                     - WSUS / MECM (TCP 80/443/8530)            |
+|  - Domain GPO (Password Aging &amp; Complexity)             - Biomed Workstations / RDP (TCP 3389)     |
++--------------------------------------------------+-------------------------------------------------+
+                                                   |
+                                 [ Internal VA Core Firewall / ACLs ]
+                                                   |
++--------------------------------------------------v-------------------------------------------------+
+|                         SPS-OT ACCREDITATION BOUNDARY (VLAN / ENCLAVE)                             |
+|                                                                                                    |
+|    +------------------------------------------------------------------------------------------+    |
+|    |                              iDash PRODUCTION APPLICATION HOST                           |    |
+|    |      (Microsoft Windows Server 2019 / 2022  --  VMware / Hyper-V Virtual Machine)         |    |
+|    |                                                                                          |    |
+|    |      +----------------------------------------------------------------------------+      |    |
+|    |      | IIS 10.0 Web Server                                                        |      |    |
+|    |      | - iDash Web Application &amp; UI (Port 80 HTTP -> 443 HTTPS TLS 1.2/1.3)       |      |    |
+|    |      | - Standalone iDash Web Service &amp; Live SSE Feed (Port 8181 HTTP / 8443 TLS) |      |    |
+|    |      | - Authentication &amp; RBAC (Forms Salted Hash / Windows Domain Integrated)   |      |    |
+|    |      +----------------------------------------------------------------------------+      |    |
+|    |      | iDash Antenna Location Service (Background Windows Thread)                 |      |    |
+|    |      | - MQTT / MQTTS Ingestion Listener (TCP 1883 / TLS 8883)                    |      |    |
+|    |      | - LLRP Hardware Polling Interface (TCP 5084 / TLS 5085)                    |      |    |
+|    |      | - Debounced Ring Buffer &amp; Location History Engine                          |      |    |
+|    |      +----------------------------------------------------------------------------+      |    |
+|    |      | BarTender 2022 / 2026 Print Portal &amp; Direct ZPL Dispatch Service           |      |    |
+|    |      | - REST API / Licensing Port (TCP 5160)                                     |      |    |
+|    |      +----------------------------------------------------------------------------+      |    |
+|    +---------------------------------------------+--------------------------------------------+    |
+|                                                  | SQL Connection (TCP 1433 / UDP 1434)            |
+|                                                  v                                                 |
+|    +------------------------------------------------------------------------------------------+    |
+|    |                                 MICROSOFT SQL SERVER DATABASE                            |    |
+|    |                          (SQL Server 2019 / 2022 Enterprise Instance)                    |    |
+|    |    - Equipment Master Records                     - Asset Location Audit History         |    |
+|    |    - Antenna Cache &amp; Site Configurations          - Zero PII / Zero ePHI Data Tables     |    |
+|    +------------------------------------------------------------------------------------------+    |
+|                                                  ^                                                 |
+|            +-------------------------------------+-----------------------------------+             |
+|            | Wi-Fi (WPA2/3 Enterprise AES)       | Ethernet (802.3)                  | Ethernet    |
+|            v                                     v                                   v             |
+|  +--------------------+               +--------------------+              +--------------------+   |
+|  | Zebra MC3330xR     |               | Zebra FX9600/FXR90 |              | Zebra ZT411R/ZD621R|   |
+|  | Mobile Handhelds   |               | Fixed RFID Readers |              | RFID Label Printers|   |
+|  | (Android 11-14)    |               | (Linux BSP v3.30)  |              | (Link-OS v7.4)     |   |
+|  | FIPS 140-2 #3866   |               | MQTT / HTTP POST   |              | Raw ZPL Port 6101  |   |
+|  +--------------------+               +--------------------+              +--------------------+   |
++----------------------------------------------------------------------------------------------------+
+    </pre>
+
+    <!-- SECTION 8: APPENDIX F - VENDOR LETTER -->
+    <h2 id="vendor-letter">&#128220; 8. Appendix F: Vendor Statement of Support</h2>
+    <div class="vendor-letter">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+            <div>
+                <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration, Inc." style="height: 48px; border-radius: 4px;" />
+                <div style="font-size: 11px; color: #64748b; margin-top: 4px;">
+                    13024 Beverly Park Rd, Suite 102 &bull; Mukilteo, WA 98275<br />
+                    Phone: (425) 438-2533 &bull; Web: www.id-integration.com
+                </div>
+            </div>
+            <div style="text-align: right; font-size: 12px; color: #475569;">
+                <strong>Date:</strong> Current / Annual Review<br />
+                <strong>To:</strong> Enterprise Risk Assessment (ERA) Team<br />
+                Office of Information and Technology (OI&T)<br />
+                Specialized Device Cybersecurity Department (SDCD)<br />
+                U.S. Department of Veterans Affairs
+            </div>
+        </div>
+
+        <h3>Subject: Vendor Letter of Support for iDash Enterprise Suite, Proprietary Firmware &amp; COTS Components</h3>
+
+        <p>Dear Enterprise Risk Assessment (ERA) Team,</p>
+        <p>
+            This letter serves as formal confirmation that <strong>ID Integration, Inc.</strong> provides full software lifecycle support, cybersecurity vulnerability remediation, and technical engineering assistance for the <strong>iDash (Intelligent Distributed Asset Scanning Hub)</strong> platform and associated peripheral integrations deployed across the Veterans Health Administration (VHA).
+        </p>
+
+        <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 12px;">
+            <thead>
+                <tr style="background: #f1f5f9; border-bottom: 2px solid #cbd5e1; text-align: left;">
+                    <th style="padding: 8px; border: 1px solid #cbd5e1;">Component Type</th>
+                    <th style="padding: 8px; border: 1px solid #cbd5e1;">Product Name / Model</th>
+                    <th style="padding: 8px; border: 1px solid #cbd5e1;">Version / Firmware Baseline</th>
+                    <th style="padding: 8px; border: 1px solid #cbd5e1;">Functional Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">COTS / Commercial Software</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">iDash Enterprise Suite</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">v1.2 / v2.0 Standalone</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">Distributed RFID asset tracking, web portal &amp; REST service</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">Integrated Database Engine</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">Microsoft SQL Server</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">2019 / 2022</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">Relational database for asset location records and audit trail</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">Mobile Handheld Terminal</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">Zebra MC3330xR</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">Android 11&ndash;14 (FIPS 140-2 #3866)</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">Handheld RFID and barcode inventory scanning terminal</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">Fixed RFID Reader Peripheral</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">Zebra FX9600 / FXR90</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">BSP Firmware v3.30.x</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">Fixed portal passive UHF RFID tag reader</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">RFID Barcode Label Printers</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">Zebra ZT411R / ZD621R</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">Link-OS v7.4+ (FIPS #4767)</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">Direct thermal / thermal transfer RFID tag encoders</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p><strong>ID Integration, Inc. hereby formally certifies and confirms that:</strong></p>
+        <ol style="line-height: 1.6; font-size: 13px;">
+            <li>We maintain active engineering support, product updates, and technical assistance for all listed components.</li>
+            <li>In the event of a security vulnerability or performance advisory, our engineering team will provide timely remediation and validated software updates within <strong>30 calendar days</strong> for critical vulnerabilities in accordance with VA SDCD policy.</li>
+            <li>The listed products comply with applicable VA Information Security baselines, NIST SP 800-53 Rev. 5 guidelines, and we collaborate directly with the VA Facility ISSO and Biomedical Engineering to maintain operational authorization.</li>
+            <li>Our software support commitment remains valid for the duration of the system lifecycle, through at least <strong>December 31, 2031</strong>.</li>
+        </ol>
+
+        <div style="margin-top: 30px; display: flex; justify-content: space-between;">
+            <div>
+                <strong>Gary Brand</strong><br />
+                President &amp; CEO<br />
+                ID Integration, Inc.<br />
+                gbrand@id-integration.com &bull; (425) 438-2533
+            </div>
+            <div>
+                <strong>John Guempel</strong><br />
+                Chief Technology Officer / Lead Systems Architect<br />
+                ID Integration, Inc.<br />
+                jguempel@id-integration.com &bull; (425) 438-2533
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 9: GATHERING CHECKLIST -->
+    <h2 id="gathering-checklist">&#9745; 9. Actionable ATO / ERA Submission Gathering Checklist</h2>
+    <p>
+        To complete the ERA submission package and initiate the VA Governance, Risk, and Compliance (GRC) review for an <strong>Authority to Operate (ATO)</strong> or <strong>Authority to Connect (ATC)</strong>, the following facility-specific information and artifacts must be compiled:
+    </p>
+
+    <div class="checklist-item">
+        <div class="chk-box">1</div>
+        <div class="chk-content">
+            <h4>VA Service Now RITM Initiation</h4>
+            <p>The facility Biomedical Engineering department or SPS Business Owner must open an official Service Now request under the <strong>Specialized Device Security Division (SDSD / SDCD)</strong> queue requesting an Enterprise Risk Assessment for <em>iDash (Intelligent Distributed Asset Scanning Hub)</em>.</p>
+        </div>
+    </div>
+
+    <div class="checklist-item">
+        <div class="chk-box">2</div>
+        <div class="chk-content">
+            <h4>Facility &amp; Stakeholder Contacts</h4>
+            <p>
+                Identify and confirm the designated roles for the submission cover sheet:<br />
+                &bull; <strong>Facility Information System Security Officer (ISSO):</strong> Name, email, and phone.<br />
+                &bull; <strong>Biomedical Engineering POC:</strong> Lead HTM / Biomedical Engineer overseeing SPS tracking.<br />
+                &bull; <strong>SPS Business Owner:</strong> Chief of Sterile Processing Service or designee.<br />
+                &bull; <strong>Vendor Contact:</strong> ID Integration, Inc. (Gary Brand / John Guempel).
+            </p>
+        </div>
+    </div>
+
+    <div class="checklist-item">
+        <div class="chk-box">3</div>
+        <div class="chk-content">
+            <h4>Server Host &amp; Database Environment Specifications</h4>
+            <p>
+                Document the exact target server provisioning details:<br />
+                &bull; Fully Qualified Domain Name (FQDN) and Static IPv4 Address of the iDash host VM.<br />
+                &bull; Microsoft Windows Server edition (2019 Standard or 2022 Datacenter).<br />
+                &bull; SQL Server instance name, collation, and database authentication mode.<br />
+                &bull; Hypervisor host platform (VMware ESXi cluster / Microsoft Hyper-V).
+            </p>
+        </div>
+    </div>
+
+    <div class="checklist-item">
+        <div class="chk-box">4</div>
+        <div class="chk-content">
+            <h4>Peripheral Hardware MAC Addresses &amp; Serial Numbers</h4>
+            <p>
+                Compile a facility hardware asset spreadsheet containing:<br />
+                &bull; Serial numbers and MAC addresses for all Zebra MC3330xR mobile terminals.<br />
+                &bull; Static IP addresses, MAC addresses, and physical installation locations for all Zebra FX9600 and FXR90 fixed readers.<br />
+                &bull; Network print queue names, IP addresses, and serial numbers for Zebra ZT411R and ZD621R label printers.
+            </p>
+        </div>
+    </div>
+
+    <div class="checklist-item">
+        <div class="chk-box">5</div>
+        <div class="chk-content">
+            <h4>Network Port Validation &amp; Boundary ACLs</h4>
+            <p>
+                Provide the local VA OIT Network Operations team with the <a href="#appendix-b" style="color:#8b5cf6; font-weight:700;">Appendix B Ports, Protocols and Services (PPS) table</a> to establish the SPS-OT VLAN, verify that Port 80/443, Port 8181, Port 1433, Port 5160, Port 6101, and Port 1883/8883 are open internally within the enclave, and confirm no outbound Internet traffic is routed.
+            </p>
+        </div>
+    </div>
+
+    <div class="checklist-item">
+        <div class="chk-box">6</div>
+        <div class="chk-content">
+            <h4>NIST FIPS 140-2 Validation Certificates</h4>
+            <p>
+                Attach the formal NIST cryptographic validation certificates to the submission dossier:<br />
+                &bull; <strong>Zebra MC3330xR Cryptographic Module:</strong> NIST FIPS 140-2 Certificate #3866.<br />
+                &bull; <strong>Zebra Link-OS Printer Cryptographic Module:</strong> NIST FIPS Certificate #4767.
+            </p>
+        </div>
+    </div>
+
+    <div class="checklist-item">
+        <div class="chk-box">7</div>
+        <div class="chk-content">
+            <h4>Plan of Action &amp; Milestones (POA&amp;M) Entry</h4>
+            <p>
+                Coordinate with the boundary ISSO to register the standard SPS-OT POA&amp;M items in the VA Enterprise GRC tool for the Moderate Risk residual determination (covering periodic audit log reviews under AU-6, and firmware lifecycle monitoring for Zebra fixed appliances under CM-2).
+            </p>
+        </div>
+    </div>
+
+    <div class="checklist-item">
+        <div class="chk-box">8</div>
+        <div class="chk-content">
+            <h4>Local Standard Operating Procedure (SOP) Sign-off</h4>
+            <p>
+                Ensure the facility SPS department has an approved Standard Operating Procedure covering routine asset inventory scanning, autoclave tray barcoding, and daily scanner charging/reconciliation workflows.
+            </p>
+        </div>
+    </div>
+
+    <div class="callout success" style="margin-top: 28px;">
+        <strong>Summary &amp; Submission Strategy:</strong><br />
+        By adhering strictly to this <strong>ID Integration Inc. / iDash</strong> baseline, the package eliminates the legacy printer end-of-life findings (ZD500R/ZT410R) present in older submissions. This positions iDash for an expedited <strong>Moderate Risk determination</strong> with minimal POA&amp;M overhead, streamlining the transition to an Authority to Connect (ATC) and formal Authority to Operate (ATO).
+    </div>
+
+    <div style="margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--line-docs); display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; color: var(--muted-docs);">
+        <div>
+            &copy; 2026 <strong>ID Integration, Inc.</strong> &bull; iDash Enterprise Documentation Hub &bull; All Rights Reserved.
+        </div>
+        <div>
+            Document Classification: <strong>VA Sensitive &mdash; For Official Use Only (FOUO)</strong>
+        </div>
+    </div>
+</div>
+</body>
+</html>
