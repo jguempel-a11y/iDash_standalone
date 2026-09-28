@@ -464,7 +464,7 @@
                         <% if (CanSeeSection("downloads","docs")) { %><a href="#sec-docs-card" class="quick-btn quick-btn-secondary" onclick="var c=document.getElementById('sec-docs-card');if(c)c.classList.remove('collapsed');">&#128218; Guides</a><% } %>
                         <% if (CanSeeSection("rpt_")) { %><a href="#sec-reports-card" class="quick-btn quick-btn-secondary" onclick="var c=document.getElementById('sec-reports-card');if(c)c.classList.remove('collapsed');">&#128202; Reports</a><% } %>
                         <% if (CanSeeSection("scan_", "print_", "excel_print")) { %><a href="#sec-scanning-card" class="quick-btn quick-btn-secondary" onclick="var c=document.getElementById('sec-scanning-card');if(c)c.classList.remove('collapsed');">&#128241; Scanning</a><% } %>
-                        <% if (IsLoggedIn && Convert.ToString(Session["IdashUserRole"]) == "admin") { %><a href="#sec-admin" class="quick-btn quick-btn-secondary" style="border-color:rgba(239,68,68,0.3); color:#ef4444;">&#128274; Admin</a><% } %>
+                        <% if (IsLoggedIn && (Convert.ToString(Session["IdashUserRole"]) == "admin" || CanSeeSection("admin_"))) { %><a href="#sec-admin" class="quick-btn quick-btn-secondary" style="border-color:rgba(239,68,68,0.3); color:#ef4444;" onclick="openAdminSection();">&#128274; Admin</a><% } %>
                         <div class="quick-divider"></div>
                         <a href="documentation/index.aspx" class="quick-btn quick-btn-secondary" style="opacity:0.7; font-size:12px;">Docs</a>
                         <a href="about.html" class="quick-btn quick-btn-secondary" style="opacity:0.7; font-size:12px;">About</a>
@@ -529,8 +529,8 @@
                         <% if (!IsLoggedIn) { %>
                         <a href="#sec-admin" class="nav-tab" style="border-color:#10b981; color:#10b981;" onclick="setTimeout(function(){ var e=document.getElementById('TxtUser'); if(e) e.focus(); }, 400);">&#128100; Sign In</a>
                         <% } %>
-                        <% if (IsLoggedIn && Convert.ToString(Session["IdashUserRole"]) == "admin") { %>
-                        <a href="#sec-admin" class="nav-tab" style="border-color:#ef4444; color:#ef4444;">&#128274; Admin Tools</a>
+                        <% if (IsLoggedIn && (Convert.ToString(Session["IdashUserRole"]) == "admin" || CanSeeSection("admin_"))) { %>
+                        <a href="#sec-admin" class="nav-tab" style="border-color:#ef4444; color:#ef4444;" onclick="openAdminSection();">&#128274; Admin Tools</a>
                         <% } %>
                     </div>
 
@@ -750,18 +750,21 @@
 
 
 
-                    </div>
+                    </div></div></div>
                     <% } /* end scanning */ %>
 
                     <!-- ======================================================
          RESTRICTED ADMIN & DATABASE WRITE TOOLS
          ====================================================== -->
-                    <div class="section-title" id="sec-admin" style="cursor:pointer; user-select:none;" onclick="toggleAdmin()">
-                        &#128274; Admin &amp; Database Tools
-                        <span id="adminToggleIcon" style="font-size:13px; font-weight:400; color:var(--muted); margin-left:10px;">&#9660; click to expand</span>
+                    <% bool isAdminOpen = IsLoggedIn && (Convert.ToString(Session["IdashUserRole"]) == "admin" || CanSeeSection("admin_")); %>
+                    <div class="section-title" id="sec-admin" style="cursor:pointer; user-select:none; display:block; margin-top:24px; margin-bottom:12px; scroll-margin-top:24px;" onclick="toggleAdmin()">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span>&#128274; Admin &amp; Database Tools</span>
+                            <span id="adminToggleIcon" style="font-size:13px; font-weight:400; color:var(--muted); margin-left:10px;"><%= isAdminOpen ? "&#9650; click to collapse" : "&#9660; click to expand" %></span>
+                        </div>
                         <span style="display:block; font-size:13px; font-weight:400; color:var(--muted); margin-top:4px;">Restricted &mdash; requires login. Most users will not need this section.</span>
                     </div>
-                    <div id="adminSection" style="display:none;">
+                    <div id="adminSection" style="<%= isAdminOpen ? "display:block;" : "display:none;" %>">
 
                     <asp:Panel ID="PnlLogin" runat="server" CssClass="tile-grid" DefaultButton="BtnLogin">
                         <div class="tile" style="border-left: 4px solid var(--danger); background: color-mix(in srgb, var(--danger), transparent 92%);">
@@ -950,7 +953,7 @@
                         if (card) { card.style.transition = 'opacity 0.4s'; card.style.opacity = '0'; setTimeout(function(){ card.style.display='none'; }, 400); }
                     }
 
-                    // -- Admin section toggle --
+                    // -- Admin section toggle & opener --
                     function toggleAdmin() {
                         var sec = document.getElementById('adminSection');
                         var ico = document.getElementById('adminToggleIcon');
@@ -963,6 +966,29 @@
                             if (ico) ico.textContent = '\u25BC click to expand';
                         }
                     }
+
+                    function openAdminSection() {
+                        var sec = document.getElementById('adminSection');
+                        var ico = document.getElementById('adminToggleIcon');
+                        if (sec) {
+                            sec.style.display = 'block';
+                            if (ico) ico.textContent = '\u25B2 click to collapse';
+                        }
+                        var target = document.getElementById('sec-admin');
+                        if (target) {
+                            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }
+
+                    // Auto-expand and scroll if URL targeted by hash
+                    if (window.location.hash === '#sec-admin' || window.location.hash === '#adminSection') {
+                        setTimeout(openAdminSection, 150);
+                    }
+                    window.addEventListener('hashchange', function() {
+                        if (window.location.hash === '#sec-admin' || window.location.hash === '#adminSection') {
+                            openAdminSection();
+                        }
+                    });
 
                     // ======= KPI FETCH + COUNT-UP =======
 function animateCount(el, target) {
