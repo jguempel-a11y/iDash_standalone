@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Web;
 using System.Collections.Generic;
@@ -225,10 +225,10 @@ public partial class va_user_management : System.Web.UI.Page
         var u = dataItem as AwUser;
         if (u == null) return "return false;";
         return string.Format(
-            "cloneAwUser('{0}','{1}','{2}','{3}');",
+            "cloneAwUser('{0}','{1}','{2}','{3}','{4}');",
             EscJs(u.UserType),
             u.CompanyId.HasValue ? u.CompanyId.Value.ToString() : "",
-            EscJs(u.Email), EscJs(u.Phone));
+            EscJs(u.Email), EscJs(u.Phone), EscJs(u.CardId));
     }
 
     // Parse site access JSON from hidden field
@@ -429,6 +429,8 @@ public partial class va_user_management : System.Web.UI.Page
         public string LastName    { get; set; }
         public string Email       { get; set; }
         public string Phone       { get; set; }
+        public string CardId      { get; set; }
+        public string RfidTag     { get; set; }
         public string UserType    { get; set; }
         public int?   CompanyId   { get; set; }
         public string CompanyName { get; set; }
@@ -447,6 +449,7 @@ public partial class va_user_management : System.Web.UI.Page
                 conn.Open();
                 using (var cmd = new SqlCommand(@"
                     SELECT u.id, u.username, u.firstname, u.lastname, u.email, u.phone,
+                           u.cardid, u.rfidtag,
                            u.usertype, u.companyid,
                            c.name AS companyname
                     FROM dbo.sysuser u
@@ -463,6 +466,8 @@ public partial class va_user_management : System.Web.UI.Page
                             LastName    = rdr["lastname"]  == DBNull.Value ? "" : rdr["lastname"].ToString(),
                             Email       = rdr["email"]     == DBNull.Value ? "" : rdr["email"].ToString(),
                             Phone       = rdr["phone"]     == DBNull.Value ? "" : rdr["phone"].ToString(),
+                            CardId      = rdr["cardid"]    == DBNull.Value ? "" : rdr["cardid"].ToString(),
+                            RfidTag     = rdr["rfidtag"]   == DBNull.Value ? "" : rdr["rfidtag"].ToString(),
                             UserType    = rdr["usertype"]  == DBNull.Value ? "" : rdr["usertype"].ToString(),
                             CompanyId   = rdr["companyid"] == DBNull.Value ? (int?)null : Convert.ToInt32(rdr["companyid"]),
                             CompanyName = rdr["companyname"] == DBNull.Value ? "" : rdr["companyname"].ToString()
@@ -483,9 +488,10 @@ public partial class va_user_management : System.Web.UI.Page
         var u = dataItem as AwUser;
         if (u == null) return "return false;";
         return string.Format(
-            "openAwEditModal({0},'{1}','{2}','{3}','{4}','{5}','{6}','{7}');",
+            "openAwEditModal({0},'{1}','{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}');",
             u.Id, EscJs(u.Username), EscJs(u.FirstName), EscJs(u.LastName),
             EscJs(u.Email), EscJs(u.Phone),
+            EscJs(u.CardId), EscJs(u.RfidTag),
             EscJs(u.UserType),
             u.CompanyId.HasValue ? u.CompanyId.Value.ToString() : "");
     }
@@ -535,7 +541,8 @@ public partial class va_user_management : System.Web.UI.Page
     /// </summary>
     private string CreateAwUserInternal(string username, string password,
         string usertype, string companyid,
-        string firstname, string lastname, string email, string phone)
+        string firstname, string lastname, string email, string phone,
+        string cardid = null, string rfidtag = null)
     {
         string cs = AwConnStr;
         if (string.IsNullOrEmpty(cs)) return "Database not configured.";
@@ -560,8 +567,8 @@ public partial class va_user_management : System.Web.UI.Page
 
                 string hashedPw = string.IsNullOrEmpty(password) ? null : HashPasswordV3(password);
                 using (var cmd = new SqlCommand(@"INSERT INTO dbo.sysuser
-                    (username,password,firstname,lastname,email,phone,usertype,companyid)
-                    VALUES(@username,@password,@firstname,@lastname,@email,@phone,@usertype,@companyid)", conn))
+                    (username,password,firstname,lastname,email,phone,cardid,rfidtag,usertype,companyid)
+                    VALUES(@username,@password,@firstname,@lastname,@email,@phone,@cardid,@rfidtag,@usertype,@companyid)", conn))
                 {
                     cmd.Parameters.AddWithValue("@username",  username);
                     cmd.Parameters.AddWithValue("@password",  (object)hashedPw ?? DBNull.Value);
@@ -569,6 +576,8 @@ public partial class va_user_management : System.Web.UI.Page
                     cmd.Parameters.AddWithValue("@lastname",  string.IsNullOrEmpty(lastname)  ? (object)DBNull.Value : lastname);
                     cmd.Parameters.AddWithValue("@email",     string.IsNullOrEmpty(email)     ? (object)DBNull.Value : email);
                     cmd.Parameters.AddWithValue("@phone",     string.IsNullOrEmpty(phone)     ? (object)DBNull.Value : phone);
+                    cmd.Parameters.AddWithValue("@cardid",    string.IsNullOrEmpty(cardid)    ? (object)DBNull.Value : cardid);
+                    cmd.Parameters.AddWithValue("@rfidtag",   string.IsNullOrEmpty(rfidtag)   ? (object)DBNull.Value : rfidtag);
                     cmd.Parameters.AddWithValue("@usertype",  string.IsNullOrEmpty(usertype)  ? (object)DBNull.Value : usertype);
                     cmd.Parameters.AddWithValue("@companyid", string.IsNullOrEmpty(companyid) ? (object)DBNull.Value : (object)int.Parse(companyid));
                     cmd.ExecuteNonQuery();
@@ -587,13 +596,15 @@ public partial class va_user_management : System.Web.UI.Page
         string lastname  = HfAwAddLastName.Value.Trim();
         string email     = HfAwAddEmail.Value.Trim();
         string phone     = HfAwAddPhone.Value.Trim();
+        string cardid    = HfAwAddCardId.Value.Trim();
+        string rfidtag   = HfAwAddRfidTag.Value.Trim();
         string usertype  = HfAwAddUserType.Value.Trim();
         string companyid = HfAwAddCompanyId.Value.Trim();
 
         if (string.IsNullOrWhiteSpace(username)) { LitAwMsg.Text = "<div class='alert alert-err'>&#9888; Username is required.</div>"; BindAwGrid(); return; }
 
         string awErr = CreateAwUserInternal(username, password, usertype, companyid,
-            firstname, lastname, email, phone);
+            firstname, lastname, email, phone, cardid, rfidtag);
 
         if (awErr != null)
         {
@@ -630,6 +641,7 @@ public partial class va_user_management : System.Web.UI.Page
 
         HfAwAddUsername.Value = ""; HfAwAddPassword.Value = ""; HfAwAddFirstName.Value = "";
         HfAwAddLastName.Value = ""; HfAwAddEmail.Value = ""; HfAwAddPhone.Value = "";
+        HfAwAddCardId.Value = ""; HfAwAddRfidTag.Value = "";
         HfAwAddUserType.Value = "";
         HfAwAddCompanyId.Value = "";
         HfAwAddAlsoCreateIdash.Value = ""; HfAwAddIdashRole.Value = "";
@@ -651,6 +663,8 @@ public partial class va_user_management : System.Web.UI.Page
         string lastname  = HfAwEditLastName.Value.Trim();
         string email     = HfAwEditEmail.Value.Trim();
         string phone     = HfAwEditPhone.Value.Trim();
+        string cardid    = HfAwEditCardId.Value.Trim();
+        string rfidtag   = HfAwEditRfidTag.Value.Trim();
         string usertype  = HfAwEditUserType.Value.Trim();
         string companyid = HfAwEditCompanyId.Value.Trim();
 
@@ -667,8 +681,8 @@ public partial class va_user_management : System.Web.UI.Page
 
                 bool chgPw = !string.IsNullOrEmpty(password);
                 string sql = chgPw
-                    ? "UPDATE dbo.sysuser SET password=@pw,firstname=@fn,lastname=@ln,email=@em,phone=@ph,usertype=@ut,companyid=@co WHERE id=@id"
-                    : "UPDATE dbo.sysuser SET firstname=@fn,lastname=@ln,email=@em,phone=@ph,usertype=@ut,companyid=@co WHERE id=@id";
+                    ? "UPDATE dbo.sysuser SET password=@pw,firstname=@fn,lastname=@ln,email=@em,phone=@ph,cardid=@ci,rfidtag=@rt,usertype=@ut,companyid=@co WHERE id=@id"
+                    : "UPDATE dbo.sysuser SET firstname=@fn,lastname=@ln,email=@em,phone=@ph,cardid=@ci,rfidtag=@rt,usertype=@ut,companyid=@co WHERE id=@id";
 
                 using (var cmd = new SqlCommand(sql, conn))
                 {
@@ -678,6 +692,8 @@ public partial class va_user_management : System.Web.UI.Page
                     cmd.Parameters.AddWithValue("@ln", string.IsNullOrEmpty(lastname)  ? (object)DBNull.Value : lastname);
                     cmd.Parameters.AddWithValue("@em", string.IsNullOrEmpty(email)     ? (object)DBNull.Value : email);
                     cmd.Parameters.AddWithValue("@ph", string.IsNullOrEmpty(phone)     ? (object)DBNull.Value : phone);
+                    cmd.Parameters.AddWithValue("@ci", string.IsNullOrEmpty(cardid)    ? (object)DBNull.Value : cardid);
+                    cmd.Parameters.AddWithValue("@rt", string.IsNullOrEmpty(rfidtag)   ? (object)DBNull.Value : rfidtag);
                     cmd.Parameters.AddWithValue("@ut", string.IsNullOrEmpty(usertype)  ? (object)DBNull.Value : usertype);
                     cmd.Parameters.AddWithValue("@co", string.IsNullOrEmpty(companyid) ? (object)DBNull.Value : (object)int.Parse(companyid));
                     cmd.ExecuteNonQuery();
@@ -692,6 +708,7 @@ public partial class va_user_management : System.Web.UI.Page
 
         HfAwEditId.Value = ""; HfAwEditPassword.Value = ""; HfAwEditFirstName.Value = "";
         HfAwEditLastName.Value = ""; HfAwEditEmail.Value = ""; HfAwEditPhone.Value = "";
+        HfAwEditCardId.Value = ""; HfAwEditRfidTag.Value = "";
         HfAwEditUserType.Value = "";
         HfAwEditCompanyId.Value = "";
         BindAwGrid();

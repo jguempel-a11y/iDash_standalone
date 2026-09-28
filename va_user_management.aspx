@@ -1282,13 +1282,15 @@ function submitAwAdd() {
 
     document.getElementById('<%= BtnAddAwUser.ClientID %>').click();
 }
-function openAwEditModal(id,username,firstname,lastname,email,phone,usertype,companyid) {
+function openAwEditModal(id,username,firstname,lastname,email,phone,cardid,rfidtag,usertype,companyid) {
     document.getElementById('aw_edit_id').value         = id;
     document.getElementById('aw_edit_username').value   = username;
     document.getElementById('aw_edit_firstname').value  = firstname;
     document.getElementById('aw_edit_lastname').value   = lastname;
     document.getElementById('aw_edit_email').value      = email;
     document.getElementById('aw_edit_phone').value      = phone;
+    document.getElementById('aw_edit_cardid').value     = cardid || '';
+    document.getElementById('aw_edit_rfidtag').value    = rfidtag || '';
             var ut = document.getElementById('aw_edit_usertype'); if(ut) ut.value = usertype||'5';
     var co = document.getElementById('aw_edit_companyid'); if(co) co.value = companyid||'';
     document.getElementById('aw_edit_password').value = '';
@@ -1530,7 +1532,7 @@ function cloneIdashUser(role, displayName, siteAccessJson, tileAccessJson) {
     buildTileGrid('add', existTiles);
 }
 
-function cloneAwUser(usertype, companyid, email, phone) {
+function cloneAwUser(usertype, companyid, email, phone, cardid) {
     // Open the AW Add modal pre-filled
     showAwAddModal();
     setTimeout(function() {
@@ -1538,6 +1540,7 @@ function cloneAwUser(usertype, companyid, email, phone) {
         var co = document.getElementById('aw_add_companyid'); if(co && companyid) co.value = companyid;
         var em = document.getElementById('aw_add_email'); if(em) em.value = email || '';
         var ph = document.getElementById('aw_add_phone'); if(ph) ph.value = phone || '';
+        var ci = document.getElementById('aw_add_cardid'); if(ci) ci.value = cardid || '';
     }, 50);
 }
 </script>

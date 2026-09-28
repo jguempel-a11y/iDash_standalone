@@ -276,6 +276,24 @@ ELSE
     PRINT '⏭ Column dbo.sysuser.restricteditmobile already exists.';
 GO
 
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.sysuser') AND name = 'cardid')
+BEGIN
+    ALTER TABLE dbo.sysuser ADD cardid NVARCHAR(255) NULL;
+    PRINT '✅ Added column: dbo.sysuser.cardid';
+END
+ELSE
+    PRINT '⏭ Column dbo.sysuser.cardid already exists.';
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.sysuser') AND name = 'rfidtag')
+BEGIN
+    ALTER TABLE dbo.sysuser ADD rfidtag NVARCHAR(255) NULL;
+    PRINT '✅ Added column: dbo.sysuser.rfidtag';
+END
+ELSE
+    PRINT '⏭ Column dbo.sysuser.rfidtag already exists.';
+GO
+
 -- =============================================
 -- STEP 4: Views
 -- =============================================
