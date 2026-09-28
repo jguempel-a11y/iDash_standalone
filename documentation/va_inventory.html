@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -49,6 +49,15 @@
 
             <p><strong>Database Interaction:</strong> Read / Write (via High-Performance AJAX WebMethods to iDash SQL database)</p>
             <p><strong>Primary Workflow:</strong> Technicians walk into a room, scan the room barcode (e.g. <code>SP008-BD. 8A</code>), pull the RFID trigger to sweep the physical space, visually confirm confirmed vs misplaced equipment, and commit the reconciled inventory back to the database in one tap.</p>
+
+            <div style="margin: 24px 0; text-align: center;">
+                <figure style="margin: 0;">
+                    <img src="img/inventory/inventory_desktop_sweep.png?v=20260928_idash" alt="VA Site Inventory Desktop Interface" style="max-width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--line-docs, #2a3441); box-shadow: 0 8px 24px rgba(0,0,0,0.18);" />
+                    <figcaption style="margin-top: 10px; font-size: 13px; color: var(--muted-docs); font-style: italic;">
+                        <strong>Figure 1:</strong> VA Site Inventory (<code>va_inventory.aspx</code>) real-time location sweep &mdash; loaded room (<code>SP4D130-1-MC</code>), active RFID trigger session, Green Found items pinned to the top of the table, category count tabs, and one-tap commit.
+                    </figcaption>
+                </figure>
+            </div>
 
             <div class="toc">
                 <a href="#key-features">Key Architectural Highlights</a>
@@ -127,6 +136,15 @@
                     the page calls <code>GetColumnConfig</code> and injects precise CSS column visibility rules. Hidden columns are suppressed completely without horizontal bloat.
                 </li>
             </ol>
+
+            <div style="margin: 24px 0; text-align: center;">
+                <figure style="margin: 0;">
+                    <img src="img/inventory/inventory_column_config.png?v=20260928_idash" alt="Mobile Scanning Page Column Visibility Configuration" style="max-width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--line-docs, #2a3441); box-shadow: 0 8px 24px rgba(0,0,0,0.18);" />
+                    <figcaption style="margin-top: 10px; font-size: 13px; color: var(--muted-docs); font-style: italic;">
+                        <strong>Figure 2:</strong> Centralized Column Visibility Manager in System Configuration (<code>va_site_config.aspx#sec-scan-columns</code>) &mdash; selectively toggle any of the 28 columns for mobile handheld sweeps to optimize screen space.
+                    </figcaption>
+                </figure>
+            </div>
 
             <h3>Complete 28-Column Field Directory</h3>
             <table class="config-table">
@@ -312,6 +330,15 @@
                 <li><strong>Auto-Focus Scanner Input:</strong> Trigger focus is automatically retained or re-acquired after button taps, modal dismissals, and tab switches so the technician never has to tap the input field.</li>
                 <li><strong>Technician Fast Login:</strong> Supports Enter-key keyboard submission and authenticates against both iDash portal accounts and SQL scanner users (<span class="badge-code">dbo.sysuser</span>).</li>
             </ul>
+
+            <div style="margin: 24px 0; text-align: center;">
+                <figure style="margin: 0;">
+                    <img src="img/inventory/inventory_handheld_tc53.png?v=20260928_idash" alt="Zebra TC53 Mobile Handheld Interface" style="max-width: 380px; width: 100%; height: auto; border-radius: 14px; border: 2px solid var(--line-docs, #2a3441); box-shadow: 0 10px 30px rgba(0,0,0,0.25);" />
+                    <figcaption style="margin-top: 10px; font-size: 13px; color: var(--muted-docs); font-style: italic;">
+                        <strong>Figure 3:</strong> Zebra TC53 handheld scanning view (412px viewport) &mdash; skinny status bar, authenticated operator badge, auto-retained trigger focus, and high-performance room sweep feed.
+                    </figcaption>
+                </figure>
+            </div>
         </div>
 
         <!-- AJAX WEBMETHOD API REFERENCE -->
@@ -391,5 +418,17 @@
         </div>
 
     </div>
+
+    <footer style="margin-top:40px;padding:20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted-docs);display:flex;justify-content:space-between;align-items:center;background:var(--bg);max-width:1400px;margin-left:auto;margin-right:auto;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height: 16px; border-radius: 3px;">
+            <span style="font-weight: 700; font-size: 14px; color:var(--text); letter-spacing: 0.5px;">iDash<span style="color: #2ea8ff;">.</span></span>
+            <span style="color:var(--muted-docs); font-size: 11px; margin-left: 2px;">by ID Integration Inc.</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <span>&copy; 2026 ID Integration Inc. &mdash; Updated September 2026</span>
+            <img src="../Assets/branding/IDIntegration.jpg" alt="ID Integration Inc." style="height:14px;opacity:.9;">
+        </div>
+    </footer>
 </body>
 </html>
