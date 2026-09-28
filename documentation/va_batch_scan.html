@@ -1,8 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Batch Mode Scanning Guide &mdash; iDash Documentation</title>
+    <title>Batch Mode Scanning (Offline) Guide &mdash; iDash</title>
     <link rel="icon" type="image/png" href="../Assets/branding/rfid.png" />
     <link rel="stylesheet" href="docs_theme.css" />
     <script src="theme-init.js"></script>
@@ -11,327 +11,196 @@
     <meta http-equiv="Expires" content="0" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
-        .screenshot-row {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            margin: 20px 0;
-            align-items: flex-start;
-        }
-        .screenshot-wrap {
-            flex: 0 0 auto;
-            text-align: center;
-        }
-        .screenshot-wrap img {
-            max-height: 380px;
-            width: auto;
-            border-radius: 12px;
-            border: 2px solid var(--line);
-            box-shadow: 0 4px 18px rgba(0,0,0,0.25);
-            display: block;
-        }
-        .screenshot-wrap figcaption {
-            font-size: 0.78rem;
-            color: var(--muted);
-            margin-top: 8px;
-        }
+        .step-card { background: color-mix(in srgb, var(--text,#e2e8f0), transparent 97%); border: 1px solid var(--line,#2a3441); border-radius: 14px; padding: 24px 28px; margin-bottom: 24px; }
+        .step-title { font-size: 18px; font-weight: 700; display: flex; align-items: center; margin-bottom: 10px; color: var(--text,#e2e8f0); }
+        .step-num { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--accent,#3b82f6); color: #fff; font-weight: 800; font-size: 14px; margin-right: 12px; flex-shrink: 0; }
+        .step-desc { color: var(--muted-docs,#8b95a5); font-size: 14px; line-height: 1.75; margin-bottom: 12px; }
+        .tip-box  { background: color-mix(in srgb,#10b981,transparent 88%); border: 1px solid rgba(16,185,129,.3); border-left: 4px solid #10b981; padding: 12px 16px; border-radius: 8px; font-size: 13px; margin: 12px 0; color: #10b981; }
+        .warn-box { background: color-mix(in srgb,#f59e0b,transparent 88%); border: 1px solid rgba(245,158,11,.3); border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 8px; font-size: 13px; margin: 12px 0; color: #f59e0b; }
+        .info-box { background: color-mix(in srgb,#3b82f6,transparent 88%); border: 1px solid rgba(59,130,246,.3); border-left: 4px solid #3b82f6; padding: 12px 16px; border-radius: 8px; font-size: 13px; margin: 12px 0; color: #3b82f6; }
+        .phase-header { font-size: 16px; font-weight: 800; margin: 24px 0 12px; padding: 8px 14px; border-radius: 8px; display: flex; align-items: center; gap: 8px; }
+        .ph-blue  { background: color-mix(in srgb,#3b82f6,transparent 88%); border: 1px solid rgba(59,130,246,.3); color: #3b82f6; }
+        .ph-green { background: color-mix(in srgb,#10b981,transparent 88%); border: 1px solid rgba(16,185,129,.3); color: #10b981; }
+        .ph-amber { background: color-mix(in srgb,#f59e0b,transparent 88%); border: 1px solid rgba(245,158,11,.3); color: #f59e0b; }
+        .color-pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 16px; font-size: 12px; font-weight: 700; }
+        .cp-green  { background: rgba(34,197,94,.15); border: 1px solid #22c55e; color: #22c55e; }
+        .cp-orange { background: rgba(249,115,22,.15); border: 1px solid #fb923c; color: #fb923c; }
+        .cp-blue   { background: rgba(59,130,246,.15); border: 1px solid #3b82f6; color: #3b82f6; }
+        .cp-pink   { background: rgba(236,72,153,.15); border: 1px solid #ec4899; color: #ec4899; }
+        .ss-port { display: block; max-width: 340px; border-radius: 10px; border: 1px solid var(--line,#2a3441); box-shadow: 0 4px 18px rgba(0,0,0,.18); margin: 12px 0 6px; }
+        .ss-cap { font-size: 0.78rem; color: var(--muted-docs,#8b95a5); margin: 0 0 14px; font-style: italic; }
+        .ss-row { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; margin: 12px 0; }
+        .ss-col { display: flex; flex-direction: column; }
     </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap" style="max-width:960px; margin:0 auto; padding:24px 20px 48px;">
 
-    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
+    <a href="index.aspx" class="back-link" style="color:var(--accent,#38bdf8); text-decoration:none; font-weight:600; display:inline-flex; align-items:center; gap:6px;">&#8592; Documentation Hub</a>
     <br/><br/>
 
-    <div class="card">
-        <h1>&#128241; Batch Mode Scanning Guide</h1>
-        <p style="font-size:16px;">
-            Batch Mode Scanning lets you perform full inventory of asset locations <strong>without an active internet
-            connection</strong>. Sync the database to your device before going offline, scan all locations on-site,
-            then sync your results back to the server when you return.
+    <div class="card" style="background:var(--card,#131f3d); border:1px solid var(--line,#223668); border-radius:14px; padding:28px; margin-bottom:24px;">
+        <h1 style="font-size:26px; font-weight:800; margin:0 0 8px; color:var(--text,#e2e8f0);">&#128225; Batch Mode Scanning (Offline Inventory Guide)</h1>
+        <p style="font-size:15px; color:var(--muted-docs,#8b95a5); line-height:1.7; margin:0 0 16px;">
+            In iDash Standalone, <strong>Batch Mode Scanning</strong> is the <strong>Offline Site Inventory</strong> operation. It allows technicians to conduct comprehensive room inventories in areas with <strong>zero Wi-Fi or cellular connectivity</strong> (such as basements, shielded wards, and remote clinics).
         </p>
-        <div class="alert-blue">
-            <strong>&#9432; Equipment Required</strong><br/>
-            This guide assumes you are using a <strong>Zebra TC53</strong> mobile computer with the associated
-            <strong>Zebra Sled</strong> (RFID reader attachment). The iDash mobile app must already be installed.
-        </div>
-        <h2 style="margin-top:28px;">Contents</h2>
-        <div class="toc">
-            <a href="#step1">1. Connect &amp; Open iDash</a>
-            <a href="#step2">2. Sync Before You Go</a>
-            <a href="#step3">3. Log In</a>
-            <a href="#step4">4. Scan a Location Tag</a>
-            <a href="#step5">5. Scan Room Assets</a>
-            <a href="#step6">6. Color Codes Reference</a>
-            <a href="#step7">7. Handle Unexpected Assets</a>
-            <a href="#step8">8. Finish a Location</a>
-            <a href="#step9">9. Continue to Next Location</a>
-            <a href="#step10">10. Sync When Done</a>
-            <a href="#quickref">Quick Reference</a>
+        <div class="info-box">
+            <strong>&#9432; How Standalone Offline Mode Works:</strong><br/>
+            iDash is built as a progressive web architecture backed by a client-side Service Worker. You load your room manifest while at your cart or connected to the network. Once loaded, you can walk anywhere disconnected &mdash; the scanner matches tags instantly in local memory and queues all results. When you reconnect, one tap on <strong>Commit Scans</strong> synchronizes your records directly with the iDash master database.
         </div>
     </div>
 
-    <!-- Step 1 -->
-    <div class="card" id="step1">
-        <h2>Step 1 &mdash; Connect &amp; Open iDash</h2>
-        <div class="step">
-            <div class="step-num sn-blue">1</div>
-            <div><strong>Take the TC53 and Sled to the Scanning PC.</strong><br/>
-            The scanner will automatically connect to the PC MiFi hotspot. Wait for the Wi-Fi indicator before opening the app.</div>
+    <!-- PHASE 1: PREPARATION & ROOM LOAD -->
+    <div class="phase-header ph-blue">&#128187; Phase 1: Preload at the Cart / Connected Station</div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">1</span> Sign In to iDash on the TC53</div>
+        <div class="step-desc">
+            At the scanning cart or while connected to Wi-Fi/MiFi, open the iDash Inventory application (<code>/va_inventory.aspx</code>). Sign in with your assigned site operator account. This binds your session to your facility site code.
         </div>
-        <div class="step">
-            <div class="step-num sn-blue">2</div>
-            <div><strong>Open the iDash app</strong> on the TC53 by tapping its icon on the home screen.</div>
-        </div>
-        <div class="screenshot-row">
-            <figure class="screenshot-wrap">
-                <img src="img/batch_scan/image1.jpeg" alt="TC53 home screen showing iDash app icon" />
-                <figcaption>TC53 home screen &mdash; tap iDash</figcaption>
-            </figure>
+        <div class="ss-row">
+            <div class="ss-col">
+                <img class="ss-port" src="img/daily_scan/step1_tc53_signin.png?v=20260928_idash" alt="Technician Sign In screen on TC53" />
+                <p class="ss-cap">Technician Sign In &mdash; authenticates operator and locks site assignment.</p>
+            </div>
+            <div class="ss-col">
+                <img class="ss-port" src="img/daily_scan/step2_ready_scan_room.png?v=20260928_idash" alt="Ready to Scan Room Location screen" />
+                <p class="ss-cap">Ready state &mdash; scanner is armed and awaiting room barcode scan.</p>
+            </div>
         </div>
     </div>
 
-    <!-- Step 2 -->
-    <div class="card" id="step2">
-        <h2>Step 2 &mdash; Sync with the Master Database</h2>
-        <div class="step">
-            <div class="step-num sn-green">1</div>
-            <div><strong>When prompted, select <em>Yes</em> to sync with the master database.</strong><br/>
-            This downloads your complete location and asset inventory from the server so you can work offline.</div>
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">2</span> Scan or Select Room Location Tag</div>
+        <div class="step-desc">
+            Scan the room's 2D/1D barcode tag using the <strong>bottom trigger</strong> (barcode imager) or select the location from the dropdown and tap <strong>Load Room</strong>.<br/>
+            The system instantly loads all expected assets into device memory.
         </div>
-        <div class="screenshot-row">
-            <figure class="screenshot-wrap">
-                <img src="img/batch_scan/image2.png" alt="Sync prompt asking Yes or No" />
-                <figcaption>Tap <strong>YES</strong> to begin sync</figcaption>
-            </figure>
-            <figure class="screenshot-wrap">
-                <img src="img/batch_scan/image4.png" alt="Syncing Down progress spinner showing 26%" />
-                <figcaption>App downloads data &mdash; wait for completion</figcaption>
-            </figure>
-            <figure class="screenshot-wrap">
-                <img src="img/batch_scan/image5.png" alt="Scan Room Location screen with Sync Completed banner" />
-                <figcaption>Sync complete &mdash; ready to scan</figcaption>
-            </figure>
+        <div class="ss-row">
+            <div class="ss-col">
+                <img class="ss-port" src="img/daily_scan/step3_room_loaded_manifest.png?v=20260928_idash" alt="Room loaded with 1771 assigned assets" />
+                <p class="ss-cap">Manifest loaded &mdash; all expected room assets are held in memory for offline scanning.</p>
+            </div>
         </div>
-        <div class="alert-amber">
-            <strong>&#9888; Not prompted to sync?</strong><br/>
-            Navigate to <strong>More &rarr; Sync App</strong> manually before leaving.
-            It is critical to sync <em>before</em> you go out and <em>immediately after</em> you return.
+        <div class="tip-box">
+            <strong>&#128161; Offline Assurance:</strong> Once the room is loaded (e.g., <code>SPBC104-BD. 1 &mdash; 1,771 Assigned to Room</code>), you can safely walk into any Wi-Fi dead zone. The full inventory database for this room is cached locally.
         </div>
     </div>
 
-    <!-- Step 3 -->
-    <div class="card" id="step3">
-        <h2>Step 3 &mdash; Log In</h2>
-        <div class="step">
-            <div class="step-num sn-blue">1</div>
-            <div><strong>Enter your username and password</strong> when prompted, then tap <em>Login</em>.<br/>
-            The app will complete its sync and take you to the Scan Room screen.</div>
+    <!-- PHASE 2: OFFLINE SWEEPING -->
+    <hr class="section-divider" style="border:none; border-top:1px solid var(--line,#2a3441); margin:28px 0;" />
+    <div class="phase-header ph-green">&#128241; Phase 2: Offline Sweeping &amp; Real-Time Matching</div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">3</span> Pull the RFID Trigger (Top Trigger) to Sweep</div>
+        <div class="step-desc">
+            Walk through the room squeezing the <strong>top trigger</strong> on the RFID sled. As RFID tags enter range, the device beeps and updates the live counters in real time &mdash; completely offline.
         </div>
-        <div class="screenshot-row">
-            <figure class="screenshot-wrap">
-                <img src="img/batch_scan/image3.png" alt="iDash login screen with username and password fields" />
-                <figcaption>Enter credentials and tap <strong>Login</strong></figcaption>
-            </figure>
+        <div class="ss-row">
+            <div class="ss-col">
+                <img class="ss-port" src="img/daily_scan/step4_live_rfid_sweep.png?v=20260928_idash" alt="Live RFID sweep showing Found green assets and Move Here blue assets" />
+                <p class="ss-cap">Live RFID sweep &mdash; green badges indicate expected assets found; blue badges indicate items assigned elsewhere.</p>
+            </div>
         </div>
     </div>
 
-    <!-- Step 4 -->
-    <div class="card" id="step4">
-        <h2>Step 4 &mdash; Scan a Location Tag</h2>
-        <div class="step">
-            <div class="step-num sn-blue">1</div>
-            <div><strong>Squeeze the <em>bottom trigger</em></strong> on the Zebra Sled and aim at the location barcode label (e.g., the room tag on the door frame).<br/>
-            The app will load all assets assigned to that location.</div>
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">4</span> Status Color Coding Reference</div>
+        <div class="step-desc">
+            iDash organizes every tag detected during an offline sweep using clear, instant color codes:
         </div>
-        <div class="screenshot-row">
-            <figure class="screenshot-wrap">
-                <img src="img/batch_scan/image12.png" alt="Scan Room Home screen ready for barcode scan" />
-                <figcaption>Scan Room home &mdash; use bottom trigger to scan location barcode</figcaption>
-            </figure>
-        </div>
-        <div class="alert-blue">
-            <strong>&#9432; Bottom trigger = Barcode mode.</strong> Always use the bottom trigger for location tags &mdash; location labels are standard barcodes, not RFID.
-        </div>
-    </div>
-
-    <!-- Step 5 -->
-    <div class="card" id="step5">
-        <h2>Step 5 &mdash; Scan Room Assets</h2>
-        <div class="step">
-            <div class="step-num sn-blue">1</div>
-            <div><strong>Squeeze the <em>top trigger</em></strong> on the Zebra Sled and sweep the reader near all assets in the room. You will hear a <strong>beep</strong> each time an RFID label is detected.</div>
-        </div>
-        <div class="step">
-            <div class="step-num sn-blue">2</div>
-            <div><strong>Continue sweeping</strong> the entire space. RFID reads happen automatically when a tag enters range &mdash; no precise aiming required.</div>
-        </div>
-        <div class="alert-green">
-            <strong>&#9989; Prefer barcodes?</strong> Use the <strong>bottom trigger</strong> to scan each asset label barcode individually instead. Both methods work equally well.
-        </div>
-    </div>
-
-    <!-- Step 6 -->
-    <div class="card" id="step6">
-        <h2>Step 6 &mdash; Asset Color Codes</h2>
-        <p>After scanning, every asset on screen is color-coded to show its status:</p>
-        <table>
-            <thead><tr><th>Color</th><th>Meaning</th><th>What To Do</th></tr></thead>
+        <table class="doc-table" style="width:100%; border-collapse:collapse; margin:12px 0; font-size:13px;">
+            <thead>
+                <tr style="border-bottom:2px solid var(--line,#2a3441); text-align:left;">
+                    <th style="padding:8px 10px;">Status Badge</th>
+                    <th style="padding:8px 10px;">Meaning</th>
+                    <th style="padding:8px 10px;">Action Required</th>
+                </tr>
+            </thead>
             <tbody>
-                <tr>
-                    <td><span class="badge" style="background:rgba(34,197,94,0.15);color:#16a34a;border:1px solid rgba(34,197,94,0.3);">&#9632; Green</span></td>
-                    <td>Expected in this location and <strong>found</strong> during scanning.</td>
-                    <td>Nothing &mdash; inventory confirmed.</td>
+                <tr style="border-bottom:1px solid var(--line,#2a3441);">
+                    <td style="padding:8px 10px;"><span class="color-pill cp-green">&#10004; Found</span></td>
+                    <td style="padding:8px 10px;">Expected in this location and physically verified.</td>
+                    <td style="padding:8px 10px;">None &mdash; inventory verified.</td>
                 </tr>
-                <tr>
-                    <td><span class="badge" style="background:rgba(249,115,22,0.15);color:#ea580c;border:1px solid rgba(249,115,22,0.3);">&#9632; Orange</span></td>
-                    <td>Expected in this location but <strong>not yet found</strong>.</td>
-                    <td>Keep looking, or ignore if known to be elsewhere.</td>
+                <tr style="border-bottom:1px solid var(--line,#2a3441);">
+                    <td style="padding:8px 10px;"><span class="color-pill cp-orange">&#9675; Not Found</span></td>
+                    <td style="padding:8px 10px;">Expected in this room, but tag has not yet been detected.</td>
+                    <td style="padding:8px 10px;">Continue sweeping or flag for follow-up.</td>
                 </tr>
-                <tr>
-                    <td><span class="badge" style="background:rgba(59,130,246,0.15);color:#2563eb;border:1px solid rgba(59,130,246,0.3);">&#9632; Blue</span></td>
-                    <td><strong>Found</strong> here but <strong>not assigned</strong> to this location.</td>
-                    <td>Tap the asset to move it here or ignore.</td>
+                <tr style="border-bottom:1px solid var(--line,#2a3441);">
+                    <td style="padding:8px 10px;"><span class="color-pill cp-blue">&#8635; Move Here?</span></td>
+                    <td style="padding:8px 10px;">Valid facility asset found here, but assigned to a <strong>different room</strong>.</td>
+                    <td style="padding:8px 10px;">Decide whether to reassign to this room on commit.</td>
                 </tr>
-                <tr>
-                    <td><span class="badge" style="background:rgba(236,72,153,0.15);color:#db2777;border:1px solid rgba(236,72,153,0.3);">&#9632; Pink</span></td>
-                    <td><strong>Not your assets</strong> &mdash; shipping labels, vendor tags, or other RFID items.</td>
-                    <td>Ignore. Do not take action.</td>
+                <tr style="border-bottom:1px solid var(--line,#2a3441);">
+                    <td style="padding:8px 10px;"><span class="color-pill cp-pink">? Unknown</span></td>
+                    <td style="padding:8px 10px;">RFID tag detected that does not match your facility's database (alien/vendor tag).</td>
+                    <td style="padding:8px 10px;">Ignored automatically on commit.</td>
                 </tr>
-            </tbody>
-        </table>
-        <div class="screenshot-row">
-            <figure class="screenshot-wrap">
-                <img src="img/batch_scan/image6.png" alt="All orange assets - none scanned yet" />
-                <figcaption>All orange &mdash; location loaded, scanning not started</figcaption>
-            </figure>
-            <figure class="screenshot-wrap">
-                <img src="img/batch_scan/image8.png" alt="Mix of green, blue, orange assets after scanning" />
-                <figcaption>After scanning &mdash; green (found), blue (unexpected), orange (not found)</figcaption>
-            </figure>
-        </div>
-        <div class="alert-blue">
-            <strong>&#9432; Tip:</strong> Tap the <strong>arrow icon</strong> in the column header to change sort order. Scroll up to bring Green and Blue (scanned) assets to the top.
-        </div>
-        <div class="screenshot-row">
-            <figure class="screenshot-wrap">
-                <img src="img/batch_scan/image9.png" alt="Sorted asset list with blue assets at top" />
-                <figcaption>Tap arrow to sort &mdash; scanned assets move to top</figcaption>
-            </figure>
-        </div>
-    </div>
-
-    <!-- Step 7 -->
-    <div class="card" id="step7">
-        <h2>Step 7 &mdash; Handle Unexpected (Blue) Assets</h2>
-        <p>Blue assets are physically present but assigned to a different location. <strong>Tap the asset</strong> to choose an action:</p>
-        <div class="screenshot-row">
-            <figure class="screenshot-wrap">
-                <img src="img/batch_scan/image10.png" alt="Action menu showing Move, Ignore, Locate, and other options" />
-                <figcaption>Tap a blue asset to open the Action menu</figcaption>
-            </figure>
-        </div>
-        <table>
-            <thead><tr><th>Action</th><th>What It Does</th></tr></thead>
-            <tbody>
-                <tr><td><strong>Move from SP-XXXX</strong></td><td>Moves only the selected blue asset to the current location.</td></tr>
-                <tr><td><strong>Move All Unexpected</strong></td><td>Reassigns <em>all</em> blue assets to the currently scanned location at once.</td></tr>
-                <tr><td><strong>Ignore</strong></td><td>No change &mdash; asset stays assigned to its original location.</td></tr>
-                <tr><td><strong>Locate</strong></td><td>Records the asset&rsquo;s position without changing its assigned location. Available for any color.</td></tr>
-                <tr><td><strong>Edit</strong></td><td>Opens the asset record for manual edits.</td></tr>
-                <tr><td><strong>Maintenance Histories</strong></td><td>View past maintenance records for the asset.</td></tr>
             </tbody>
         </table>
     </div>
 
-    <!-- Step 8 -->
-    <div class="card" id="step8">
-        <h2>Step 8 &mdash; Finish the Location</h2>
-        <div class="step">
-            <div class="step-num sn-green">1</div>
-            <div>Tap <strong>Inventory Done</strong> in the <em>upper-right corner</em> when finished scanning the current location.</div>
+    <!-- PHASE 3: RESOLUTION & COMMIT -->
+    <hr class="section-divider" style="border:none; border-top:1px solid var(--line,#2a3441); margin:28px 0;" />
+    <div class="phase-header ph-amber">&#128190; Phase 3: Resolution &amp; Database Commit</div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">5</span> Handle Misplaced Items (Commit Modal)</div>
+        <div class="step-desc">
+            When you tap <strong>Commit Scans</strong>, if any misplaced (blue) items were found in the room, iDash presents an autonomous resolution dialog:
         </div>
-        <div class="screenshot-row">
-            <figure class="screenshot-wrap">
-                <img src="img/batch_scan/image11.png" alt="Scan room screen with Inventory Done button visible in top right" />
-                <figcaption><strong>Inventory Done</strong> is in the upper-right corner</figcaption>
-            </figure>
+        <div class="ss-row">
+            <div class="ss-col">
+                <img class="ss-port" src="img/daily_scan/step5_action_misplaced_modal.png?v=20260928_idash" alt="Commit Room Inventory modal with choices" />
+                <p class="ss-cap">Commit resolution dialog &mdash; choose whether to move misplaced assets to this room.</p>
+            </div>
         </div>
-        <div class="alert-green">
-            <strong>&#9989; INVENTORY DONE = Save.</strong><br/>
-            This saves all scan results for the current location and resets the Scan Room screen so you can begin the next one immediately. Do not skip this step.
+        <ul style="color:var(--muted-docs,#8b95a5); font-size:13px; line-height:1.8; margin-top:8px;">
+            <li><strong>&#10004; Commit Expected Only:</strong> Leaves misplaced assets assigned to their prior locations, verifying only the expected room assets.</li>
+            <li><strong>&#8635; Commit All &amp; Move Misplaced to this Room:</strong> Automatically reassigns the misplaced equipment to the currently scanned room in the database.</li>
+        </ul>
+    </div>
+
+    <div class="step-card">
+        <div class="step-title"><span class="step-num">6</span> Sync Results Back to Master Database</div>
+        <div class="step-desc">
+            When you return to your cart or re-enter network range, tap the commit confirmation. The client pushes the session to the standalone iDash SQL database:
+        </div>
+        <div class="ss-row">
+            <div class="ss-col">
+                <img class="ss-port" src="img/daily_scan/step6_commit_complete.png?v=20260928_idash" alt="Commit completed and ready for next room" />
+                <p class="ss-cap">Commit complete &mdash; all verified records are merged into the iDash database.</p>
+            </div>
+        </div>
+        <div class="tip-box">
+            <strong>&#9989; Ready for Next Room:</strong> Tap <strong>Clear / New Scan</strong> or scan the next door barcode tag to begin your next room inventory immediately.
         </div>
     </div>
 
-    <!-- Step 9 -->
-    <div class="card" id="step9">
-        <h2>Step 9 &mdash; Continue to the Next Location</h2>
-        <div class="step">
-            <div class="step-num sn-blue">1</div>
-            <div>From <strong>Scan Room Home</strong>, squeeze the <strong>bottom trigger</strong> and scan the barcode label for the next room.</div>
-        </div>
-        <div class="step">
-            <div class="step-num sn-blue">2</div>
-            <div>Repeat Steps 4&ndash;8 for each location you need to inventory.</div>
-        </div>
-        <div class="alert-blue">
-            <strong>&#9432; No network required between locations.</strong> All scan data is stored locally on the TC53. You can inventory as many locations as needed before returning to the PC.
-        </div>
-    </div>
-
-    <!-- Step 10 -->
-    <div class="card" id="step10">
-        <h2>Step 10 &mdash; Sync When Done</h2>
-        <div class="step">
-            <div class="step-num sn-green">1</div>
-            <div>When all locations are done, <strong>return to the Print Cart PC</strong>.</div>
-        </div>
-        <div class="step">
-            <div class="step-num sn-green">2</div>
-            <div>In the app tap <strong>More</strong> (top tab), then tap <strong>Sync App</strong>.</div>
-        </div>
-        <div class="screenshot-row">
-            <figure class="screenshot-wrap">
-                <img src="img/batch_scan/image13.png" alt="More menu showing Sync App option" />
-                <figcaption>Tap <strong>MORE</strong> tab &rarr; <strong>SYNC APP</strong></figcaption>
-            </figure>
-        </div>
-        <div class="step">
-            <div class="step-num sn-green">3</div>
-            <div>Wait for the sync to complete. Your scan data is uploaded and merged with the master database.</div>
-        </div>
-        <div class="alert-amber">
-            <strong>&#9888; Sync immediately after returning.</strong><br/>
-            Until you sync, your inventory data exists only on the device. If the device loses power or the app is force-closed before syncing, unsaved data may be lost.
-        </div>
-        <div class="alert-green" style="margin-top:20px;">
-            <strong>&#9989; Ready for ENNX?</strong><br/>
-            Once synced, you can generate your ENNX reconciliation report in iDash.
-            See <a href="va_ennx.html">ENNX Report Documentation</a> for instructions.
-        </div>
-    </div>
-
-    <!-- Quick Reference -->
-    <div class="card" id="quickref">
-        <h2>&#9881; Quick Reference Card</h2>
-        <table>
-            <thead><tr><th>Task</th><th>How</th></tr></thead>
+    <!-- SUMMARY / QUICK REFERENCE -->
+    <div class="card" style="background:var(--card,#131f3d); border:1px solid var(--line,#223668); border-radius:14px; padding:24px; margin-top:24px;">
+        <h2 style="font-size:18px; margin:0 0 12px; color:var(--text,#e2e8f0);">&#9881; Offline Batch Mode Quick Reference</h2>
+        <table class="doc-table" style="width:100%; border-collapse:collapse; font-size:13px;">
+            <thead>
+                <tr style="border-bottom:2px solid var(--line,#2a3441); text-align:left;">
+                    <th style="padding:6px 10px;">Operation</th>
+                    <th style="padding:6px 10px;">How to Perform</th>
+                </tr>
+            </thead>
             <tbody>
-                <tr><td><strong>Sync before going offline</strong></td><td>App prompt &rarr; <em>Yes</em> &nbsp;|&nbsp; or: <strong>More &rarr; Sync App</strong></td></tr>
-                <tr><td><strong>Scan a location tag</strong></td><td>Bottom trigger (barcode mode)</td></tr>
-                <tr><td><strong>Scan RFID asset labels</strong></td><td>Top trigger (RFID mode) &mdash; sweep near assets</td></tr>
-                <tr><td><strong>Scan asset barcodes instead</strong></td><td>Bottom trigger on each individual label</td></tr>
-                <tr><td><strong>Move a blue asset to current location</strong></td><td>Tap the asset &rarr; select action</td></tr>
-                <tr><td><strong>Save &amp; move to next location</strong></td><td>Tap <strong>Inventory Done</strong> (upper right)</td></tr>
-                <tr><td><strong>Sync results back to server</strong></td><td><strong>More &rarr; Sync App</strong></td></tr>
-                <tr><td><strong>Generate ENNX report</strong></td><td>After sync &mdash; see ENNX Documentation</td></tr>
+                <tr style="border-bottom:1px solid var(--line,#2a3441);"><td><strong>Preload Room</strong></td><td>Scan door barcode tag with <em>bottom trigger</em> while on network/cart.</td></tr>
+                <tr style="border-bottom:1px solid var(--line,#2a3441);"><td><strong>Offline RFID Sweep</strong></td><td>Squeeze <em>top trigger</em> to read room RFID tags disconnected.</td></tr>
+                <tr style="border-bottom:1px solid var(--line,#2a3441);"><td><strong>Barcode Asset Read</strong></td><td>Squeeze <em>bottom trigger</em> on any specific asset 1D/2D label.</td></tr>
+                <tr style="border-bottom:1px solid var(--line,#2a3441);"><td><strong>Review Misplaced</strong></td><td>Blue rows indicate items belonging to another room.</td></tr>
+                <tr style="border-bottom:1px solid var(--line,#2a3441);"><td><strong>Commit &amp; Sync</strong></td><td>Tap <strong>Commit Scans</strong> upon reconnecting to network.</td></tr>
             </tbody>
         </table>
     </div>
 
     <br/>
-    <a href="index.aspx">&#8592; Back to Documentation Hub</a>
-    <br/><br/>
+    <a href="index.aspx" class="back-link" style="color:var(--accent,#38bdf8); text-decoration:none; font-weight:600; display:inline-flex; align-items:center; gap:6px;">&#8592; Back to Documentation Hub</a>
 
 </div>
 </body>
