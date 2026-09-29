@@ -1,4 +1,4 @@
-// ── AssetWorx Tag Team Scan – Service Worker v7 ─────────────────────────────
+﻿// ── iDash Tag Team Scan – Service Worker v7 ─────────────────────────────
 // Changes from v5:
 //  • Bumped cache name to force clean reinstall on all devices
 //  • POST requests to ASPX pages are now intercepted: if a POST fails (network
@@ -9,8 +9,8 @@
 //  • ASPX pages use network-first with a 7-second timeout; falls back to cache
 //  • Added fetchWithTimeout helper
 
-const CACHE_NAME   = 'assetworx-scanners-v12';
-const STATIC_CACHE = 'assetworx-static-v12';
+const CACHE_NAME   = 'idash-scanners-v13';
+const STATIC_CACHE = 'idash-static-v13';
 
 // Pages to cache on install — fetched fresh so the shell is always warm
 const PAGES_TO_CACHE = [

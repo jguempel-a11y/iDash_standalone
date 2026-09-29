@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_previous_location.aspx.cs" Inherits="va_previous_location" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_previous_location.aspx.cs" Inherits="va_previous_location" %>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 
 <!DOCTYPE html>
@@ -323,11 +323,13 @@
             <div class="header-title">Location &amp; Scan History</div>
             <div class="header-sub">Instantly explore the scanned location history for any asset or EIL group.</div>
 
-            <div class="aw-header-brand">
-                <img src="<%= ResolveUrl("~/Assets/branding/assetworx.jpg") %>" class="aw-header-logo" />
-                <span class="aw-header-text">AssetWorx<span class="bang">!</span> <span
-                        class="aw-header-copy">by InfinID Technologies</span></span>
-            </div>
+                                <div class="aw-header-brand" style="display:flex; align-items:center; gap:10px;">
+                        <img src="<%= ResolveUrl("~/Assets/branding/idintegration_icon.png") %>" class="aw-header-logo" style="width:28px; height:28px; object-fit:contain;" />
+                        <span class="aw-header-text" style="font-size:16px; font-weight:700; color:var(--text);">
+                            iDash
+                            <span class="aw-header-copy" style="font-size:13px; color:var(--muted); font-weight:normal; margin-left:6px;">by ID Integration Inc.</span>
+                        </span>
+                    </div>
 
             <div class="card">
                 <h2>Asset Search</h2>

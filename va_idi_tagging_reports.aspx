@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_idi_tagging_reports.aspx.cs" Inherits="iDash.va_idi_tagging_reports" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_idi_tagging_reports.aspx.cs" Inherits="iDash.va_idi_tagging_reports" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -282,7 +282,7 @@
                 <div>
                     <a href="index.aspx" class="nav-pill nav-pill-ghost">&#8962; Hub</a>
                     <h1>
-                        <img src="<%= ResolveUrl("~/Assets/branding/assetworx.jpg") %>" style="height:32px; border-radius:4px;" alt="Logo" onerror="this.style.display='none'"/>
+                        <img src="<%= ResolveUrl("~/Assets/branding/idintegration_icon.png") %>" style="height:32px; border-radius:4px;" alt="Logo" onerror="this.style.display='none'"/>
                         IDI Tagging Data Reports
                     </h1>
                 </div>

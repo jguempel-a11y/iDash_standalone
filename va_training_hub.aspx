@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_training_hub.aspx.cs" Inherits="va_training_hub" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_training_hub.aspx.cs" Inherits="va_training_hub" %>
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -97,7 +97,7 @@
 <form id="form1" runat="server">
 
     <div class="status-bar">
-        <span>iDash &mdash; AssetWorx Training &amp; Setup Hub</span>
+        <span>iDash &mdash; Training &amp; Setup Hub</span>
         <span>
             <a href="index.aspx" class="nav-pill nav-pill-ghost">&#8962; Hub</a>
             &nbsp;&bull;&nbsp;
@@ -111,8 +111,8 @@
         <div class="hero">
             <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:16px;">
                 <div>
-                    <h1>&#127891; AssetWorx <span>Training &amp; Setup Hub</span></h1>
-                    <p>Your one-stop guide to setting up, configuring, and operating AssetWorx with iDash.
+                    <h1>&#127891; iDash <span>Training &amp; Setup Hub</span></h1>
+                    <p>Your one-stop guide to setting up, configuring, and operating iDash.
                        Every tool is linked to its page and its documentation &mdash; follow the numbered workflow
                        to deploy a new site, or jump to any section for day-to-day operations.</p>
                     <div class="hero-badges">
@@ -134,7 +134,7 @@
             <div class="qs-steps">
                 <div class="qs-step">
                     <span class="step-badge">1</span>
-                    <div><strong>Install AssetWorx</strong><br/>Install the AssetWorx server application. <em style="color:var(--muted);">(Upload guide coming soon)</em></div>
+                    <div><strong>Install iDash</strong><br/>Deploy the iDash standalone platform. <em style="color:var(--muted);">(Upload guide coming soon)</em></div>
                 </div>
                 <div class="qs-step">
                     <span class="step-badge">2</span>
@@ -201,7 +201,7 @@
                         <div class="tool-name">&#128293; Database Restore</div>
                     </div>
                     <div class="tool-desc">
-                        Restore the AssetWorx database from a <code>.bak</code> backup file.
+                        Restore the iDash database from a <code>.bak</code> backup file.
                         Use when setting up a new server from an existing site's backup or recovering from failure.
                     </div>
                     <div class="tool-links">
@@ -229,7 +229,7 @@
                         <div class="tool-name">&#128268; System Architecture</div>
                     </div>
                     <div class="tool-desc">
-                        Technical overview of how AssetWorx, iDash, IIS, SQL Server, and the API layer connect.
+                        Technical overview of how iDash, IIS, SQL Server, and the API layer connect.
                         Read this to understand the full stack before making changes.
                     </div>
                     <div class="tool-links">
@@ -254,8 +254,8 @@
 
                 <div class="upload-slot" id="installGuideSlot">
                     <div class="icon">&#128229;</div>
-                    <p><strong>AssetWorx Installation Guide</strong><br/>
-                    Upload the official AssetWorx install document here when ready.<br/>
+                    <p><strong>iDash Installation Guide</strong><br/>
+                    Upload the official iDash install document here when ready.<br/>
                     It will be linked into this training module automatically.</p>
                 </div>
             </div>
@@ -280,9 +280,9 @@
                     </div>
                     <div class="tool-desc">
                         One page for all user and site administration. Manage <strong>iDash Portal Users</strong> (roles, per-tile access, site permissions),
-                        <strong>AssetWorx &amp; RFID Scanner Users</strong> (dbo.sysuser passwords, RFID IDs, mobile handheld access),
+                        <strong>iDash &amp; RFID Scanner Users</strong> (dbo.sysuser passwords, RFID IDs, mobile handheld access),
                         and <strong>Companies / Sites</strong> (add, rename, and cascade cleanup).<br/>
-                        <span style="color:var(--warn); font-weight:600;">&#9888; Sign in with <code>assetworxadmin</code> for full administrative access.</span>
+                        <span style="color:var(--warn); font-weight:600;">&#9888; Sign in with <code>idashadmin</code> for full administrative access.</span>
                     </div>
                     <div class="tool-links">
                         <a href="va_user_management.aspx" class="primary">&#9654; Open Tool</a>
@@ -424,7 +424,7 @@
                     </div>
                     <div class="tool-desc">
                         Generate BCP extraction and SQLCMD batch scripts for pulling data
-                        from VA network SQL servers into the local AssetWorx database.
+                        from VA network SQL servers into the local iDash database.
                     </div>
                     <div class="tool-links">
                         <a href="documentation/va_bcp_query.html" class="primary">&#128196; Docs</a>
@@ -437,7 +437,7 @@
                     </div>
                     <div class="tool-desc">
                         Reverse pipeline &mdash; generate BCP OUT and SQLCMD MERGE scripts
-                        for pushing AssetWorx data back to VA SQL servers.
+                        for pushing iDash data back to VA SQL servers.
                     </div>
                     <div class="tool-links">
                         <a href="documentation/va_bcp_awpush_query.html" class="primary">&#128196; Docs</a>
@@ -551,7 +551,7 @@
                         <div class="tool-name">&#128218; Mobile Connectivity Cookbook</div>
                     </div>
                     <div class="tool-desc">
-                        Complete guide for setting up RFID handheld scanners (Zebra/TSL) to connect to the AssetWorx server.
+                        Complete guide for setting up RFID handheld scanners (Zebra/TSL) to connect to the iDash server.
                         Covers Wi-Fi, app install, API endpoint config, and troubleshooting.
                     </div>
                     <div class="tool-links">
@@ -921,7 +921,7 @@
                         <div class="tool-name">&#128268; Asset API Reference</div>
                     </div>
                     <div class="tool-desc">
-                        Technical reference for the AssetWorx REST API endpoints.
+                        Technical reference for the iDash REST API endpoints.
                         Covers authentication, token flow, and available endpoints for asset operations.
                     </div>
                     <div class="tool-links">

@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_universal_ennx_legacy.aspx.cs" Inherits="va_universal_ennx_legacy" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_universal_ennx_legacy.aspx.cs" Inherits="va_universal_ennx_legacy" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -213,7 +213,7 @@
         </div>
 
         <div style="margin-top:20px;color:var(--muted);font-size:12px;text-align:center;">
-            AssetWorx! by InfinID Technologies &mdash; iDash by ID Integration Inc. &copy; 2026
+            iDash by ID Integration Inc. &copy; 2026
         </div>
     </div>
 

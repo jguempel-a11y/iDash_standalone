@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 ldataAsst-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
@@ -176,7 +176,7 @@
                     @click="data.copyTable(1)" >&#x2B73;&nbsp;Download</button>
 
                     
-                    <button x-show="!data.desktop" class="cde text-lg inline align-top" x-bind:disabled="!data.fetched" x-tooltip.raw="This will print RFID tags for each of the filtered asset rows shown. Unlike the standard AssetWorx Dashboard, this tool allows for parallel printing to multiple printers and tag sizes." 
+                    <button x-show="!data.desktop" class="cde text-lg inline align-top" x-bind:disabled="!data.fetched" x-tooltip.raw="This will print RFID tags for each of the filtered asset rows shown. Unlike the standard Dashboard, this tool allows for parallel printing to multiple printers and tag sizes." 
                     x-text="data.narrow ? 'Print' : '&#x1F5B6;&nbsp;Print RFID Tags'"
                     @click="data.printTags()" >&#x1F5B6;&nbsp;Print RFID Tags</button>
                              
@@ -451,7 +451,7 @@
                                 <span x-show="!isOpen" aria-hidden="true" class="text-red-500 font-bold text-xl ">&minus;</span>
                                 <span class="px-1 text-xl"><b>Asset Statistics:</b></span>	
                             </span>
-                            <span class="ml-4 text-xl" x-text="data.assetCount + ' Assets;   '+data.locationCount + ' Locations;   '+data.userCount+ 'AssetWorx Users;   '+data.readerCount+ ' Fixed RFID Readers'"></span>
+                            <span class="ml-4 text-xl" x-text="data.assetCount + ' Assets;   '+data.locationCount + ' Locations;   '+data.userCount+ 'iDash Users;   '+data.readerCount+ ' Fixed RFID Readers'"></span>
                         
                         </span>
                 
@@ -779,7 +779,7 @@
                 <!------------------------------------------>
                 <div  class="report tabContent" id="report4" x-show:bind="$el.id == data.openTab1 ? true : false" >
                     <h2 class="inline text-2xl font-bold ">*** UNDER CONSTRUCTION ***</h2>
-                    <p>Help create this page by making a request for your own custom report. ID Integration is committed to adding value to your work processes by harnessing the power of the AssetWorx API. <a href="mailto:ganderson@id-integration.com?subject=AssetWorx Custom Report Request">Send an email</a> with your ideas about a custom data report with options and features that you would like to see.</p>                    
+                    <p>Help create this page by making a request for your own custom report. ID Integration is committed to adding value to your work processes by harnessing the power of the iDash API. <a href="mailto:ganderson@id-integration.com?subject=iDash Custom Report Request">Send an email</a> with your ideas about a custom data report with options and features that you would like to see.</p>                    
                     <hr>
                 </div>	<!--End of Date Search Report-->
             </div>	<!--End of Reports Page2-->
@@ -797,7 +797,7 @@
                 <div class="thing tabContent" id="thing1" x-show:bind="$el.id == data.openTab2 ? true : false" >
                     <div>
                         <h2 class="text-2xl font-bold ">Overview of Toolkit: </h2> 
-                        <p class="text-xl text-black text-base font-normal align-top m-1 p-0 leading-tight "> This AssetWorx support page allows editing of AssetWorx data in different ways. The Inventory and Scan-2-Print tools require that the page be run on a Zebra Android device with barcode and RFID reader connections. The Add-Data tool is intended mainly for Receiving Departments that have daily responsibilities for printing new RFID tracking tags, and inputting these new assets into the AssetWorx database. Expand the sections below to learn more of what can be accomplished. </p>
+                        <p class="text-xl text-black text-base font-normal align-top m-1 p-0 leading-tight "> This iDash support page allows editing of iDash data in different ways. The Inventory and Scan-2-Print tools require that the page be run on a Zebra Android device with barcode and RFID reader connections. The Add-Data tool is intended mainly for Receiving Departments that have daily responsibilities for printing new RFID tracking tags, and inputting these new assets into the iDash database. Expand the sections below to learn more of what can be accomplished. </p>
                         <hr class="thin"  >
                     </div>
                     <div class="flex"><details x-data="{isOpen:false}" class="block px-3">
@@ -805,16 +805,16 @@
                         <div x-show="isOpen" x-collapse.duration.500ms>
                             <p class="mx-7 text-base font-medium">These are tools for performing Initial and Periodic Room Inventory scans, and locating missing items using RFID handheld readers.</p>
                             <p class="mt-3 pl-12 -indent-8 ">
-                                <b>Scan-2-Print</b> is used for initial room barcode scans of legacy asset labels.  These scans validate expected room assets, and allow the user to identify an appropriate RFID tag size to use for each item scanned. A "NOTES" field is available to document data discrepencies with the actual tagged part.  The tool also auto-updates the AssetWorx database for unexpected assets and locations.  </p><p class="pl-12 ">After completion of each room scan and update to the AssetWorx database, a print tags button appears, allowing the user to send tag print jobs to each tag size printer.  <p class="pl-12 " >Finally, this tool also tracks progress of the initial tagging process by maintaining a status log for each asset as ['Scanned', 'Printed', 'Tagged', 'NRF' (no record found)]. </p>
-                            <p class="mt-3 pl-12 -indent-8"><b>Room Inventory</b> can be used as an alternative to the AssetWorx Android Mobile app. Unlike the current AssetWorx mobile app, this tool generates a new status option of 'Missing' for all unfound items during a room inventory.  This allows the 'WayFinder' feature to be used more efficiently for a group of tags.</p>    
+                                <b>Scan-2-Print</b> is used for initial room barcode scans of legacy asset labels.  These scans validate expected room assets, and allow the user to identify an appropriate RFID tag size to use for each item scanned. A "NOTES" field is available to document data discrepencies with the actual tagged part.  The tool also auto-updates the iDash database for unexpected assets and locations.  </p><p class="pl-12 ">After completion of each room scan and update to the iDash database, a print tags button appears, allowing the user to send tag print jobs to each tag size printer.  <p class="pl-12 " >Finally, this tool also tracks progress of the initial tagging process by maintaining a status log for each asset as ['Scanned', 'Printed', 'Tagged', 'NRF' (no record found)]. </p>
+                            <p class="mt-3 pl-12 -indent-8"><b>Room Inventory</b> can be used as an alternative to the handheld mobile scanner app. Unlike the current mobile scanner app, this tool generates a new status option of 'Missing' for all unfound items during a room inventory.  This allows the 'WayFinder' feature to be used more efficiently for a group of tags.</p>    
                         </div>
                     </details></div>
                     <div class="flex"><details x-data="{isOpen:false}" class="block px-3 ">
-                        <summary class="text-xl" x-on:click="isOpen = !isOpen" :aria-expanded="isOpen"><b>Adding Data to AssetWorx</b>
+                        <summary class="text-xl" x-on:click="isOpen = !isOpen" :aria-expanded="isOpen"><b>Adding Data to iDash</b>
 
                         </summary>
                         <div x-show="isOpen" x-collapse.duration.500ms>
-                            <p class="mx-7 text-base font-medium">This API tool is primarily intended to support the needs of Receiving departments that need to add newly acquired assets to the AssetWorx database AND to print and attach new RFID tags to those new products.  The same process can be use to add fixed RFID readers, AssetWorx users, custom alarms, and importing other data such as 'Maintenace Date updates' from external software programs like Nuvolo.</p>
+                            <p class="mx-7 text-base font-medium">This API tool is primarily intended to support the needs of Receiving departments that need to add newly acquired assets to the iDash database AND to print and attach new RFID tags to those new products.  The same process can be use to add fixed RFID readers, iDash users, custom alarms, and importing other data such as 'Maintenace Date updates' from external software programs like Nuvolo.</p>
                         </div>
                     </details></div>
 
@@ -909,10 +909,10 @@
                                 <br> 
                                 <iframe id="vidh3" width="320" height="180" src="https://www.youtube.com/embed/rI8qfzDUfUY" frameborder="0"  allowfullscreen></iframe>
                             </fieldset>
-                    <p class="mx-3 my-2 text-xl leading-normal"> ID Integration provides this software extension as a more useful data analysis dashboard for the AssetWorx! Tracking Software package. It is a responsive web app, allowing it to be used on any browser enabled device without hardware or OS restrictions.  This tool also provides custom data output reports, and a reference for setup and operation of all related hardware and software elements.  This browser dashboard can be either installed as a local fileset, or as an IIS web service.
+                    <p class="mx-3 my-2 text-xl leading-normal"> ID Integration provides this software extension as a more useful data analysis dashboard for the iDash Tracking Software suite. It is a responsive web app, allowing it to be used on any browser enabled device without hardware or OS restrictions.  This tool also provides custom data output reports, and a reference for setup and operation of all related hardware and software elements.  This browser dashboard can be either installed as a local fileset, or as an IIS web service.
                     </p>
 
-                    <p class="mx-3 my-4 text-xl">The API Dashboard has the following advantages over the standard AssetWorx Dashboard.</p>
+                    <p class="mx-3 my-4 text-xl">The API Dashboard has the following advantages over the standard Dashboard.</p>
                     <ol class="my-4 mx-4 list-decimal list-inside indent-15 text-xl">
                         <li class="my-3"><b>Easier Data Column Organization</b> - Naming, Order, Visibility</li>
                         <li class="my-3"><b>Better Data Filter Options</b> - combine global, column, and location filters</li>
@@ -928,14 +928,14 @@
                 <div class="help tabContent" id="help2" x-show:bind="$el.id == data.openTab3 ? true : false" >
                     <h2 class="inline text-2xl font-bold ">Dashboard Installation: </h2>
                     <p class="mx-3 my-2 text-xl leading-normal"> It is important to recognize that this Data Dashboard tool is NOT an executable software application. It is simply a collection of text files (html, css, javascript) that can be located anywhere on a PC, but always viewed within a web browser.  More commonly, these files are loaded onto a web server such as IIS, so that everyone on your network can benefit from the tool without requiring separate software installations.</p>
-                    <p class="mx-3 my-2 text-xl leading-normal">Because this Dashboard is built using the AssetWorx API, it can be highly customized for each AssetWorx deployment.  Contact ID Integration to schedule an online session where we can assist you with the configuration setup for your data environment, using your vocabulary, and your data preferences.
+                    <p class="mx-3 my-2 text-xl leading-normal">Because this Dashboard is built using the iDash API, it can be highly customized for each iDash deployment.  Contact ID Integration to schedule an online session where we can assist you with the configuration setup for your data environment, using your vocabulary, and your data preferences.
                     </p>
 
-                            <fieldset class="float-left p-3 vid"><legend><b>Installation Videos - AssetWorx API Dashboard</b></legend>
+                            <fieldset class="float-left p-3 vid"><legend><b>Installation Videos - iDash API Dashboard</b></legend>
                                 <select class="border-2" name="install" id="install" onchange="document.getElementById('install').src = this.value;">	
                                     <option value="" >Local File installation</option>		
                                     <option value="" >IIS installation</option>
-                                    <option value="" >AssetWorx 'Client' Creation</option>
+                                    <option value="" >iDash 'Client' Creation</option>
                                 </select> 
                                 <br> 
                                 <iframe id="vidh3" width="320" height="180" src="https://www.youtube.com/embed/rI8qfzDUfUY" frameborder="0"  allowfullscreen></iframe>
@@ -1055,10 +1055,10 @@
                     </details></div>
 
                     <div class="flex"><details x-data="{isOpen:false}" class="block px-3 ">
-                        <summary x-on:click="isOpen = !isOpen" :aria-expanded="isOpen"><b>Assetworx! Tracking Software</b>
+                        <summary x-on:click="isOpen = !isOpen" :aria-expanded="isOpen"><b>iDash Standalone Tracking Software</b>
                         </summary>
                         <div x-show="isOpen" x-collapse.duration.500ms>
-                            <a href="https://my.ID Integrationtech.com/" target="_blank"><img class="float-left mx-3" src="img/assetworx2.png" alt="AssetWorx Home"></a>
+                            <a href="https://my.ID Integrationtech.com/" target="_blank"><img class="float-left mx-3" src="img/idash2.png" alt="iDash Home"></a>
                             <a href="https://www.ID Integrationtech.com/" target="_blank"><img class="float-right mx-3" src="img/ID Integration.png" alt="ID Integration Home"></a>
                             <a class="float-left flex items-baseline mx-5" href="docs/zt411-tech-specs-en-us.pdf" target="_blank"><figure style='display: table'><img src="img/pdf.png" title="DataSheet" /><figcaption style='display: table-caption; caption-side: bottom;'>DataSheet <figcaption></figure></a>
                             <a class="mx-8 text-blue-600 " href="https://www.zebra.com/us/en/support-downloads/rfid/rfid-readers/fx9600.html" target="_blank">Product Support Site &amp; Downloads</a>

@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_sitedata_export.aspx.cs" Inherits="iDash.va_sitedata_export" ResponseEncoding="utf-8" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_sitedata_export.aspx.cs" Inherits="iDash.va_sitedata_export" ResponseEncoding="utf-8" %>
 <%-- Smart Merge v2.1 --%>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
@@ -13,7 +13,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <meta name="description" content="Unified cross-cart data synchronization, cloning, and export hub for iDash and AssetWorx carts." />
+    <meta name="description" content="Unified cross-cart data synchronization, cloning, and export hub for iDash carts." />
     <style>
         * { box-sizing: border-box; }
         body {
@@ -590,7 +590,7 @@
         </div>
 
         <div style="text-align:center; color:var(--muted); font-size:12px; margin-top:14px; padding-bottom:40px;">
-            VA Asset Intelligence Hub &mdash; Site Data Export / Import &copy; 2026
+            iDash &mdash; Site Data Export / Import &copy; 2026
         </div>
         <idash:Footer runat="server" />
     </main>

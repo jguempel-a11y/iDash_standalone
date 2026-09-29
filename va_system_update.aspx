@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_system_update.aspx.cs" Inherits="va_system_update" ResponseEncoding="utf-8" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_system_update.aspx.cs" Inherits="va_system_update" ResponseEncoding="utf-8" %>
 <%-- System Update v2.2 --%>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
@@ -330,10 +330,10 @@
             
             <div style="margin-top:12px;">
                 <label style="display:block; font-size:12px; font-weight:600; margin-bottom:4px;">Source Directory</label>
-                <asp:TextBox ID="TxtSourceDir" runat="server" Text="C:\inetpub\wwwroot\AssetWorx.WebClient\iDash" style="background:var(--chip);color:var(--text);border:1px solid var(--line);padding:8px;border-radius:6px;width:100%;max-width:600px;margin-bottom:10px;font-family:monospace;font-size:12px;" />
+                <asp:TextBox ID="TxtSourceDir" runat="server" Text="C:\inetpub\wwwroot\iDash" style="background:var(--chip);color:var(--text);border:1px solid var(--line);padding:8px;border-radius:6px;width:100%;max-width:600px;margin-bottom:10px;font-family:monospace;font-size:12px;" />
                 
                 <label style="display:block; font-size:12px; font-weight:600; margin-bottom:4px;">Target UNC Path</label>
-                <asp:TextBox ID="TxtTargetDir" runat="server" Text="\\laptop-e74ckmo5.tail2fc4c5.ts.net\c$\inetpub\wwwroot\AssetWorx.WebClient\iDash" style="background:var(--chip);color:var(--text);border:1px solid var(--line);padding:8px;border-radius:6px;width:100%;max-width:600px;margin-bottom:12px;font-family:monospace;font-size:12px;" />
+                <asp:TextBox ID="TxtTargetDir" runat="server" Text="\\laptop-e74ckmo5.tail2fc4c5.ts.net\c$\inetpub\wwwroot\iDash" style="background:var(--chip);color:var(--text);border:1px solid var(--line);padding:8px;border-radius:6px;width:100%;max-width:600px;margin-bottom:12px;font-family:monospace;font-size:12px;" />
             </div>
 
             <asp:Button ID="BtnDownloadScript" runat="server" Text="&#128190; Download deploy_idash.ps1" CssClass="btn" style="background:var(--chip); border-color:var(--line); color:var(--text);" OnClick="BtnDownloadScript_Click" />

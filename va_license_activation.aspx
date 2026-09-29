@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>iDash Software Activation &mdash; VA Asset Intelligence Hub</title>
+    <title>iDash Software Activation &mdash; Intelligent Distributed Asset Scanning Hub</title>
     <link rel="icon" type="image/png" href="Assets/branding/idintegration_icon.png" />
     <link rel="shortcut icon" href="favicon.ico" />
     <link rel="stylesheet" href="theme.css" />
@@ -94,7 +94,7 @@
     <div class="header">
         <div class="title-group">
             <h1>&#128273; iDash Software Activation</h1>
-            <p>Cryptographic License Management for VA Asset Intelligence Hub</p>
+            <p>Cryptographic License Management for iDash Platform</p>
         </div>
         <div class="header-actions">
             <button type="button" class="nav-pill" onclick="location.reload()">&#8635; Refresh</button>
@@ -190,7 +190,7 @@
                 <asp:TextBox ID="TxtProductKey" runat="server" placeholder="IDASH-XXXX-XXXX-XXXX-XXXX" style="margin-bottom:12px;" />
 
                 <label style="font-size:12px; font-weight:700; display:block; margin-bottom:6px;">Licensing Server URL (Optional Override):</label>
-                <asp:TextBox ID="TxtServerUrl" runat="server" Text="https://licensing.assetworx-idash.com" style="margin-bottom:16px;" />
+                <asp:TextBox ID="TxtServerUrl" runat="server" Text="https://licensing.idash.id-integration.com" style="margin-bottom:16px;" />
 
                 <asp:Button ID="BtnApplyOnline" runat="server" Text="&#127760; Connect &amp; Activate Online" CssClass="btn primary" OnClick="BtnApplyOnline_Click" />
             </div>

@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_rfid_locator_legacy.aspx.cs" Inherits="va_rfid_locator_legacy" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_rfid_locator_legacy.aspx.cs" Inherits="va_rfid_locator_legacy" %>
 <!DOCTYPE html>
 <html lang="en">
 <head runat="server">
@@ -238,7 +238,7 @@
     <!-- Hidden scan capture (DataWedge keystroke target) -->
     <textarea id="scanCapture" class="scan-capture"></textarea>
 
-    <div class="footer">AssetWorx! by InfinID Technologies &mdash; iDash RFID Integration by ID Integration Inc. &copy; 2026</div>
+    <div class="footer">iDash RFID Integration &mdash; ID Integration Inc. &copy; 2026</div>
 </div>
 </form>
 
@@ -447,7 +447,7 @@
     //  EE TAG NORMALIZATION HELPERS
     // ═══════════════════════════════════════════════════════
 
-    // Strip trailing F-padding added by AssetWorx encoding (e.g. 512EE17360FF -> 512EE17360)
+    // Strip trailing F-padding added by RFID tag encoding (e.g. 512EE17360FF -> 512EE17360)
     function stripFPadding(s) {
         return s.replace(/F+$/i, '');
     }

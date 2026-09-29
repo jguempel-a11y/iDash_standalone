@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_fixed_reader.aspx.cs" Inherits="iDash.va_fixed_reader" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_fixed_reader.aspx.cs" Inherits="iDash.va_fixed_reader" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html lang="en">
@@ -658,7 +658,7 @@
                     </tr>
                 </thead>
                 <tbody id="tblReaderBody">
-                    <tr><td colspan="8" class="loading"><span class="spinner"></span>Loading reader data from AssetWorx API...</td></tr>
+                    <tr><td colspan="8" class="loading"><span class="spinner"></span>Loading reader data from iDash API...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -675,7 +675,7 @@
     </div>
     <div class="dp-actions">
         <a id="dpMasterLink" href="#" class="dp-action-btn" title="Open full detail in Asset Master">Open in Asset Master</a>
-        <a id="dpEditLink" href="#" target="_blank" class="dp-action-btn">Edit in AssetWorx</a>
+        
     </div>
     <div class="dp-body" id="dpBody">
         <div class="dp-loading">Select an asset to view details</div>
@@ -708,9 +708,7 @@ function toggleTheme() {
     } else {
         html.setAttribute('data-theme', next);
     }
-    localStorage.setItem('idash_theme', next === 'dark' ? '' : 'light');
-    localStorage.setItem('aw_theme_preference', next === 'dark' ? 'dark' : 'light');
-    updateThemeBtn();
+    localStorage.setItem('idash_theme', next === 'dark' ? '' : 'light');    updateThemeBtn();
 }
 
 function updateThemeBtn() {
@@ -724,7 +722,7 @@ function updateThemeBtn() {
 // Init button icon on load and listen for storage changes
 updateThemeBtn();
 window.addEventListener('storage', function(e) {
-    if (e.key === 'idash_theme' || e.key === 'aw_theme_preference') {
+    if (e.key === 'idash_theme') {
         if (e.newValue === 'light') {
             document.documentElement.setAttribute('data-theme', 'light');
         } else {
@@ -750,9 +748,9 @@ function animVal(id, target, ms) {
     requestAnimationFrame(step);
 }
 
-// â”€â”€ READER DATA (from AssetWorx API via proxy) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â”€â”€ READER DATA (from iDash API via proxy) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function loadReaders() {
-    document.getElementById('tblReaderBody').innerHTML = '<tr><td colspan="8" class="loading"><span class="spinner"></span>Loading reader data from AssetWorx API...</td></tr>';
+    document.getElementById('tblReaderBody').innerHTML = '<tr><td colspan="8" class="loading"><span class="spinner"></span>Loading reader data from iDash API...</td></tr>';
 
     fetch('va_fixed_reader.aspx?api=readers&t=' + Date.now())
         .then(function(r) { return r.json(); })
@@ -1424,7 +1422,7 @@ var _dpCurrentId = null;
 function openAssetDetail(assetId, assetName) {
     _dpCurrentId = assetId;
     document.getElementById('dpTitle').textContent = assetName || 'Asset Detail';
-    document.getElementById('dpEditLink').href = '/#!/admin/editasset/' + assetId;
+    // dpEditLink removed
     document.getElementById('dpMasterLink').href = 'va_asset_master.aspx?search=' + encodeURIComponent(assetName);
     document.getElementById('dpBody').innerHTML = '<div class="dp-loading"><span class="spinner"></span> Loading asset details...</div>';
     document.getElementById('detailPanel').classList.add('open');

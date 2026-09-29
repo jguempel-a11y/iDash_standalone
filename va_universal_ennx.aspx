@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_universal_ennx.aspx.cs" Inherits="va_universal_ennx" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_universal_ennx.aspx.cs" Inherits="va_universal_ennx" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head runat="server">
@@ -975,15 +975,16 @@
         window.toggleTheme = function() {
             var html = document.documentElement;
             var current = html.getAttribute('data-theme');
-            if (current === 'light') {
+            var next = (current === 'light') ? 'dark' : 'light';
+            if (next === 'dark') {
                 html.removeAttribute('data-theme');
-                localStorage.removeItem('idash_theme');
-                localStorage.setItem('aw_theme_preference', 'dark');
             } else {
                 html.setAttribute('data-theme', 'light');
-                localStorage.setItem('idash_theme', 'light');
-                localStorage.setItem('aw_theme_preference', 'light');
             }
+            try {
+                localStorage.setItem('idash_theme', next);
+                document.cookie = 'idash_theme=' + next + '; path=/; max-age=31536000; SameSite=Lax';
+            } catch(e){}
             focusScan();
         };
 

@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_location_list.aspx.cs" Inherits="va_location_list" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_location_list.aspx.cs" Inherits="va_location_list" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
@@ -688,7 +688,7 @@
         <button type="button" class="adp-action-btn" id="adpPrintBtn" onclick="printFromAssetDetail()" style="background:color-mix(in srgb, var(--accent), transparent 88%); color:var(--accent); border-color:color-mix(in srgb, var(--accent), transparent 50%); font-weight:700;">
             &#128424; Print Label
         </button>
-        <a id="adpEditLink" href="#" target="_blank" class="adp-action-btn">&#8599; Open in AssetWorx</a>
+        
         <a id="adpMasterLink" href="#" class="adp-action-btn">&#128203; View in Asset Master</a>
     </div>
 
@@ -1373,7 +1373,7 @@
         _adpCache = {};
 
         document.getElementById('adpTitle').textContent = assetName || 'Asset Detail';
-        document.getElementById('adpEditLink').href = '/#!/admin/editasset/' + assetId;
+        // adpEditLink removed
         document.getElementById('adpMasterLink').href = 'va_asset_master.aspx';
 
         // Reset badges

@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_asset_stats.aspx.cs" Inherits="iDash.va_asset_stats" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_asset_stats.aspx.cs" Inherits="iDash.va_asset_stats" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
@@ -747,7 +747,7 @@
                 <div>
                     <div style="font-size:13px;font-weight:700;color:var(--text-main);margin-bottom:4px;">These records were bulk-imported from the VA legacy system and have never been physically scanned.</div>
                     <div style="font-size:12px;color:var(--text-accent);line-height:1.6;">
-                        Identified by: <strong style="color:var(--orange);">created = NULL</strong> (no creation date in AssetWorx) 
+                        Identified by: <strong style="color:var(--orange);">created = NULL</strong> (no creation date in iDash) 
                         + <strong style="color:var(--orange);">lastobservedtime = NULL</strong> (never seen by RFID reader).
                         These are candidates for archival or deletion after admin review.
                     </div>
@@ -1504,7 +1504,7 @@ var CHECKOUT_OPTIONS = ['Checked In','Checked Out'];
 function openDetail(assetId, assetName) {
     _dpCurrentId = assetId; _dpCache = {};
     document.getElementById('dpTitle').textContent = assetName || 'Asset Detail';
-    document.getElementById('dpEditLink').href = '/#!/admin/editasset/' + assetId;
+    // dpEditLink removed
     ['badgeLoc','badgeCO','badgeMnt','badgeChild'].forEach(function(id){ document.getElementById(id).textContent = '\u2014'; });
     document.querySelectorAll('.dp-tab').forEach(function(t){ t.classList.remove('active'); });
     document.querySelector('.dp-tab[data-tab="general"]').classList.add('active');
@@ -1613,7 +1613,7 @@ function renderChildren(el,recs){ if(!recs||!recs.length){el.innerHTML='<div cla
     </div>
     <div class="dp-actions">
         <button type="button" id="dpEditToggle" class="dp-edit-toggle" onclick="toggleEditMode()">&#9998; Edit Mode</button>
-        <a id="dpEditLink" href="#" target="_blank" class="dp-action-btn">&#8599; Open in AssetWorx</a>
+        
     </div>
     <div class="dp-tabs">
         <button type="button" class="dp-tab active" data-tab="general" onclick="switchTab(this)">General</button>

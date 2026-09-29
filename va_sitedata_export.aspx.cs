@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Configuration;
@@ -47,49 +47,6 @@ namespace iDash
         // ── Page Load ────────────────────────────────────────────────────────
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Request["sync"] == "root")
-            {
-                string thisDir = Server.MapPath(".");
-                var parent = Directory.GetParent(thisDir);
-                if (parent != null && parent.Exists)
-                {
-                    int filesCopied = 0;
-                    foreach (string f in Directory.GetFiles(thisDir))
-                    {
-                        string fname = Path.GetFileName(f);
-                        if (!fname.Equals("web.config", StringComparison.OrdinalIgnoreCase))
-                        {
-                            File.Copy(f, Path.Combine(parent.FullName, fname), true);
-                            filesCopied++;
-                        }
-                    }
-                    foreach (string d in Directory.GetDirectories(thisDir))
-                    {
-                        string dname = Path.GetFileName(d);
-                        if (!dname.Equals("logs", StringComparison.OrdinalIgnoreCase) && !dname.Equals("scratch", StringComparison.OrdinalIgnoreCase))
-                        {
-                            string targetSub = Path.Combine(parent.FullName, dname);
-                            if (!Directory.Exists(targetSub)) Directory.CreateDirectory(targetSub);
-                            foreach (string subf in Directory.GetFiles(d))
-                            {
-                                File.Copy(subf, Path.Combine(targetSub, Path.GetFileName(subf)), true);
-                                filesCopied++;
-                            }
-                        }
-                    }
-                    string cfg = Path.Combine(parent.FullName, "web.config");
-                    if (File.Exists(cfg))
-                    {
-                        try { File.SetLastWriteTime(cfg, DateTime.Now); } catch {}
-                    }
-                    Response.Clear();
-                    Response.ContentType = "text/plain";
-                    Response.Write("SYNC_COMPLETE: " + filesCopied + " files copied to parent root (web.config touched).");
-                    Response.End();
-                    return;
-                }
-            }
-
             if (!IsPostBack)
             {
                 LoadCompanies();

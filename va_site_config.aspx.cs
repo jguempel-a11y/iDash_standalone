@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
@@ -544,6 +544,11 @@ Write-Host ""=================================================================""
             TxtDbName.Text   = GetConnPart(cs, "Database");
             TxtDbUser.Text   = GetConnPart(cs, "User ID");
 
+            // API / OAuth
+            TxtApiBase.Text    = AppKey("Api_BaseUrl");
+            TxtTokenUrl.Text   = AppKey("Api_TokenUrl");
+            TxtClientId.Text   = AppKey("Api_ClientId");
+
             // Fixed Reader / MQTT
             TxtMqttServer.Text = AppKey("AntennaService_MqttServer");
             TxtMqttPort.Text   = AppKey("AntennaService_MqttPort");
@@ -731,6 +736,22 @@ Write-Host ""=================================================================""
         catch (Exception ex) { ShowErr("Error saving database settings: " + ex.Message); }
     }
 
+// -- save API / OAuth settings ----------------------------------------
+    protected void BtnSaveApi_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            var cfg = OpenWebConfig();
+            if (!string.IsNullOrWhiteSpace(TxtApiBase.Text))  SetAppKey(cfg, "Api_BaseUrl",   TxtApiBase.Text.Trim());
+            if (!string.IsNullOrWhiteSpace(TxtTokenUrl.Text)) SetAppKey(cfg, "Api_TokenUrl",  TxtTokenUrl.Text.Trim());
+            if (!string.IsNullOrWhiteSpace(TxtClientId.Text)) SetAppKey(cfg, "Api_ClientId",  TxtClientId.Text.Trim());
+            if (!string.IsNullOrWhiteSpace(TxtClientSecret.Text)) SetAppKey(cfg, "Api_ClientSecret", TxtClientSecret.Text.Trim());
+            cfg.Save(ConfigurationSaveMode.Minimal);
+            ShowOk("API / OAuth settings saved successfully to web.config.");
+        }
+        catch (Exception ex) { ShowErr("Error saving API settings: " + ex.Message); }
+    }
+
     // -- save MQTT / fixed reader -----------------------------------------
     protected void BtnSaveMqtt_Click(object sender, EventArgs e)
     {
@@ -770,7 +791,7 @@ Write-Host ""=================================================================""
         }
         catch (Exception ex)
         {
-            ShowErr(string.Format("Cannot reach MQTT broker at {0}:{1} — {2}", host, port, ex.Message));
+            ShowErr(string.Format("Cannot reach MQTT broker at {0}:{1} ï¿½ {2}", host, port, ex.Message));
         }
     }
 
@@ -796,7 +817,7 @@ Write-Host ""=================================================================""
         }
         catch (Exception ex)
         {
-            brokerMsg = string.Format("Cannot reach MQTT broker at {0}:{1} — {2}", host, port, ex.Message);
+            brokerMsg = string.Format("Cannot reach MQTT broker at {0}:{1} ï¿½ {2}", host, port, ex.Message);
         }
 
         // 2. Reader count from DB
@@ -1086,7 +1107,7 @@ try {
         }
     }
 
-    // -- Service control helpers (native Windows sc.exe — no System.ServiceProcess assembly dependency) --
+    // -- Service control helpers (native Windows sc.exe ï¿½ no System.ServiceProcess assembly dependency) --
 
     // Services we manage: display name, Windows service name
     private static readonly string[][] ManagedServices = new string[][] {

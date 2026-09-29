@@ -108,7 +108,9 @@
     <h1>&#9881; Site Config</h1>
     <div class="sub">VISN Deployment Setup</div>
     <div class="slabel">Sections</div>
+    <a href="#sec-server"       class="nav-link">&#127760; Server &amp; Host</a>
     <a href="#sec-db"           class="nav-link">&#128196; Database</a>
+    <a href="deploy_idash.aspx" class="nav-link" style="color:#10b981; font-weight:700;">&#128640; Deployment &amp; DB Wizard</a>
     <a href="#sec-sql"          class="nav-link">&#9654; One-Time SQL</a>
     <a href="#sec-api"          class="nav-link">&#128279; API / OAuth</a>
     <a href="#sec-mqtt"         class="nav-link">&#128225; Fixed Reader / MQTT</a>
@@ -136,16 +138,37 @@
 
     <asp:Literal ID="LitMsg" runat="server" />
 
+<!-- SERVER & HOST -->
+    <div class="panel" id="sec-server">
+        <div class="ptitle">&#127760; Web Server &amp; Host Endpoints</div>
+        <div class="psub">Configure the listening protocol, hostname, port, and virtual directory for iDash. Used to generate exact URLs for PowerShell scripts, scheduled tasks, and local services.</div>
+        <div class="fg">
+            <div class="fl">Protocol<span>http or https</span></div>
+            <asp:DropDownList ID="DdlServerProtocol" runat="server">
+                <asp:ListItem Value="http" Text="HTTP" Selected="True" />
+                <asp:ListItem Value="https" Text="HTTPS" />
+            </asp:DropDownList>
+            <div class="fl">Server Host / IP<span>e.g. localhost, 127.0.0.1, or FQDN</span></div>
+            <asp:TextBox ID="TxtServerHost" runat="server" placeholder="localhost" />
+            <div class="fl">Server Port<span>e.g. 8181 or 80</span></div>
+            <asp:TextBox ID="TxtServerPort" runat="server" placeholder="8181" />
+            <div class="fl">Virtual Directory<span>Leave empty if root site, or /idash</span></div>
+            <asp:TextBox ID="TxtServerVirtualPath" runat="server" placeholder="" />
+        </div>
+        <asp:Button ID="BtnSaveServerPort" runat="server" CssClass="btn" Text="Save Server Settings" OnClick="BtnSaveServerPort_Click" />
+        <asp:Button ID="BtnDetectPort" runat="server" CssClass="btn green" Text="&#128269; Auto-Detect From Browser" OnClick="BtnDetectPort_Click" style="margin-left:8px;" />
+    </div>
+
     <!-- DATABASE -->
     <div class="panel" id="sec-db">
         <div class="ptitle">&#128196; Database Connection</div>
-        <div class="psub">How iDash connects to the local AssetWorx SQL Express instance. Server is usually <code>.\sqlexpress</code>.</div>
+        <div class="psub">How iDash connects to the local iDash SQL Express instance. Server is usually <code>.\sqlexpress</code>.</div>
         <div class="fg">
             <div class="fl">SQL Server / Instance<span>e.g. .\sqlexpress</span></div>
             <asp:TextBox ID="TxtDbServer" runat="server" />
-            <div class="fl">Database Name<span>Usually: assetworx</span></div>
+            <div class="fl">Database Name<span>Usually: iDash</span></div>
             <asp:TextBox ID="TxtDbName" runat="server" />
-            <div class="fl">SQL Username<span>Usually: assetworxadmin</span></div>
+            <div class="fl">SQL Username<span>Usually: iDashDBAdmin</span></div>
             <asp:TextBox ID="TxtDbUser" runat="server" />
             <div class="fl">SQL Password<span>Leave blank to keep existing</span></div>
             <asp:TextBox ID="TxtDbPass" runat="server" TextMode="Password" placeholder="(unchanged if blank)" />
@@ -153,15 +176,22 @@
         <asp:Button ID="BtnSaveDb" runat="server" CssClass="btn" Text="Save Database Settings" OnClick="BtnSaveDb_Click" />
         <asp:Button ID="BtnTestConn" runat="server" CssClass="btn green" Text="&#9889; Test Connection" OnClick="BtnTestConn_Click" style="margin-left:8px;" />
         <div style="font-size:12px;color:var(--muted);margin-top:8px;">Save first, then Test to verify iDash can reach the database and core tables exist.</div>
+        <div style="margin-top:16px; padding:14px 18px; border-radius:10px; background:color-mix(in srgb, #10b981 8%, var(--bg)); border:1px solid rgba(16,185,129,0.3); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+            <div>
+                <strong style="color:#10b981; font-size:13.5px; display:block; margin-bottom:2px;">&#128640; iDash Deployment &amp; Schema Engine Wizard</strong>
+                <span style="font-size:12px; color:var(--muted);">Automated schema inspection, table/view deployment, multi-site provisioning, and production validation.</span>
+            </div>
+            <a href="deploy_idash.aspx" class="btn sm" style="background:#10b981; border-color:#10b981; color:#fff !important; text-decoration:none;">Open Deployment Wizard &rarr;</a>
+        </div>
     </div>
 
     <!-- API -->
     <div class="panel" id="sec-api">
         <div class="ptitle">&#128279; API / OAuth Settings</div>
-        <div class="psub">Credentials used to authenticate iDash against the local AssetWorx REST API.
+        <div class="psub">Credentials used to authenticate iDash against the local iDash API.
             The Client ID is your site-specific client registered in the <code>clientapp</code> database table
             (e.g. <code>v512</code>, <code>idash_613</code>, <code>idash_512</code>).
-            The AssetWorx superadmin login is separate — sign in via AssetWorx &rarr; Tools &rarr; Options.</div>
+            Administrator user credentials can be managed in User Management.</div>
         <div class="fg">
             <div class="fl">API Base URL<span>Usually: http://localhost/api</span></div>
             <asp:TextBox ID="TxtApiBase" runat="server" />
@@ -384,7 +414,7 @@
         <div class="psub">
             Maps BarTender template filenames (<code>.btw</code>) to Windows printer names for the bypass spooler.
             Edit the JSON below and save &mdash; changes apply on the next print job with no restart required.
-            File: <code>C:\assetworx_prints\printer_routing.json</code>
+            File: <code>C:\idash_prints\printer_routing.json</code>
         </div>
         <asp:TextBox ID="TxtPrintRouting" runat="server" TextMode="MultiLine"
             style="width:100%;height:240px;font-family:Consolas,monospace;font-size:13px;background:var(--chip);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:12px;box-sizing:border-box;resize:vertical;"
@@ -505,10 +535,7 @@
             <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">
                 Download this PowerShell script and schedule it in Windows Task Scheduler to trigger the nightly report run.
             </div>
-            <div class="script-box"># AutoReportRunner.ps1
-$url = "http://localhost/iDash/va_report_automator_runner.aspx"
-$resp = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 300
-Write-Host $resp.Content</div>
+            <div class="script-box"><asp:Literal ID="LitRunnerScriptPreview" runat="server" /></div>
             <asp:Button ID="BtnDownloadScript" runat="server" CssClass="btn green" Text="&#128190; Download Task Script (.ps1)" OnClick="BtnDownloadScript_Click" style="margin-top:8px;" />
         </div>
     </div>
@@ -603,7 +630,7 @@ Write-Host $resp.Content</div>
                 card.style.cssText = 'background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;border-left:4px solid ' + color;
                 var uptimeStr = svc.uptime ? '<div style="font-size:11px;color:var(--muted);margin-top:4px;">Uptime: ' + svc.uptime + '</div>' : '';
                 var errStr = svc.error ? '<div style="font-size:11px;color:#ef4444;margin-top:4px;">' + svc.error + '</div>' : '';
-                var svcKey = svc.service === 'RabbitMQ' ? 'RabbitMQ' : svc.service === 'AssetWorxPrintServer' ? 'PrintServer' : svc.service === 'W3SVC' ? 'IIS' : svc.service === 'AntennaLocationService' ? 'Antenna' : '';
+                var svcKey = svc.service === 'RabbitMQ' ? 'RabbitMQ' : (svc.service === 'iDashPrintServer' || svc.service === 'PrintServer') ? 'PrintServer' : svc.service === 'W3SVC' ? 'IIS' : svc.service === 'AntennaLocationService' ? 'Antenna' : '';
                 var restartBtn = svcKey ? '<button type="button" onclick="svcRestartOne(\'' + svcKey + '\')" style="margin-top:8px;font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--line);background:var(--btn-alt);color:var(--text);cursor:pointer;">&#8635; Restart</button>' : '';
                 card.innerHTML = '<div style="font-weight:600;font-size:13px;">' + icon + ' ' + svc.name + '</div>' +
                     '<div style="font-size:12px;color:' + color + ';font-weight:600;margin-top:4px;">' + svc.status + '</div>' +
@@ -877,18 +904,18 @@ Write-Host $resp.Content</div>
     <!-- CHECKLIST -->
     <div class="panel" id="sec-check">
         <div class="ptitle">&#9989; New Site Deployment Checklist</div>
-        <div class="psub">Follow each step in order. This is designed for someone who has never set up an AssetWorx/iDash system before.</div>
+        <div class="psub">Follow each step in order. This is designed for someone who has never set up an iDash standalone system before.</div>
         <ul class="checklist">
             <li><span>1&#65039;&#8419;</span><div><strong>Copy iDash files to new server</strong><br/>
-                Copy the entire <code>iDash</code> folder to <code>C:\inetpub\wwwroot\AssetWorx.WebClient\iDash\</code> on the new server.
+                Copy the entire <code>iDash</code> folder to <code>C:\inetpub\wwwroot\iDash\</code> on the new server.
                 Includes all <code>.aspx</code> pages, <code>.aspx.cs</code> code-behind files, and the <code>bin\</code> DLL folder.
                 <br/><span style="font-size:11px;color:var(--muted);">SQL scripts (<code>va_dbupdate.sql</code>, <code>va_dbupdate_upsert_enrich.sql</code>) must be in the iDash root and <code>downloads\Scripts\</code>.</span><span class="badge req">Required</span></div></li>
             <li><span>2&#65039;&#8419;</span><div><strong>Configure Database connection</strong><br/>
-                Fill in SQL Server instance (usually <code>.\sqlexpress</code>), database name (<code>AssetWorx</code>), username (<code>assetworxadmin</code>) and password.
+                Fill in SQL Server instance (usually <code>.\sqlexpress</code>), database name (<code>iDash</code>), username (<code>iDashDBAdmin</code>) and password.
                 Click <strong>Save Database Settings</strong> then <strong>&#9889; Test Connection</strong> to verify.
                 <br/><span style="font-size:11px;color:var(--muted);">If test fails: confirm SQL Server is running, the database exists, and credentials match SQL Server Management Studio.</span><span class="badge req">Required</span></div></li>
             <li><span>3&#65039;&#8419;</span><div><strong>Configure API / OAuth settings</strong><br/>
-                Set <strong>Client ID</strong> to match this VISN (e.g. <code>visn5</code>). <strong>Client Secret</strong> comes from AssetWorx <code>appsettings.json</code> or the OAuth clients table.
+                Set <strong>Client ID</strong> to match this VISN (e.g. <code>visn5</code>). <strong>Client Secret</strong> comes from iDash <code>web.config</code> or the OAuth clients table.
                 API Base URL is almost always <code>http://localhost/api</code>; Token URL is <code>http://localhost/connect/token</code>.
                 <span class="badge req">Required</span></div></li>
             <li><span>4&#65039;&#8419;</span><div><strong>Execute One-Time Company / Site SQL</strong><br/>
@@ -908,7 +935,7 @@ Write-Host $resp.Content</div>
                 Set the From address and From Name (e.g. "iDash VISN 5 Reports"), then add recipient addresses in the <strong>Recipients</strong> section.
                 <span class="badge req">Required</span></div></li>
             <li><span>8&#65039;&#8419;</span><div><strong>Create scanner user accounts</strong><br/>
-                Open <a href="va_aw_user_management.aspx" style="color:var(--accent);font-weight:600;">&#128100; AssetWorx User Management</a> to create login accounts for RFID scanner operators.
+                Open <a href="va_user_management.aspx" style="color:var(--accent);font-weight:600;">&#128100; User Management</a> to create login accounts for RFID scanner operators.
                 Each operator needs a username, password, user type, and site assignment.
                 <br/><span style="font-size:11px;color:var(--muted);">Default accounts: <code>admin</code> / <code>superadmin</code> (password: <code>demo</code>). Change these after setup.</span><span class="badge req">Required</span></div></li>
             <li><span>9&#65039;&#8419;</span><div><strong>Run the two-pass data import</strong><br/>
@@ -932,7 +959,7 @@ Write-Host $resp.Content</div>
     </div>
 
     <div style="text-align:center;color:var(--muted);font-size:12px;margin-top:10px;padding-bottom:40px;">
-        VA Asset Intelligence Hub &mdash; Site Configuration &copy; 2026
+        iDash &mdash; Site Configuration &copy; 2026
     </div>
     <idash:Footer runat="server" />
 </main>

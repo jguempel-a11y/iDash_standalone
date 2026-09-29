@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" Title="iDash License and Setup" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" Title="iDash License and Setup" %>
 <!DOCTYPE html>
 <html lang="en">
 <head runat="server">
@@ -55,7 +55,7 @@
                 <h6 class="mt-3"><strong>Apply via PowerShell (Administrator):</strong></h6>
                 <pre>$lic = "ew0KICAiTGljZW5zZUtleSI6ICJCZWNrbGV5IENhcnQgMXwtMXw1fDE1fFx1MjAyQTA0NjRGQUZFN0ZBOCIsDQogICJTaWduYXR1cmUiOiAiSFpPY3F6NjZpQUwvYnNEQjBBejBRR3dVZGg1VnNwNG9FQ1JJVVVXZXNmb3p3TkMxTENmQXVlVTZxVG5MczB5NkZuT3pqdEZBbUhCR0J1ek1wc0FxSy9KMXVqSFAycVdcdTAwMkJyRXJFVnhmTFx1MDAyQmJ1TmpsNmFxekdHWmFnVW5xdFJOQjNcdTAwMkJCUmNiMk82cTJIaElES1ZBYkJ1WHJuRThtczMyOXpSbUFvekxVTk9uUUtjPSINCn0="
 
-$conn = New-Object System.Data.SqlClient.SqlConnection("Server=localhost\sqlexpress;Database=assetworx;User Id=assetworxadmin;Password=assetworxadmin;")
+$conn = New-Object System.Data.SqlClient.SqlConnection("Server=localhost\sqlexpress;Database=iDash;User Id=iDashDBAdmin;Password=iDashDBAdmin;")
 $conn.Open()
 $cmd = $conn.CreateCommand()
 $cmd.CommandText = "UPDATE applicationsetting SET licensekey = @lic"
@@ -80,7 +80,7 @@ iisreset</pre>
                 <h6 class="mt-3"><strong>Apply via PowerShell (Administrator):</strong></h6>
                 <pre>$lic = "ew0KICAiTGljZW5zZUtleSI6ICJCZWNrbGV5IENhcnQgMXwtMXw1fDE1fCBcdTIwMkEwNDY0RkFGRTgwQzYiLA0KICAiU2lnbmF0dXJlIjogIkliV0x1cXlmRVQ2ZTNRcWxOMlpBYWVYYkdYc0Jkalx1MDAyQjY1aDd1QlhjVE95d1dpSFVNRnpJRUJ5MzdIN1Q1ZHBETm5VaWhnN3pCUDdhWEJua2xsZXFDcTdmXHUwMDJCZFJnWm5RL0VkVVVZS3p5L1hSZHo4Tk1JYnI1aFJCeG9NQXp4QzNtWXFudG53M1RwQkxKWEtZdXY3djBNbGNtZjQ3NGdMWjBXVm5adkVnRk1TRnM9Ig0KfQ=="
 
-$conn = New-Object System.Data.SqlClient.SqlConnection("Server=localhost\sqlexpress;Database=assetworx;User Id=assetworxadmin;Password=assetworxadmin;")
+$conn = New-Object System.Data.SqlClient.SqlConnection("Server=localhost\sqlexpress;Database=iDash;User Id=iDashDBAdmin;Password=iDashDBAdmin;")
 $conn.Open()
 $cmd = $conn.CreateCommand()
 $cmd.CommandText = "UPDATE applicationsetting SET licensekey = @lic"
@@ -99,8 +99,8 @@ iisreset</pre>
             </div>
             <div class="card-body">
                 <h6><strong>1. Blank Screen / HTTP 500 After Login:</strong></h6>
-                <p>Check <code>C:\inetpub\wwwroot\AssetWorx.WebClient\appsettings.json</code>. Ensure:</p>
-                <pre>"AuthServerUrl": "http://localhost"</pre>
+                <p>Check <code>C:\inetpub\wwwroot\iDash\web.config</code>. Ensure:</p>
+                <pre>"AuthServerUrl": "http://localhost:8181"</pre>
                 <p>If it points to <code>http://BECKLEYCART1</code> or another machine name, internal API calls fail with socket timeouts (IDX20803).</p>
                 
                 <h6 class="mt-4"><strong>2. Invisible Unicode U+202A in License Keys:</strong></h6>

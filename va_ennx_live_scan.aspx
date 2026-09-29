@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_ennx_live_scan.aspx.cs" Inherits="va_ennx_live_scan" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_ennx_live_scan.aspx.cs" Inherits="va_ennx_live_scan" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head runat="server">
@@ -570,7 +570,7 @@
             <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:16px;">
                 <div>
                     <label class="lbl" style="display:block; margin-bottom:4px; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase;">Username</label>
-                    <input type="text" id="txtLoginUser" class="txt" style="width:100%;" placeholder="e.g. gary or assetworxadmin" autocomplete="username" />
+                    <input type="text" id="txtLoginUser" class="txt" style="width:100%;" placeholder="e.g. gary or idashadmin" autocomplete="username" />
                 </div>
                 <div>
                     <label class="lbl" style="display:block; margin-bottom:4px; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase;">Password</label>
@@ -1464,7 +1464,7 @@
         }
 
         if (kind === 'commit') {
-            if (!confirm(`Commit ${totalAssets} scanned asset(s) across ${totalLocations} location(s) to the AssetWorx database?`)) {
+            if (!confirm(`Commit ${totalAssets} scanned asset(s) across ${totalLocations} location(s) to the iDash database?`)) {
                 return false;
             }
         }
@@ -1565,15 +1565,16 @@
     function toggleTheme() {
         var html = document.documentElement;
         var isLight = html.getAttribute('data-theme') === 'light';
-        if (isLight) {
+        var next = isLight ? 'dark' : 'light';
+        if (next === 'dark') {
             html.removeAttribute('data-theme');
-            localStorage.removeItem('idash_theme');
-            localStorage.setItem('aw_theme_preference', 'dark');
         } else {
             html.setAttribute('data-theme', 'light');
-            localStorage.setItem('idash_theme', 'light');
-            localStorage.setItem('aw_theme_preference', 'light');
         }
+        try {
+            localStorage.setItem('idash_theme', next);
+            document.cookie = 'idash_theme=' + next + '; path=/; max-age=31536000; SameSite=Lax';
+        } catch(e){}
         focusScan();
     }
 

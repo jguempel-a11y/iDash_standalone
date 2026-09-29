@@ -158,7 +158,7 @@
         <div class="btn-row">
             <asp:Button ID="BtnPreview" runat="server" CssClass="btn-preview" Text="&#128270; Preview First 20 Rows" OnClick="BtnPreview_Click" />
             <asp:Button ID="BtnImport" runat="server" CssClass="btn-import btn-go" Text="&#9654; Import Data" OnClick="BtnImport_Click"
-                OnClientClick="return confirm('This will import all rows into AssetWorx. Continue?');" />
+                OnClientClick="return confirm('This will import all rows into iDash. Continue?');" />
         </div>
     </div>
 

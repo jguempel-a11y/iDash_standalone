@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_fhir_bridge.aspx.cs" Inherits="va_fhir_bridge" MaintainScrollPositionOnPostBack="true" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_fhir_bridge.aspx.cs" Inherits="va_fhir_bridge" MaintainScrollPositionOnPostBack="true" %>
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
@@ -544,7 +544,7 @@
 
         <!-- STATUS BAR -->
         <div class="status-bar">
-            <span>AssetWorx Supply Chain Bridge &mdash; SERVER: <%= System.Environment.MachineName %> (<%= Request.ServerVariables["LOCAL_ADDR"] %>)</span>
+            <span>iDash Supply Chain Bridge &mdash; SERVER: <%= System.Environment.MachineName %> (<%= Request.ServerVariables["LOCAL_ADDR"] %>)</span>
             <span style="display:flex; align-items:center; gap:8px;">
                 <span class="badge-fhir" style="background:#e87722;">&#x1F4E6; AEMS/MERS</span>
                 <span class="badge-fhir" style="background:#10b981;">&#x1F6E1; Supply Chain Only</span>
@@ -563,11 +563,11 @@
             <div class="top">
                 <div style="flex:1;">
                     <div class="h1" style="display:flex; justify-content:space-between; align-items:center;">
-                        <span>&#x1F3E5; Supply Chain Bridge &mdash; AssetWorx &rarr; VistA</span>
+                        <span>&#x1F3E5; Supply Chain Bridge &mdash; iDash &rarr; VistA</span>
                         <a href="index.aspx" class="nav-pill nav-pill-ghost">&#8962; Hub</a>
                     </div>
                     <div class="sub">
-                        Push supply chain data (assets &amp; locations) from AssetWorx to VA VistA
+                        Push supply chain data (assets &amp; locations) from iDash to VA VistA
                         via AEMS/MERS SQL sync. No patient data &mdash; supply chain inventory only.
                     </div>
                 </div>
@@ -688,7 +688,7 @@
                                 Text="&#x1F4C4; Download ENNX File" OnClick="BtnAemsExportTsv_Click" />
                             <asp:Button ID="BtnPushToVistaAems" runat="server" CssClass="btn"
                                 Text="&#x1F680; Push to VistA" OnClick="BtnPushToVistaAems_Click"
-                                OnClientClick="return confirm('This will parse the ENNX file, update local AssetWorx, and MERGE changes into the VA database. Continue?');"
+                                OnClientClick="return confirm('This will parse the ENNX file, update local iDash, and MERGE changes into the VA database. Continue?');"
                                 style="background:linear-gradient(135deg, #e87722, #c75b10); font-weight:700;" />
                         </div>
 
@@ -1002,9 +1002,9 @@
 
             <footer class="page-footer">
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <img src="<%= ResolveUrl("~/Assets/branding/assetworx.jpg") %>" alt="AssetWorx" style="height:16px;" />
-                    <span style="font-weight:600; font-size:14px; color:var(--text);">AssetWorx<span style="color:#2ea8ff;">!</span></span>
-                    <span style="color:var(--muted); font-size:11px;">by InfinID Technologies</span>
+                    <img src="<%= ResolveUrl("~/Assets/branding/idintegration_icon.png") %>" alt="iDash" style="height:16px;" />
+                    <span style="font-weight:600; font-size:14px; color:var(--text);">iDash</span>
+                    <span style="color:var(--muted); font-size:11px;">Standalone Edition</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:12px;">
                     <span>&copy; 2026 ID Integration Inc. &mdash; iDash</span>
@@ -1144,13 +1144,13 @@
                     var cb = checkboxes[i];
                     var device = {
                         resourceType: "Device",
-                        id: "assetworx-" + cb.value,
+                        id: "idash-" + cb.value,
                         identifier: [{
                             system: "urn:oid:2.16.840.1.113883.4.349",
                             value: cb.getAttribute('data-name') || ''
                         }],
                         status: (cb.getAttribute('data-status') || 'active') === 'active' ? 'active' : 'inactive',
-                        manufacturer: "AssetWorx",
+                        manufacturer: "iDash",
                         modelNumber: cb.getAttribute('data-model') || '',
                         serialNumber: cb.getAttribute('data-serial') || '',
                         deviceName: [{
@@ -1158,11 +1158,11 @@
                             type: "user-friendly-name"
                         }],
                         location: {
-                            reference: "Location/assetworx-loc-" + encodeURIComponent(cb.getAttribute('data-loc') || 'unknown')
+                            reference: "Location/idash-loc-" + encodeURIComponent(cb.getAttribute('data-loc') || 'unknown')
                         },
                         meta: {
                             lastUpdated: cb.getAttribute('data-lastinv') || new Date().toISOString(),
-                            source: "AssetWorx-iDash"
+                            source: "iDash"
                         }
                     };
 
@@ -1180,7 +1180,7 @@
                         resource: device,
                         request: {
                             method: "PUT",
-                            url: "Device/assetworx-" + cb.value
+                            url: "Device/idash-" + cb.value
                         }
                     });
 
@@ -1199,7 +1199,7 @@
                     var locInfo = locationSet[locKey];
                     var location = {
                         resourceType: "Location",
-                        id: "assetworx-loc-" + encodeURIComponent(locKey),
+                        id: "idash-loc-" + encodeURIComponent(locKey),
                         identifier: [{
                             system: "urn:oid:2.16.840.1.113883.4.349",
                             value: locKey
@@ -1218,7 +1218,7 @@
                             display: "VA Station " + locInfo.station
                         },
                         meta: {
-                            source: "AssetWorx-iDash"
+                            source: "iDash"
                         }
                     };
 
@@ -1227,7 +1227,7 @@
                         resource: location,
                         request: {
                             method: "PUT",
-                            url: "Location/assetworx-loc-" + encodeURIComponent(locKey)
+                            url: "Location/idash-loc-" + encodeURIComponent(locKey)
                         }
                     });
                 }
@@ -1237,7 +1237,7 @@
                     type: "transaction",
                     timestamp: new Date().toISOString(),
                     meta: {
-                        source: "AssetWorx-iDash-FHIR-Bridge"
+                        source: "iDash-FHIR-Bridge"
                     },
                     entry: entries
                 };

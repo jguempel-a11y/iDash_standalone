@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_training.aspx.cs" Inherits="va_training" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_training.aspx.cs" Inherits="va_training" %>
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -269,7 +269,7 @@
         
         <div class="sidebar">
             <div class="sidebar-header">
-                <h2>AssetWorx LMS</h2>
+                <h2>iDash LMS</h2>
                 <div class="user-info">User: <asp:Label ID="LblUser" runat="server" /></div>
             </div>
             <ul class="module-list" id="module-list">
@@ -304,7 +304,7 @@
             </div>
             
             <div id="welcome-area" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--muted);">
-                <h2>Welcome to AssetWorx Training</h2>
+                <h2>Welcome to iDash Training</h2>
                 <p>Select a module from the sidebar to begin.</p>
             </div>
         </div>

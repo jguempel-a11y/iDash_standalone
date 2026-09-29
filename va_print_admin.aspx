@@ -1,4 +1,4 @@
-<%@ Page Language="C#" ResponseEncoding="utf-8" AutoEventWireup="true" CodeFile="va_print_admin.aspx.cs" Inherits="va_print_admin" %>
+﻿<%@ Page Language="C#" ResponseEncoding="utf-8" AutoEventWireup="true" CodeFile="va_print_admin.aspx.cs" Inherits="va_print_admin" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -235,7 +235,7 @@
                     <div style="font-size:12px; font-weight:700; text-transform:uppercase; color:var(--muted); letter-spacing:.05em; margin:18px 0 10px; display:flex; align-items:center; gap:6px;">&#128196; Default Template</div>
                     <div class="form-group">
                         <label>BarTender File Path (.btw)</label>
-                        <input type="text" id="wizBtwPath" value="c:\assetworx_prints\AW_Std_Small.btw" />
+                        <input type="text" id="wizBtwPath" value="c:\idash_prints\iDash_Std_Small.btw" />
                     </div>
                 </div>
 
@@ -299,9 +299,9 @@
         <input type="hidden" id="tplId" value="0" />
         <div style="margin-bottom:12px; display:flex; gap:6px; align-items:center; flex-wrap:wrap; background:var(--chip,#1e293b); padding:8px 10px; border-radius:8px; border:1px solid var(--line,#334155);">
             <span class="muted" style="font-size:11px; font-weight:700; color:var(--accent,#38bdf8);">&#127991;&#65039; Tag Team Presets:</span>
-            <button type="button" class="btn btn-sm" onclick="setTplPreset('AW_Std_Small', 'c:\\assetworx_prints\\AW_Std_Small.btw')">Small Metal (AW_Std_Small)</button>
-            <button type="button" class="btn btn-sm" onclick="setTplPreset('AW_Large_Metal', 'c:\\assetworx_prints\\AW_Large_Metal.btw')">Large Metal (AW_Large_Metal)</button>
-            <button type="button" class="btn btn-sm" onclick="setTplPreset('AW_Metal_IQ350', 'c:\\assetworx_prints\\AW_Metal_IQ350.btw')">IQ350 (AW_Metal_IQ350)</button>
+            <button type="button" class="btn btn-sm" onclick="setTplPreset('iDash_Std_Small', 'c:\\idash_prints\\iDash_Std_Small.btw')">Small Metal (AW_Std_Small)</button>
+            <button type="button" class="btn btn-sm" onclick="setTplPreset('iDash_Large_Metal', 'c:\\idash_prints\\iDash_Large_Metal.btw')">Large Metal (AW_Large_Metal)</button>
+            <button type="button" class="btn btn-sm" onclick="setTplPreset('iDash_Metal_IQ350', 'c:\\idash_prints\\iDash_Metal_IQ350.btw')">IQ350 (AW_Metal_IQ350)</button>
         </div>
         <div class="form-row">
             <div class="form-group" style="flex:1;">
@@ -316,7 +316,7 @@
         <div class="form-row">
             <div class="form-group" style="flex:1;">
                 <label>BarTender File (.btw)</label>
-                <input type="text" id="tplFile" value="c:\assetworx_prints\AW_Std_Small.btw" />
+                <input type="text" id="tplFile" value="c:\idash_prints\iDash_Std_Small.btw" />
             </div>
         </div>
         <div class="form-row">
@@ -633,7 +633,7 @@ function openTemplateModal(t) {
     document.getElementById('tplId').value = t ? t.id : 0;
     document.getElementById('tplName').value = t ? t.name : 'AW_Std_Small';
     document.getElementById('tplType').value = t ? t.templateType : 'Asset';
-    document.getElementById('tplFile').value = t ? t.filename : 'c:\\assetworx_prints\\AW_Std_Small.btw';
+    document.getElementById('tplFile').value = t ? t.filename : 'c:\\idash_prints\\iDash_Std_Small.btw';
 
     // Populate company dropdown
     var ddlC = document.getElementById('tplCompany'); ddlC.innerHTML = '';
@@ -920,7 +920,7 @@ async function loadConfigStatus() {
 }
 
 async function fixConfig() {
-    if (!confirm('Auto-fix config issues?\n\nThis will:\n&bull; Set UseForPrinting = true in WebClient appsettings.json\n&bull; Sync MQTT credentials from DB &rarr; appsettings.json files\n&bull; Remove print client username from mqttclient table (if present)\n\nYou will need to restart IIS (iisreset) and the AssetWorx Print Server service after.')) return;
+    if (!confirm('Auto-fix config issues?\n\nThis will:\n&bull; Set UseForPrinting = true in WebClient appsettings.json\n&bull; Sync MQTT credentials from DB &rarr; appsettings.json files\n&bull; Remove print client username from mqttclient table (if present)\n\nYou will need to restart IIS (iisreset) and the iDash Print Server service after.')) return;
 
     var data = await api('fixConfig');
     var box = document.getElementById('fixResultBox');
@@ -936,7 +936,7 @@ async function fixConfig() {
             html += '<div style="font-size:12px;margin:3px 0;color:' + (isWarn ? '#f59e0b' : 'var(--text)') + ';">&bull; ' + ch + '</div>';
         });
         html += '<div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--line); font-size:12px; color:var(--muted);">' +
-            '&#9889; <strong>Restart required:</strong> Run <code>iisreset</code> and restart the AssetWorx Print Server service for changes to take effect.</div>';
+            '&#9889; <strong>Restart required:</strong> Run <code>iisreset</code> and restart the iDash Print Server service for changes to take effect.</div>';
         html += '</div>';
         box.innerHTML = html;
     }

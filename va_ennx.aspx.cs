@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -18,11 +18,28 @@ namespace iDash
         {
             if (!IsPostBack)
             {
-                // Set default date to today
-                TxtEnnxDate.Text = DateTime.Today.ToString("yyyy-MM-dd");
+                if (!string.IsNullOrEmpty(Request.QueryString["date"]))
+                    TxtEnnxDate.Text = Request.QueryString["date"];
+                else
+                    TxtEnnxDate.Text = DateTime.Today.ToString("yyyy-MM-dd");
                 
                 // Load users and EILs into DDL
                 LoadDropdowns();
+
+                if (!string.IsNullOrEmpty(Request.QueryString["site"]))
+                {
+                    try { DDL_EnnxSite.SelectedValue = Request.QueryString["site"]; } catch { }
+                }
+
+                if (!string.IsNullOrEmpty(Request.QueryString["user"]))
+                {
+                    try { DDL_EnnxUser.SelectedValue = Request.QueryString["user"]; } catch { }
+                }
+
+                if (Request.QueryString["build"] == "1")
+                {
+                    BtnEnnxBuild_Click(sender, e);
+                }
             }
         }
 

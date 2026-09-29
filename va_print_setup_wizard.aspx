@@ -164,15 +164,15 @@
             <span class="spinner"></span> Auto-detecting deployment mode...
         </div>
         <div class="mode-selector" id="modeCards" style="display:none;">
-            <div class="mode-card" id="modeAssetworx" onclick="selectMode('assetworx')">
+            <div class="mode-card" id="modeService" onclick="selectMode('service')">
                 <div class="mode-icon">🏢</div>
-                <div class="mode-title">AssetWorx Print Server</div>
+                <div class="mode-title">iDash Print Service</div>
                 <div class="mode-desc">
                     Uses the legacy MQTT-based Print Server Windows service.
                     Templates need embedded SQL database connections.
                     Requires full 8-step configuration (OAuth, MQTT, service account, configs).
                 </div>
-                <span class="mode-tag legacy" id="tagAssetworx">LEGACY</span>
+                <span class="mode-tag legacy" id="tagService">SERVICE</span>
             </div>
             <div class="mode-card" id="modeStandalone" onclick="selectMode('standalone')">
                 <div class="mode-icon">⚡</div>
@@ -307,10 +307,10 @@
                 <label style="display:flex; align-items:flex-start; gap:10px; padding:8px 12px; border-radius:8px; cursor:pointer; border:1px solid var(--line); margin-bottom:8px; background:var(--card);">
                     <input type="checkbox" class="prereq-cb" style="margin-top:4px; width:18px; height:18px; accent-color: #10b981;" />
                     <div>
-                        <strong>2. AssetWorx Print Server installed</strong>
+                        <strong>2. iDash Print Service installed</strong>
                         <div style="font-size:12px; color:var(--muted); line-height:1.4; margin-top:2px;">
-                            Run the <code>AssetWorx Print Server</code> MSI installer. This installs the Windows service at
-                            <code>C:\Program Files (x86)\InfinID Technologies\AssetWorx Print Server\</code> and creates the <code>appsettings.json</code> file.
+                            Run the <code>iDash Print Service</code> MSI installer. This installs the Windows service at
+                            <code>C:\Program Files (x86)\ID Integration\iDash Print Service\</code> and creates the <code>appsettings.json</code> file.
                             <br>If not installed, Steps 5 and 7 will show "Not Found".
                         </div>
                     </div>
@@ -333,10 +333,10 @@
                 <label style="display:flex; align-items:flex-start; gap:10px; padding:8px 12px; border-radius:8px; cursor:pointer; border:1px solid var(--line); margin-bottom:8px; background:var(--card);">
                     <input type="checkbox" class="prereq-cb" style="margin-top:4px; width:18px; height:18px; accent-color: #10b981;" />
                     <div>
-                        <strong>4. Template <code>.btw</code> files copied to <code>C:\assetworx_prints\</code></strong>
+                        <strong>4. Template <code>.btw</code> files copied to <code>C:\idash_prints\</code></strong>
                         <div style="font-size:12px; color:var(--muted); line-height:1.4; margin-top:2px;">
                             Copy the BarTender template files (e.g., <code>AW_Std_Small.btw</code>, <code>AW_Metal_Large.btw</code>) to
-                            <code>C:\assetworx_prints\</code>. These are the same on every system — copy from a working deployment.
+                            <code>C:\idash_prints\</code>. These are the same on every system — copy from a working deployment.
                         </div>
                     </div>
                 </label>
@@ -344,9 +344,9 @@
                 <label style="display:flex; align-items:flex-start; gap:10px; padding:8px 12px; border-radius:8px; cursor:pointer; border:1px solid var(--line); margin-bottom:8px; background:var(--card);">
                     <input type="checkbox" class="prereq-cb" style="margin-top:4px; width:18px; height:18px; accent-color: #10b981;" />
                     <div>
-                        <strong>5. Print Client registered in AssetWorx Desktop</strong>
+                        <strong>5. Print Client registered in iDash Site Configuration</strong>
                         <div style="font-size:12px; color:var(--muted); line-height:1.4; margin-top:2px;">
-                            Open the <code>AssetWorx Desktop</code> application → go to <strong>Tools → Options → Print Clients</strong> tab.
+                            Open the <code>iDash Site Configuration</code> application → go to <strong>Tools → Options → Print Clients</strong> tab.
                             <br>Create a print client with a username and password (these are the MQTT credentials).
                             The username/password you set here goes into the <code>printclient</code> database table and must match what's in the
                             Print Server and WebClient <code>appsettings.json</code> files. <strong>The wizard's Auto-Fix will sync these automatically.</strong>
@@ -357,11 +357,11 @@
                 <label style="display:flex; align-items:flex-start; gap:10px; padding:8px 12px; border-radius:8px; cursor:pointer; border:1px solid var(--line); margin-bottom:8px; background:var(--card);">
                     <input type="checkbox" class="prereq-cb" style="margin-top:4px; width:18px; height:18px; accent-color: #10b981;" />
                     <div>
-                        <strong>6. OAuth Client App registered in AssetWorx Desktop</strong>
+                        <strong>6. OAuth Client App registered in iDash Site Configuration</strong>
                         <div style="font-size:12px; color:var(--muted); line-height:1.4; margin-top:2px;">
-                            Open the <code>AssetWorx Desktop</code> application → go to <strong>Tools → Options → Client Applications</strong> tab.
+                            Open the <code>iDash Site Configuration</code> application → go to <strong>Tools → Options → Client Applications</strong> tab.
                             <br>Create a client app with an ID like <code>idash_517_Beckley</code> and grant it the <code>Client Credentials</code> flow.
-                            This creates a record in the <code>clientapp</code> table. The Print Server uses these credentials to call the AssetWorx API.
+                            This creates a record in the <code>clientapp</code> table. The Print Server uses these credentials to call the iDash API.
                             <br><strong>The wizard's Auto-Fix will sync the ClientID and Secret from the database into the Print Server config automatically.</strong>
                         </div>
                     </div>
@@ -402,7 +402,7 @@
         </div>
         <div class="step-body">
             <div class="why-note">
-                <strong>Why this matters:</strong> The AssetWorx Print Server uses the BarTender SDK to open <code>.btw</code> templates and execute prints.
+                <strong>Why this matters:</strong> The iDash Print Service uses the BarTender SDK to open <code>.btw</code> templates and execute prints.
                 The <strong>BarTender Print Scheduler</strong> service must be running — without it, every print job fails with
                 <em>"Bartender Print Result Failure"</em> and no inner exception.
             </div>
@@ -448,7 +448,7 @@
         </div>
         <div class="step-body">
             <div class="why-note">
-                <strong>Why this matters:</strong> The <code>.btw</code> template files in <code>C:\assetworx_prints\</code> define the label layout,
+                <strong>Why this matters:</strong> The <code>.btw</code> template files in <code>C:\idash_prints\</code> define the label layout,
                 which printer to use, and a SQL query to fetch data from the database. If the template targets a printer that doesn't exist on this machine,
                 prints will fail silently with <em>"Bartender Print Result Failure"</em>.
             </div>
@@ -500,15 +500,15 @@
                         <li>In the <strong>Name</strong> field, enter the exact SubString name (e.g., <code>lblname</code>)</li>
                         <li>The "Sample Data" value will appear on screen but will be <strong>replaced at print time</strong> by iDash</li>
                         <li>Make sure there is <strong>NO database connection</strong> configured in the template</li>
-                        <li>Save the template to <code>C:\assetworx_prints\</code></li>
+                        <li>Save the template to <code>C:\idash_prints\</code></li>
                     </ol>
                 </div>
 
                 <div style="font-size:12px; color:var(--muted); margin-top:8px; line-height:1.5; padding:8px 12px; background:color-mix(in srgb, #10b981 8%, transparent); border-radius:6px;">
                     <strong>Code reference:</strong> iDash calls <code>sub.Value = matchVal</code> in
-                    <a href="file:///c:/inetpub/wwwroot/AssetWorx.WebClient/iDash/App_Code/BarTenderApiHelper.cs" style="color:var(--accent);">BarTenderApiHelper.cs:L189</a>
+                    <a href="file:///c:/inetpub/wwwroot/iDash/App_Code/BarTenderApiHelper.cs" style="color:var(--accent);">BarTenderApiHelper.cs:L189</a>
                     and the Bypass Spooler calls <code>$format.SubStrings.SetSubString("lblname", $job.name)</code> in
-                    <a href="file:///c:/inetpub/wwwroot/AssetWorx.WebClient/iDash/printing/Run_Bypass_Spooler.ps1" style="color:var(--accent);">Run_Bypass_Spooler.ps1:L59</a>.
+                    <a href="file:///c:/inetpub/wwwroot/iDash/printing/Run_Bypass_Spooler.ps1" style="color:var(--accent);">Run_Bypass_Spooler.ps1:L59</a>.
                     Both set <code>UseDatabase = false</code>.
                 </div>
             </div>
@@ -517,7 +517,7 @@
             <div style="margin:16px 0; padding:14px 18px; border-radius:10px; border:1px solid #f59e0b; background:color-mix(in srgb, #f59e0b 5%, transparent);">
                 <div style="font-size:14px; font-weight:800; color:#f59e0b; margin-bottom:8px;">⚠️ Method B: Embedded SQL Query (Required for Legacy MQTT Print Server)</div>
                 <div style="font-size:13px; line-height:1.7;">
-                    The <strong>legacy AssetWorx Print Server</strong> (<code>AssetWorx.PrintServer.exe</code> Windows service) does <strong>NOT</strong>
+                    The <strong>legacy iDash Print Service</strong> (<code>iDash.PrintServer.exe</code> Windows service) does <strong>NOT</strong>
                     call <code>SetSubString()</code>. It simply opens the template and prints it — SubStrings stay as their sample data.
                     <br><br>
                     <strong>When using the legacy Print Server, the template MUST have an embedded SQL database connection</strong> so BarTender
@@ -551,12 +551,12 @@ ORDER BY p.id ASC</pre>
                         <li>Go to <strong>Database Connection Setup</strong> (<code>File → Database Connection Setup</code>)</li>
                         <li>Click <strong>Add Database Connection...</strong></li>
                         <li>Choose <strong>Microsoft OLE DB Provider for SQL Server</strong></li>
-                        <li>Server: <code><strong>.\SQLEXPRESS</strong></code> &nbsp;|&nbsp; Database: <code><strong>AssetWorx</strong></code></li>
-                        <li>Auth: <strong>SQL Server Authentication</strong> → <code>assetworxadmin</code> / <code>assetworxadmin</code></li>
+                        <li>Server: <code><strong>.\SQLEXPRESS</strong></code> &nbsp;|&nbsp; Database: <code><strong>iDash</strong></code></li>
+                        <li>Auth: <strong>SQL Server Authentication</strong> → <code>iDashDBAdmin</code> / <code>iDashDBAdmin</code></li>
                         <li>Click <strong>Test Connection</strong> to verify</li>
                         <li>In the <strong>Query</strong> tab, paste the SQL query above</li>
                         <li>Map each template field to the corresponding query column</li>
-                        <li><strong>Save</strong> back to <code>C:\assetworx_prints\</code></li>
+                        <li><strong>Save</strong> back to <code>C:\idash_prints\</code></li>
                     </ol>
                 </div>
             </div>
@@ -593,7 +593,7 @@ ORDER BY p.id ASC</pre>
             <div class="why-note">
                 <strong>Why this matters:</strong> Four database tables must be in sync:
                 <br>• <strong>printclient</strong> — MQTT credentials the Print Server uses to subscribe to print notifications
-                <br>• <strong>clientapp</strong> — OAuth client (e.g., <code>idash_517_Beckley</code>) the Print Server uses to authenticate with the AssetWorx API
+                <br>• <strong>clientapp</strong> — OAuth client (e.g., <code>idash_517_Beckley</code>) the Print Server uses to authenticate with the iDash API
                 <br>• <strong>template</strong> — maps sites to .btw files and print clients
                 <br>• <strong>printclientcompany</strong> — links print clients to sites
                 <br>If the print client username also exists in the <code>mqttclient</code> table, the MQTT broker will treat it as a generic client instead of a print client, silently blocking print job subscriptions.
@@ -618,7 +618,7 @@ ORDER BY p.id ASC</pre>
         <div class="step-body">
             <div class="why-note">
                 <strong>Why this matters:</strong> The Print Server's <code>appsettings.json</code> at
-                <code>C:\Program Files (x86)\InfinID Technologies\AssetWorx Print Server\</code> controls how it authenticates and communicates.
+                <code>C:\Program Files (x86)\ID Integration\iDash Print Service\</code> controls how it authenticates and communicates.
                 <br><br>
                 <strong>Common failures:</strong>
                 <br>• <strong>AuthServerUrl empty</strong> → Print Server can't get an OAuth token → can't call the API
@@ -675,13 +675,13 @@ ORDER BY p.id ASC</pre>
         </div>
         <div class="step-body">
             <div class="why-note">
-                <strong>Why this matters:</strong> The AssetWorx Print Server runs as a Windows service. If it runs as <code>LocalSystem</code>,
+                <strong>Why this matters:</strong> The iDash Print Service runs as a Windows service. If it runs as <code>LocalSystem</code>,
                 it operates in a different security context than your logged-in user.
                 <br><br>
                 <strong>Impact:</strong> Printers installed from your user session may not be visible to <code>LocalSystem</code>.
                 BarTender will return <em>"Print Result Failure"</em> because it literally can't find the printer.
                 <br><br>
-                <strong>Fix:</strong> Open <code>Services</code> → find <code>AssetWorx Print Server</code> → <code>Properties</code> → <code>Log On</code> tab
+                <strong>Fix:</strong> Open <code>Services</code> → find <code>iDash Print Service</code> → <code>Properties</code> → <code>Log On</code> tab
                 → change to <strong>"This account"</strong> and enter your user credentials. Or, reinstall printers from an elevated admin session.
             </div>
             <div id="content7"><span class="spinner"></span> Checking...</div>
@@ -763,10 +763,10 @@ ORDER BY p.id ASC</pre>
 // ===================================================================
 // Mode state
 // ===================================================================
-window.wizardMode = null; // 'assetworx' or 'standalone'
+window.wizardMode = 'standalone'; // 'service' or 'standalone'
 
-// Steps that only apply to AssetWorx mode (hidden in standalone)
-var ASSETWORX_ONLY_STEPS = [4, 5, 6, 7];
+// Steps that only apply to Service mode (hidden in standalone)
+var SERVICE_ONLY_STEPS = [4, 5, 6, 7];
 
 // Check for web.config save/rebuild log from before IIS recycle
 (function() {
@@ -841,16 +841,16 @@ function selectMode(mode) {
     window.wizardMode = mode;
 
     // Update cards
-    document.getElementById('modeAssetworx').className = 'mode-card' + (mode === 'assetworx' ? ' active' : '');
+    var mSvc = document.getElementById('modeService'); if(mSvc) mSvc.className = 'mode-card' + (mode === 'service' ? ' active' : '');
     document.getElementById('modeStandalone').className = 'mode-card' + (mode === 'standalone' ? ' active' : '');
 
     // Show info bar
     var info = document.getElementById('modeInfo');
-    if (mode === 'assetworx') {
+    if (mode === 'service') {
         info.style.display = 'block';
         info.style.background = 'color-mix(in srgb, #f59e0b 8%, transparent)';
         info.style.border = '1px solid color-mix(in srgb, #f59e0b 30%, transparent)';
-        info.innerHTML = '<strong style="color:#f59e0b;">🏢 AssetWorx Mode</strong> — All 8 steps active. Templates need embedded SQL queries. Print Server, MQTT, OAuth, and service account will be validated.';
+        info.innerHTML = '<strong style="color:#f59e0b;">iDash Service Mode</strong> — All 8 steps active. Templates need embedded SQL queries. Print Server, MQTT, OAuth, and service account will be validated.';
     } else {
         info.style.display = 'block';
         info.style.background = 'color-mix(in srgb, #10b981 8%, transparent)';
@@ -864,7 +864,7 @@ function selectMode(mode) {
 
 function applyMode(mode) {
     // Show/hide steps
-    ASSETWORX_ONLY_STEPS.forEach(function(n) {
+    SERVICE_ONLY_STEPS.forEach(function(n) {
         var stepEl = document.getElementById('step' + n);
         if (stepEl) {
             if (mode === 'standalone') {
@@ -904,11 +904,11 @@ function applyMode(mode) {
 function adaptPrerequisites(mode) {
     // Hide/show prerequisite items based on mode
     var prereqs = document.querySelectorAll('#step0 label');
-    // Items 2 (Print Server), 5 (Print Client MQTT), 6 (OAuth Client) are AssetWorx-only
-    var assetworxOnlyIndexes = [1, 4, 5]; // 0-indexed
+    // Items 2 (Print Server), 5 (Print Client MQTT), 6 (OAuth Client) are Service-only
+    var serviceOnlyIndexes = [1, 4, 5]; // 0-indexed
 
     prereqs.forEach(function(label, idx) {
-        if (assetworxOnlyIndexes.indexOf(idx) >= 0) {
+        if (serviceOnlyIndexes.indexOf(idx) >= 0) {
             label.style.display = mode === 'standalone' ? 'none' : '';
         }
     });
@@ -932,7 +932,7 @@ function scrollToStep(n) {
 // ===================================================================
 function updateSummary(stepNum, status) {
     // Don't update N/A steps
-    if (window.wizardMode === 'standalone' && ASSETWORX_ONLY_STEPS.indexOf(stepNum) >= 0) return;
+    if (window.wizardMode === 'standalone' && SERVICE_ONLY_STEPS.indexOf(stepNum) >= 0) return;
 
     var cards = document.querySelectorAll('.sum-card[data-step="' + stepNum + '"]');
     cards.forEach(function(c) {
@@ -1025,7 +1025,7 @@ function renderTemplates(el, data) {
                 ? '<span class="badge badge-err">❌ Remove It</span>'
                 : '<span class="badge badge-ok">✅ Clean</span>';
         } else {
-            // AssetWorx: DB connection = expected
+            // Service: DB connection = expected
             dbBadge = t.hasDbConnection
                 ? '<span class="badge badge-ok">✅ Yes</span>'
                 : '<span class="badge badge-err">❌ Missing</span>';
@@ -1056,7 +1056,7 @@ function renderTemplates(el, data) {
                 '<code>lblname</code>, <code>lbldescription</code>, <code>lblsn</code>, <code>lbleil</code>, <code>lblrfidtag</code>.</div>';
         }
     } else {
-        // AssetWorx mode
+        // Service mode
         if (noDbTemplates.length > 0) {
             html += '<div class="issue-item"><span class="issue-icon">❌</span><strong>Templates without SQL database connection:</strong> ' +
                 noDbTemplates.map(function(t) { return '<code>' + escHtml(t.fileName) + '</code>'; }).join(', ') +
@@ -1064,7 +1064,7 @@ function renderTemplates(el, data) {
         }
         if (dbTemplates.length > 0) {
             html += '<div class="issue-item pass" style="color:#10b981;"><span class="issue-icon">✅</span>' +
-                '<strong>' + dbTemplates.length + ' template(s) have embedded SQL queries</strong> — correct for AssetWorx mode.</div>';
+                '<strong>' + dbTemplates.length + ' template(s) have embedded SQL queries</strong> — correct for Service mode.</div>';
         }
     }
 
@@ -1313,10 +1313,10 @@ function renderWebConfig(el, data) {
     var s = data.appSettings || {};
     html += '<div class="cfg-edit-group">';
     html += '<h4>🔐 OAuth / API Settings</h4>';
-    html += '<div class="cfg-edit-row"><label>API Base URL<small>Usually http://localhost</small></label><input type="text" id="wcApiBase" value="' + escHtml(s.AssetWorx_ApiBase || '') + '" /></div>';
-    html += '<div class="cfg-edit-row"><label>Token URL<small>OAuth token endpoint</small></label><input type="text" id="wcTokenUrl" value="' + escHtml(s.AssetWorx_TokenUrl || '') + '" /></div>';
-    html += '<div class="cfg-edit-row"><label>Client ID<small>Must match clientapp table</small></label><input type="text" id="wcClientId" value="' + escHtml(s.AssetWorx_ClientId || '') + '" /></div>';
-    html += '<div class="cfg-edit-row"><label>Client Secret<small>Must match clientapp secret</small></label><input type="password" id="wcClientSecret" value="' + escHtml(s.AssetWorx_ClientSecret || '') + '" /></div>';
+    html += '<div class="cfg-edit-row"><label>API Base URL<small>Usually http://localhost</small></label><input type="text" id="wcApiBase" value="' + escHtml(s.App_BaseUrl || '') + '" /></div>';
+    html += '<div class="cfg-edit-row"><label>Token URL<small>OAuth token endpoint</small></label><input type="text" id="wcTokenUrl" value="' + escHtml(s.AuthServerUrl || '') + '" /></div>';
+    html += '<div class="cfg-edit-row"><label>Client ID<small>Must match clientapp table</small></label><input type="text" id="wcClientId" value="' + escHtml(s.iDash_ClientId || '') + '" /></div>';
+    html += '<div class="cfg-edit-row"><label>Client Secret<small>Must match clientapp secret</small></label><input type="password" id="wcClientSecret" value="' + escHtml(s.iDash_ClientSecret || '') + '" /></div>';
     html += '</div>';
 
     // === SMTP / Email ===
@@ -1416,7 +1416,7 @@ function runOneClickAutoSetup(doTestPrint) {
 
         if (doTestPrint) {
             statusText.textContent = 'Configuration applied! Now firing end-to-end test print...';
-            stepsList.innerHTML += '<div class="issue-item" id="tpLiveStep" style="background:color-mix(in srgb, var(--accent) 8%, transparent);border-color:var(--accent);"><span class="spinner"></span><div><strong>Test Print:</strong> Submitting print job to AssetWorx Print Server...</div></div>';
+            stepsList.innerHTML += '<div class="issue-item" id="tpLiveStep" style="background:color-mix(in srgb, var(--accent) 8%, transparent);border-color:var(--accent);"><span class="spinner"></span><div><strong>Test Print:</strong> Submitting print job to iDash Print Service...</div></div>';
 
             api('testPrint').then(function(tpRes) {
                 spinner.style.display = 'none';
@@ -1506,10 +1506,10 @@ function saveWebConfigChanges() {
         dbUser: document.getElementById('wcDbUser').value,
         dbPass: document.getElementById('wcDbPass').value,
         appSettings: {
-            AssetWorx_ApiBase: document.getElementById('wcApiBase').value,
-            AssetWorx_TokenUrl: document.getElementById('wcTokenUrl').value,
-            AssetWorx_ClientId: document.getElementById('wcClientId').value,
-            AssetWorx_ClientSecret: document.getElementById('wcClientSecret').value,
+            App_BaseUrl: document.getElementById('wcApiBase').value,
+            AuthServerUrl: document.getElementById('wcTokenUrl').value,
+            iDash_ClientId: document.getElementById('wcClientId').value,
+            iDash_ClientSecret: document.getElementById('wcClientSecret').value,
             SMTP_Host: document.getElementById('wcSmtpHost').value,
             SMTP_Port: document.getElementById('wcSmtpPort').value,
             SMTP_User: document.getElementById('wcSmtpUser').value,
@@ -1547,9 +1547,9 @@ function rebuildWebConfig() {
 
     var payload = {
         dbServer: (document.getElementById('wcDbServer') || {}).value || '.\\sqlexpress',
-        dbName: (document.getElementById('wcDbName') || {}).value || 'AssetWorx',
-        dbUser: (document.getElementById('wcDbUser') || {}).value || 'assetworxadmin',
-        dbPass: (document.getElementById('wcDbPass') || {}).value || 'assetworxadmin',
+        dbName: (document.getElementById('wcDbName') || {}).value || 'iDash',
+        dbUser: (document.getElementById('wcDbUser') || {}).value || 'iDashDBAdmin',
+        dbPass: (document.getElementById('wcDbPass') || {}).value || 'iDashDBAdmin',
         clientId: (document.getElementById('wcClientId') || {}).value || 'v512',
         clientSecret: (document.getElementById('wcClientSecret') || {}).value || '',
         emailRecipients: (document.getElementById('wcEmailRecipients') || {}).value || '',
@@ -1599,7 +1599,7 @@ function testPrint() {
             if (!templatePath) {
                 btn.disabled = false;
                 btn.textContent = '🖨️ Send Test Print';
-                resultEl.innerHTML = '<div class="test-result failure"><strong>❌ No templates found</strong> — copy .btw files to C:\\assetworx_prints\\</div>';
+                resultEl.innerHTML = '<div class="test-result failure"><strong>❌ No templates found</strong> — copy .btw files to C:\\idash_prints\\</div>';
                 return;
             }
 
@@ -1633,7 +1633,7 @@ function testPrint() {
             resultEl.innerHTML = '<div class="test-result failure"><strong>❌ Request failed:</strong> ' + escHtml(err.message) + '</div>';
         });
     } else {
-        // AssetWorx mode: use the MQTT print path
+        // Service mode: use the MQTT print path
         resultEl.innerHTML = '<div style="margin-top:12px"><span class="spinner"></span> Submitting test print and waiting for Print Server response (up to 15 seconds)...</div>';
 
         api('testPrint').then(function(data) {
@@ -1726,7 +1726,7 @@ function runFullScan() {
         updateSummary(9, d9.pass ? 'pass' : 'fail');
         renderWebConfig(document.getElementById('content9'), d9);
 
-        // Enable Fix All if there are issues (AssetWorx mode only)
+        // Enable Fix All if there are issues (Service mode only)
         if (!isStandalone) {
             var hasIssues = !data.printServerConfig.pass || !data.webClientConfig.pass;
             document.getElementById('btnFixAll').disabled = !hasIssues;
@@ -1768,7 +1768,7 @@ function updateOverallBanner() {
     });
 
     if (allPass && activeCount > 0) {
-        var modeLabel = window.wizardMode === 'standalone' ? 'Standalone' : 'AssetWorx';
+        var modeLabel = window.wizardMode === 'standalone' ? 'Standalone' : 'Service';
         banner.className = 'result-banner show all-pass';
         banner.textContent = '🎉 PRINTING IS FULLY CONFIGURED (' + modeLabel + ' Mode) — All checks passed!';
     } else if (anyFail) {
@@ -1785,7 +1785,7 @@ function updateOverallBanner() {
 // Export Report
 // ===================================================================
 function exportReport() {
-    var modeLabel = window.wizardMode === 'standalone' ? 'Standalone (Native API)' : 'AssetWorx Print Server';
+    var modeLabel = window.wizardMode === 'standalone' ? 'Standalone (Native API)' : 'iDash Print Service';
     var lines = ['=== iDash Print Setup Wizard Report ===', 'Mode: ' + modeLabel, 'Generated: ' + new Date().toLocaleString(), ''];
     var cards = document.querySelectorAll('.sum-card');
     cards.forEach(function(c) {
@@ -1818,8 +1818,8 @@ window.addEventListener('DOMContentLoaded', function() {
 
         // Show auto-detect recommendation
         if (data.printServerInstalled && data.serviceExists) {
-            document.getElementById('tagAssetworx').textContent = '✅ DETECTED — RECOMMENDED';
-            document.getElementById('tagAssetworx').className = 'mode-tag recommended';
+            var tSvc = document.getElementById('tagService'); if(tSvc) { tSvc.textContent = 'DETECTED'; }
+            var tSvc = document.getElementById('tagService'); if(tSvc) { tSvc.className = 'mode-tag'; }
         } else if (data.nativeApiAvailable && data.handlerAvailable) {
             document.getElementById('tagStandalone').textContent = '✅ DETECTED — RECOMMENDED';
         }
@@ -1829,8 +1829,8 @@ window.addEventListener('DOMContentLoaded', function() {
     }).catch(function() {
         document.getElementById('modeDetecting').style.display = 'none';
         document.getElementById('modeCards').style.display = '';
-        // Default to assetworx if detection fails
-        selectMode('assetworx');
+        // Default to standalone
+        selectMode('standalone');
     });
 });
 </script>

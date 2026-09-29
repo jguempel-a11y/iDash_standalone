@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -61,9 +61,7 @@ public partial class deploy_idash : System.Web.UI.Page
 
     private string GetMasterConnectionString()
     {
-        var cs = ConfigurationManager.ConnectionStrings["iDash"] 
-            ?? ConfigurationManager.ConnectionStrings["AssetWorx"]
-            ?? ConfigurationManager.ConnectionStrings["Assetworx"];
+        var cs = ConfigurationManager.ConnectionStrings["iDash"];
         
         string baseCs = (cs != null && !string.IsNullOrEmpty(cs.ConnectionString))
             ? cs.ConnectionString
@@ -76,9 +74,7 @@ public partial class deploy_idash : System.Web.UI.Page
 
     private string GetTargetConnectionString()
     {
-        var cs = ConfigurationManager.ConnectionStrings["iDash"] 
-            ?? ConfigurationManager.ConnectionStrings["AssetWorx"]
-            ?? ConfigurationManager.ConnectionStrings["Assetworx"];
+        var cs = ConfigurationManager.ConnectionStrings["iDash"];
         
         string baseCs = (cs != null && !string.IsNullOrEmpty(cs.ConnectionString))
             ? cs.ConnectionString
@@ -247,7 +243,7 @@ public partial class deploy_idash : System.Web.UI.Page
                         if (legacyUsers > 0)
                         {
                             hasLegacyRemnants = true;
-                            legacyIssues.Add(legacyUsers.ToString() + " legacy AssetWorx default users found in dbo.sysuser");
+                            legacyIssues.Add(legacyUsers.ToString() + " legacy default users found in dbo.sysuser");
                         }
                     }
                 }

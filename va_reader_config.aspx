@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_reader_config.aspx.cs" Inherits="iDash.va_reader_config" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_reader_config.aspx.cs" Inherits="iDash.va_reader_config" %>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html lang="en">
@@ -1973,10 +1973,10 @@
     <h2>⚙ Server Migration Configuration</h2>
     <span class="smc-badge">Admin Only</span>
   </div>
-  <p style="font-size:12px;color:var(--muted);margin:0 0 16px;">Edit all configuration files from one place. Changes write directly to <code>web.config</code> (iDash) and <code>appsettings.json</code> (AssetWorx backend). <strong>Saving restarts the app pool.</strong></p>
+  <p style="font-size:12px;color:var(--muted);margin:0 0 16px;">Edit all configuration files from one place. Changes write directly to <code>web.config</code> (iDash) and <code>appsettings.json</code> (iDash backend). <strong>Saving restarts the app pool.</strong></p>
 
   <div class="smc-tabs">
-    <div class="smc-tab active" onclick="smcTab(this,'tab-api')">AssetWorx API</div>
+    <div class="smc-tab active" onclick="smcTab(this,'tab-api')">iDash API</div>
     <div class="smc-tab" onclick="smcTab(this,'tab-mqtt')">MQTT / Antenna</div>
     <div class="smc-tab" onclick="smcTab(this,'tab-smtp')">SMTP / Alerts</div>
     <div class="smc-tab" onclick="smcTab(this,'tab-backend')">Backend DB</div>
@@ -1986,23 +1986,23 @@
   <!-- TAB: API / OAuth -->
   <div class="smc-panel active" id="tab-api">
 
-    <!-- ═══ SECTION 1: iDash → AssetWorx REST API ═══════════════ -->
+    <!-- ═══ SECTION 1: iDash → iDash REST API ═══════════════ -->
     <div class="oauth-section">
       <div class="oauth-section-hdr">
         <span class="oauth-icon">🔗</span>
         <div>
-          <div class="oauth-section-title">iDash Web App → AssetWorx REST API</div>
+          <div class="oauth-section-title">iDash Web App &rarr; iDash REST API</div>
           <div class="oauth-section-desc">
             <strong>Used by:</strong> iDash pages (Asset Master, Fixed Reader, Location reports, etc.)<br>
-            iDash uses these client credentials to get a JWT token and call the AssetWorx REST API. If <code>AuthServerUsesJwt</code> is <strong>false</strong> in appsettings.json the API accepts calls without token validation — in that case leave Client ID/Secret as-is and just verify the API Base URL is correct.
+            iDash uses these client credentials to get a JWT token and call the iDash REST API. If <code>AuthServerUsesJwt</code> is <strong>false</strong> in appsettings.json the API accepts calls without token validation — in that case leave Client ID/Secret as-is and just verify the API Base URL is correct.
           </div>
         </div>
       </div>
       <div class="smc-grid" style="margin-top:12px;">
         <div class="smc-field wide">
-          <label>AssetWorx API Base URL</label>
+          <label>iDash API Base URL</label>
           <input id="sc_ApiBase" placeholder="http://localhost" />
-          <span class="hint">Root URL where the AssetWorx REST API is hosted. Use <strong>http://localhost</strong> when co-hosted on the same server.</span>
+          <span class="hint">Root URL where the iDash REST API is hosted. Use <strong>http://localhost</strong> when co-hosted on the same server.</span>
         </div>
         <div class="smc-field wide">
           <label>OAuth2 Token URL</label>
@@ -2034,10 +2034,10 @@
       <div class="oauth-section-hdr">
         <span class="oauth-icon">🔐</span>
         <div>
-          <div class="oauth-section-title">AssetWorx OAuth2 / OIDC Authority</div>
+          <div class="oauth-section-title">iDash OAuth2 / OIDC Authority</div>
           <div class="oauth-section-desc">
-            <strong>Used by:</strong> AssetWorx backend (.NET Core API) — not by iDash directly.<br>
-            The AssetWorx API validates every incoming JWT token against this URL's OpenID Connect discovery document. If the Auth Server URL is wrong or unreachable, the AssetWorx API will return 401 Unauthorized on all calls. Set to <strong>http://localhost</strong> when HTTPS is not configured.
+            <strong>Used by:</strong> iDash backend API â€” not by iDash directly.<br>
+            The iDash API validates every incoming JWT token against this URL's OpenID Connect discovery document. If the Auth Server URL is wrong or unreachable, the iDash API will return 401 Unauthorized on all calls. Set to <strong>http://localhost</strong> when HTTPS is not configured.
           </div>
         </div>
       </div>
@@ -2092,15 +2092,15 @@
         <div>
           <div class="oauth-section-title">iDash Direct SQL Database</div>
           <div class="oauth-section-desc">
-            <strong>Used by:</strong> iDash pages that query the AssetWorx SQL database directly (reports, exports, DBUpdate Workbench).<br>
-            This is a direct ADO.NET connection string — separate from the REST API. If incorrect, SQL-backed pages will fail. The database <em>server</em> and credentials are also configured in <code>appsettings.json</code> for the AssetWorx API.
+            <strong>Used by:</strong> iDash pages that query the iDash SQL database directly (reports, exports, DBUpdate Workbench).<br>
+            This is a direct ADO.NET connection string — separate from the REST API. If incorrect, SQL-backed pages will fail. The database <em>server</em> and credentials are also configured in <code>appsettings.json</code> for the iDash database.
           </div>
         </div>
       </div>
       <div class="smc-grid" style="margin-top:12px;">
         <div class="smc-field wide">
           <label>iDash SQL Connection String</label>
-          <input id="sc_ConnStr" placeholder="Data Source=SERVER\SQLEXPRESS;Database=AssetWorx;User Id=...;Password=..." />
+          <input id="sc_ConnStr" placeholder="Data Source=SERVER\SQLEXPRESS;Database=iDash;User Id=iDashDBAdmin;Password=..." />
           <span class="hint">Stored in <code>web.config</code> ConnectionStrings. Change server name here when migrating to a new SQL host.</span>
         </div>
       </div>
@@ -2154,7 +2154,7 @@
       <button class="btn-test" onclick="testConn('mqtt','sc_mqttStatus')">▶ Test MQTT Broker</button>
       <span class="smc-status" id="sc_mqttStatus"></span>
     </div>
-    <div class="smc-divider">AssetWorx Backend MQTT (appsettings.json)</div>
+    <div class="smc-divider">iDash Backend MQTT (appsettings.json)</div>
     <div class="smc-grid">
       <div class="smc-field">
         <label>MQTT Server</label>
@@ -2208,7 +2208,7 @@
 
   <!-- TAB: Backend DB -->
   <div class="smc-panel" id="tab-backend">
-    <div class="smc-divider">AssetWorx SQL Database (appsettings.json)</div>
+    <div class="smc-divider">iDash SQL Database (appsettings.json)</div>
     <div class="smc-grid">
       <div class="smc-field">
         <label>SQL Server Hostname</label>
@@ -2217,11 +2217,11 @@
       </div>
       <div class="smc-field">
         <label>Database Name</label>
-        <input id="sc_DbName" placeholder="assetworx" />
+        <input id="sc_DbName" placeholder="iDash" />
       </div>
       <div class="smc-field">
         <label>DB Username</label>
-        <input id="sc_DbUsername" placeholder="assetworxadmin" />
+        <input id="sc_DbUsername" placeholder="iDashDBAdmin" />
       </div>
       <div class="smc-field">
         <label>DB Password</label>
@@ -2231,7 +2231,7 @@
         </div>
       </div>
     </div>
-    <div class="smc-divider">AssetWorx Print Client (appsettings.json)</div>
+    <div class="smc-divider">iDash Print Client (appsettings.json)</div>
     <div class="smc-grid">
       <div class="smc-field">
         <label>Print Client Username</label>

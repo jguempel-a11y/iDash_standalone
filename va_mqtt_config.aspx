@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_mqtt_config.aspx.cs" Inherits="va_mqtt_config" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_mqtt_config.aspx.cs" Inherits="va_mqtt_config" ResponseEncoding="utf-8" ContentType="text/html; charset=utf-8" %>
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -225,7 +225,7 @@
             <div>
                 <div class="panel-title" style="font-size:12px; margin-bottom:4px; font-weight:700;">🖨️ Print Server &amp; MQTT Broker (Web Application)</div>
                 <div style="font-size:11px; color:var(--muted); margin-bottom:12px; line-height:1.4;">
-                    Stored in <code>appsettings.json</code>. Used by iDash and the AssetWorx Print Server to dispatch label print jobs.
+                    Stored in <code>appsettings.json</code>. Used by iDash to dispatch label print jobs.
                 </div>
                 <div class="form-grid">
                     <div class="form-group">

@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_excel_print.aspx.cs" Inherits="va_excel_print" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_excel_print.aspx.cs" Inherits="va_excel_print" %>
 <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -70,7 +70,7 @@
         <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:6px;">
             <div>
                 <div class="page-title">&#128218; Excel Equipment Import &amp; Print</div>
-                <div class="page-sub">Auto-detects <code>C:\va_rfid\excel_data\equipment.xlsx</code> or browse to any <code>.xlsx</code> file &mdash; select rows, pick a label template, then import into AssetWorx and/or print.</div>
+                <div class="page-sub">Auto-detects <code>C:\va_rfid\excel_data\equipment.xlsx</code> or browse to any <code>.xlsx</code> file &mdash; select rows, pick a label template, then import into iDash and/or print.</div>
             </div>
             <a href="index.aspx" class="btn btn-ghost" style="font-size:12px;">&#8962; Hub</a>
         </div>
@@ -306,7 +306,7 @@ function previewSelectedExcelRow() {
     var cmr = cells[13] ? cells[13].textContent.trim() : '';
 
     var ddlTpl = document.getElementById('<%= DdlTemplate.ClientID %>');
-    var tplPath = ddlTpl && ddlTpl.value ? ddlTpl.value : 'c:\\assetworx_prints\\AW_Std_Small.btw';
+    var tplPath = ddlTpl && ddlTpl.value ? ddlTpl.value : 'c:\\idash_prints\\iDash_Std_Small.btw';
 
     openExcelPreviewModal(assetName, eqName || (mfr + ' ' + model), serial, cmr, tplPath);
 }

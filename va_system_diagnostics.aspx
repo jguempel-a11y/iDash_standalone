@@ -1,4 +1,4 @@
-<%@ Page Language="C#" CodeFile="va_system_diagnostics.aspx.cs" Inherits="va_system_diagnostics" %>
+﻿<%@ Page Language="C#" CodeFile="va_system_diagnostics.aspx.cs" Inherits="va_system_diagnostics" %>
 <%
     bool isLoggedIn = Session["IsAdminAuthenticated"] != null && (bool)Session["IsAdminAuthenticated"];
     if (!isLoggedIn) { Response.Redirect("index.aspx"); return; }
@@ -140,15 +140,15 @@
     <div class="card" style="border-left:4px solid #3b82f6; margin-bottom:20px;">
         <h2 style="color:#3b82f6; margin-bottom:14px;">&#128270; What This Page Does &mdash; Simulation Overview</h2>
         <p style="margin:0 0 14px; font-size:14px; line-height:1.7; color:var(--text,#e0e0e0);">
-            This page runs a <strong>live end-to-end simulation of the AssetWorx mobile app in batch (offline) mode</strong>.
+            This page runs a <strong>live end-to-end simulation of the iDash scanner in batch (offline) mode</strong>.
             When a RFID scanner or mobile device operates without a network connection, it accumulates a queue of asset scans locally.
-            When it reconnects, it uploads that queue by calling the AssetWorx API once per asset &mdash; this page replicates
+            When it reconnects, it uploads that queue by calling the iDash API once per asset &mdash; this page replicates
             that exact sequence so you can verify the system is ready <em>before</em> deploying hardware.
         </p>
         <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; margin-top:4px;">
             <div style="background:color-mix(in srgb,#128273 8%,transparent); border:1px solid color-mix(in srgb,#128273 30%,transparent); border-radius:10px; padding:14px 16px;">
                 <div style="font-weight:700; font-size:13px; color:#128273; margin-bottom:6px;">&#128273; Step 1 &mdash; Authentication</div>
-                <div style="font-size:12px; color:var(--muted,#888); line-height:1.6;">Requests an OAuth2 access token from the AssetWorx identity server using <code>client_credentials</code> &mdash; the same login flow the mobile app uses. Confirms the API is running and credentials are valid.</div>
+                <div style="font-size:12px; color:var(--muted,#888); line-height:1.6;">Requests an OAuth2 access token from the iDash authentication server using <code>client_credentials</code> &mdash; the same login flow the mobile app uses. Confirms the API is running and credentials are valid.</div>
             </div>
             <div style="background:color-mix(in srgb,#8b5cf6 8%,transparent); border:1px solid color-mix(in srgb,#8b5cf6 30%,transparent); border-radius:10px; padding:14px 16px;">
                 <div style="font-weight:700; font-size:13px; color:#8b5cf6; margin-bottom:6px;">&#128451; Step 2 &mdash; Database &amp; License Check</div>
@@ -268,7 +268,7 @@
     </div>
 
     <!-- API Tests -->
-    <div class="section-label">&#128225; AssetWorx API Tests</div>
+    <div class="section-label">&#128225; iDash API Tests</div>
     <div class="test-grid">
     <% foreach (var r in TestResults.Where(x => x.Category == "api")) { %>
         <div class="test-card <%= r.Passed ? "pass" : "fail" %>">

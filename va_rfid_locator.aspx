@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_rfid_locator.aspx.cs" Inherits="va_rfid_locator" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_rfid_locator.aspx.cs" Inherits="va_rfid_locator" %>
 <!DOCTYPE html>
 <html lang="en">
 <head runat="server">
@@ -425,11 +425,11 @@
 
         window.initApp = function () {
             // Restore theme
-            const savedTheme = localStorage.getItem("aw_theme_preference") || "dark";
-            document.documentElement.setAttribute("data-theme", savedTheme);
+            var savedTheme = localStorage.getItem("idash_theme");
+            if (savedTheme === "dark") { document.documentElement.removeAttribute("data-theme"); } else { document.documentElement.setAttribute("data-theme", "light"); }
 
             // Restore audio pref
-            const savedAudio = localStorage.getItem("aw_locator_audio");
+            const savedAudio = localStorage.getItem("idash_locator_audio");
             if (savedAudio !== null) {
                 _audioEnabled = (savedAudio === "true");
                 updateAudioUI();
@@ -457,13 +457,9 @@
             var isLight = html.getAttribute('data-theme') === 'light';
             if (isLight) {
                 html.removeAttribute('data-theme');
-                localStorage.removeItem('idash_theme');
-                localStorage.setItem('aw_theme_preference', 'dark');
-            } else {
+                localStorage.removeItem('idash_theme');            } else {
                 html.setAttribute('data-theme', 'light');
-                localStorage.setItem('idash_theme', 'light');
-                localStorage.setItem('aw_theme_preference', 'light');
-            }
+                localStorage.setItem('idash_theme', 'light');            }
             focusScan();
         };
 

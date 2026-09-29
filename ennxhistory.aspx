@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" Inherits="System.Web.UI.Page" MaintainScrollPositionOnPostback="true" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" Inherits="System.Web.UI.Page" MaintainScrollPositionOnPostback="true" %>
     <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
         <%@ Import Namespace="System" %>
             <%@ Import Namespace="System.Data" %>
@@ -624,7 +624,7 @@
 
     private string GetConnectionString()
                                                             {
-                                                                return ConfigurationManager.ConnectionStrings["Assetworx"].ConnectionString;
+                                                                return ConfigurationManager.ConnectionStrings["iDash"].ConnectionString;
                                                             }
 
                                                             protected void DateFilter_Changed(object sender, EventArgs e)

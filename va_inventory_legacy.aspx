@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_inventory_legacy.aspx.cs" Inherits="va_inventory_legacy" MaintainScrollPositionOnPostback="true" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_inventory_legacy.aspx.cs" Inherits="va_inventory_legacy" MaintainScrollPositionOnPostback="true" %>
     <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 
         <!DOCTYPE html>
@@ -1164,7 +1164,7 @@
         <body>
             <form id="form1" runat="server">
                 <div class="status-bar">
-                    <span>AssetWorx VA Site Inventory</span>
+                    <span>iDash VA Site Inventory</span>
                     <span id="connection-indicator">Checking Connection...</span>
                 </div>
                 <div class="wrap">

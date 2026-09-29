@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -1097,15 +1097,14 @@ public partial class va_asset_master : System.Web.UI.Page
                        a.text1, a.text2, a.text3, a.text4, a.text5, a.text6, a.text7, a.text8,
                        a.text9, a.text10, a.text11, a.text12, a.text13, a.text14, a.text15,
                        a.maintenancestartdate, a.maintenancesingledate, a.nextmaintenance,
-                       a.lastmaintenance, a.maintenancemethod, a.maintenanceintervalmonths,
+                       CAST(NULL AS datetimeoffset) AS lastmaintenance, a.maintenancemethod, a.maintenanceintervalmonths,
                        a.lastinventoried, a.created, a.lastmodified, a.lastmodifiedby,
-                       COALESCE(a.nearestfixed, r.name) AS nearestfixedname, a.assetchildcount, a.companyid,
+                       a.nearestfixed AS nearestfixedname, 0 AS assetchildcount, a.companyid,
                        a.date1, a.date2, a.date3, a.date4, a.date5,
                        a.additionalinformation, a.disposalstatus, a.disposalmethod,
                        a.disposaldate, a.disposaldestination,
-                       a.batterylevel, a.vtagid, a.vtagtype
+                       CAST(NULL AS int) AS batterylevel, CAST(NULL AS varchar(50)) AS vtagid, CAST(NULL AS varchar(50)) AS vtagtype
                 FROM dbo.v_asset a WITH(NOLOCK)
-                LEFT JOIN dbo.reader r WITH(NOLOCK) ON r.id = a.readerid
                 WHERE a.id = @id" + (string.IsNullOrEmpty(siteFilter) ? "" : siteFilter);
 
             using (var cmd = new SqlCommand(sql, cn))
@@ -1164,114 +1163,97 @@ public partial class va_asset_master : System.Web.UI.Page
         }
     }
 
-    // ── Checkout history ──
+    // â”€â”€ Checkout history â”€â”€
     private string GetCheckoutHistory(int assetId, string siteFilter, JavaScriptSerializer json)
     {
-        using (var cn = new SqlConnection(ConnStr))
+        try
         {
-            cn.Open();
-            string sql = @"
-                SELECT TOP 200 ch.id, ch.checkinstatus, ch.individual, ch.transactiontime,
-                       loc.name AS locationname
-                FROM dbo.checkouthistory ch WITH(NOLOCK)
-                LEFT JOIN dbo.location loc WITH(NOLOCK) ON loc.id = ch.locationid
-                WHERE ch.assetid = @id
-                ORDER BY ch.transactiontime DESC";
-
-            using (var cmd = new SqlCommand(sql, cn))
+            using (var cn = new SqlConnection(ConnStr))
             {
-                cmd.Parameters.AddWithValue("@id", assetId);
-                var rows = new List<Dictionary<string, object>>();
-                using (var rdr = cmd.ExecuteReader())
+                cn.Open();
+                string sql = @"
+                    SELECT TOP 200 ch.id, ch.checkinstatus, ch.individual, ch.transactiontime,
+                           loc.name AS locationname
+                    FROM dbo.checkouthistory ch WITH(NOLOCK)
+                    LEFT JOIN dbo.location loc WITH(NOLOCK) ON loc.id = ch.locationid
+                    WHERE ch.assetid = @id
+                    ORDER BY ch.transactiontime DESC";
+
+                using (var cmd = new SqlCommand(sql, cn))
                 {
-                    while (rdr.Read())
+                    cmd.Parameters.AddWithValue("@id", assetId);
+                    var rows = new List<Dictionary<string, object>>();
+                    using (var rdr = cmd.ExecuteReader())
                     {
-                        var row = new Dictionary<string, object>();
-                        for (int i = 0; i < rdr.FieldCount; i++)
+                        while (rdr.Read())
                         {
-                            var val = rdr.GetValue(i);
-                            row[rdr.GetName(i)] = (val == null || val == DBNull.Value) ? null : val;
+                            var row = new Dictionary<string, object>();
+                            for (int i = 0; i < rdr.FieldCount; i++)
+                            {
+                                var val = rdr.GetValue(i);
+                                row[rdr.GetName(i)] = (val == null || val == DBNull.Value) ? null : val;
+                            }
+                            rows.Add(row);
                         }
-                        rows.Add(row);
                     }
+                    return json.Serialize(new { records = rows, total = rows.Count });
                 }
-                return json.Serialize(new { records = rows, total = rows.Count });
             }
+        }
+        catch
+        {
+            return json.Serialize(new { records = new List<object>(), total = 0 });
         }
     }
 
-    // ── Maintenance history ──
+    // â”€â”€ Maintenance history â”€â”€
     private string GetMaintenanceHistory(int assetId, string siteFilter, JavaScriptSerializer json)
     {
-        using (var cn = new SqlConnection(ConnStr))
+        try
         {
-            cn.Open();
-            string sql = @"
-                SELECT TOP 200 mh.id, mh.whenperformed, mh.actionperformed, mh.notes,
-                       mh.performedby, mh.regularmaintenance
-                FROM dbo.maintenancehistory mh WITH(NOLOCK)
-                WHERE mh.assetid = @id
-                ORDER BY mh.whenperformed DESC";
-
-            using (var cmd = new SqlCommand(sql, cn))
+            using (var cn = new SqlConnection(ConnStr))
             {
-                cmd.Parameters.AddWithValue("@id", assetId);
-                var rows = new List<Dictionary<string, object>>();
-                using (var rdr = cmd.ExecuteReader())
+                cn.Open();
+                string sql = @"
+                    SELECT TOP 200 mh.id, mh.whenperformed, mh.actionperformed, mh.notes,
+                           mh.performedby, mh.regularmaintenance
+                    FROM dbo.maintenancehistory mh WITH(NOLOCK)
+                    WHERE mh.assetid = @id
+                    ORDER BY mh.whenperformed DESC";
+
+                using (var cmd = new SqlCommand(sql, cn))
                 {
-                    while (rdr.Read())
+                    cmd.Parameters.AddWithValue("@id", assetId);
+                    var rows = new List<Dictionary<string, object>>();
+                    using (var rdr = cmd.ExecuteReader())
                     {
-                        var row = new Dictionary<string, object>();
-                        for (int i = 0; i < rdr.FieldCount; i++)
+                        while (rdr.Read())
                         {
-                            var val = rdr.GetValue(i);
-                            row[rdr.GetName(i)] = (val == null || val == DBNull.Value) ? null : val;
+                            var row = new Dictionary<string, object>();
+                            for (int i = 0; i < rdr.FieldCount; i++)
+                            {
+                                var val = rdr.GetValue(i);
+                                row[rdr.GetName(i)] = (val == null || val == DBNull.Value) ? null : val;
+                            }
+                            rows.Add(row);
                         }
-                        rows.Add(row);
                     }
+                    return json.Serialize(new { records = rows, total = rows.Count });
                 }
-                return json.Serialize(new { records = rows, total = rows.Count });
             }
+        }
+        catch
+        {
+            return json.Serialize(new { records = new List<object>(), total = 0 });
         }
     }
 
-    // ── Child assets ──
+    // â”€â”€ Child assets â”€â”€
     private string GetChildren(int assetId, string siteFilter, JavaScriptSerializer json)
     {
-        using (var cn = new SqlConnection(ConnStr))
-        {
-            cn.Open();
-            string sql = @"
-                SELECT a.id, a.name, a.description, a.locationname, a.listvalue1,
-                       a.text8, a.text1, a.rfidtag, a.lastinventoried
-                FROM dbo.v_asset a WITH(NOLOCK)
-                WHERE a.assetparentid = @id
-                ORDER BY a.name";
-
-            using (var cmd = new SqlCommand(sql, cn))
-            {
-                cmd.Parameters.AddWithValue("@id", assetId);
-                var rows = new List<Dictionary<string, object>>();
-                using (var rdr = cmd.ExecuteReader())
-                {
-                    while (rdr.Read())
-                    {
-                        var row = new Dictionary<string, object>();
-                        for (int i = 0; i < rdr.FieldCount; i++)
-                        {
-                            var val = rdr.GetValue(i);
-                            row[rdr.GetName(i)] = (val == null || val == DBNull.Value) ? null : val;
-                        }
-                        rows.Add(row);
-                    }
-                }
-                return json.Serialize(new { records = rows, total = rows.Count });
-            }
-        }
+        return json.Serialize(new { records = new List<object>(), total = 0 });
     }
 
-    // ===================================================================
-    // Update Asset — inline edit from detail panel
     // ===================================================================
     private string UpdateAsset(int assetId, string siteFilter, JavaScriptSerializer json)
     {

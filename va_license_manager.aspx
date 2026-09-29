@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_license_manager.aspx.cs" Inherits="va_license_manager" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_license_manager.aspx.cs" Inherits="va_license_manager" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -140,7 +140,7 @@ pre.code-block { background:#0f172a; color:#e2e8f0; padding:12px 14px; border-ra
 
         <div class="section">
             <h2 class="section-title">&#128241; Scanners (Handheld Devices) <span class="section-count" id="scannerCount"></span></h2>
-            <p class="section-desc">Registered handheld RFID scanners. Same list as <a href="http://localhost/#!/admin/scanners" target="_blank" style="color:var(--accent);">AssetWorx Admin &rarr; Scanners</a>. Each consumes a device license slot.</p>
+            <p class="section-desc">Registered handheld RFID scanners. Each consumes a device license slot.</p>
             <div id="scannerGrid">Loading...</div>
         </div>
 
@@ -159,7 +159,7 @@ pre.code-block { background:#0f172a; color:#e2e8f0; padding:12px 14px; border-ra
                     <h2 class="section-title" style="color:#38bdf8;">&#128722; Mobile Carts &amp; Workstations Registry</h2>
                     <p class="section-desc" style="margin-bottom:0;">
                         Central tracking repository for all mobile carts and field workstations across VA facilities. 
-                        Maintains both the <strong>modern cryptographic iDash portal license</strong> (RSA-2048) and the <strong>legacy AssetWorx core database license</strong>.
+                        Maintains the <strong>cryptographic iDash standalone license</strong> (RSA-2048) and database registration.
                     </p>
                 </div>
                 <div style="display:flex; gap:8px;">
@@ -189,7 +189,7 @@ pre.code-block { background:#0f172a; color:#e2e8f0; padding:12px 14px; border-ra
                 <p style="font-size:13px; font-weight:700; margin:0 0 4px 0;">1. Understanding the Two License Layers:</p>
                 <p style="font-size:12px; color:var(--muted); margin:0 0 10px 0;">
                     &bull; <strong>iDash Portal License (Modern RSA-2048)</strong>: Activated on each cart via <a href="va_license_activation.aspx" style="color:var(--accent);">va_license_activation.aspx</a> using the <code>.idashlic</code> file or key string. Locks web portal modules and sync tools to the cart's Installation ID.<br />
-                    &bull; <strong>AssetWorx Core License (Legacy SQL Engine)</strong>: Stored in <code>dbo.applicationsetting.licensekey</code>. Locks backend SQL database, fixed readers (max 5), and scanner users to the motherboard Ethernet MAC.
+                    &bull; <strong>Database Engine License</strong>: Stored in <code>dbo.applicationsetting.licensekey</code>. Locks backend SQL database, fixed readers (max 5), and scanner users to the motherboard Ethernet MAC.
                 </p>
 
                 <p style="font-size:13px; font-weight:700; margin:0 0 4px 0;">2. How to License a New Mobile Cart:</p>
@@ -200,7 +200,7 @@ pre.code-block { background:#0f172a; color:#e2e8f0; padding:12px 14px; border-ra
                 </p>
 
                 <p style="font-size:13px; font-weight:700; margin:0 0 4px 0;">3. Blank Screen / HTTP 500 After Login on Cart:</p>
-                <p style="font-size:12px; color:var(--muted); margin:0 0 10px 0;">Check <code>C:\inetpub\wwwroot\AssetWorx.WebClient\appsettings.json</code>. Ensure: <code>"AuthServerUrl": "http://localhost"</code>. If it points to a computer name, internal token validation fails with timeout error IDX20803.</p>
+                <p style="font-size:12px; color:var(--muted); margin:0 0 10px 0;">Check <code>C:\inetpub\wwwroot\iDash\web.config</code>. Ensure: <code>"AuthServerUrl": "http://localhost:8181"</code>.</p>
 
                 <p style="font-size:13px; font-weight:700; margin:0 0 4px 0;">4. Site Data Synchronization:</p>
                 <p style="font-size:12px; color:var(--muted); margin:0;">Once licensed, use the <a href="va_sitedata_export.aspx" style="color:var(--accent); font-weight:700;">Cart Data &amp; Sync Hub</a> to clone or Smart Merge canonical master records onto the cart with 1 click.</p>
@@ -249,7 +249,7 @@ pre.code-block { background:#0f172a; color:#e2e8f0; padding:12px 14px; border-ra
                     <input type="text" id="modalCartInstallId" class="form-input mono" placeholder="e.g. IDASH-80E4-5E4F-033F" />
                 </div>
                 <div class="form-group">
-                    <label>Primary Ethernet MAC Address (AssetWorx Hardware)</label>
+                    <label>Primary Ethernet MAC Address (Server Hardware)</label>
                     <input type="text" id="modalCartMac" class="form-input mono" placeholder="e.g. 04:64:FA:FE:7F:A8" />
                 </div>
             </div>
@@ -258,7 +258,7 @@ pre.code-block { background:#0f172a; color:#e2e8f0; padding:12px 14px; border-ra
                 <textarea id="modalCartIdashKey" class="form-textarea mono" rows="3" placeholder="IDASH-LIC-v1-... (Paste cryptographic key here)"></textarea>
             </div>
             <div class="form-group">
-                <label>AssetWorx Core SQL Engine License Key</label>
+                <label>Database Engine License Key</label>
                 <textarea id="modalCartAwKey" class="form-textarea mono" rows="3" placeholder="ew0KICAiTGljZW5zZUtleSI6... (Base64 SQL license string)"></textarea>
             </div>
             <div class="form-group">
@@ -436,7 +436,7 @@ function renderCarts(list) {
         var psScript = '';
         if (cart.awLicenseKey) {
             psScript = '$lic = "' + cart.awLicenseKey.replace(/"/g, '`"') + '"\r\n' +
-                '$conn = New-Object System.Data.SqlClient.SqlConnection("Server=localhost\\sqlexpress;Database=assetworx;User Id=assetworxadmin;Password=assetworxadmin;")\r\n' +
+                '$conn = New-Object System.Data.SqlClient.SqlConnection("Server=localhost\\sqlexpress;Database=iDash;User Id=iDashDBAdmin;Password=idashadmin;")\r\n' +
                 '$conn.Open()\r\n' +
                 '$cmd = $conn.CreateCommand()\r\n' +
                 '$cmd.CommandText = "UPDATE applicationsetting SET licensekey = @lic"\r\n' +
@@ -490,15 +490,15 @@ function renderCarts(list) {
         }
         html += '</div>';
 
-        // AssetWorx Core Engine License Section
+        // Database Engine License Section
         if (cart.awLicenseKey) {
             html += '<div style="margin-top:14px; padding-top:14px; border-top:1px dashed var(--line);">' +
                 '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">' +
                     '<span style="font-size:12px; font-weight:700; color:var(--text); display:flex; align-items:center; gap:6px;">' +
-                        '&#9881; Legacy AssetWorx Core SQL License:' +
+                        '&#9881; Database Engine SQL License:' +
                     '</span>' +
                     '<div style="display:flex; gap:6px;">' +
-                        '<button type="button" class="copy-chip" onclick="copyRawText(\'' + esc(cart.awLicenseKey) + '\', \'AssetWorx SQL Key copied!\')">&#128203; Copy SQL Key</button>' +
+                        '<button type="button" class="copy-chip" onclick="copyRawText(\'' + esc(cart.awLicenseKey) + '\', \'Database SQL Key copied!\')">&#128203; Copy SQL Key</button>' +
                         '<button type="button" class="copy-chip" onclick="copyRawText(\'' + esc(psScript) + '\', \'PowerShell SQL script copied!\')">&#128203; Copy PS Script</button>' +
                     '</div>' +
                 '</div>' +

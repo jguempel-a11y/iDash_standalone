@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_eil_live_scan_legacy.aspx.cs" Inherits="va_eil_live_scan_legacy" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_eil_live_scan_legacy.aspx.cs" Inherits="va_eil_live_scan_legacy" %>
 
     <!DOCTYPE html>
     <html xmlns="http://www.w3.org/1999/xhtml">
@@ -293,7 +293,7 @@
     <body>
         <form id="form1" runat="server">
             <div class="status-bar">
-                <span>AssetWorx EIL Live Scan &mdash; SERVER: <%= System.Environment.MachineName %> (<%= Request.ServerVariables["LOCAL_ADDR"] %>)</span>
+                <span>iDash EIL Live Scan &mdash; SERVER: <%= System.Environment.MachineName %> (<%= Request.ServerVariables["LOCAL_ADDR"] %>)</span>
                 <span id="connection-indicator">Checking Connection...</span>
             </div>
             <div class="wrap">
@@ -481,7 +481,7 @@
                     </div>
                 </div>
 
-                <div class="footer">AssetWorx! by InfinID Technologies &mdash; iDash RFID Integration by ID Integration Inc. &copy; 2026</div>
+                <div class="footer">iDash by ID Integration Inc. &copy; 2026</div>
             </div>
 
             <script>

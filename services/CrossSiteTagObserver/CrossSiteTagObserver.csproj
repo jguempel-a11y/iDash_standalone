@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- MQTT client (same library as AssetWorx Print Server) -->
+    <!-- MQTT client -->
     <PackageReference Include="MQTTnet" Version="4.*" />
 
     <!-- JSON parsing -->

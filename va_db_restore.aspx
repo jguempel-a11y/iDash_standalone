@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_db_restore.aspx.cs" Inherits="iDash.va_db_restore" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_db_restore.aspx.cs" Inherits="iDash.va_db_restore" %>
     <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 
         <!DOCTYPE html>
@@ -159,7 +159,7 @@
                     <div class="panel">
                         <div class="warning-box">
                             <strong>WARNING - DANGER ZONE:</strong>
-                            This will overwritten the entire <u>AssetWorx</u> database with the selected backup file.
+                            This will overwritten the entire <u>iDash</u> database with the selected backup file.
                             All active connections will be dropped. This action cannot be undone.
                         </div>
 
@@ -180,7 +180,7 @@
                         <div style="display: flex; gap: 12px; margin-top: 10px;">
                             <asp:Button ID="BtnRestore" runat="server" Text="RESTORE DATABASE" CssClass="btn-restore" style="flex: 1;"
                                 OnClick="BtnRestore_Click"
-                                OnClientClick="return confirm('ARE YOU SURE?\n\nThis will completely overwrite the AssetWorx database with the selected backup.\n\nClick OK to proceed.');" />
+                                OnClientClick="return confirm('ARE YOU SURE?\n\nThis will completely overwrite the iDash database with the selected backup.\n\nClick OK to proceed.');" />
                             <asp:Button ID="BtnRunFixes" runat="server" Text="&#9881; Run Schema &amp; Normalization Fixes" CssClass="btn-restore" style="flex: 1; background: #3b82f6;"
                                 OnClick="BtnRunFixes_Click" />
                         </div>

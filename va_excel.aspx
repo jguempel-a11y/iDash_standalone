@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_excel.aspx.cs" Inherits="va_excel" ResponseEncoding="utf-8"
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="va_excel.aspx.cs" Inherits="va_excel" ResponseEncoding="utf-8"
     %>
     <%@ Register Src="~/Controls/iDashFooter.ascx" TagPrefix="idash" TagName="Footer" %>
 
@@ -317,10 +317,12 @@
                         <a href="documentation/va_excel.html" class="btn btn-ghost btn-sm" style="text-decoration:none; font-size:12px;">&#128214; View Docs</a> <a href="index.aspx" class="nav-pill nav-pill-ghost">&#8962; Hub</a>
                     </div>
 
-                    <div class="aw-header-brand">
-                        <img src="<%= ResolveUrl("~/Assets/branding/assetworx.jpg") %>" class="aw-header-logo" />
-                        <span class="aw-header-text">AssetWorx<span class="bang">!</span> <span
-                                class="aw-header-copy">by InfinID Technologies</span></span>
+                                        <div class="aw-header-brand" style="display:flex; align-items:center; gap:10px;">
+                        <img src="<%= ResolveUrl("~/Assets/branding/idintegration_icon.png") %>" class="aw-header-logo" style="width:28px; height:28px; object-fit:contain;" />
+                        <span class="aw-header-text" style="font-size:16px; font-weight:700; color:var(--text);">
+                            iDash
+                            <span class="aw-header-copy" style="font-size:13px; color:var(--muted); font-weight:normal; margin-left:6px;">by ID Integration Inc.</span>
+                        </span>
                     </div>
 
                     <div class="card">
