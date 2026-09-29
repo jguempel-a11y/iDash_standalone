@@ -407,9 +407,57 @@
             font-weight: 800;
             animation: pulse 2s infinite;
         }
+        .b-cmr {
+            background: color-mix(in srgb, var(--purple) 15%, transparent);
+            color: var(--purple);
+            border: 1px solid var(--purple);
+            font-weight: 700;
+        }
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
+        }
+
+        .sidebar-tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--bg);
+            padding: 3px;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            margin-bottom: 12px;
+        }
+        .sidebar-tab-btn {
+            flex: 1;
+            padding: 6px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--muted);
+            transition: all 0.15s ease;
+        }
+        .sidebar-tab-btn:hover {
+            color: var(--text);
+        }
+        .sidebar-tab-btn.active {
+            background: var(--card);
+            color: var(--text);
+            border-color: var(--line);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .sidebar-tab-btn.active.tab-cmr-btn {
+            color: var(--purple);
+            border-color: color-mix(in srgb, var(--purple) 30%, transparent);
+        }
+        .tab-content-panel {
+            display: block;
+        }
+        .tab-content-panel.hidden {
+            display: none;
         }
 
         .asset-link {
@@ -441,6 +489,7 @@
         .dot-green { background: var(--green); box-shadow: 0 0 6px var(--green); }
         .dot-amber { background: var(--amber); }
         .dot-red { background: var(--red); }
+        .dot-purple { background: var(--purple); box-shadow: 0 0 6px var(--purple); }
         .dot-gray { background: var(--muted); }
     </style>
 </head>
@@ -476,7 +525,7 @@
                         <span class="status-dot dot-gray"></span>
                     </div>
                     <div class="kpi-val" id="valTotal" style="color:var(--text);">0</div>
-                    <div class="kpi-sub" id="subTotal">Assets monitored</div>
+                    <div class="kpi-sub" id="subTotal">Assets &amp; CMR items</div>
                 </div>
                 <div class="kpi-card" id="cardHigh" onclick="filterByLevel('HIGH')">
                     <div class="kpi-top">
@@ -502,6 +551,14 @@
                     <div class="kpi-val" id="valMismatch" style="color:var(--red);">0</div>
                     <div class="kpi-sub">Observed &ne; Assigned</div>
                 </div>
+                <div class="kpi-card" id="cardCmr" onclick="filterByLevel('CMR')">
+                    <div class="kpi-top">
+                        <span class="kpi-lbl">CMR Monitored</span>
+                        <span class="status-dot dot-purple"></span>
+                    </div>
+                    <div class="kpi-val" id="valCmr" style="color:var(--purple);">0</div>
+                    <div class="kpi-sub" id="subCmrMatches">0 parts detected</div>
+                </div>
                 <div class="kpi-card" id="cardCold" onclick="filterByLevel('COLD')">
                     <div class="kpi-top">
                         <span class="kpi-lbl">Cold / Undetected</span>
@@ -515,25 +572,45 @@
             <!-- 2-COLUMN WORKSPACE -->
             <div class="layout-grid">
 
-                <!-- LEFT: WATCH LIST EDITOR -->
+                <!-- LEFT: WATCH LIST & CMR MONITOR -->
                 <div class="panel">
                     <div class="panel-title">
-                        <span>🔍 Asset Watch List</span>
-                        <span id="syncBadge" style="font-size:11px;font-weight:normal;color:var(--muted);">Live Feed Synced</span>
+                        <span>🎯 Watch List Monitor</span>
+                        <span id="syncBadge" style="font-size:11px;font-weight:normal;color:var(--muted);" title="Synchronized with Fixed Reader Live Feed">⚡ Live Synced</span>
                     </div>
-                    <textarea class="watch-ta" id="wInput" placeholder="Enter asset numbers to watch...&#10;One per line or comma-separated&#10;e.g. 613 EE12889, 512 EE17890"></textarea>
+
+                    <div class="sidebar-tabs">
+                        <button type="button" class="sidebar-tab-btn active" id="btnSideAssets" onclick="switchSideTab('assets')">🏷️ Assets (<span id="sideAssetCount">0</span>)</button>
+                        <button type="button" class="sidebar-tab-btn tab-cmr-btn" id="btnSideCmrs" onclick="switchSideTab('cmrs')">📋 CMRs (<span id="sideCmrCount">0</span>)</button>
+                    </div>
+
+                    <!-- ASSET TAB CONTENT -->
+                    <div id="sideSectionAssets" class="tab-content-panel">
+                        <textarea class="watch-ta" id="wInput" placeholder="Enter asset numbers to watch...&#10;One per line or comma-separated&#10;e.g. 613 EE12889, 512 EE17890"></textarea>
+                        <div style="margin-top:8px;font-size:11px;color:var(--muted);line-height:1.4;">
+                            Monitors specific asset numbers against fixed reader background observations.
+                        </div>
+                        <div class="quick-chips" id="quickChips"></div>
+                    </div>
+
+                    <!-- CMR TAB CONTENT -->
+                    <div id="sideSectionCmrs" class="tab-content-panel hidden">
+                        <textarea class="watch-ta" id="cmrInput" placeholder="Enter CMR numbers to watch...&#10;One per line or comma-separated&#10;e.g. 100, 110, 125"></textarea>
+                        <div style="margin-top:8px;font-size:11px;color:var(--muted);line-height:1.4;">
+                            <strong>📋 CMR Watch:</strong> Any equipment assigned to these CMRs detected by any reader will trigger instant alerts.
+                        </div>
+                        <div class="quick-chips" id="quickCmrChips"></div>
+                    </div>
                     
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-primary" onclick="checkWatchList(true)">🔍 Check Now</button>
-                        <button type="button" class="btn btn-ghost" onclick="saveWatchListToServer()" title="Save list to your user account on server">💾 Save</button>
-                        <button type="button" class="btn btn-ghost" onclick="clearWatchList()" style="flex:0.6;">✕ Clear</button>
+                    <div class="btn-group" style="margin-top:14px;">
+                        <button type="button" class="btn btn-primary" onclick="checkWatchList(true)">🔍 Check All</button>
+                        <button type="button" class="btn btn-ghost" onclick="saveWatchListToServer()" title="Save both asset and CMR lists to your profile">💾 Save</button>
+                        <button type="button" class="btn btn-ghost" onclick="clearCurrentTab()" style="flex:0.6;" title="Clear active list">✕ Clear</button>
                     </div>
 
-                    <div style="margin-top:14px;font-size:11px;color:var(--muted);line-height:1.4;">
-                        <strong>💡 How it works:</strong> Assets listed here are monitored against fixed reader background observations. Synced seamlessly with <a href="va_fixed_reader_live.aspx" target="_blank" style="color:var(--accent);">Fixed Reader Live</a>.
+                    <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);font-size:11px;color:var(--muted);line-height:1.4;">
+                        <strong>💡 Seamless Sync:</strong> Both watchlists sync with <a href="va_fixed_reader_live.aspx" target="_blank" style="color:var(--accent);">Fixed Reader Live</a> in real-time.
                     </div>
-
-                    <div class="quick-chips" id="quickChips"></div>
                 </div>
 
                 <!-- RIGHT: OBSERVATION & DETECTION RESULTS -->
@@ -544,6 +621,7 @@
                             <button type="button" class="tab-btn" id="tabHIGH" onclick="filterByLevel('HIGH')">🟢 High (<span id="cntHigh">0</span>)</button>
                             <button type="button" class="tab-btn" id="tabMODERATE" onclick="filterByLevel('MODERATE')">🟡 Moderate (<span id="cntMod">0</span>)</button>
                             <button type="button" class="tab-btn" id="tabMISMATCH" onclick="filterByLevel('MISMATCH')">⚠️ Mismatches (<span id="cntMismatch">0</span>)</button>
+                            <button type="button" class="tab-btn" id="tabCMR" onclick="filterByLevel('CMR')">📋 CMR (<span id="cntCmr">0</span>)</button>
                             <button type="button" class="tab-btn" id="tabCOLD" onclick="filterByLevel('COLD')">⚪ Undetected (<span id="cntCold">0</span>)</button>
                         </div>
 
@@ -558,8 +636,9 @@
                             <thead>
                                 <tr>
                                     <th>Detection Level</th>
+                                    <th>Watch Type</th>
                                     <th>Asset Number</th>
-                                    <th>Description</th>
+                                    <th>Description / CMR</th>
                                     <th>Facility / Site</th>
                                     <th>Observed Location</th>
                                     <th>Assigned Location</th>
@@ -568,7 +647,7 @@
                                 </tr>
                             </thead>
                             <tbody id="tblBody">
-                                <tr><td colspan="8" class="empty-state">Loading watch list...</td></tr>
+                                <tr><td colspan="9" class="empty-state">Loading watch list...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -583,6 +662,7 @@
         var rawAssetsData = [];
         var activeFilter = 'ALL';
         var autoPollTimer = null;
+        var currentSideTab = 'assets';
 
         // Theme Toggle
         function toggleTheme() {
@@ -602,10 +682,31 @@
         }
         (function() { updateThemeBtn(); })();
 
+        // Sidebar Tab Switching
+        function switchSideTab(tab) {
+            currentSideTab = tab;
+            var btnA = document.getElementById('btnSideAssets');
+            var btnC = document.getElementById('btnSideCmrs');
+            var secA = document.getElementById('sideSectionAssets');
+            var secC = document.getElementById('sideSectionCmrs');
+
+            if (tab === 'assets') {
+                btnA.classList.add('active');
+                btnC.classList.remove('active');
+                secA.classList.remove('hidden');
+                secC.classList.add('hidden');
+            } else {
+                btnC.classList.add('active');
+                btnA.classList.remove('active');
+                secC.classList.remove('hidden');
+                secA.classList.add('hidden');
+            }
+        }
+
         // Init Watch List
         window.addEventListener('DOMContentLoaded', function() {
             loadWatchList();
-            // Start background poll every 30s
+            // Auto refresh background detections every 30s
             autoPollTimer = setInterval(function() {
                 if (document.visibilityState === 'visible') {
                     checkWatchList(false);
@@ -614,58 +715,77 @@
         });
 
         function loadWatchList() {
-            var saved = localStorage.getItem('idash-watch-list') || '';
-            if (saved) {
-                document.getElementById('wInput').value = saved;
+            var savedAssets = localStorage.getItem('idash-watch-list') || '';
+            var savedCmrs = localStorage.getItem('idash-cmr-watch-list') || '';
+
+            if (savedAssets || savedCmrs) {
+                document.getElementById('wInput').value = savedAssets;
+                document.getElementById('cmrInput').value = savedCmrs;
                 checkWatchList(true);
             } else {
-                // Try loading from server
+                // Try loading from server profile
                 fetch('va_watchlist_api.ashx?action=load&t=' + Date.now())
                     .then(function(r) { return r.json(); })
                     .then(function(d) {
-                        if (d && d.items) {
-                            document.getElementById('wInput').value = d.items;
-                            localStorage.setItem('idash-watch-list', d.items);
+                        if (d && (d.items || d.cmrs)) {
+                            if (d.items) {
+                                document.getElementById('wInput').value = d.items;
+                                localStorage.setItem('idash-watch-list', d.items);
+                            }
+                            if (d.cmrs) {
+                                document.getElementById('cmrInput').value = d.cmrs;
+                                localStorage.setItem('idash-cmr-watch-list', d.cmrs);
+                            }
                             checkWatchList(true);
                         } else {
-                            renderEmpty('Enter asset numbers on the left to start monitoring RFID detections.');
+                            renderEmpty('Enter asset numbers or CMRs on the left to start monitoring RFID detections.');
                         }
                     })
                     .catch(function() {
-                        renderEmpty('Enter asset numbers on the left to start monitoring RFID detections.');
+                        renderEmpty('Enter asset numbers or CMRs on the left to start monitoring RFID detections.');
                     });
             }
         }
 
         function checkWatchList(showLoading) {
-            var raw = document.getElementById('wInput').value.trim();
-            if (!raw) {
+            var rawAssets = document.getElementById('wInput').value.trim();
+            var rawCmrs = document.getElementById('cmrInput').value.trim();
+
+            // Sync to localStorage
+            try {
+                localStorage.setItem('idash-watch-list', rawAssets);
+                localStorage.setItem('idash-cmr-watch-list', rawCmrs);
+            } catch(e) {}
+
+            var assetItems = rawAssets.split(/[\r\n,]+/).map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0; });
+            var cmrItems = rawCmrs.split(/[\r\n,]+/).map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0; });
+
+            document.getElementById('sideAssetCount').textContent = assetItems.length;
+            document.getElementById('sideCmrCount').textContent = cmrItems.length;
+
+            renderChips(assetItems);
+            renderCmrChips(cmrItems);
+
+            if (!assetItems.length && !cmrItems.length) {
                 rawAssetsData = [];
-                updateSummary({ totalWatched: 0, high: 0, moderate: 0, low: 0, cold: 0, mismatch: 0 });
+                updateSummary({ totalWatched: 0, high: 0, moderate: 0, low: 0, cold: 0, mismatch: 0, cmrMatches: 0, cmrWatched: 0 });
                 renderTable();
-                renderChips([]);
                 return;
             }
 
-            // Sync to localStorage
-            try { localStorage.setItem('idash-watch-list', raw); } catch(e) {}
-
             if (showLoading) {
-                document.getElementById('tblBody').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted);">Checking background detections...</td></tr>';
+                document.getElementById('tblBody').innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--muted);">Checking background RFID detections...</td></tr>';
             }
-
-            var items = raw.split(/[\r\n,]+/).map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0; });
-            renderChips(items);
 
             fetch('va_watchlist_api.ashx?action=check&t=' + Date.now(), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ items: items })
+                body: JSON.stringify({ items: assetItems, cmrs: cmrItems })
             })
             .then(function(r) { return r.json(); })
             .then(function(d) {
                 if (d.error) {
-                    document.getElementById('tblBody').innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--red);padding:20px;">' + esc(d.error) + '</td></tr>';
+                    document.getElementById('tblBody').innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--red);padding:20px;">' + esc(d.error) + '</td></tr>';
                     return;
                 }
                 rawAssetsData = d.assets || [];
@@ -674,21 +794,22 @@
             })
             .catch(function(err) {
                 console.error('Watchlist check error:', err);
-                document.getElementById('tblBody').innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--red);padding:20px;">Failed to evaluate watch list.</td></tr>';
+                document.getElementById('tblBody').innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--red);padding:20px;">Failed to evaluate watch list.</td></tr>';
             });
         }
 
         function saveWatchListToServer() {
-            var raw = document.getElementById('wInput').value.trim();
+            var rawAssets = document.getElementById('wInput').value.trim();
+            var rawCmrs = document.getElementById('cmrInput').value.trim();
             fetch('va_watchlist_api.ashx?action=save&t=' + Date.now(), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ items: raw })
+                body: JSON.stringify({ items: rawAssets, cmrs: rawCmrs })
             })
             .then(function(r) { return r.json(); })
             .then(function(d) {
                 if (d && d.success) {
-                    alert('Watch list saved successfully to your server profile!');
+                    alert('Asset and CMR watchlists saved successfully to your server profile!');
                 }
             })
             .catch(function(e) {
@@ -696,28 +817,42 @@
             });
         }
 
-        function clearWatchList() {
-            if (!confirm('Clear the entire watch list?')) return;
-            document.getElementById('wInput').value = '';
-            try { localStorage.removeItem('idash-watch-list'); } catch(e) {}
-            rawAssetsData = [];
-            updateSummary({ totalWatched: 0, high: 0, moderate: 0, low: 0, cold: 0, mismatch: 0 });
-            renderTable();
-            renderChips([]);
+        function clearCurrentTab() {
+            if (currentSideTab === 'assets') {
+                if (!confirm('Clear the Asset Watch List?')) return;
+                document.getElementById('wInput').value = '';
+                try { localStorage.removeItem('idash-watch-list'); } catch(e) {}
+            } else {
+                if (!confirm('Clear the CMR Watch List?')) return;
+                document.getElementById('cmrInput').value = '';
+                try { localStorage.removeItem('idash-cmr-watch-list'); } catch(e) {}
+            }
+            checkWatchList(true);
         }
 
         function updateSummary(s) {
-            document.getElementById('valTotal').textContent = s.totalWatched || 0;
-            document.getElementById('valHigh').textContent = s.high || 0;
-            document.getElementById('valMod').textContent = s.moderate || 0;
-            document.getElementById('valMismatch').textContent = s.mismatch || 0;
-            document.getElementById('valCold').textContent = (s.cold || 0) + (s.low || 0);
+            var total = s.totalWatched || 0;
+            var high = s.high || 0;
+            var mod = s.moderate || 0;
+            var mismatch = s.mismatch || 0;
+            var cold = (s.cold || 0) + (s.low || 0);
+            var cmrMatches = s.cmrMatches || 0;
+            var cmrWatched = s.cmrWatched || 0;
 
-            document.getElementById('cntAll').textContent = s.totalWatched || 0;
-            document.getElementById('cntHigh').textContent = s.high || 0;
-            document.getElementById('cntMod').textContent = s.moderate || 0;
-            document.getElementById('cntMismatch').textContent = s.mismatch || 0;
-            document.getElementById('cntCold').textContent = (s.cold || 0) + (s.low || 0);
+            document.getElementById('valTotal').textContent = total;
+            document.getElementById('valHigh').textContent = high;
+            document.getElementById('valMod').textContent = mod;
+            document.getElementById('valMismatch').textContent = mismatch;
+            document.getElementById('valCmr').textContent = cmrWatched;
+            document.getElementById('subCmrMatches').textContent = cmrMatches + ' parts detected';
+            document.getElementById('valCold').textContent = cold;
+
+            document.getElementById('cntAll').textContent = total;
+            document.getElementById('cntHigh').textContent = high;
+            document.getElementById('cntMod').textContent = mod;
+            document.getElementById('cntMismatch').textContent = mismatch;
+            document.getElementById('cntCmr').textContent = cmrMatches;
+            document.getElementById('cntCold').textContent = cold;
         }
 
         function filterByLevel(level) {
@@ -727,7 +862,7 @@
             if (tab) tab.classList.add('active');
 
             document.querySelectorAll('.kpi-card').forEach(function(c) { c.classList.remove('active-filter'); });
-            var map = { 'ALL': 'cardTotal', 'HIGH': 'cardHigh', 'MODERATE': 'cardMod', 'MISMATCH': 'cardMismatch', 'COLD': 'cardCold' };
+            var map = { 'ALL': 'cardTotal', 'HIGH': 'cardHigh', 'MODERATE': 'cardMod', 'MISMATCH': 'cardMismatch', 'CMR': 'cardCmr', 'COLD': 'cardCold' };
             var card = document.getElementById(map[level]);
             if (card) card.classList.add('active-filter');
 
@@ -743,18 +878,19 @@
                 if (activeFilter === 'HIGH' && a.DetectionLevel !== 'HIGH') return false;
                 if (activeFilter === 'MODERATE' && a.DetectionLevel !== 'MODERATE') return false;
                 if (activeFilter === 'MISMATCH' && !a.LocationMismatch) return false;
+                if (activeFilter === 'CMR' && a.WatchType !== 'CMR' && a.WatchType !== 'BOTH') return false;
                 if (activeFilter === 'COLD' && a.DetectionLevel !== 'COLD' && a.DetectionLevel !== 'LOW') return false;
 
                 // Search filter
                 if (search) {
-                    var str = ((a.AssetName||'') + ' ' + (a.Description||'') + ' ' + (a.ObservedLocation||'') + ' ' + (a.AssignedLocation||'') + ' ' + (a.SiteName||'')).toLowerCase();
+                    var str = ((a.AssetName||'') + ' ' + (a.Description||'') + ' ' + (a.ObservedLocation||'') + ' ' + (a.AssignedLocation||'') + ' ' + (a.SiteName||'') + ' ' + (a.CMR||'') + ' ' + (a.WatchedCMR||'')).toLowerCase();
                     if (str.indexOf(search) === -1) return false;
                 }
                 return true;
             });
 
             if (!filtered.length) {
-                renderEmpty(rawAssetsData.length ? 'No assets matching filter.' : 'No assets in watch list.');
+                renderEmpty(rawAssetsData.length ? 'No assets matching current filter.' : 'No assets in watch list.');
                 return;
             }
 
@@ -765,6 +901,17 @@
                 if (a.DetectionLevel === 'HIGH') { badgeCls = 'b-high'; badgeTxt = '🟢 High Detection'; }
                 else if (a.DetectionLevel === 'MODERATE') { badgeCls = 'b-mod'; badgeTxt = '🟡 Moderate'; }
                 else if (a.DetectionLevel === 'LOW') { badgeCls = 'b-low'; badgeTxt = '🟠 Low'; }
+
+                // Watch Type badge
+                var watchTypeHtml = '';
+                var targetCmr = a.WatchedCMR || a.CMR || '';
+                if (a.WatchType === 'CMR') {
+                    watchTypeHtml = '<span class="badge b-cmr" title="Matched via Watched CMR ' + esc(targetCmr) + '">📋 CMR ' + esc(targetCmr) + '</span>';
+                } else if (a.WatchType === 'BOTH') {
+                    watchTypeHtml = '<span class="badge b-cmr" title="Watched directly and part of CMR ' + esc(targetCmr) + '">🏷️+📋 CMR ' + esc(targetCmr) + '</span>';
+                } else {
+                    watchTypeHtml = '<span class="badge" style="background:var(--bg);border:1px solid var(--line);color:var(--muted);">🏷️ Asset</span>';
+                }
 
                 var obsHtml = a.ObservedLocation
                     ? '<strong>' + esc(a.ObservedLocation) + '</strong>'
@@ -784,8 +931,18 @@
                     readerExtra = '<div style="font-size:10px;color:var(--muted);margin-top:2px;">' + esc(a.RecentReader) + (a.RecentRssi ? ' (' + esc(a.RecentRssi) + ')' : '') + '</div>';
                 }
 
+                var cmrBtn = '';
+                if (targetCmr) {
+                    cmrBtn = '<button type="button" class="btn btn-ghost" style="padding:3px 8px;font-size:11px;margin-right:4px;color:var(--purple);border-color:color-mix(in srgb, var(--purple) 30%, transparent);" onclick="openSingleCmrInMaster(\'' + esc(targetCmr) + '\')" title="View all CMR ' + esc(targetCmr) + ' parts in Asset Master">📂 CMR ' + esc(targetCmr) + '</button>';
+                }
+
+                var removeAction = a.WatchType === 'CMR'
+                    ? 'removeCmr(\'' + esc(targetCmr) + '\')'
+                    : 'removeAsset(\'' + esc(a.SearchKey || a.AssetName) + '\')';
+
                 html += '<tr>' +
                     '<td><span class="badge ' + badgeCls + '">' + badgeTxt + '</span></td>' +
+                    '<td>' + watchTypeHtml + '</td>' +
                     '<td><a class="asset-link" onclick="openSingleInMaster(\'' + esc(a.AssetName) + '\', \'' + (a.CompanyId || '') + '\', \'' + esc(a.SiteName || '') + '\')">' + esc(a.AssetName) + '</a></td>' +
                     '<td><div style="font-weight:600;">' + esc(a.Description || '--') + '</div>' + (a.CMR ? '<span style="font-size:11px;color:var(--muted);">CMR: ' + esc(a.CMR) + '</span>' : '') + '</td>' +
                     '<td>' + esc(a.SiteName || '--') + '</td>' +
@@ -793,8 +950,9 @@
                     '<td>' + asgHtml + '</td>' +
                     '<td>' + timeHtml + '</td>' +
                     '<td style="text-align:right;white-space:nowrap;">' +
-                        '<button type="button" class="btn btn-ghost" style="padding:3px 8px;font-size:11px;margin-right:4px;" onclick="openSingleInMaster(\'' + esc(a.AssetName) + '\', \'' + (a.CompanyId || '') + '\', \'' + esc(a.SiteName || '') + '\')" title="Inspect in Asset Master">📋 Inspect</button>' +
-                        '<button type="button" class="btn btn-ghost" style="padding:3px 8px;font-size:11px;color:var(--red);" onclick="removeAsset(\'' + esc(a.SearchKey) + '\')" title="Remove from watch list">✕</button>' +
+                        '<button type="button" class="btn btn-ghost" style="padding:3px 8px;font-size:11px;margin-right:4px;" onclick="openSingleInMaster(\'' + esc(a.AssetName) + '\', \'' + (a.CompanyId || '') + '\', \'' + esc(a.SiteName || '') + '\')" title="Inspect asset in Asset Master">📋 Inspect</button>' +
+                        cmrBtn +
+                        '<button type="button" class="btn btn-ghost" style="padding:3px 8px;font-size:11px;color:var(--red);" onclick="' + removeAction + '" title="Remove from watch list">✕</button>' +
                     '</td>' +
                 '</tr>';
             });
@@ -803,7 +961,7 @@
         }
 
         function renderEmpty(msg) {
-            document.getElementById('tblBody').innerHTML = '<tr><td colspan="8" class="empty-state"><div class="empty-icon">🔔</div><div>' + esc(msg) + '</div></td></tr>';
+            document.getElementById('tblBody').innerHTML = '<tr><td colspan="9" class="empty-state"><div class="empty-icon">🔔</div><div>' + esc(msg) + '</div></td></tr>';
         }
 
         function renderChips(items) {
@@ -819,6 +977,20 @@
             el.innerHTML = html;
         }
 
+        function renderCmrChips(cmrs) {
+            var el = document.getElementById('quickCmrChips');
+            if (!cmrs.length) { el.innerHTML = ''; return; }
+            var html = '';
+            cmrs.slice(0, 15).forEach(function(c) {
+                html += '<span class="qchip" style="border-color:color-mix(in srgb, var(--purple) 40%, transparent);color:var(--purple);">' +
+                    '📋 CMR ' + esc(c) + ' <span class="qchip-del" onclick="removeCmr(\'' + esc(c) + '\')">&times;</span></span>';
+            });
+            if (cmrs.length > 15) {
+                html += '<span class="qchip" style="background:none;border:none;color:var(--muted);">+' + (cmrs.length - 15) + ' more</span>';
+            }
+            el.innerHTML = html;
+        }
+
         function removeAsset(key) {
             var raw = document.getElementById('wInput').value;
             var parts = raw.split(/[\r\n,]+/).map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0 && s.toUpperCase() !== key.toUpperCase(); });
@@ -826,14 +998,23 @@
             checkWatchList(true);
         }
 
+        function removeCmr(key) {
+            var raw = document.getElementById('cmrInput').value;
+            var parts = raw.split(/[\r\n,]+/).map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0 && s.toUpperCase() !== key.toUpperCase(); });
+            document.getElementById('cmrInput').value = parts.join('\n');
+            checkWatchList(true);
+        }
+
         // Export to Excel CSV
         function exportToCsv() {
             if (!rawAssetsData.length) { alert('No assets in watch list to export.'); return; }
-            var rows = [['Asset Number', 'Description', 'Detection Level', 'Last Observed Time', 'Observed Location', 'Assigned Location', 'Location Mismatch', 'Facility Site', 'Status', 'CMR', 'Recent Reader', 'Signal RSSI']];
+            var rows = [['Asset Number', 'Description', 'Watch Type', 'CMR', 'Detection Level', 'Last Observed Time', 'Observed Location', 'Assigned Location', 'Location Mismatch', 'Facility Site', 'Status', 'Recent Reader', 'Signal RSSI']];
             rawAssetsData.forEach(function(a) {
                 rows.push([
                     a.AssetName || a.SearchKey,
                     a.Description || '',
+                    a.WatchType || 'ASSET',
+                    a.WatchedCMR || a.CMR || '',
                     a.DetectionLevel || 'COLD',
                     a.LastObservedTime || (a.LastInventoriedTime ? 'Inventoried ' + a.LastInventoriedTime : 'Never'),
                     a.ObservedLocation || '',
@@ -841,7 +1022,6 @@
                     a.LocationMismatch ? 'YES' : 'NO',
                     a.SiteName || '',
                     a.Status || '',
-                    a.CMR || '',
                     a.RecentReader || '',
                     a.RecentRssi || ''
                 ]);
@@ -863,7 +1043,7 @@
         // Open in Asset Master
         function openFoundInMaster() {
             if (!rawAssetsData.length) { alert('No assets in watch list.'); return; }
-            var names = rawAssetsData.map(function(a) { return a.AssetName || a.SearchKey; });
+            var names = rawAssetsData.filter(function(a) { return a.AssetId > 0; }).map(function(a) { return a.AssetName || a.SearchKey; });
             try { sessionStorage.setItem('idash-watch-filter', JSON.stringify(names)); } catch(e) {}
 
             var siteParam = '';
@@ -885,6 +1065,11 @@
             var siteParam = companyId || (name && name.length >= 3 && /^\d{3}/.test(name) ? name.substring(0, 3) : '');
             var url = 'va_asset_master.aspx?watchFilter=1' + (siteParam ? '&site=' + encodeURIComponent(siteParam) : '');
             window.open(url, '_blank');
+        }
+
+        function openSingleCmrInMaster(cmr) {
+            if (!cmr) return;
+            window.open('va_asset_master.aspx?cmr=' + encodeURIComponent(cmr), '_blank');
         }
 
         function esc(s) {

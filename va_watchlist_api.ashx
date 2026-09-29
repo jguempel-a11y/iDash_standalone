@@ -63,11 +63,12 @@ namespace iDash
         }
 
         // ══════════════════════════════════════════════════════════════════════
-        //  ACTION: CHECK WATCH LIST
+        //  ACTION: CHECK WATCH LIST (ASSETS & CMRs)
         // ══════════════════════════════════════════════════════════════════════
         private void HandleCheck(HttpContext ctx)
         {
             List<string> items = new List<string>();
+            List<string> cmrs = new List<string>();
 
             if (ctx.Request.HttpMethod == "POST")
             {
@@ -80,20 +81,40 @@ namespace iDash
                         try
                         {
                             var parsed = jss.Deserialize<Dictionary<string, object>>(body);
-                            if (parsed != null && parsed.ContainsKey("items"))
+                            if (parsed != null)
                             {
-                                var arr = parsed["items"] as System.Collections.ArrayList;
-                                if (arr != null)
+                                if (parsed.ContainsKey("items"))
                                 {
-                                    foreach (var obj in arr)
+                                    var arr = parsed["items"] as System.Collections.ArrayList;
+                                    if (arr != null)
                                     {
-                                        string s = (obj ?? "").ToString().Trim();
-                                        if (!string.IsNullOrEmpty(s)) items.Add(s);
+                                        foreach (var obj in arr)
+                                        {
+                                            string s = (obj ?? "").ToString().Trim();
+                                            if (!string.IsNullOrEmpty(s)) items.Add(s);
+                                        }
+                                    }
+                                    else if (parsed["items"] is string)
+                                    {
+                                        items = ParseItems(parsed["items"].ToString());
                                     }
                                 }
-                                else if (parsed["items"] is string)
+
+                                if (parsed.ContainsKey("cmrs"))
                                 {
-                                    items = ParseItems(parsed["items"].ToString());
+                                    var arrC = parsed["cmrs"] as System.Collections.ArrayList;
+                                    if (arrC != null)
+                                    {
+                                        foreach (var obj in arrC)
+                                        {
+                                            string s = (obj ?? "").ToString().Trim();
+                                            if (!string.IsNullOrEmpty(s)) cmrs.Add(s);
+                                        }
+                                    }
+                                    else if (parsed["cmrs"] is string)
+                                    {
+                                        cmrs = ParseItems(parsed["cmrs"].ToString());
+                                    }
                                 }
                             }
                         }
@@ -105,10 +126,13 @@ namespace iDash
                 }
             }
 
-            if (items.Count == 0)
+            if (items.Count == 0 && !string.IsNullOrEmpty(ctx.Request.QueryString["items"]))
             {
-                string queryItems = ctx.Request.QueryString["items"] ?? "";
-                items = ParseItems(queryItems);
+                items = ParseItems(ctx.Request.QueryString["items"]);
+            }
+            if (cmrs.Count == 0 && !string.IsNullOrEmpty(ctx.Request.QueryString["cmrs"]))
+            {
+                cmrs = ParseItems(ctx.Request.QueryString["cmrs"]);
             }
 
             // Deduplicate items preserving order
@@ -123,13 +147,25 @@ namespace iDash
                 }
             }
 
-            if (distinctItems.Count == 0)
+            // Deduplicate CMRs preserving order
+            var distinctCmrs = new List<string>();
+            var seenCmrs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var c in cmrs)
             {
-                ctx.Response.Write("{\"total\":0,\"summary\":{\"totalWatched\":0,\"high\":0,\"moderate\":0,\"low\":0,\"cold\":0,\"mismatch\":0},\"assets\":[]}");
+                if (!seenCmrs.Contains(c))
+                {
+                    seenCmrs.Add(c);
+                    distinctCmrs.Add(c);
+                }
+            }
+
+            if (distinctItems.Count == 0 && distinctCmrs.Count == 0)
+            {
+                ctx.Response.Write("{\"total\":0,\"summary\":{\"totalWatched\":0,\"high\":0,\"moderate\":0,\"low\":0,\"cold\":0,\"mismatch\":0,\"cmrMatches\":0,\"cmrWatched\":0},\"assets\":[]}");
                 return;
             }
 
-            var results = EvaluateWatchList(distinctItems);
+            var results = EvaluateWatchList(distinctItems, distinctCmrs);
 
             var jssOut = new JavaScriptSerializer();
             jssOut.MaxJsonLength = int.MaxValue;
@@ -150,7 +186,7 @@ namespace iDash
             return list;
         }
 
-        private object EvaluateWatchList(List<string> rawItems)
+        private object EvaluateWatchList(List<string> rawItems, List<string> rawCmrs)
         {
             var watchedMap = new Dictionary<string, WatchedAssetResult>(StringComparer.OrdinalIgnoreCase);
             foreach (var item in rawItems)
@@ -159,6 +195,7 @@ namespace iDash
                 {
                     SearchKey = item,
                     AssetName = item,
+                    WatchType = "ASSET",
                     DetectionLevel = "COLD",
                     DetectionBadge = "⚪ Undetected",
                     DetectionDetails = "No fixed reader reads recorded"
@@ -170,74 +207,22 @@ namespace iDash
                 conn.Open();
 
                 // 1. Fetch assets matching either exact name or RFID tag
-                var inParams = new List<string>();
-                var cmd = new SqlCommand();
-                cmd.Connection = conn;
-                cmd.CommandTimeout = 60;
-
-                for (int i = 0; i < rawItems.Count; i++)
+                if (rawItems.Count > 0)
                 {
-                    string pName = "@p" + i;
-                    inParams.Add(pName);
-                    cmd.Parameters.AddWithValue(pName, rawItems[i]);
-                }
+                    var inParams = new List<string>();
+                    var cmd = new SqlCommand();
+                    cmd.Connection = conn;
+                    cmd.CommandTimeout = 60;
 
-                cmd.CommandText = @"
-                    SELECT 
-                        a.id AS AssetId,
-                        a.name AS AssetName,
-                        a.description AS Description,
-                        a.rfidtag AS RfidTag,
-                        c.name AS SiteName,
-                        a.companyid AS CompanyId,
-                        ISNULL(l.name, '(Unassigned)') AS AssignedLocation,
-                        ISNULL(a.lastobservedlocation, '') AS ObservedLocation,
-                        a.lastobservedtime AS LastObservedTime,
-                        a.lastinventoried AS LastInventoriedTime,
-                        ISNULL(a.listvalue1, '') AS Status,
-                        ISNULL(a.text8, '') AS CMR,
-                        DATEDIFF(MINUTE, a.lastobservedtime, SYSDATETIMEOFFSET()) AS MinsAgo,
-                        DATEDIFF(HOUR, a.lastobservedtime, SYSDATETIMEOFFSET()) AS HoursAgo,
-                        DATEDIFF(DAY, a.lastobservedtime, SYSDATETIMEOFFSET()) AS DaysAgo
-                    FROM dbo.asset a WITH (NOLOCK)
-                    LEFT JOIN dbo.location l WITH (NOLOCK) ON a.locationid = l.id
-                    LEFT JOIN dbo.company c WITH (NOLOCK) ON a.companyid = c.id
-                    WHERE a.name IN (" + string.Join(",", inParams) + @")
-                       OR a.rfidtag IN (" + string.Join(",", inParams) + @")";
-
-                using (var rdr = cmd.ExecuteReader())
-                {
-                    while (rdr.Read())
+                    for (int i = 0; i < rawItems.Count; i++)
                     {
-                        string name = rdr["AssetName"].ToString();
-                        string tag = rdr["RfidTag"] == DBNull.Value ? "" : rdr["RfidTag"].ToString();
-
-                        string matchedKey = null;
-                        foreach (var key in rawItems)
-                        {
-                            if (string.Equals(key, name, StringComparison.OrdinalIgnoreCase) ||
-                                (tag != "" && string.Equals(key, tag, StringComparison.OrdinalIgnoreCase)) ||
-                                name.EndsWith(key, StringComparison.OrdinalIgnoreCase) ||
-                                name.IndexOf(key, StringComparison.OrdinalIgnoreCase) >= 0)
-                            {
-                                matchedKey = key;
-                                break;
-                            }
-                        }
-
-                        if (matchedKey != null && watchedMap.ContainsKey(matchedKey))
-                        {
-                            PopulateResult(watchedMap[matchedKey], rdr);
-                        }
+                        string pName = "@p" + i;
+                        inParams.Add(pName);
+                        cmd.Parameters.AddWithValue(pName, rawItems[i]);
                     }
-                }
 
-                // Suffix / Partial matching for items still without an AssetId (e.g. user typed "EE12889")
-                var unmatched = rawItems.Where(k => watchedMap[k].AssetId == 0).Take(40).ToList();
-                foreach (var unkey in unmatched)
-                {
-                    using (var cmdLike = new SqlCommand(@"
-                        SELECT TOP 1
+                    cmd.CommandText = @"
+                        SELECT 
                             a.id AS AssetId,
                             a.name AS AssetName,
                             a.description AS Description,
@@ -256,25 +241,181 @@ namespace iDash
                         FROM dbo.asset a WITH (NOLOCK)
                         LEFT JOIN dbo.location l WITH (NOLOCK) ON a.locationid = l.id
                         LEFT JOIN dbo.company c WITH (NOLOCK) ON a.companyid = c.id
-                        WHERE a.name LIKE '%' + @term
-                        ORDER BY a.lastobservedtime DESC", conn))
+                        WHERE a.name IN (" + string.Join(",", inParams) + @")
+                           OR a.rfidtag IN (" + string.Join(",", inParams) + @")";
+
+                    using (var rdr = cmd.ExecuteReader())
                     {
-                        cmdLike.Parameters.AddWithValue("@term", unkey);
-                        using (var rdrLike = cmdLike.ExecuteReader())
+                        while (rdr.Read())
                         {
-                            if (rdrLike.Read())
+                            string name = rdr["AssetName"].ToString();
+                            string tag = rdr["RfidTag"] == DBNull.Value ? "" : rdr["RfidTag"].ToString();
+
+                            string matchedKey = null;
+                            foreach (var key in rawItems)
                             {
-                                PopulateResult(watchedMap[unkey], rdrLike);
+                                if (string.Equals(key, name, StringComparison.OrdinalIgnoreCase) ||
+                                    (tag != "" && string.Equals(key, tag, StringComparison.OrdinalIgnoreCase)) ||
+                                    name.EndsWith(key, StringComparison.OrdinalIgnoreCase) ||
+                                    name.IndexOf(key, StringComparison.OrdinalIgnoreCase) >= 0)
+                                {
+                                    matchedKey = key;
+                                    break;
+                                }
+                            }
+
+                            if (matchedKey != null && watchedMap.ContainsKey(matchedKey))
+                            {
+                                PopulateResult(watchedMap[matchedKey], rdr);
+                            }
+                        }
+                    }
+
+                    // Suffix / Partial matching for items still without an AssetId (e.g. user typed "EE12889")
+                    var unmatched = rawItems.Where(k => watchedMap[k].AssetId == 0).Take(40).ToList();
+                    foreach (var unkey in unmatched)
+                    {
+                        using (var cmdLike = new SqlCommand(@"
+                            SELECT TOP 1
+                                a.id AS AssetId,
+                                a.name AS AssetName,
+                                a.description AS Description,
+                                a.rfidtag AS RfidTag,
+                                c.name AS SiteName,
+                                a.companyid AS CompanyId,
+                                ISNULL(l.name, '(Unassigned)') AS AssignedLocation,
+                                ISNULL(a.lastobservedlocation, '') AS ObservedLocation,
+                                a.lastobservedtime AS LastObservedTime,
+                                a.lastinventoried AS LastInventoriedTime,
+                                ISNULL(a.listvalue1, '') AS Status,
+                                ISNULL(a.text8, '') AS CMR,
+                                DATEDIFF(MINUTE, a.lastobservedtime, SYSDATETIMEOFFSET()) AS MinsAgo,
+                                DATEDIFF(HOUR, a.lastobservedtime, SYSDATETIMEOFFSET()) AS HoursAgo,
+                                DATEDIFF(DAY, a.lastobservedtime, SYSDATETIMEOFFSET()) AS DaysAgo
+                            FROM dbo.asset a WITH (NOLOCK)
+                            LEFT JOIN dbo.location l WITH (NOLOCK) ON a.locationid = l.id
+                            LEFT JOIN dbo.company c WITH (NOLOCK) ON a.companyid = c.id
+                            WHERE a.name LIKE '%' + @term
+                            ORDER BY a.lastobservedtime DESC", conn))
+                        {
+                            cmdLike.Parameters.AddWithValue("@term", unkey);
+                            using (var rdrLike = cmdLike.ExecuteReader())
+                            {
+                                if (rdrLike.Read())
+                                {
+                                    PopulateResult(watchedMap[unkey], rdrLike);
+                                }
                             }
                         }
                     }
                 }
 
-                // 2. Query dbo.event for recent RFID reads/RSSI for matched assets
+                // 2. Fetch assets matching watched CMRs (text8 in dbo.asset is CMR)
+                if (rawCmrs != null && rawCmrs.Count > 0)
+                {
+                    var cmrParams = new List<string>();
+                    var cmdCmr = new SqlCommand();
+                    cmdCmr.Connection = conn;
+                    cmdCmr.CommandTimeout = 60;
+
+                    for (int i = 0; i < rawCmrs.Count; i++)
+                    {
+                        string pName = "@cmr" + i;
+                        cmrParams.Add(pName);
+                        cmdCmr.Parameters.AddWithValue(pName, rawCmrs[i]);
+                    }
+
+                    // Query equipment matching watched CMR numbers
+                    cmdCmr.CommandText = @"
+                        SELECT TOP 300
+                            a.id AS AssetId,
+                            a.name AS AssetName,
+                            a.description AS Description,
+                            a.rfidtag AS RfidTag,
+                            c.name AS SiteName,
+                            a.companyid AS CompanyId,
+                            ISNULL(l.name, '(Unassigned)') AS AssignedLocation,
+                            ISNULL(a.lastobservedlocation, '') AS ObservedLocation,
+                            a.lastobservedtime AS LastObservedTime,
+                            a.lastinventoried AS LastInventoriedTime,
+                            ISNULL(a.listvalue1, '') AS Status,
+                            ISNULL(a.text8, '') AS CMR,
+                            DATEDIFF(MINUTE, a.lastobservedtime, SYSDATETIMEOFFSET()) AS MinsAgo,
+                            DATEDIFF(HOUR, a.lastobservedtime, SYSDATETIMEOFFSET()) AS HoursAgo,
+                            DATEDIFF(DAY, a.lastobservedtime, SYSDATETIMEOFFSET()) AS DaysAgo
+                        FROM dbo.asset a WITH (NOLOCK)
+                        LEFT JOIN dbo.location l WITH (NOLOCK) ON a.locationid = l.id
+                        LEFT JOIN dbo.company c WITH (NOLOCK) ON a.companyid = c.id
+                        WHERE a.text8 IN (" + string.Join(",", cmrParams) + @")
+                        ORDER BY 
+                            CASE WHEN a.lastobservedtime IS NOT NULL THEN 0 ELSE 1 END,
+                            a.lastobservedtime DESC,
+                            a.lastinventoried DESC";
+
+                    using (var rdrCmr = cmdCmr.ExecuteReader())
+                    {
+                        while (rdrCmr.Read())
+                        {
+                            string aName = rdrCmr["AssetName"].ToString();
+                            string aCmr = rdrCmr["CMR"] == DBNull.Value ? "" : rdrCmr["CMR"].ToString().Trim();
+
+                            WatchedAssetResult cmrRes;
+                            if (watchedMap.ContainsKey(aName))
+                            {
+                                cmrRes = watchedMap[aName];
+                                cmrRes.WatchedCMR = aCmr;
+                                cmrRes.WatchType = "BOTH";
+                            }
+                            else
+                            {
+                                cmrRes = new WatchedAssetResult
+                                {
+                                    SearchKey = aName,
+                                    AssetName = aName,
+                                    WatchType = "CMR",
+                                    WatchedCMR = aCmr,
+                                    DetectionLevel = "COLD",
+                                    DetectionBadge = "⚪ Undetected"
+                                };
+                                watchedMap[aName] = cmrRes;
+                            }
+
+                            PopulateResult(cmrRes, rdrCmr);
+                        }
+                    }
+
+                    // Check for CMRs that had zero assets returned
+                    foreach (var c in rawCmrs)
+                    {
+                        bool foundAny = watchedMap.Values.Any(v => string.Equals(v.CMR, c, StringComparison.OrdinalIgnoreCase) || string.Equals(v.WatchedCMR, c, StringComparison.OrdinalIgnoreCase));
+                        if (!foundAny)
+                        {
+                            string placeholderKey = "CMR " + c;
+                            if (!watchedMap.ContainsKey(placeholderKey))
+                            {
+                                watchedMap[placeholderKey] = new WatchedAssetResult
+                                {
+                                    SearchKey = placeholderKey,
+                                    AssetName = placeholderKey,
+                                    Description = "Watched CMR Group",
+                                    CMR = c,
+                                    WatchedCMR = c,
+                                    WatchType = "CMR",
+                                    DetectionLevel = "COLD",
+                                    DetectionBadge = "⚪ Undetected",
+                                    DetectionDetails = "No active assets mapped to CMR " + c
+                                };
+                            }
+                        }
+                    }
+                }
+
+                // 3. Query dbo.event for recent RFID reads/RSSI for matched assets
                 var matchedAssetNames = watchedMap.Values
                     .Where(w => w.AssetId > 0)
                     .Select(w => w.AssetName)
                     .Distinct()
+                    .Take(250)
                     .ToList();
 
                 if (matchedAssetNames.Count > 0)
@@ -319,25 +460,41 @@ namespace iDash
                 }
             }
 
-            // Counters
+            // Counters and list preparation
             int highCount = 0;
             int moderateCount = 0;
             int lowCount = 0;
             int coldCount = 0;
             int mismatchCount = 0;
+            int cmrMatchCount = 0;
 
             var listOut = new List<WatchedAssetResult>();
+            // Add rawItems in order
             foreach (var key in rawItems)
             {
-                var r = watchedMap[key];
-                listOut.Add(r);
+                if (watchedMap.ContainsKey(key))
+                {
+                    listOut.Add(watchedMap[key]);
+                }
+            }
+            // Add any additional assets matched by CMR
+            foreach (var kvp in watchedMap)
+            {
+                if (!listOut.Contains(kvp.Value))
+                {
+                    listOut.Add(kvp.Value);
+                }
+            }
 
+            foreach (var r in listOut)
+            {
                 if (r.DetectionLevel == "HIGH") highCount++;
                 else if (r.DetectionLevel == "MODERATE") moderateCount++;
                 else if (r.DetectionLevel == "LOW") lowCount++;
                 else coldCount++;
 
                 if (r.LocationMismatch) mismatchCount++;
+                if (r.WatchType == "CMR" || r.WatchType == "BOTH") cmrMatchCount++;
             }
 
             return new
@@ -350,7 +507,9 @@ namespace iDash
                     moderate = moderateCount,
                     low = lowCount,
                     cold = coldCount,
-                    mismatch = mismatchCount
+                    mismatch = mismatchCount,
+                    cmrMatches = cmrMatchCount,
+                    cmrWatched = (rawCmrs != null ? rawCmrs.Count : 0)
                 },
                 assets = listOut
             };
@@ -526,6 +685,8 @@ namespace iDash
             public int    DaysAgo             { get; set; }
             public string Status              { get; set; }
             public string CMR                 { get; set; }
+            public string WatchType           { get; set; } // "ASSET", "CMR", "BOTH"
+            public string WatchedCMR          { get; set; }
             public string DetectionLevel      { get; set; }
             public string DetectionBadge      { get; set; }
             public string DetectionDetails    { get; set; }
