@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -112,11 +112,8 @@
         </div>
 
         <div class="alert-green" style="margin-top:16px;">
-            <strong>Deployment simplicity is a feature, not a limitation.</strong>
-            iDash runs on the same Windows Server and IIS instance as iDash &mdash; no additional
-            infrastructure, no cloud subscriptions, no CI/CD pipeline, no Node.js. Copy the folder,
-            update <code>web.config</code>, and it's live. This is deliberate for VA environments where
-            server provisioning requires months of ATO approvals.
+            <strong>Deployment simplicity is a core architectural feature.</strong>
+            iDash deploys natively on standard Windows Server IIS and SQL Server &mdash; requiring zero external cloud dependencies, no complex client runtimes, and no heavy build pipelines. This streamlined on-premises architecture is purpose-built for air-gapped hospital subnets and directly supports the upcoming standalone VA Authority to Operate (ATO) and Enterprise Risk Analysis (ERA) roadmap.
         </div>
     </div>
 
@@ -515,13 +512,25 @@
     <!--  DUAL-LAYER LICENSING & MOBILE CART ARCHITECTURE                -->
     <!-- ============================================================ -->
     <div class="card">
-        <h2>Dual-Layer Licensing &amp; Mobile Cart Registry Architecture</h2>
+        <h2>Commercial Licensing, Annual Maintenance &amp; Device Governance</h2>
         <p>
             Operating in air-gapped VA hospital subnets imposes strict architectural constraints:
             cloud license servers, phone-home telemetry, and internet-based activation endpoints are strictly
             prohibited by VA OIT security policies. To solve this, iDash implements a <strong>dual-layer licensing architecture</strong>
             combining asymmetric cryptography for portal features with native SQL storage for RFID hardware devices.
         </p>
+
+        <div class="alert" style="margin:16px 0; border-left: 4px solid #f59e0b; background: color-mix(in srgb, #f59e0b 8%, var(--card-docs)); border-radius: 8px; padding: 14px 18px;">
+            <div style="font-weight: 800; color: #d97706; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; font-size: 0.95rem;">
+                <span>&#9888;</span> Commercial Model &amp; VA Enterprise Accreditation Status
+            </div>
+            <p style="margin: 0 0 8px 0; font-size: 0.88rem; line-height: 1.5; color: var(--text-docs);">
+                <strong>Commercial Software &amp; Yearly Maintenance:</strong> ID Integration, Inc. licenses <strong>iDash</strong> as an independent commercial off-the-shelf (COTS) software platform sold with <strong>annual software maintenance, security updates, hardware driver enhancements, and tier-3 engineering support</strong>.
+            </p>
+            <p style="margin: 0; font-size: 0.88rem; line-height: 1.5; color: var(--text-docs);">
+                <strong>TRM &amp; ATO Status Clarification:</strong> While iDash modules currently operate in facility environments under host accreditations (such as AssetWorx), standalone iDash is <strong>not currently cataloged as "Authorized with Constraints" in the VA TRM</strong> as it does not qualify for independent TRM listing yet. ID Integration plans to take iDash through the formal <strong>Enterprise Risk Analysis (ERA)</strong> and <strong>Authority to Operate (ATO)</strong> process when ready (which should be soon). The complete pre-ATO security dossier and controls assessment can be reviewed in the <a href="va_idash_era_submission.html" style="font-weight: 700; color: var(--accent2-docs);">iDash Enterprise Risk Analysis (ERA) &amp; Pre-ATO Submission Package</a>.
+            </p>
+        </div>
 
         <div class="two-col" style="margin-top:16px;">
             <div class="box">
@@ -576,10 +585,8 @@
         </p>
         <ul>
             <li>
-                <strong>iDash is a department-internal ops tool, not a product.</strong>
-                It lives on a single IIS server already running the iDash application pool. WebForms deploys
-                in seconds &mdash; no build pipeline, no Node, no CI/CD. Any developer with a text editor can open
-                a <code>.aspx</code> file and immediately understand the HTML structure.
+                <strong>iDash is engineered for turnkey commercial deployment and annual maintainability.</strong>
+                Sold with annual software maintenance and support, iDash avoids brittle client-side build pipelines, Node.js toolchains, or heavy external runtimes. WebForms deploys cleanly to standard Windows Server IIS in minutes. Any enterprise systems engineer can inspect a <code>.aspx</code> view and its thin C# code-behind with total transparency.
             </li>
             <li>
                 <strong>WebForms does not mean "old" or "bad."</strong>
@@ -602,9 +609,8 @@
         </ul>
         <div class="alert-amber">
             <strong>Note on the decompiled files:</strong> <code>DecompiledPrintServer.cs</code> and related files
-            in the root are reverse-engineered reference copies of the iDash Print Server binary &mdash;
-            they are for study only and are not compiled into iDash. They exist so the team can understand
-            the print server's internal behavior without access to the vendor's source code.
+            in the root are reverse-engineered reference copies of the legacy Print Server binary &mdash;
+            they are for historical architectural study only and are not compiled into iDash. Modern iDash utilizes the native BarTender REST Print Engine (Port 5160) and direct raw ZPL spooling over TCP 6101/9100.
         </div>
     </div>
 
@@ -620,10 +626,7 @@
 
         <h3>Why WebSerial Was Added</h3>
         <p>
-            The original scanning architecture relied exclusively on <strong>keyboard-wedge</strong> input (DataWedge on Zebra devices,
-            or HID-mode barcode scanners that emulate a keyboard). This works well with handheld devices but creates friction for
-            desktop-tethered USB RFID readers that communicate over a serial port (COM port). Previously, connecting these readers
-            required a third-party COM-port relay application or DataWedge profile. WebSerial eliminates that middleware entirely.
+            The scanning architecture supports mobile handheld devices (such as the <strong>Zebra TC53 with RFD40 UHF RFID sled</strong> and <strong>Zebra TC22R</strong> via DataWedge and Zebra Enterprise Browser) as well as desktop-tethered USB RFID readers. Originally, scanning relied exclusively on <strong>keyboard-wedge</strong> input (DataWedge or HID-mode barcode scanners that emulate a keyboard). While effective on handhelds, this created friction for desktop USB readers communicating over a virtual COM port. WebSerial eliminates third-party COM relays entirely by communicating directly through W3C browser APIs.
         </p>
         <ul>
             <li><strong>No client software:</strong> No DataWedge, no COM-port relay, no native app. The browser handles it.</li>
@@ -902,7 +905,7 @@ LitToken.Text = "&lt;script&gt;var AW_TOKEN = '" + token + "';&lt;/script&gt;";<
                 <tr><td><code>va_ennx_live_scan.aspx</code></td><td>Live ENNX file generation. Scans assets in real-time and compiles them into downloadable ENNX files for VistA import.</td><td><span class="chip chip-hybrid">Hybrid</span></td></tr>
                 <tr><td><code>va_eil_live_scan.aspx</code></td><td>EIL reconciliation scanner. Cross-references scanned barcodes against location records to identify discrepancies.</td><td><span class="chip chip-hybrid">Hybrid</span></td></tr>
                 <tr><td><code>va_universal_ennx.aspx</code></td><td>Scanner-agnostic ENNX builder for any VA facility. No site selection or database required &mdash; works offline from any browser.</td><td><span class="chip chip-api">Standalone</span></td></tr>
-                <tr><td><code>va_rfid_locator.aspx</code></td><td><strong>RFID Asset Locator (07/24/2026).</strong> Dedicated missing-asset hunting tool. Pre-load specific targets (by EE number, barcode, serial, or rfidtag), then walk with a Zebra reader to find them using geiger counter-style proximity metering, audio feedback, and proximity-scaled beeps. Uses a 3-tier tag matching strategy: exact match, substring match, and EE-number fuzzy match after stripping F-padding. Includes raw read debug log for diagnosing format mismatches. WebMethod <code>LookupAssets</code> queries SQL with space-agnostic normalization. DataWedge keystroke + WebSerial USB supported.</td><td><span class="chip chip-api">API Driven (JSON)</span></td></tr>
+                <tr><td><code>va_rfid_locator.aspx</code></td><td><strong>RFID Asset Locator (07/24/2026).</strong> Dedicated missing-asset hunting tool. Pre-load specific targets (by EE number, barcode, serial, or rfidtag), then walk with a Zebra handheld (such as the <strong>TC53 with RFD40 sled</strong> or <strong>TC22R</strong>) to find them using geiger counter-style proximity metering, audio feedback, and proximity-scaled beeps. Uses a 3-tier tag matching strategy: exact match, substring match, and EE-number fuzzy match after stripping F-padding. Includes raw read debug log for diagnosing format mismatches. WebMethod <code>LookupAssets</code> queries SQL with space-agnostic normalization. DataWedge keystroke + WebSerial USB supported.</td><td><span class="chip chip-api">API Driven (JSON)</span></td></tr>
                 <tr><td><code>va_reader_config.aspx</code></td><td><strong>Fixed Reader Configuration (07/24/2026).</strong> Manages fixed infrastructure RFID reader registrations. Add/edit/delete readers; configure antenna ports, power levels, and location mappings; discover unregistered hardware on the network; view live online/offline status. Connects to iDash REST API with OAuth2. Per-site location filtering enforced via <code>UserManager.BuildSiteFilter()</code>.</td><td><span class="chip chip-api">API Driven</span></td></tr>
                 <tr><td><code>va_site_maps.aspx</code></td><td>Visual facility map dashboard. Tracks tagging progress floor-by-floor with color-coded completion status, ENNX file import overlay, per-asset note editing, sortable/filterable column data, column chooser, XLSX export, and version history tracking.</td><td><span class="chip chip-db">DB Driven</span></td></tr>
             </tbody>
@@ -1006,8 +1009,8 @@ LitToken.Text = "&lt;script&gt;var AW_TOKEN = '" + token + "';&lt;/script&gt;";<
     <!--  FOOTER                                                        -->
     <!-- ============================================================ -->
     <div style="text-align:center; color:var(--muted-docs); font-size:12px; margin-top:40px;">
-        iDash iDash &mdash; Architecture Rationale &amp; Developer Handoff Guide &copy; 2026<br/>
-        Last revised: September 10, 2026 &bull; ID Integration Inc.<br/>
+        iDash (Intelligent Distributed Asset Scanning Hub) &mdash; Architecture Rationale &amp; Developer Handoff Guide &copy; 2026<br/>
+        Last revised: September 28, 2026 &bull; ID Integration Inc.<br/>
         For questions, start with the <a href="index.aspx">Documentation Hub</a> &mdash; 117 dedicated module pages cover every detail.
     </div>
 
